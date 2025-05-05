@@ -20,7 +20,7 @@
       v-for="dialog in [...dialogs].reverse()"
       :key="dialog.id"
       clickable
-      :to="{ path: `/workspaces/${workspace.id}/dialogs/${dialog.id}`, query: $route.query }"
+      :to="{ path: `/workspaces/${workspace.id}/dialogs/${dialog.id}`, query: route.query }"
       active-class="bg-sec-c text-on-sec-c"
       item-rd
       min-h="40px"
@@ -40,12 +40,12 @@
           <menu-item
             icon="sym_o_auto_fix"
             :label="$t('dialogList.summarizeDialog')"
-            @click="$router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#genTitle`)"
+            @click="router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#genTitle`)"
           />
           <menu-item
             icon="sym_o_content_copy"
             :label="$t('dialogList.copyContent')"
-            @click="$router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#copyContent`)"
+            @click="router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#copyContent`)"
           />
           <menu-item
             icon="sym_o_move_item"
@@ -77,12 +77,15 @@ import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { useListenKey } from 'src/composables/listen-key'
+import { useRouter, useRoute } from 'vue-router'
 
 const { t } = useI18n()
 const workspace: Ref<Workspace> = inject('workspace')
 const dialogs: Ref<Dialog[]> = inject('dialogs')
 
 const $q = useQuasar()
+const router = useRouter()
+const route = useRoute()
 
 const { createDialog } = useCreateDialog(workspace)
 async function addItem() {

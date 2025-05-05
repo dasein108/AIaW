@@ -1,7 +1,7 @@
 <template>
   <div>
     <workspace-list-select
-      :model-value="$route.params.workspaceId as string"
+      :model-value="route.params.workspaceId as string"
       @update:model-value="goTo($event)"
       accept="workspace"
     />
@@ -32,13 +32,15 @@
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import WorkspaceListSelect from './WorkspaceListSelect.vue'
 import { useWorkspaceActions } from 'src/composables/workspace-actions'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { Workspace } from 'src/utils/types'
 
 const { addWorkspace, addFolder } = useWorkspaceActions()
 
 const workspaceStore = useWorkspacesStore()
 const router = useRouter()
+const route = useRoute()
+
 function goTo(id: string) {
   const workspace = workspaceStore.workspaces.find(w => w.id === id) as Workspace
   let path = `/workspaces/${workspace.id}`

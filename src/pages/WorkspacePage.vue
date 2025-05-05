@@ -99,7 +99,7 @@
             round
             icon="sym_o_home"
             :to="`/workspaces/${id}`"
-            :class="{'route-active': $route.path === `/workspaces/${id}`}"
+            :class="{'route-active': route.path === `/workspaces/${id}`}"
             :title="$t('workspacePage.workspaceHome')"
           />
           <q-btn
@@ -108,7 +108,7 @@
             round
             icon="sym_o_settings"
             :to="`/workspaces/${id}/settings`"
-            :class="{'route-active': $route.path === `/workspaces/${id}/settings`}"
+            :class="{'route-active': route.path === `/workspaces/${id}/settings`}"
             :title="$t('workspacePage.workspaceSettings')"
           />
         </div>

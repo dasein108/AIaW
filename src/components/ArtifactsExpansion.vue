@@ -55,7 +55,7 @@
           v-for="artifact in filteredArtifacts"
           :key="artifact.id"
           clickable
-          @click="$route.query.artifactId !== artifact.id && $router.push({ query: { openArtifact: artifact.id } })"
+          @click="route.query.artifactId !== artifact.id && router.push({ query: { openArtifact: artifact.id } })"
           :class="{ 'route-active': artifact.open }"
           item-rd
           min-h="32px"
@@ -107,6 +107,7 @@ import { useQuasar } from 'quasar'
 import { dialogOptions } from 'src/utils/values'
 import { useI18n } from 'vue-i18n'
 import ATip from './ATip.vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const artifacts: Ref<Artifact[]> = inject('artifacts')
 const filter = ref(null)
@@ -121,6 +122,9 @@ const workspace = inject<Ref<Workspace>>('workspace')
 const { t } = useI18n()
 const $q = useQuasar()
 const { createArtifact } = useCreateArtifact(workspace)
+const router = useRouter()
+const route = useRoute()
+
 function createEmptyArtifact() {
   $q.dialog({
     title: t('artifactsExpansion.createArtifact'),
