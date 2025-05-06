@@ -1,9 +1,8 @@
 <template>
   <div class="cyberlink-result">
     <div>Cyber transacion:</div>
-    <pre v-if="result && !result.id">{{ result }}</pre>
+    <pre v-if="transactionBody && !transactionBody.id">{{ transactionBody }}</pre>
     <div
-      v-if="!isDeclined"
       class="button-group"
     >
       <button
@@ -19,32 +18,56 @@
         Decline
       </button>
     </div>
-    <div
-      v-else
-      class="declined-message"
-    >
-      Transaction Declined!
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { KeplerWallet } from '@/lib/contexts/kepler/KeplerWallet'
-import { computed, ComputedRef, inject, ref } from 'vue'
+import { KeplerWallet } from '@/lib/kepler/KeplerWallet'
+import { parseEvents } from '../lib/kepler/utils'
+import { computed, ComputedRef, inject } from 'vue'
+import { Message, MessageContent } from '@/utils/types'
+import { db } from 'src/utils/db'
 
-const props = defineProps<{ result: any }>()
+const props = defineProps<{ result: any, message: Message }>()
 const itemMap = inject<ComputedRef>('itemMap')
 const wallet = inject<KeplerWallet>('kepler')
-const result = computed(() => JSON.parse(itemMap.value[props.result[0]].contentText))
-const isDeclined = ref(false)
+const transactionBody = computed(() => JSON.parse(itemMap.value[props.result[0]].contentText))
 
 const handleAccept = async () => {
-  const tx = await wallet.executeTransaction(result.value)
-  console.log('Transaction executed', tx)
+  const tx = await wallet.executeTransaction(transactionBody.value)
+  const data = parseEvents(tx.events)
+  const { contents } = props.message
+  console.log('Transaction executed', tx, data)
+
+  const updatedContents = contents.filter(content => content.type !== 'assistant-tool')
+  updatedContents.push({
+    type: 'assistant-message',
+    text: `Transaction completed: ${Object.entries(data).map(([key, value]) => `${key}: ${value}`).join(', ')}`
+  })
+  db.messages.update(props.message.id, {
+    generatingSession: null,
+    status: 'processed',
+    contents: updatedContents
+  })
 }
 
-const handleDecline = () => {
-  isDeclined.value = true
+const handleDecline = async () => {
+  db.messages.update(props.message.id, {
+    generatingSession: null,
+    status: 'processed',
+    error: 'Transaction Declined',
+    contents: props.message.contents.map(content => {
+      if (content.type === 'assistant-message') {
+        return {
+          ...content,
+          text: '[Transaction Declined]',
+          status: 'processed',
+          error: 'Transaction Declined'
+        }
+      }
+      return content
+    }) as MessageContent[]
+  })
 }
 </script>
 

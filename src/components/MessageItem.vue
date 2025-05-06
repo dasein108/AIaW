@@ -139,8 +139,9 @@
             :class="colMode ? 'mx-4' : 'mx-2'"
           />
           <CyberlinkResult
-            v-if="content.type === 'assistant-tool' && content.name === 'create_cyberlink' && content.status === 'completed'"
+            v-if="message.status !== 'processed' && content.type === 'assistant-tool' && content.name === 'create_cyberlink' && content.status === 'completed'"
             :result="content.result"
+            :message="message"
             :key="'cyberlink-' + index"
             class="my-2"
           />

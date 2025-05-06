@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import { KeplerWallet } from '@/lib/contexts/kepler/KeplerWallet'
+import { KeplerWallet } from '@/lib/kepler/KeplerWallet'
 
 const wallet = inject<KeplerWallet>('kepler')
 

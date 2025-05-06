@@ -21,7 +21,7 @@ const CYBER_CONTRACT_ADDRESS = 'cyber14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4z
 // Configure Kepler wallet
 const config: ChainConfig = {
   CHAIN_ID: 'cyber42-1',
-  DENOM: 'STAKE',
+  DENOM: 'ustake',
   NODE_RPC_URL: 'https://rpc.cyber-rollup.chatcyber.ai',
   LCD_URL: 'https://api.cyber-rollup.chatcyber.ai',
   RPC_TIMEOUT: 60000,

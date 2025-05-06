@@ -10,7 +10,7 @@ import { useSetTheme } from './composables/set-theme'
 import { useSubscriptionNotify } from './composables/subscription-notify'
 import { onMounted, provide } from 'vue'
 import { checkUpdate, ready } from './utils/update'
-import { createKeplerWallet } from './lib/contexts/kepler/KeplerWallet'
+import { createKeplerWallet } from './lib/kepler/KeplerWallet'
 
 defineOptions({
   name: 'App'
