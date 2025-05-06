@@ -34,16 +34,25 @@ const wallet = inject<KeplerWallet>('kepler')
 const transactionBody = computed(() => JSON.parse(itemMap.value[props.result[0]].contentText))
 
 const handleAccept = async () => {
-  const tx = await wallet.executeTransaction(transactionBody.value)
-  const data = parseEvents(tx.events)
   const { contents } = props.message
-  console.log('Transaction executed', tx, data)
-
   const updatedContents = contents.filter(content => content.type !== 'assistant-tool')
-  updatedContents.push({
-    type: 'assistant-message',
-    text: `Transaction completed: ${Object.entries(data).map(([key, value]) => `${key}: ${value}`).join(', ')}`
-  })
+
+  try {
+    const tx = await wallet.executeTransaction(transactionBody.value)
+    const data = parseEvents(tx.events)
+    console.log('Transaction executed', tx, data)
+
+    updatedContents.push({
+      type: 'assistant-message',
+      text: `Transaction completed: ${Object.entries(data).map(([key, value]) => `${key}: ${value}`).join(', ')}`
+    })
+  } catch (error) {
+    console.error('Transaction failed', error)
+    updatedContents.push({
+      type: 'assistant-message',
+      text: `Transaction failed: ${error.message}`
+    })
+  }
   db.messages.update(props.message.id, {
     generatingSession: null,
     status: 'processed',
