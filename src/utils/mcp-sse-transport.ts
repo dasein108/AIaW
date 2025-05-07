@@ -122,11 +122,10 @@ export class SSEClientTransport implements Transport {
 
   private _startOrAuth(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // TODO: this._fetch
       this._eventSource = new EventSource(
         this._url.href,
         this._eventSourceInit ?? {
-          fetch: (url, init) => this._commonHeaders().then((headers) => fetch(url, {
+          fetch: (url, init) => this._commonHeaders().then((headers) => this._fetch(url, {
             ...init,
             headers: {
               ...headers,
@@ -234,8 +233,7 @@ export class SSEClientTransport implements Transport {
         body: JSON.stringify(message),
         signal: this._abortController?.signal
       }
-      // TODO: this._fetch
-      const response = await fetch(this._endpoint, init)
+      const response = await this._fetch(this._endpoint, init)
       if (!response.ok) {
         if (response.status === 401 && this._authProvider) {
           const result = await auth(this._authProvider, { serverUrl: this._url })

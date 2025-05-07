@@ -18,7 +18,6 @@
             </q-item-label>
           </q-item-section>
           <q-item-section>
-            <!-- TODO: Add Kepler Wallet -->
             <KeplerWallet />
           </q-item-section>
         </q-item>
