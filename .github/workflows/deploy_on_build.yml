@@ -1,0 +1,42 @@
+name: Restart AIAW Container
+
+on:
+  workflow_run:
+    workflows: ["Docker Image CI"]
+    types:
+      - completed
+
+jobs:
+  restart-on-success:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Restart Docker container over SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            sudo su -c '
+              echo "Stopping existing container..."
+              docker stop aiaw || true
+
+              echo "Removing existing container..."
+              docker rm aiaw || true
+
+              echo "Removing old Docker image..."
+              docker rmi ghcr.io/dasein108/aiaw:dev || true
+
+              echo "Pulling latest image..."
+              docker pull ghcr.io/dasein108/aiaw:dev
+
+              echo "Starting new container..."
+              docker run -d \
+                --name aiaw \
+                --restart always \
+                -p 9010:9010 \
+                ghcr.io/dasein108/aiaw:dev
+            '
