@@ -11,7 +11,7 @@ import { useSubscriptionNotify } from './composables/subscription-notify'
 import { onMounted, provide } from 'vue'
 import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
-import { createDbService } from './services/database/Db'
+// import { createDbService } from './services/database/Db'
 
 defineOptions({
   name: 'App'
@@ -19,7 +19,7 @@ defineOptions({
 
 // Provide Kepler wallet
 provide('kepler', createKeplerWallet())
-provide('db', createDbService())
+// provide('db', createDbService())
 useSetTheme()
 useLoginDialogs()
 useFirstVisit()
