@@ -857,6 +857,11 @@ const defaultData: PluginsData = {
       parse: { enabled: true, mimeTypes: ['application/*'] }
     }
   },
+  'kepler-plugin': {
+    settings: {},
+    avatar: { type: 'icon', icon: 'sym_o_mood', hue: 270 },
+    fileparsers: {}
+  },
   [webSearchPlugin.pluginId]: webSearchPlugin.defaultData,
   [artifacts.pluginId]: artifacts.defaultData
 }

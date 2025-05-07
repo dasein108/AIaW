@@ -426,6 +426,7 @@ interface Message {
   id: string
   type: 'user' | 'assistant'
   assistantId?: string
+  workspaceId?: string
   dialogId: string
   contents: MessageContent[]
   status: 'pending' | 'streaming' | 'failed' | 'default' | 'inputing' | 'processed'

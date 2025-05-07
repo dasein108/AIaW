@@ -11,6 +11,7 @@ import artifacts from 'src/utils/artifacts-plugin'
 import { IsTauri } from 'src/utils/platform-api'
 import { useI18n } from 'vue-i18n'
 import webSearchPlugin from 'src/utils/web-search-plugin'
+import { keplerPlugin } from 'src/services/kepler/kepler-plugin'
 
 export const usePluginsStore = defineStore('plugins', () => {
   const installed = useLiveQuery(() => db.installedPluginsV2.toArray(), {
@@ -28,6 +29,7 @@ export const usePluginsStore = defineStore('plugins', () => {
     mermaidPlugin,
     docParsePlugin,
     timePlugin,
+    keplerPlugin,
     artifacts.plugin,
     ...installed.value.map(i => {
       if (i.type === 'lobechat') return buildLobePlugin(i.manifest, i.available)

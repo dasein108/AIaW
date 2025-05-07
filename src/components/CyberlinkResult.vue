@@ -22,9 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import { KeplerWallet } from '@/lib/kepler/KeplerWallet'
-import { parseEvents } from '../lib/kepler/utils'
 import { computed, ComputedRef, inject } from 'vue'
+import { KeplerWallet } from '@/services/kepler/KeplerWallet'
+
+import { parseEvents } from '../services/kepler/utils'
 import { Message, MessageContent } from '@/utils/types'
 import { db } from 'src/utils/db'
 

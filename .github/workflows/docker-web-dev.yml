@@ -19,6 +19,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create .env.docker
+        run: |
+          echo "DEXIE_DB_URL=${{ secrets.DEXIE_DB_URL }}" >> .env.docker
+
       - name: Build and push
         uses: docker/build-push-action@v6.10.0
         with:

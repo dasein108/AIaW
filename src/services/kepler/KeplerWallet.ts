@@ -15,8 +15,14 @@ declare global {
   }
 }
 
-const STORAGE_KEY = 'kepler_wallet_state'
-const CYBER_CONTRACT_ADDRESS = 'cyber14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9sjxkrqd'
+export const STORAGE_KEY = 'kepler_wallet_state'
+export const CYBER_CONTRACT_ADDRESS = 'cyber14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9sjxkrqd'
+
+export const getLocalStorageWalletState = () => {
+  return typeof window !== 'undefined'
+    ? JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"isConnected": false, "address": null}')
+    : { isConnected: false, address: null }
+}
 
 // Configure Kepler wallet
 const config: ChainConfig = {
@@ -30,10 +36,7 @@ const config: ChainConfig = {
 
 export function createKeplerWallet() {
   // Initialize state from localStorage if available
-  const initialState: KeplerWalletState = typeof window !== 'undefined'
-    ? JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"isConnected": false, "address": null}')
-    : { isConnected: false, address: null }
-
+  const initialState: KeplerWalletState = getLocalStorageWalletState()
   const state = ref<KeplerWalletState>(initialState)
   const client = ref<CosmWasmClient | null>(null)
 
