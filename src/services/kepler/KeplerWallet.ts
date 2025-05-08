@@ -27,11 +27,60 @@ export const getLocalStorageWalletState = () => {
 // Configure Kepler wallet
 const config: ChainConfig = {
   CHAIN_ID: 'cyber42-1',
-  DENOM: 'ustake',
+  FEE_DENOM: 'ustake',
+  DENOM: 'STAKE',
   NODE_RPC_URL: 'https://rpc.cyber-rollup.chatcyber.ai',
   LCD_URL: 'https://api.cyber-rollup.chatcyber.ai',
   RPC_TIMEOUT: 60000,
   GAS_PRICE_AMOUNT: '0.15'
+}
+
+// Chain suggestion configuration for Keplr
+const CHAIN_INFO = {
+  chainId: config.CHAIN_ID,
+  chainName: 'Cyber TESTNET',
+  rpc: config.NODE_RPC_URL,
+  rest: config.LCD_URL,
+  bip44: {
+    coinType: 118
+  },
+  bech32Config: {
+    bech32PrefixAccAddr: 'cyber',
+    bech32PrefixAccPub: 'cyberpub',
+    bech32PrefixValAddr: 'cybervaloper',
+    bech32PrefixValPub: 'cybervaloperpub',
+    bech32PrefixConsAddr: 'cybervalcons',
+    bech32PrefixConsPub: 'cybervalconspub'
+  },
+  currencies: [
+    {
+      coinDenom: config.DENOM,
+      coinMinimalDenom: config.DENOM.toLowerCase(),
+      coinDecimals: 6
+    },
+    {
+      coinDenom: config.FEE_DENOM,
+      coinMinimalDenom: config.FEE_DENOM.toLowerCase(),
+      coinDecimals: 6
+    }
+  ],
+  feeCurrencies: [
+    {
+      coinDenom: config.FEE_DENOM,
+      coinMinimalDenom: config.FEE_DENOM.toLowerCase(),
+      coinDecimals: 6,
+      gasPriceStep: {
+        low: 0.1,
+        average: 0.15,
+        high: 0.3
+      }
+    }
+  ],
+  stakeCurrency: {
+    coinDenom: config.DENOM,
+    coinMinimalDenom: config.DENOM.toLowerCase(),
+    coinDecimals: 6
+  }
 }
 
 export function createKeplerWallet() {
@@ -61,6 +110,9 @@ export function createKeplerWallet() {
       if (!window.keplr) {
         throw new Error('Keplr extension not installed')
       }
+
+      // Try to suggest the chain to Keplr
+      await window.keplr.experimentalSuggestChain(CHAIN_INFO)
 
       // Enable access to chain
       await window.keplr.enable(config.CHAIN_ID)
@@ -100,7 +152,7 @@ export function createKeplerWallet() {
           ...signDoc.fee,
           amount: signDoc.fee.amount.map(coin => ({
             ...coin,
-            denom: config.DENOM
+            denom: config.FEE_DENOM
           }))
         }
       }
@@ -125,7 +177,7 @@ export function createKeplerWallet() {
       const sender = accounts[0]
 
       // Create signing client
-      const gasPrice = GasPrice.fromString(`${config.GAS_PRICE_AMOUNT}${config.DENOM}`)
+      const gasPrice = GasPrice.fromString(`${config.GAS_PRICE_AMOUNT}${config.FEE_DENOM}`)
       const signingClient = await SigningCosmWasmClient.connectWithSigner(
         config.NODE_RPC_URL,
         offlineSigner,
