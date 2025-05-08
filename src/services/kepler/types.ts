@@ -11,6 +11,7 @@ export interface KeplerWalletState {
 
 export interface ChainConfig {
   CHAIN_ID: string;
+  FEE_DENOM: string;
   DENOM: string;
   NODE_RPC_URL: string;
   LCD_URL: string;
