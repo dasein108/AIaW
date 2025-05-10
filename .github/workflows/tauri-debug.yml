@@ -1,4 +1,4 @@
-name: 'Build Tauri Debug'
+name: 'Tauri Debug Build'
 
 on:
   workflow_dispatch:

@@ -11,6 +11,7 @@ import { useSubscriptionNotify } from './composables/subscription-notify'
 import { onMounted, provide } from 'vue'
 import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
+import { createCosmosSigner } from './services/cosmos/CosmosSigner'
 // import { createDbService } from './services/database/Db'
 
 defineOptions({
@@ -19,6 +20,8 @@ defineOptions({
 
 // Provide Kepler wallet
 provide('kepler', createKeplerWallet())
+// Provide Cosmos signer
+provide('cosmos', createCosmosSigner())
 // provide('db', createDbService())
 useSetTheme()
 useLoginDialogs()

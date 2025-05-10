@@ -13,12 +13,16 @@
       >
         <q-item>
           <q-item-section>
-            <q-item-label>
+            <q-item-label v-if="isBrowser">
               Link Kepler Wallet
+            </q-item-label>
+            <q-item-label v-else>
+              Link Cosmos Wallet
             </q-item-label>
           </q-item-section>
           <q-item-section>
-            <KeplerWallet />
+            <kepler-wallet v-if="isBrowser" />
+            <cosmos-wallet v-else />
           </q-item-section>
         </q-item>
         <q-item-label
@@ -512,38 +516,41 @@
 </template>
 
 <script setup lang="ts">
+import CosmosWallet from 'src/components/CosmosWallet.vue'
+import { useObservable } from '@vueuse/rxjs'
+import { exportDB } from 'dexie-export-import'
 import { useQuasar } from 'quasar'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
+import AAvatar from 'src/components/AAvatar.vue'
+import CopyBtn from 'src/components/CopyBtn.vue'
+import GetModelList from 'src/components/GetModelList.vue'
 import HctPreviewCircle from 'src/components/HctPreviewCircle.vue'
 import HueSliderDialog from 'src/components/HueSliderDialog.vue'
-import { computed, ref } from 'vue'
-import { dialogOptions, mdCodeThemes, mdPreviewThemes } from 'src/utils/values'
-import CopyBtn from 'src/components/CopyBtn.vue'
-import AAvatar from 'src/components/AAvatar.vue'
-import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
-import ModelInputItems from 'src/components/ModelInputItems.vue'
-import { useObservable } from '@vueuse/rxjs'
-import { db } from 'src/utils/db'
-import ProviderInputItems from 'src/components/ProviderInputItems.vue'
-import { useLocateId } from 'src/composables/locate-id'
-import { pageFhStyle } from 'src/utils/functions'
-import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
-import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
-import { exportDB } from 'dexie-export-import'
 import ImportDataDialog from 'src/components/ImportDataDialog.vue'
-import { useI18n } from 'vue-i18n'
-import { localData } from 'src/utils/local-data'
-import { exportFile, PublicOrigin } from 'src/utils/platform-api'
-import ModelsInput from 'src/components/ModelsInput.vue'
-import GetModelList from 'src/components/GetModelList.vue'
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
-import ModelDragSortDialog from 'src/components/ModelDragSortDialog.vue'
-import { useGetModel } from 'src/composables/get-model'
 import KeplerWallet from 'src/components/KeplerWallet.vue'
+import ModelDragSortDialog from 'src/components/ModelDragSortDialog.vue'
+import ModelInputItems from 'src/components/ModelInputItems.vue'
+import ModelsInput from 'src/components/ModelsInput.vue'
+import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
+import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
+import ProviderInputItems from 'src/components/ProviderInputItems.vue'
+import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
+import { useGetModel } from 'src/composables/get-model'
+import { useLocateId } from 'src/composables/locate-id'
+import { useUserPerfsStore } from 'src/stores/user-perfs'
+import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
+import { db } from 'src/utils/db'
+import { pageFhStyle } from 'src/utils/functions'
+import { localData } from 'src/utils/local-data'
+import { exportFile } from 'src/utils/platform-api'
+import { dialogOptions, mdCodeThemes, mdPreviewThemes } from 'src/utils/values'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 defineEmits(['toggle-drawer'])
 
 const { t } = useI18n()
+
+const isBrowser = computed(() => typeof window !== 'undefined' && window.keplr)
 
 const { perfs, restore } = useUserPerfsStore()
 const darkModeOptions = [
@@ -574,8 +581,8 @@ function restoreSettings() {
   }).onOk(() => { restore() })
 }
 const providerLink = computed(() => {
-  const provider = encodeURIComponent(JSON.stringify(perfs.provider))
-  return `${PublicOrigin}/set-provider?provider=${provider}`
+  if (!perfs.provider) return ''
+  return `${window.location.origin}/#/provider/${perfs.provider.settings.id}`
 })
 const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
 
