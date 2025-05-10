@@ -128,6 +128,14 @@
           />
         </template>
         <q-separator />
+        <chats-expansion
+          :workspace-id="workspace.id"
+          :model-value="workspace.listOpen.chats"
+          @update:model-value="setListOpen('chats', $event)"
+          max-h="40vh"
+          of-y-auto
+        />
+        <q-separator />
         <dialogs-expansion
           :workspace-id="workspace.id"
           :model-value="workspace.listOpen.dialogs"
@@ -164,7 +172,7 @@ import DragableSeparator from 'src/components/DragableSeparator.vue'
 import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import DialogsExpansion from 'src/components/DialogsExpansion.vue'
-
+import ChatsExpansion from 'src/components/social/ChatsExpansion.vue'
 const props = defineProps<{
   id: string
 }>()

@@ -11,15 +11,22 @@ import { useSubscriptionNotify } from './composables/subscription-notify'
 import { onMounted, provide } from 'vue'
 import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
-// import { createDbService } from './services/database/Db'
-
+import { createUserProvider } from './services/supabase/userProvider'
+import { useQuasar } from 'quasar'
 defineOptions({
   name: 'App'
 })
 
+const $q = useQuasar()
+
 // Provide Kepler wallet
 provide('kepler', createKeplerWallet())
-// provide('db', createDbService())
+
+// Provide user provider
+const userProvider = createUserProvider()
+
+provide('user', userProvider)
+
 useSetTheme()
 useLoginDialogs()
 useFirstVisit()
@@ -32,7 +39,19 @@ router.afterEach(to => {
   }
 })
 
-onMounted(() => {
+// Check if user is authenticated, if not, redirect to main page
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth && !userProvider.currentUser.value) {
+    $q.notify({
+      message: 'Please login to access this page',
+      color: 'negative'
+    })
+    return next('/')
+  }
+  return next()
+})
+
+onMounted(async () => {
   ready()
   checkUpdate()
 })
