@@ -88,7 +88,6 @@ function subscribeToChats(currentUserId: string | null) {
         table: 'chats'
       },
       async (payload) => {
-        const userProvider = inject<UserProvider>('user')
         const extended = await extendChatsWithDisplayName([payload.new as Chat], currentUserId)
         chats.value = chats.value.map(c => (c.id === extended[0].id ? extended[0] : c))
       }
