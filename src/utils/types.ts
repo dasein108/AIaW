@@ -408,6 +408,7 @@ interface Workspace {
     assistants: boolean
     artifacts: boolean
     dialogs: boolean
+    chats: boolean
   }
 }
 

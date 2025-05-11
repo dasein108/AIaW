@@ -5,6 +5,7 @@ import ErrorNotFound from 'pages/ErrorNotFound.vue'
 import { RouteRecordRaw } from 'vue-router'
 import WorkspaceSettings from 'src/views/WorkspaceSettings.vue'
 import DialogView from 'src/views/DialogView.vue'
+import ChatView from 'src/views/ChatView.vue'
 import AssistantView from 'src/views/AssistantView.vue'
 import SetProvider from 'src/pages/SetProvider.vue'
 import PluginAdjust from 'src/views/PluginAdjust.vue'
@@ -38,6 +39,8 @@ const routes: RouteRecordRaw[] = [
           { path: '', component: WorkspaceIndex },
           { path: 'settings', component: WorkspaceSettings },
           { path: 'dialogs/:dialogId', component: DialogView, props: route => ({ id: route.params.dialogId }) },
+          { path: 'chats/:chatId', component: ChatView, props: route => ({ id: route.params.chatId }) },
+
           { path: 'assistants/:assistantId', component: AssistantView, props: route => ({ id: route.params.assistantId }) },
           {
             path: 'assistants/:assistantId/plugins/:pluginId',
@@ -78,7 +81,7 @@ const routes: RouteRecordRaw[] = [
       },
       { path: '/set-provider', component: SetProvider },
       ...(DexieDBURL ? [
-        { path: '/account', component: AccountPage, meta: { title: t('routes.account') } }
+        { path: '/account', component: AccountPage, meta: { title: t('routes.account'), requiresAuth: true } }
       ] : []),
       ...(DexieDBURL && LitellmBaseURL ? [
         { path: '/model-pricing', component: ModelPricing, meta: { title: t('routes.modelPricing') } }

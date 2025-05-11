@@ -97,6 +97,7 @@ module.exports = {
     // The core 'no-unused-vars' rules (in the eslint:recommended ruleset)
     // does not work with type definitions
     'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
 
     'space-before-function-paren': 'off',
     'no-prototype-builtins': 'off',

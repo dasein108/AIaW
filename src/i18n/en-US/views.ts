@@ -256,6 +256,7 @@ export default {
     dialogList: 'Dialog List',
     createDialog: 'Create Dialog',
     searchDialog: 'Search Dialogs',
+    searchChats: 'Search Chats',
     editArtifacts: 'Edit Artifacts',
     saveArtifact: 'Save Artifact'
   }

@@ -411,7 +411,6 @@ const avatar = computed(() =>
     ? perfs.userAvatar
     : assistantsStore.assistants.find(a => a.id === props.message.assistantId)?.avatar
 )
-console.log('-----message', props.message)
 
 const name = computed(() =>
   props.message.type === 'user'
