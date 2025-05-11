@@ -25,7 +25,6 @@ async function extendChatsWithDisplayName(chatsArr: Chat[], currentUserId: strin
 
         // Find first member that is not myself
         const other = members.find((m: any) => m.user_id !== currentUserId)
-        console.log('other', other, members, currentUserId)
         const displayName = other?.profiles?.name || chat.name || ''
         return { ...chat, name: displayName }
       }
