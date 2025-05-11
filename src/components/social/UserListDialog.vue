@@ -50,7 +50,6 @@ const props = defineProps<{
 }>()
 
 const users = ref<Profile[]>([])
-let isMounted = true
 
 const onSelectUser = async (user: Profile) => {
   onDialogOK(user)
@@ -62,12 +61,7 @@ onMounted(async () => {
     users.value = []
     return
   }
-  if (isMounted && data) {
-    users.value = data
-  }
+  users.value = data
 })
 
-onUnmounted(() => {
-  isMounted = false
-})
 </script>

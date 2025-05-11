@@ -72,19 +72,12 @@ const showUserSelectDialog = () => {
 }
 
 const onSelectUser = async (user: Profile) => {
-  const { data: chat, error } = await supabase.from('chats').insert({
-    name: user.name,
-    is_group: false,
-    is_public: false,
-    owner_id: currentUser.value?.id
-  } as Chat).select().single()
+  const { data: chatId, error } = await supabase.rpc('start_private_chat_with', {
+    target_user_id: user.id,
+    current_user_id: currentUser.value?.id
+  })
 
-  const { data: chatMember, error: chatMemberError } = await supabase.from('chat_members').insert({
-    user_id: user.id,
-    chat_id: chat.id
-  } as ChatMember)
-
-  router.push(`/workspaces/${props.workspaceId}/chats/${chat.id}`)
+  router.push(`/workspaces/${props.workspaceId}/chats/${chatId}`)
 }
 
 const showSearchDialog = ref(false)

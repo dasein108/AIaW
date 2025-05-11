@@ -1,12 +1,40 @@
-import { ref, readonly } from 'vue'
+import { ref, readonly, inject, watch } from 'vue'
 import { supabase } from 'src/services/supabase/client'
-import type { Chat } from 'src/services/supabase/types'
+import type { Chat, Profile, ChatMember } from 'src/services/supabase/types'
+import type { UserProvider } from 'src/services/supabase/userProvider'
 
 const chats = ref<Chat[]>([])
 let isSubscribed = false
 let subscription: ReturnType<typeof supabase.channel> | null = null
 
-async function fetchChats() {
+async function extendChatsWithDisplayName(chatsArr: Chat[], currentUserId: string | null) {
+  // For each chat, if not group, fetch members and set displayName
+  const extended = await Promise.all(
+    chatsArr.map(async chat => {
+      if (chat.is_group) {
+        return chat
+      } else {
+        // Fetch chat members with profile
+        const { data: members, error } = await supabase
+          .from('chat_members')
+          .select('user_id, profiles(name)')
+          .eq('chat_id', chat.id)
+        if (error || !members) {
+          return { ...chat, name: 'no members' }
+        }
+
+        // Find first member that is not myself
+        const other = members.find((m: any) => m.user_id !== currentUserId)
+        console.log('other', other, members, currentUserId)
+        const displayName = other?.profiles?.name || chat.name || ''
+        return { ...chat, name: displayName }
+      }
+    })
+  )
+  return extended
+}
+
+async function fetchChats(currentUserId: string | null) {
   const { data, error } = await supabase
     .from('chats')
     .select('*')
@@ -17,10 +45,10 @@ async function fetchChats() {
     return
   }
 
-  chats.value = data ?? []
+  chats.value = await extendChatsWithDisplayName(data ?? [], currentUserId)
 }
 
-function subscribeToChats() {
+function subscribeToChats(currentUserId: string | null) {
   if (isSubscribed) return
   isSubscribed = true
 
@@ -33,8 +61,12 @@ function subscribeToChats() {
         schema: 'public',
         table: 'chats'
       },
-      (payload) => {
-        chats.value.unshift(payload.new as Chat)
+      async (payload) => {
+        // On insert, extend with displayName
+        const userProvider = inject<UserProvider>('user')
+        const currentUserId = userProvider?.currentUser.value?.id || null
+        const extended = await extendChatsWithDisplayName([payload.new as Chat], currentUserId)
+        chats.value.unshift(extended[0])
       }
     )
     .on(
@@ -56,19 +88,44 @@ function subscribeToChats() {
         schema: 'public',
         table: 'chats'
       },
-      (payload) => {
-        const updated = payload.new as Chat
-        chats.value = chats.value.map(c => (c.id === updated.id ? updated : c))
+      async (payload) => {
+        const userProvider = inject<UserProvider>('user')
+        const extended = await extendChatsWithDisplayName([payload.new as Chat], currentUserId)
+        chats.value = chats.value.map(c => (c.id === extended[0].id ? extended[0] : c))
       }
     )
     .subscribe()
 }
 
-export function useChats() {
-  if (!isSubscribed) {
-    fetchChats()
-    subscribeToChats()
+function unsubscribeFromChats() {
+  if (subscription) {
+    subscription.unsubscribe()
+    subscription = null
   }
+  isSubscribed = false
+}
+
+export function useChats() {
+  const { currentUser } = inject<UserProvider>('user')
+
+  // Initial fetch and subscribe
+  if (!isSubscribed) {
+    fetchChats(currentUser.value?.id)
+    subscribeToChats(currentUser.value?.id)
+  }
+
+  // Watch for currentUser changes
+  watch(
+    () => currentUser.value?.id,
+    (newId, oldId) => {
+      if (newId !== oldId) {
+        unsubscribeFromChats()
+        chats.value = []
+        fetchChats(newId)
+        subscribeToChats(newId)
+      }
+    }
+  )
 
   return {
     chats: readonly(chats)

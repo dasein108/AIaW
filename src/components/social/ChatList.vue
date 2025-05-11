@@ -83,11 +83,11 @@ async function addItem() {
 
 function renameItem(chat: Chat) {
   $q.dialog({
-    title: 'Rename channel',
+    title: 'Rename chat',
     prompt: {
       model: chat.name,
       type: 'text',
-      label: 'Channel name',
+      label: 'Chat name',
       isValid: v => v.trim() && v !== chat.name
     },
     cancel: true,
@@ -106,7 +106,16 @@ function deleteItem(chat: Chat) {
     cancel: true,
     ...dialogOptions
   }).onOk(async () => {
-    await supabase.from('chats').delete().eq('id', chat.id)
+    const { data, error } = await supabase
+      .rpc('delete_chat_if_authorized', { chat_id: chat.id })
+    if (error) {
+      console.error('error', error)
+      $q.notify({
+        message: error.message,
+        color: 'negative'
+      })
+    }
+    // await supabase.from('chats').delete().eq('id', chat.id)
   })
 }
 

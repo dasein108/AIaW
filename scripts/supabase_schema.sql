@@ -87,6 +87,47 @@ $$;
 ALTER FUNCTION "public"."create_profile_on_signup"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."delete_chat_if_authorized"("chat_id" "uuid") RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+declare
+  is_owner boolean;
+  is_member boolean;
+  chat_is_group boolean;
+begin
+  -- Get chat info
+  select c.is_group, 
+         c.owner_id = auth.uid(), 
+         exists (
+           select 1 
+           from public.chat_members cm 
+           where cm.chat_id = c.id and cm.user_id = auth.uid()
+         )
+  into chat_is_group, is_owner, is_member
+  from public.chats c
+  where c.id = chat_id;
+
+  if not found then
+    raise exception 'Chat not found';
+  end if;
+
+  if chat_is_group and not is_owner then
+    raise exception 'Only the group owner can delete this chat';
+  end if;
+
+  if not chat_is_group and not is_member then
+    raise exception 'Only a chat member can delete this DM chat';
+  end if;
+
+  -- Delete the chat (CASCADE will delete related members and messages)
+  delete from public.chats where id = chat_id;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."delete_chat_if_authorized"("chat_id" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."set_chat_owner"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
@@ -115,6 +156,48 @@ $$;
 
 
 ALTER FUNCTION "public"."set_sender_id"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") RETURNS "uuid"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+declare
+  existing_chat_id uuid;
+  new_chat_id uuid;
+begin
+  if target_user_id = current_user_id then
+    raise exception 'Cannot create private chat with yourself';
+  end if;
+
+  -- Check if chat exists
+  select c.id into existing_chat_id
+  from public.chats c
+  join public.chat_members m1 on c.id = m1.chat_id
+  join public.chat_members m2 on c.id = m2.chat_id
+  where c.is_group = false 
+    and c.is_public = false
+    and m1.user_id = current_user_id
+    and m2.user_id = target_user_id
+  limit 1;
+
+  if existing_chat_id is not null then
+    return existing_chat_id;
+  end if;
+
+  insert into public.chats (is_group, is_public, owner_id)
+  values (false, false, current_user_id)
+  returning id into new_chat_id;
+
+  insert into public.chat_members (chat_id, user_id)
+  values (new_chat_id, current_user_id), (new_chat_id, target_user_id)
+  on conflict do nothing;
+
+  return new_chat_id;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") OWNER TO "postgres";
 
 SET default_tablespace = '';
 
@@ -564,6 +647,12 @@ GRANT ALL ON FUNCTION "public"."create_profile_on_signup"() TO "service_role";
 
 
 
+GRANT ALL ON FUNCTION "public"."delete_chat_if_authorized"("chat_id" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."delete_chat_if_authorized"("chat_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."delete_chat_if_authorized"("chat_id" "uuid") TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "anon";
 GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "service_role";
@@ -573,6 +662,12 @@ GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "anon";
 GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") TO "service_role";
 
 
 
