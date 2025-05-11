@@ -1,7 +1,6 @@
 <template>
   <q-dialog
     ref="dialogRef"
-    @hide="onDialogHide"
   >
     <q-card min-w="320px">
       <q-card-section>
@@ -82,7 +81,7 @@ const emailRule = val => {
   const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return pattern.test(val) || 'Please enter a valid email'
 }
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 
 const { signIn, signUp } = useAuth(loading, onDialogOK)
 </script>

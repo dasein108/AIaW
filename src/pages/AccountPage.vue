@@ -38,7 +38,6 @@
         <q-item
           clickable
           v-ripple
-          :disabled="!loading"
           @click="signOut"
         >
           <q-item-section avatar>

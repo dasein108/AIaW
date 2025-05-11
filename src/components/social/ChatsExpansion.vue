@@ -24,6 +24,7 @@
             icon="sym_o_person_add"
             :title="'Create user chat'"
             @click.prevent.stop="showUserSelectDialog"
+            v-if="isLoggedIn"
           />
         </div>
       </q-item-section>
@@ -48,13 +49,13 @@ import { isPlatformEnabled } from 'src/utils/functions'
 import { useQuasar } from 'quasar'
 import UserListDialog from './UserListDialog.vue'
 import { supabase } from 'src/services/supabase/client'
-import { Chat, ChatMember, Profile } from '@/services/supabase/types'
+import { Profile } from '@/services/supabase/types'
 import { useRouter } from 'vue-router'
 import { UserProvider } from '@/services/supabase/userProvider'
 
 const $q = useQuasar()
 const router = useRouter()
-const { currentUser } = inject<UserProvider>('user')
+const { currentUserId, isLoggedIn } = inject<UserProvider>('user')
 
 const props = defineProps<{
   workspaceId: string
@@ -64,7 +65,7 @@ const showUserSelectDialog = () => {
   $q.dialog({
     component: UserListDialog,
     componentProps: {
-      currentUserId: currentUser.value?.id
+      currentUserId
     }
   }).onOk((user) => {
     onSelectUser(user)
@@ -74,9 +75,16 @@ const showUserSelectDialog = () => {
 const onSelectUser = async (user: Profile) => {
   const { data: chatId, error } = await supabase.rpc('start_private_chat_with', {
     target_user_id: user.id,
-    current_user_id: currentUser.value?.id
+    current_user_id: currentUserId
   })
-
+  if (error) {
+    console.error('error', error)
+    $q.notify({
+      message: error.message,
+      color: 'negative'
+    })
+    return
+  }
   router.push(`/workspaces/${props.workspaceId}/chats/${chatId}`)
 }
 

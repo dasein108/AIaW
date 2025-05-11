@@ -23,7 +23,7 @@
           clearable
           class="grow"
           autofocus
-          :placeholder="'Search social...'"
+          :placeholder="'Search chats...'"
         >
           <template #prepend>
             <q-icon name="sym_o_search" />

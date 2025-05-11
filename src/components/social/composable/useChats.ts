@@ -1,6 +1,6 @@
 import { ref, readonly, inject, watch } from 'vue'
 import { supabase } from 'src/services/supabase/client'
-import type { Chat, Profile, ChatMember } from 'src/services/supabase/types'
+import type { Chat } from 'src/services/supabase/types'
 import type { UserProvider } from 'src/services/supabase/userProvider'
 
 const chats = ref<Chat[]>([])
@@ -24,6 +24,7 @@ async function extendChatsWithDisplayName(chatsArr: Chat[], currentUserId: strin
         }
 
         // Find first member that is not myself
+        console.log(chat, 'members', members)
         const other = members.find((m: any) => m.user_id !== currentUserId)
         const displayName = other?.profiles?.name || chat.name || ''
         return { ...chat, name: displayName }

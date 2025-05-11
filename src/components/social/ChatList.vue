@@ -5,6 +5,7 @@
       @click="addItem"
       text-sec
       item-rd
+      v-if="isLoggedIn"
     >
       <q-item-section
         avatar
@@ -27,8 +28,9 @@
     >
       <div class="row items-center justify-between">
         <q-icon
+          class="q-mr-md"
+          size="sm"
           :name="chat.is_group ? 'sym_o_groups' : 'sym_o_person'"
-          class="q-mr-xs"
         />
         <span>{{ chat.name }}</span>
       </div>
@@ -67,7 +69,9 @@ import { supabase } from 'src/services/supabase/client'
 import { useChats } from 'src/components/social/composable/useChats'
 import { Workspace } from '@/utils/types'
 import type { Chat } from '@/services/supabase/types'
+import { UserProvider } from '@/services/supabase/userProvider'
 const { chats } = useChats()
+const { isLoggedIn } = inject<UserProvider>('user')
 const $q = useQuasar()
 const route = useRoute()
 const workspace: Ref<Workspace> = inject('workspace')
@@ -106,7 +110,7 @@ function deleteItem(chat: Chat) {
     cancel: true,
     ...dialogOptions
   }).onOk(async () => {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .rpc('delete_chat_if_authorized', { chat_id: chat.id })
     if (error) {
       console.error('error', error)
@@ -115,7 +119,6 @@ function deleteItem(chat: Chat) {
         color: 'negative'
       })
     }
-    // await supabase.from('chats').delete().eq('id', chat.id)
   })
 }
 
