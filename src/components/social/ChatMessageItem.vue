@@ -9,7 +9,6 @@
         flex
         :class="[
           colMode ? 'flex-row items-center' : 'flex-col items-center top-0',
-          !isMine ? 'pl-2' : ''
         ]"
       >
         <a-avatar
@@ -34,7 +33,7 @@
     >
       <div
         position-relative
-        :class="isMine ? 'min-h-48px' : 'min-h-24px min-w-100px'"
+        :class="'min-h-24px min-w-100px'"
         class="group"
       >
         <div

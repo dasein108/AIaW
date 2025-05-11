@@ -15,6 +15,7 @@
         bg-sur
         of-y-auto
         py-4
+        px-4
         ref="scrollContainer"
         pos-relative
         :class="{ 'rd-r-lg': rightDrawerAbove }"
@@ -77,7 +78,10 @@
             @click="scroll('bottom')"
           />
         </div>
-        <div style="display: flex; align-items: stretch; height: 56px;">
+        <div
+          style="display: flex; align-items: stretch; height: 56px;"
+          v-if="!!currentUser"
+        >
           <a-input
             ref="messageInput"
             style="flex: 1 1 0%;"
@@ -100,6 +104,13 @@
             <q-icon :name="'sym_o_send'" />
             <span class="q-ml-sm">{{ $t('dialogView.send') }}</span>
           </q-btn>
+        </div>
+        <div
+          v-else
+          class="h-full flex items-center justify-center"
+          style="font-size: 16px; color: var(--q-text-secondary); height: 56px;"
+        >
+          Authenticate to send messages...
         </div>
       </div>
     </q-page>

@@ -13,7 +13,7 @@
         <q-icon name="sym_o_add_comment" />
       </q-item-section>
       <q-item-section>
-        {{ 'Create channel' }}
+        {{ 'Create public chat' }}
       </q-item-section>
     </q-item>
     <q-item
@@ -25,9 +25,13 @@
       item-rd
       min-h="40px"
     >
-      <q-item-section>
-        {{ chat.name }}
-      </q-item-section>
+      <div class="row items-center justify-between">
+        <q-icon
+          :name="chat.is_group ? 'sym_o_groups' : 'sym_o_person'"
+          class="q-mr-xs"
+        />
+        <span>{{ chat.name }}</span>
+      </div>
       <q-menu
         context-menu
       >
@@ -97,8 +101,8 @@ function deleteItem(chat: Chat) {
   console.log('deleteItem', chat.id, chat.name)
 
   $q.dialog({
-    title: 'Delete channel',
-    message: 'Are you sure you want to delete this channel?',
+    title: 'Delete chat',
+    message: 'Are you sure you want to delete this chat?',
     cancel: true,
     ...dialogOptions
   }).onOk(async () => {

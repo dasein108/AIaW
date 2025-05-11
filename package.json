@@ -16,7 +16,8 @@
     "docs:preview": "vitepress preview docs",
     "sync-version": "node scripts/sync-version.js",
     "test": "jest",
-    "supabase:types": "yarn supabase gen types typescript --project-id \"$PROJECT_ID\" --schema public > database.types.ts"
+    "supabase:types": "supabase gen types typescript --project-id \"$PROJECT_ID\" --schema public > database.types.ts",
+    "supabase:export": "supabase db dump --data-only=false --file ./scripts/supabase_schema.sql"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.13",
