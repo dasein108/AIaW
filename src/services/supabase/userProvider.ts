@@ -20,7 +20,7 @@ export function createUserProvider() {
   return {
     currentUser,
     currentUserId: currentUser.value?.id,
-    isLoggedIn: currentUser.value !== null
+    isLoggedIn: currentUser.value?.id !== null
   }
 }
 
