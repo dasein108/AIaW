@@ -50,10 +50,10 @@
 
 <script setup lang="ts">
 import { ref, computed, inject } from 'vue'
-import { CosmosSigner } from '@/services/cosmos/CosmosSigner'
+import { CosmosWallet } from 'src/services/cosmos/CosmosSigner'
 import MnemonicDialog from './MnemonicDialog.vue'
 
-const wallet = inject<CosmosSigner>('cosmos')
+const wallet = inject<CosmosWallet>('cosmos')
 const showMnemonicDialog = ref(false)
 
 const walletState = computed(() => wallet.state.value)

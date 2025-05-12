@@ -5,6 +5,7 @@ import { AccountData, DirectSecp256k1HdWallet, OfflineDirectSigner } from '@cosm
 import type { OfflineAminoSigner, StdSignDoc } from '@cosmjs/amino'
 import type { TxStatusResponse } from '../kepler/types'
 import { parseTxStatus } from '../kepler/utils'
+import { CYBER_CONTRACT_ADDRESS } from '../kepler/KeplerWallet'
 
 export interface CosmosSignerState {
   isConnected: boolean
@@ -134,7 +135,7 @@ export function createCosmosSigner() {
     }
   }
 
-  const executeTransaction = async (msg: Record<string, any>, contractAddress: string) => {
+  const executeTransaction = async (msg: Record<string, any>, contractAddress: string = CYBER_CONTRACT_ADDRESS) => {
     try {
       if (!offlineSigner) {
         throw new Error('No signer available')
@@ -210,4 +211,4 @@ export function createCosmosSigner() {
   }
 }
 
-export type CosmosSigner = ReturnType<typeof createCosmosSigner>
+export type CosmosWallet = ReturnType<typeof createCosmosSigner>

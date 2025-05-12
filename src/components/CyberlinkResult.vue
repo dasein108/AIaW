@@ -23,22 +23,27 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, inject } from 'vue'
-import { KeplerWallet } from '@/services/kepler/KeplerWallet'
-
-import { parseEvents } from '../services/kepler/utils'
+import { KeplerWallet } from 'src/services/kepler/KeplerWallet'
+import { CosmosWallet } from 'src/services/cosmos/CosmosSigner'
+import { parseEvents } from 'src/services/kepler/utils'
 import { Message, MessageContent } from '@/utils/types'
 import { db } from 'src/utils/db'
+import { useBrowser } from 'src/composables/use-browser'
 
 const props = defineProps<{ result: any, message: Message }>()
 const itemMap = inject<ComputedRef>('itemMap')
-const wallet = inject<KeplerWallet>('kepler')
+const keplrWallet = inject<KeplerWallet>('kepler')
+const cosmosWallet = inject<CosmosWallet>('cosmos')
 const transactionBody = computed(() => JSON.parse(itemMap.value[props.result[0]].contentText))
+
+const { isBrowser } = useBrowser()
 
 const handleAccept = async () => {
   const { contents } = props.message
   const updatedContents = contents.filter(content => content.type !== 'assistant-tool')
 
   try {
+    const wallet = isBrowser.value ? keplrWallet : cosmosWallet
     const tx = await wallet.executeTransaction(transactionBody.value)
     const data = parseEvents(tx.events)
     console.log('Transaction executed', tx, data)
