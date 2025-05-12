@@ -14,15 +14,25 @@ import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { createCosmosSigner } from './services/cosmos/CosmosSigner'
 // import { createDbService } from './services/database/Db'
 
+import { createUserProvider } from './services/supabase/userProvider'
+import { useQuasar } from 'quasar'
 defineOptions({
   name: 'App'
 })
+
+const $q = useQuasar()
 
 // Provide Kepler wallet
 provide('kepler', createKeplerWallet())
 // Provide Cosmos signer
 provide('cosmos', createCosmosSigner())
 // provide('db', createDbService())
+
+// Provide user provider
+const userProvider = createUserProvider()
+
+provide('user', userProvider)
+
 useSetTheme()
 useLoginDialogs()
 useFirstVisit()
@@ -35,7 +45,19 @@ router.afterEach(to => {
   }
 })
 
-onMounted(() => {
+// Check if user is authenticated, if not, redirect to main page
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth && !userProvider.isLoggedIn.value) {
+    $q.notify({
+      message: 'Please login to access this page',
+      color: 'negative'
+    })
+    return next('/')
+  }
+  return next()
+})
+
+onMounted(async () => {
   ready()
   checkUpdate()
 })

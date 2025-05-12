@@ -71,7 +71,8 @@ db.on.populate.subscribe(() => {
       listOpen: {
         assistants: true,
         artifacts: false,
-        dialogs: true
+        dialogs: true,
+        chats: true
       }
     } as Workspace)
     db.assistants.add({
@@ -110,7 +111,8 @@ db.workspaces.hook('reading', workspace => {
     workspace.listOpen ??= {
       assistants: true,
       artifacts: false,
-      dialogs: true
+      dialogs: true,
+      chats: true
     }
   }
   return workspace

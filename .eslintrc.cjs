@@ -97,6 +97,7 @@ module.exports = {
     // The core 'no-unused-vars' rules (in the eslint:recommended ruleset)
     // does not work with type definitions
     'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
 
     'space-before-function-paren': 'off',
     'no-prototype-builtins': 'off',
@@ -104,6 +105,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
 
     // allow debugger during development only
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'comma-dangle': 'warn',
   }
 }

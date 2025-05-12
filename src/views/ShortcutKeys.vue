@@ -191,19 +191,7 @@
             />
           </q-item-section>
         </q-item>
-        <q-item>
-          <q-item-section>
-            <q-item-label>
-              {{ $t('shortcutKeysView.searchDialog') }}
-            </q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <shortcut-key-input
-              v-model="perfs.searchDialogKey"
-              v-bind="inputProps"
-            />
-          </q-item-section>
-        </q-item>
+
         <q-separator spaced />
         <q-item-label header>
           {{ $t('shortcutKeysView.editArtifacts') }}

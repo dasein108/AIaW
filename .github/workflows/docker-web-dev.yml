@@ -22,6 +22,8 @@ jobs:
       - name: Create .env.docker
         run: |
           echo "DEXIE_DB_URL=${{ secrets.DEXIE_DB_URL }}" >> .env.docker
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.docker
+          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env.docker
 
       - name: Build and push
         uses: docker/build-push-action@v6.10.0
