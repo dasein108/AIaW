@@ -1,17 +1,14 @@
 import { useQuasar } from 'quasar'
 import { supabase } from 'src/services/supabase/client'
 import { Ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-export function useAuth(loading: Ref<boolean>, onDialogOK: () => void) {
+export function useAuth(loading: Ref<boolean>, onComplete: () => void) {
   const $q = useQuasar()
-  const router = useRouter()
-  const route = useRoute()
 
   async function auth(email: string, password:string, isSignUp:boolean = false) {
     try {
       loading.value = true
 
-      const { data, error } = isSignUp ? await supabase.auth.signUp({
+      const { error } = isSignUp ? await supabase.auth.signUp({
         email,
         password
       }) : await supabase.auth.signInWithPassword({ email, password })
@@ -28,7 +25,7 @@ export function useAuth(loading: Ref<boolean>, onDialogOK: () => void) {
         color: 'green'
       })
 
-      onDialogOK()
+      onComplete()
     } catch (error) {
       console.error(error)
       $q.notify({
@@ -45,6 +42,10 @@ export function useAuth(loading: Ref<boolean>, onDialogOK: () => void) {
   return {
     signUp: async (email: string, password: string) => await auth(email, password, true),
     signIn: async (email: string, password: string) => await auth(email, password, false),
-    signOut: async () => await supabase.auth.signOut()
+    signOut: async () => {
+      await supabase.auth.signOut()
+      onComplete()
+    }
+
   }
 }

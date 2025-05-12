@@ -80,7 +80,7 @@
         </div>
         <div
           style="display: flex; align-items: stretch; height: 56px;"
-          v-if="!!currentUser"
+          v-if="isLoggedIn"
         >
           <a-input
             ref="messageInput"
@@ -118,11 +118,10 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, ref, Ref, toRef, watch } from 'vue'
+import { inject, nextTick, ref, toRef, watch } from 'vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 
-import { QPageContainer, QPage } from 'quasar'
-import { Workspace } from '@/utils/types'
+import { QPageContainer, QPage, useQuasar } from 'quasar'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { almostEqual, isPlatformEnabled, pageFhStyle } from 'src/utils/functions'
@@ -246,8 +245,9 @@ const rightDrawerAbove = inject('rightDrawerAbove')
 const { chat, messages } = useChatMessages(toRef(props, 'id'))
 
 const uiStateStore = useUiStateStore()
-const { currentUser } = inject<UserProvider>('user')
+const { currentUserId, isLoggedIn } = inject<UserProvider>('user')
 const scrollTops = uiStateStore.dialogScrollTops
+const $q = useQuasar()
 function onScroll(ev) {
   scrollTops[props.id] = ev.target.scrollTop
 }
@@ -270,14 +270,22 @@ watch(
   }
 )
 async function send() {
-  console.log('------send', inputMessage)
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('messages')
     .insert({
       chat_id: props.id,
-      sender_id: currentUser.value.id,
+      sender_id: currentUserId.value,
       content: inputMessage.value
     })
+
+  if (error) {
+    console.error('error', error)
+    $q.notify({
+      message: error.message,
+      color: 'negative'
+    })
+    return
+  }
 
   inputMessage.value = ''
 }

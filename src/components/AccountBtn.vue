@@ -3,7 +3,7 @@
     icon="sym_o_account_circle"
     @click="onClick"
     :class="{ 'route-active': route.path === '/account' }"
-    :label="currentUser ? $t('accountBtn.account') : $t('accountBtn.login')"
+    :label="isLoggedIn ? $t('accountBtn.account') : $t('accountBtn.login')"
   />
 </template>
 
@@ -18,10 +18,10 @@ const $q = useQuasar()
 const router = useRouter()
 const route = useRoute()
 
-const { currentUser } = inject<UserProvider>('user')
-
+const { isLoggedIn } = inject<UserProvider>('user')
+console.log('isLoggedIn', isLoggedIn.value)
 function onClick() {
-  if (currentUser.value) {
+  if (isLoggedIn.value) {
     router.push('/account')
   } else {
     $q.dialog({

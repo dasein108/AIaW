@@ -55,7 +55,7 @@ import { UserProvider } from '@/services/supabase/userProvider'
 
 const $q = useQuasar()
 const router = useRouter()
-const { isLoggedIn, currentUser } = inject<UserProvider>('user')
+const { isLoggedIn, currentUserId } = inject<UserProvider>('user')
 
 const props = defineProps<{
   workspaceId: string
@@ -65,7 +65,7 @@ const showUserSelectDialog = () => {
   $q.dialog({
     component: UserListDialog,
     componentProps: {
-      currentUserId: currentUser.value?.id
+      currentUserId: currentUserId.value
     }
   }).onOk((user) => {
     onSelectUser(user)
@@ -75,7 +75,7 @@ const showUserSelectDialog = () => {
 const onSelectUser = async (user: Profile) => {
   const { data: chatId, error } = await supabase.rpc('start_private_chat_with', {
     target_user_id: user.id,
-    current_user_id: currentUser.value?.id
+    current_user_id: currentUserId.value
   })
   if (error) {
     console.error('error', error)

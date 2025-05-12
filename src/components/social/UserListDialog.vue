@@ -41,9 +41,9 @@
 import { useDialogPluginComponent } from 'quasar'
 import { supabase } from 'src/services/supabase/client'
 import type { Profile } from '@/services/supabase/types'
-import { onMounted, ref, onUnmounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 
 const props = defineProps<{
   currentUserId: string

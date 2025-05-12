@@ -1,4 +1,4 @@
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { supabase } from 'src/services/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
@@ -17,10 +17,13 @@ export function createUserProvider() {
     }
   })
 
+  const currentUserId = computed(() => currentUser.value?.id ?? null)
+  const isLoggedIn = computed(() => !!currentUser.value?.id)
+
   return {
     currentUser,
-    currentUserId: currentUser.value?.id,
-    isLoggedIn: currentUser.value?.id !== null
+    currentUserId,
+    isLoggedIn
   }
 }
 

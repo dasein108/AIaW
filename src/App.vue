@@ -41,7 +41,7 @@ router.afterEach(to => {
 
 // Check if user is authenticated, if not, redirect to main page
 router.beforeEach(async (to, from, next) => {
-  if (to.meta.requiresAuth && !userProvider.currentUser.value) {
+  if (to.meta.requiresAuth && !userProvider.isLoggedIn.value) {
     $q.notify({
       message: 'Please login to access this page',
       color: 'negative'
