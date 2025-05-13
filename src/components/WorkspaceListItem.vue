@@ -15,7 +15,7 @@
       >
         <a-avatar
           size="32px"
-          :avatar="item.avatar"
+          :avatar="item.metadata.avatar"
         />
       </q-item-section>
       <q-item-section>
@@ -59,7 +59,7 @@
     </template>
     <template #default>
       <workspace-list-item
-        v-for="child in children"
+        v-for="child in workspaces"
         :key="child.id"
         :item="child"
         :accept
@@ -84,7 +84,7 @@
     >
       <a-avatar
         size="32px"
-        :avatar="item.avatar"
+        :avatar="item.metadata.avatar"
       />
     </q-item-section>
     <q-item-section>{{ item.name }}</q-item-section>
@@ -117,29 +117,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
-import { Folder, Workspace } from 'src/utils/types'
+// import { Folder, Workspace } from 'src/utils/types'
+import type { WorkspaceMapped } from '@/services/supabase/types'
 import AAvatar from './AAvatar.vue'
 import { useWorkspaceActions } from 'src/composables/workspace-actions'
 import MenuItem from './MenuItem.vue'
+import { useChildWorkspaces } from './social/composable/useChildWorkspaces'
 
 const props = defineProps<{
-  item: Workspace | Folder
+  item: WorkspaceMapped
   accept: 'workspace' | 'folder'
 }>()
-const workspacesStore = useWorkspacesStore()
 
 const { addWorkspace, addFolder, renameItem, moveItem, deleteItem, changeAvatar } = useWorkspaceActions()
-
-const children = computed(() => {
-  return workspacesStore.workspaces.filter(item => item.parentId === props.item.id)
-})
+const workspaces = useChildWorkspaces(props.item.id)
+console.log('---workspaces list item', props.item, workspaces.value)
 
 const selected = defineModel<string>('selected')
 const expanded = ref(false)
 watch(selected, () => {
-  if (children.value.some(c => c.id === selected.value)) {
+  if (workspaces.value.some(c => c.id === selected.value)) {
     expanded.value = true
   }
 }, { immediate: true })

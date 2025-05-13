@@ -1,7 +1,7 @@
 import { ref, readonly, inject, watch } from 'vue'
 import { supabase } from 'src/services/supabase/client'
 import type { Chat } from 'src/services/supabase/types'
-import type { UserProvider } from 'src/services/supabase/userProvider'
+import { useUserStore } from 'src/stores/user'
 
 const chats = ref<Chat[]>([])
 let isSubscribed = false
@@ -51,7 +51,6 @@ async function fetchChats(currentUserId: string | null) {
 function subscribeToChats(currentUserId: string | null) {
   if (isSubscribed) return
   isSubscribed = true
-
   subscription = supabase
     .channel('chats-realtime')
     .on(
@@ -63,8 +62,6 @@ function subscribeToChats(currentUserId: string | null) {
       },
       async (payload) => {
         // On insert, extend with displayName
-        const userProvider = inject<UserProvider>('user')
-        const currentUserId = userProvider?.currentUser.value?.id || null
         const extended = await extendChatsWithDisplayName([payload.new as Chat], currentUserId)
         chats.value.unshift(extended[0])
       }
@@ -105,17 +102,17 @@ function unsubscribeFromChats() {
 }
 
 export function useChats() {
-  const { currentUser } = inject<UserProvider>('user')
+  const userStore = useUserStore()
 
   // Initial fetch and subscribe
   if (!isSubscribed) {
-    fetchChats(currentUser.value?.id)
-    subscribeToChats(currentUser.value?.id)
+    fetchChats(userStore.currentUserId)
+    subscribeToChats(userStore.currentUserId)
   }
 
   // Watch for currentUser changes
   watch(
-    () => currentUser.value?.id,
+    () => userStore.currentUserId,
     (newId, oldId) => {
       if (newId !== oldId) {
         unsubscribeFromChats()

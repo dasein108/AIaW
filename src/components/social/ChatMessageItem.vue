@@ -99,15 +99,15 @@ import { copyToClipboard, useQuasar } from 'quasar'
 import { genId, textBeginning } from 'src/utils/functions'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import { MessageWithProfile } from '@/services/supabase/types'
-import { UserProvider } from '@/services/supabase/userProvider'
+import { useUserStore } from 'src/stores/user'
 
 const props = defineProps<{
   message: MessageWithProfile,
   scrollContainer: HTMLElement
 }>()
 
-const { currentUser } = inject<UserProvider>('user')
-const isMine = computed(() => props.message.sender_id === currentUser.value?.id)
+const userStore = useUserStore()
+const isMine = computed(() => props.message.sender_id === userStore.currentUserId)
 const mdId = `md-${genId()}`
 
 const $q = useQuasar()

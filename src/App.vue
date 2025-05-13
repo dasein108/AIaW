@@ -11,21 +11,19 @@ import { useSubscriptionNotify } from './composables/subscription-notify'
 import { onMounted, provide } from 'vue'
 import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
-import { createUserProvider } from './services/supabase/userProvider'
+import { useUserStore } from 'src/stores/user'
 import { useQuasar } from 'quasar'
+import { usePluginsStore } from './stores/plugins'
 defineOptions({
   name: 'App'
 })
+const userStore = useUserStore()
+const pluginsStore = usePluginsStore()
 
 const $q = useQuasar()
 
 // Provide Kepler wallet
 provide('kepler', createKeplerWallet())
-
-// Provide user provider
-const userProvider = createUserProvider()
-
-provide('user', userProvider)
 
 useSetTheme()
 useLoginDialogs()
@@ -41,7 +39,7 @@ router.afterEach(to => {
 
 // Check if user is authenticated, if not, redirect to main page
 router.beforeEach(async (to, from, next) => {
-  if (to.meta.requiresAuth && !userProvider.isLoggedIn.value) {
+  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     $q.notify({
       message: 'Please login to access this page',
       color: 'negative'
@@ -54,6 +52,10 @@ router.beforeEach(async (to, from, next) => {
 onMounted(async () => {
   ready()
   checkUpdate()
+  await Promise.all([
+    userStore.init(),
+    pluginsStore.init()
+  ])
 })
 
 </script>

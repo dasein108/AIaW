@@ -21,17 +21,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useWorkspacesStore } from 'src/stores/workspaces'
 import WorkspaceListItem from './WorkspaceListItem.vue'
+import { useChildWorkspaces } from './social/composable/useChildWorkspaces'
 
 defineProps<{
   accept: 'workspace' | 'folder'
 }>()
 
-const workspacesStore = useWorkspacesStore()
-
-const rootItems = computed(() => workspacesStore.workspaces.filter(item => item.parentId === '$root'))
+const rootItems = useChildWorkspaces(null)
 
 const selected = defineModel<string>()
 </script>

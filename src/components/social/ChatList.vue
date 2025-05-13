@@ -5,7 +5,7 @@
       @click="addItem"
       text-sec
       item-rd
-      v-if="isLoggedIn"
+      v-if="userStore.isLoggedIn"
     >
       <q-item-section
         avatar
@@ -69,12 +69,14 @@ import { supabase } from 'src/services/supabase/client'
 import { useChats } from 'src/components/social/composable/useChats'
 import { Workspace } from '@/utils/types'
 import type { Chat } from '@/services/supabase/types'
-import { UserProvider } from '@/services/supabase/userProvider'
+import { useUserStore } from 'src/stores/user'
 const { chats } = useChats()
-const { isLoggedIn } = inject<UserProvider>('user')
+
 const $q = useQuasar()
 const route = useRoute()
 const workspace: Ref<Workspace> = inject('workspace')
+
+const userStore = useUserStore()
 
 console.log('chats', chats.value)
 async function addItem() {

@@ -16,7 +16,7 @@
               class="min-w-150px"
               filled
               dense
-              v-model="workspace.defaultAssistantId"
+              v-model="userDataStore.data.defaultAssistantIds[workspace.id]"
               :options="assistantOptions"
               emit-value
               map-options
@@ -39,7 +39,7 @@
             {{ $t('workspaceSettings.avatar') }}
           </q-item-section>
           <q-item-section side>
-            <a-avatar :avatar="workspace.avatar" />
+            <a-avatar :avatar="workspace.metadata.avatar" />
           </q-item-section>
         </q-item>
         <q-item>
@@ -49,7 +49,7 @@
           <q-item-section pl-4>
             <a-input
               filled
-              v-model="workspace.indexContent"
+              v-model="workspace.metadata.indexContent"
               autogrow
               clearable
             />
@@ -61,7 +61,7 @@
         {{ $t('workspaceSettings.variables') }}
       </q-item-label>
       <vars-input
-        v-model="workspace.vars"
+        v-model="workspace.metadata.vars"
         :input-props="{
           filled: true,
           autogrow: true,
@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 import { computed, Ref, inject, toRaw } from 'vue'
-import { Workspace } from 'src/utils/types'
+import { WorkspaceMapped } from '@/services/supabase/types'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { syncRef } from 'src/composables/sync-ref'
 import { useWorkspacesStore } from 'src/stores/workspaces'
@@ -87,14 +87,15 @@ import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import VarsInput from 'src/components/VarsInput.vue'
 import { useSetTitle } from 'src/composables/set-title'
 import { useI18n } from 'vue-i18n'
+import { useUserDataStore } from 'src/stores/user-data'
 
 const { t } = useI18n()
 
 defineEmits(['toggle-drawer'])
-
+const userDataStore = useUserDataStore()
 const store = useWorkspacesStore()
 const workspace = syncRef(
-  inject('workspace') as Ref<Workspace>,
+  inject('workspace') as Ref<WorkspaceMapped>,
   val => { store.putItem(toRaw(val)) },
   { valueDeep: true }
 )
@@ -111,8 +112,8 @@ const $q = useQuasar()
 function pickAvatar() {
   $q.dialog({
     component: PickAvatarDialog,
-    componentProps: { model: workspace.value.avatar, defaultTab: 'icon' }
-  }).onOk(avatar => { workspace.value.avatar = avatar })
+    componentProps: { model: workspace.value.metadata.avatar, defaultTab: 'icon' }
+  }).onOk(avatar => { workspace.value.metadata.avatar = avatar })
 }
 
 useSetTitle(computed(() => `${t('workspaceSettings.title')} - ${workspace.value?.name}`))

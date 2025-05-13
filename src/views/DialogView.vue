@@ -1132,9 +1132,10 @@ async function copyContent() {
 }
 const route = useRoute()
 const router = useRouter()
+const userDataStore = useUserDataStore()
 watch(route, to => {
-  db.workspaces.update(workspace.value.id, { lastDialogId: props.id } as Partial<Workspace>)
-
+  // db.workspaces.update(workspace.value.id, { lastDialogId: props.id } as Partial<Workspace>)
+  userDataStore.data.lastDialogIds[workspace.value.id] = props.id
   until(dialog).toMatch(val => val?.id === props.id).then(async () => {
     focusInput()
     if (to.hash === '#genTitle') {

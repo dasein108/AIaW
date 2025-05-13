@@ -8,13 +8,15 @@ import { genId } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { db } from 'src/utils/db'
 import { useI18n } from 'vue-i18n'
+import { useUserDataStore } from 'src/stores/user-data'
 
 export function useWorkspaceActions() {
   const workspacesStore = useWorkspacesStore()
   const assistantsStore = useAssistantsStore()
+  const userDataStore = useUserDataStore()
   const $q = useQuasar()
   const { t } = useI18n()
-  function addWorkspace(parentId = '$root') {
+  function addWorkspace(parentId = null) {
     $q.dialog({
       title: t('workspace.newWorkspace'),
       prompt: {
@@ -27,15 +29,16 @@ export function useWorkspaceActions() {
       ok: t('workspace.create'),
       ...dialogOptions
     }).onOk(name => {
-      const workspaceId = genId()
+      // const workspaceId = genId()
       const assistantId = genId()
-      db.transaction('rw', db.workspaces, db.assistants, () => {
-        workspacesStore.addWorkspace({ id: workspaceId, name: name.trim(), parentId, defaultAssistantId: assistantId })
-        assistantsStore.add({ id: assistantId, name: t('workspace.defaultAssistant'), workspaceId })
+      db.transaction('rw', db.assistants, async () => {
+        const workspace = await workspacesStore.addWorkspace({ name: name.trim(), parent_id: parentId, type: 'workspace' })
+        userDataStore.data.defaultAssistantIds[workspace.id] = assistantId
+        assistantsStore.add({ id: assistantId, name: t('workspace.defaultAssistant'), workspaceId: workspace.id })
       })
     })
   }
-  function addFolder(parentId = '$root') {
+  function addFolder(parentId = null) {
     $q.dialog({
       title: t('workspace.newFolder'),
       prompt: {
@@ -48,7 +51,7 @@ export function useWorkspaceActions() {
       ok: t('workspace.create'),
       ...dialogOptions
     }).onOk(name => {
-      workspacesStore.addFolder({ name: name.trim(), parentId })
+      workspacesStore.addWorkspace({ name: name.trim(), parent_id: parentId, type: 'folder' })
     })
   }
   function renameItem(item) {
@@ -73,7 +76,7 @@ export function useWorkspaceActions() {
       component: PickAvatarDialog,
       componentProps: { model: item.avatar, defaultTab: 'icon' }
     }).onOk(avatar => {
-      workspacesStore.updateItem(item.id, { avatar: toRaw(avatar) })
+      workspacesStore.updateItem(item.id, { metadata: { avatar: toRaw(avatar) } })
     })
   }
   function moveItem({ id }, exclude?: string[]) {
@@ -84,7 +87,7 @@ export function useWorkspaceActions() {
         exclude
       }
     }).onOk(parentId => {
-      workspacesStore.updateItem(id, { parentId })
+      workspacesStore.updateItem(id, { parent_id: parentId })
     })
   }
   function deleteItem({ id, type, name }) {

@@ -33,18 +33,21 @@ import { useWorkspacesStore } from 'src/stores/workspaces'
 import WorkspaceListSelect from './WorkspaceListSelect.vue'
 import { useWorkspaceActions } from 'src/composables/workspace-actions'
 import { useRouter, useRoute } from 'vue-router'
-import { Workspace } from 'src/utils/types'
+import type { WorkspaceMapped } from '@/services/supabase/types'
+import { useUserDataStore } from 'src/stores/user-data'
 
 const { addWorkspace, addFolder } = useWorkspaceActions()
+const userDataStore = useUserDataStore()
 
 const workspaceStore = useWorkspacesStore()
 const router = useRouter()
 const route = useRoute()
 
 function goTo(id: string) {
-  const workspace = workspaceStore.workspaces.find(w => w.id === id) as Workspace
+  const workspace = workspaceStore.workspaces.find(w => w.id === id) as WorkspaceMapped
   let path = `/workspaces/${workspace.id}`
-  if (workspace.lastDialogId) path += `/dialogs/${workspace.lastDialogId}`
+  const dialogId = userDataStore.data.lastDialogIds[workspace.id]
+  if (dialogId) path += `/dialogs/${dialogId}`
   router.push(path)
 }
 </script>

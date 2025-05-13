@@ -1,10 +1,4 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = Record<string, any>
 
 export type Database = {
   public: {
@@ -68,6 +62,7 @@ export type Database = {
           is_public: boolean | null
           name: string | null
           owner_id: string | null
+          workspace_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -76,6 +71,7 @@ export type Database = {
           is_public?: boolean | null
           name?: string | null
           owner_id?: string | null
+          workspace_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -84,6 +80,7 @@ export type Database = {
           is_public?: boolean | null
           name?: string | null
           owner_id?: string | null
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -91,6 +88,13 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chats_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
@@ -155,6 +159,126 @@ export type Database = {
         }
         Relationships: []
       }
+      user_plugins: {
+        Row: {
+          available: boolean
+          created_at: string | null
+          id: string
+          key: string
+          manifest: Json
+          type: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          available?: boolean
+          created_at?: string | null
+          id?: string
+          key: string
+          manifest: Json
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          available?: boolean
+          created_at?: string | null
+          id?: string
+          key?: string
+          manifest?: Json
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      workspace_members: {
+        Row: {
+          joined_at: string | null
+          role: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          joined_at?: string | null
+          role: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          joined_at?: string | null
+          role?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_members_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspaces: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          metadata: Json
+          name: string
+          owner_id: string | null
+          parent_id: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          metadata?: Json
+          name: string
+          owner_id?: string | null
+          parent_id?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          metadata?: Json
+          name?: string
+          owner_id?: string | null
+          parent_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspaces_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspaces_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -163,6 +287,16 @@ export type Database = {
       delete_chat_if_authorized: {
         Args: { chat_id: string }
         Returns: undefined
+      }
+      get_all_child_workspaces: {
+        Args: { root_id: string }
+        Returns: {
+          id: string
+        }[]
+      }
+      is_chat_member: {
+        Args: { chat_id: string; user_id: string }
+        Returns: boolean
       }
       start_private_chat_with: {
         Args: { target_user_id: string; current_user_id: string }

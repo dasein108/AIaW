@@ -31,7 +31,7 @@
             {{ $t('accountPage.emailLabel') }}
           </q-item-section>
           <q-item-section side>
-            {{ currentUser.email }}
+            {{ userStore.currentUser?.email }}
           </q-item-section>
         </q-item>
         <q-separator spaced />
@@ -57,10 +57,10 @@ import { inject, ref } from 'vue'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useRouter } from 'vue-router'
 import { pageFhStyle } from 'src/utils/functions'
-import { UserProvider } from '@/services/supabase/userProvider'
+import { useUserStore } from 'src/stores/user'
 import { useAuth } from 'src/components/auth/composable/auth'
 
-const { currentUser } = inject<UserProvider>('user')
+const userStore = useUserStore()
 
 const router = useRouter()
 const loading = ref(false)

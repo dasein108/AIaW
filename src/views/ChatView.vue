@@ -80,7 +80,7 @@
         </div>
         <div
           style="display: flex; align-items: stretch; height: 56px;"
-          v-if="isLoggedIn"
+          v-if="userStore.isLoggedIn"
         >
           <a-input
             ref="messageInput"
@@ -127,8 +127,8 @@ import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { almostEqual, isPlatformEnabled, pageFhStyle } from 'src/utils/functions'
 import ChatMessageItem from 'src/components/social/ChatMessageItem.vue'
 import { useChatMessages } from 'src/components/social/composable/useChatMessages'
-import type { UserProvider } from '@/services/supabase/userProvider'
 import { supabase } from 'src/services/supabase/client'
+import { useUserStore } from 'src/stores/user'
 
 const props = defineProps<{
   id: string
@@ -245,7 +245,7 @@ const rightDrawerAbove = inject('rightDrawerAbove')
 const { chat, messages } = useChatMessages(toRef(props, 'id'))
 
 const uiStateStore = useUiStateStore()
-const { currentUserId, isLoggedIn } = inject<UserProvider>('user')
+const userStore = useUserStore()
 const scrollTops = uiStateStore.dialogScrollTops
 const $q = useQuasar()
 function onScroll(ev) {
@@ -274,7 +274,7 @@ async function send() {
     .from('messages')
     .insert({
       chat_id: props.id,
-      sender_id: currentUserId.value,
+      sender_id: userStore.currentUserId,
       content: inputMessage.value
     })
 
