@@ -6,6 +6,8 @@ import type { OfflineAminoSigner, StdSignDoc } from '@cosmjs/amino'
 import type { TxStatusResponse } from '../kepler/types'
 import { parseTxStatus } from '../kepler/utils'
 import { CYBER_CONTRACT_ADDRESS } from '../kepler/KeplerWallet'
+import { saveMnemonic, getMnemonic, removeMnemonic } from 'src/stores/tauri-store'
+import { IsTauri } from 'src/utils/platform-api'
 
 export interface CosmosSignerState {
   isConnected: boolean
@@ -39,6 +41,7 @@ type CyberOfflineSigner = (OfflineDirectSigner | OfflineAminoSigner) & {
 }
 
 export function createCosmosSigner() {
+  console.log('createCosmosSigner')
   const state = ref<CosmosSignerState>({
     isConnected: false,
     address: null,
@@ -54,6 +57,18 @@ export function createCosmosSigner() {
         client.value = cosmWasmClient
       })
       .catch(console.error)
+  }
+
+  // Auto load mnemonic from tauri-store (if exists)
+  if (IsTauri) {
+    getMnemonic().then(mnemonic => {
+      if (mnemonic) {
+        console.log('mnemonic', mnemonic)
+        connectWithMnemonic(mnemonic).then(() => {
+          console.log('Mnemonic loaded from tauri-store')
+        })
+      }
+    })
   }
 
   const connectWithKeplr = async () => {
@@ -92,6 +107,10 @@ export function createCosmosSigner() {
 
       offlineSigner = wallet
       state.value = { isConnected: true, address, type: 'mnemonic' }
+      // Save mnemonic in tauri-store
+      if (IsTauri) {
+        await saveMnemonic(mnemonic)
+      }
     } catch (error) {
       console.error('Failed to connect with mnemonic:', error)
       throw error
@@ -101,6 +120,10 @@ export function createCosmosSigner() {
   const disconnect = () => {
     state.value = { isConnected: false, address: null, type: null }
     offlineSigner = null
+    // Remove mnemonic from tauri-store
+    if (IsTauri) {
+      removeMnemonic()
+    }
   }
 
   const signTransaction = async (signDoc: StdSignDoc) => {
