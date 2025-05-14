@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="!isBrowser"
     class="cosmos-wallet"
   >
     <div
@@ -49,15 +48,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, inject } from 'vue'
 import { CosmosWallet } from '@/services/cosmos/CosmosWallet'
+import { computed, inject, ref } from 'vue'
 import MnemonicDialog from './MnemonicDialog.vue'
 
 const wallet = inject<CosmosWallet>('cosmos')
 const showMnemonicDialog = ref(false)
 
 const walletState = computed(() => wallet.state.value)
-const isBrowser = computed(() => typeof window !== 'undefined' && window.keplr)
 
 const handleConnect = async () => {
   showMnemonicDialog.value = true

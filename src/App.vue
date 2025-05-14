@@ -12,6 +12,7 @@ import { onMounted, provide } from 'vue'
 import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { createCosmosSigner } from './services/cosmos/CosmosWallet'
+import { IsTauri } from './utils/platform-api'
 // import { createDbService } from './services/database/Db'
 
 import { createUserProvider } from './services/supabase/userProvider'
@@ -24,8 +25,10 @@ const $q = useQuasar()
 
 // Provide Kepler wallet
 provide('kepler', createKeplerWallet())
-// Provide Cosmos signer
-provide('cosmos', createCosmosSigner())
+// Provide Cosmos signer только в tauri
+if (IsTauri) {
+  provide('cosmos', createCosmosSigner())
+}
 // provide('db', createDbService())
 
 // Provide user provider

@@ -13,7 +13,7 @@
       >
         <q-item>
           <q-item-section>
-            <q-item-label v-if="isBrowser">
+            <q-item-label v-if="!isTauri">
               Link Kepler Wallet
             </q-item-label>
             <q-item-label v-else>
@@ -21,7 +21,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section>
-            <kepler-wallet v-if="isBrowser" />
+            <kepler-wallet v-if="!isTauri" />
             <cosmos-wallet v-else />
           </q-item-section>
         </q-item>
@@ -541,7 +541,7 @@ import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import { db } from 'src/utils/db'
 import { pageFhStyle } from 'src/utils/functions'
 import { localData } from 'src/utils/local-data'
-import { exportFile } from 'src/utils/platform-api'
+import { exportFile, IsTauri, IsWeb } from 'src/utils/platform-api'
 import { dialogOptions, mdCodeThemes, mdPreviewThemes } from 'src/utils/values'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -550,7 +550,7 @@ defineEmits(['toggle-drawer'])
 
 const { t } = useI18n()
 
-const isBrowser = computed(() => typeof window !== 'undefined' && window.keplr)
+const isTauri = computed(() => IsTauri)
 
 const { perfs, restore } = useUserPerfsStore()
 const darkModeOptions = [

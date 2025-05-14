@@ -28,7 +28,7 @@ import { CosmosWallet } from '@/services/cosmos/CosmosWallet'
 import { parseEvents } from 'src/services/kepler/utils'
 import { Message, MessageContent } from '@/utils/types'
 import { db } from 'src/utils/db'
-import { useBrowser } from 'src/composables/use-browser'
+import { IsTauri } from 'src/utils/platform-api'
 
 const props = defineProps<{ result: any, message: Message }>()
 const itemMap = inject<ComputedRef>('itemMap')
@@ -36,14 +36,12 @@ const keplrWallet = inject<KeplerWallet>('kepler')
 const cosmosWallet = inject<CosmosWallet>('cosmos')
 const transactionBody = computed(() => JSON.parse(itemMap.value[props.result[0]].contentText))
 
-const { isBrowser } = useBrowser()
-
 const handleAccept = async () => {
   const { contents } = props.message
   const updatedContents = contents.filter(content => content.type !== 'assistant-tool')
 
   try {
-    const wallet = isBrowser.value ? keplrWallet : cosmosWallet
+    const wallet = IsTauri ? cosmosWallet : keplrWallet
     const tx = await wallet.executeTransaction(transactionBody.value)
     const data = parseEvents(tx.events)
     console.log('Transaction executed', tx, data)

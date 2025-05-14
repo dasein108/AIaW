@@ -166,7 +166,6 @@ export function createKeplerWallet() {
   const executeTransaction = async (msg: Record<string, any>,
     contractAddress: string = CYBER_CONTRACT_ADDRESS) => {
     try {
-      debugger
       if (!window.keplr) {
         throw new Error('Keplr extension not installed')
       }
