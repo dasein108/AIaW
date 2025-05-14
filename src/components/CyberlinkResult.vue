@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { computed, ComputedRef, inject } from 'vue'
 import { KeplerWallet } from 'src/services/kepler/KeplerWallet'
-import { CosmosWallet } from 'src/services/cosmos/CosmosSigner'
+import { CosmosWallet } from '@/services/cosmos/CosmosWallet'
 import { parseEvents } from 'src/services/kepler/utils'
 import { Message, MessageContent } from '@/utils/types'
 import { db } from 'src/utils/db'
