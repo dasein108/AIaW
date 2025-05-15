@@ -4,7 +4,7 @@
     "./src-tauri"
   ],
   "compilerOptions": {
-    "types": ["vite/client", "node"],
+    "types": ["vite/client", "node", "jest"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

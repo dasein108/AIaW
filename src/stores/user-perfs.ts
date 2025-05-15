@@ -32,9 +32,11 @@ interface Perfs {
   regenerateCurrKey?: ShortcutKey
   editCurrKey?: ShortcutKey
   createDialogKey?: ShortcutKey
+  createSocialKey?: ShortcutKey
   focusDialogInputKey?: ShortcutKey
   saveArtifactKey?: ShortcutKey
   searchDialogKey?: ShortcutKey
+  searchChatsKey?: ShortcutKey
   autoFocusDialogInput: PlatformEnabled
   artifactsEnabled: PlatformEnabled
   artifactsAutoExtract: boolean
@@ -90,9 +92,11 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     regenerateCurrKey: null,
     editCurrKey: null,
     createDialogKey: null,
+    createSocialKey: null,
     focusDialogInputKey: null,
     saveArtifactKey: { key: 'KeyS', withCtrl: true },
     searchDialogKey: null,
+    searchChatsKey: null,
     autoFocusDialogInput: 'desktop-only',
     artifactsEnabled: 'desktop-only',
     artifactsAutoExtract: false,
