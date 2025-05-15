@@ -8,6 +8,7 @@ import { parseTxStatus } from '../kepler/utils'
 import { CYBER_CONTRACT_ADDRESS } from '../kepler/KeplerWallet'
 import { saveMnemonic, getMnemonic, removeMnemonic } from 'src/stores/tauri-store'
 import { IsTauri } from 'src/utils/platform-api'
+import { EncryptionService } from '../encryption/EncryptionService'
 
 export interface CosmosSignerState {
   isConnected: boolean
@@ -61,12 +62,11 @@ export function createCosmosSigner() {
 
   // Auto load mnemonic from tauri-store (if exists)
   if (IsTauri) {
-    getMnemonic().then(mnemonic => {
-      if (mnemonic) {
-        console.log('mnemonic', mnemonic)
-        connectWithMnemonic(mnemonic).then(() => {
-          console.log('Mnemonic loaded from tauri-store')
-        })
+    getMnemonic().then(async (encryptedMnemonic) => {
+      if (encryptedMnemonic) {
+        console.log('Encrypted mnemonic found in store')
+        // Note: We can't auto-connect here as we need the PIN
+        // The PIN will be requested by the PIN modal when needed
       }
     })
   }
@@ -94,7 +94,7 @@ export function createCosmosSigner() {
     }
   }
 
-  const connectWithMnemonic = async (mnemonic: string) => {
+  const connectWithMnemonic = async (mnemonic: string, pin: string) => {
     try {
       // Create wallet from mnemonic
       const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
@@ -107,9 +107,11 @@ export function createCosmosSigner() {
 
       offlineSigner = wallet
       state.value = { isConnected: true, address, type: 'mnemonic' }
-      // Save mnemonic in tauri-store
+
+      // Save encrypted mnemonic in tauri-store
       if (IsTauri) {
-        await saveMnemonic(mnemonic)
+        const encryptedMnemonic = await EncryptionService.encryptMnemonic(mnemonic, pin)
+        await saveMnemonic(encryptedMnemonic)
       }
     } catch (error) {
       console.error('Failed to connect with mnemonic:', error)

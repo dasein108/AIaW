@@ -1,5 +1,9 @@
 <template>
   <router-view />
+  <pin-modal
+    v-model="showPinModal"
+    @submit="handlePinSubmit"
+  />
 </template>
 
 <script setup lang="ts">
@@ -8,7 +12,7 @@ import { useFirstVisit } from './composables/first-visit'
 import { useLoginDialogs } from './composables/login-dialogs'
 import { useSetTheme } from './composables/set-theme'
 import { useSubscriptionNotify } from './composables/subscription-notify'
-import { onMounted, provide } from 'vue'
+import { onMounted, provide, ref, inject } from 'vue'
 import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { createCosmosSigner } from './services/cosmos/CosmosWallet'
@@ -17,17 +21,28 @@ import { IsTauri } from './utils/platform-api'
 
 import { createUserProvider } from './services/supabase/userProvider'
 import { useQuasar } from 'quasar'
+import { usePinModal } from './composables/use-pin-modal'
+import PinModal from './components/PinModal.vue'
+import { getMnemonic } from './stores/tauri-store'
+import { EncryptionService } from './services/encryption/EncryptionService'
+import type { CosmosWallet } from './services/cosmos/CosmosWallet'
+
 defineOptions({
   name: 'App'
 })
 
 const $q = useQuasar()
+const router = useRouter()
+const { showPinModal, checkEncryptedMnemonic } = usePinModal()
 
-// Provide Kepler wallet
-provide('kepler', createKeplerWallet())
-// Provide Cosmos signer только в tauri
+// Create and provide wallets
+const keplerWallet = createKeplerWallet()
+provide('kepler', keplerWallet)
+
+let cosmosWallet: CosmosWallet | null = null
 if (IsTauri) {
-  provide('cosmos', createCosmosSigner())
+  cosmosWallet = createCosmosSigner()
+  provide('cosmos', cosmosWallet)
 }
 // provide('db', createDbService())
 
@@ -41,14 +56,13 @@ useLoginDialogs()
 useFirstVisit()
 useSubscriptionNotify()
 
-const router = useRouter()
 router.afterEach(to => {
   if (to.meta.title) {
     document.title = `${to.meta.title} - AI as Workspace`
   }
 })
 
-// Check if user is authenticated, if not, redirect to main page
+// Check if user is authenticated
 router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth && !userProvider.isLoggedIn.value) {
     $q.notify({
@@ -57,12 +71,35 @@ router.beforeEach(async (to, from, next) => {
     })
     return next('/')
   }
+
   return next()
 })
+
+const handlePinSubmit = async (pin: string) => {
+  try {
+    if (!cosmosWallet) {
+      throw new Error('Cosmos wallet not initialized')
+    }
+
+    const encryptedMnemonic = await getMnemonic()
+    if (encryptedMnemonic) {
+      const mnemonic = await EncryptionService.decryptMnemonic(encryptedMnemonic, pin)
+      await cosmosWallet.connectWithMnemonic(mnemonic, pin)
+      showPinModal.value = false
+    }
+  } catch (error) {
+    $q.notify({
+      message: 'Invalid PIN code',
+      color: 'negative'
+    })
+  }
+}
 
 onMounted(async () => {
   ready()
   checkUpdate()
+  // Check for encrypted mnemonic on startup
+  await checkEncryptedMnemonic()
 })
 
 </script>

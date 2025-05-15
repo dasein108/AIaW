@@ -61,9 +61,9 @@ const handleConnect = async () => {
   showMnemonicDialog.value = true
 }
 
-const connectWithMnemonic = async (mnemonic: string) => {
+const connectWithMnemonic = async (mnemonic: string, pin: string) => {
   try {
-    await wallet.connectWithMnemonic(mnemonic)
+    await wallet.connectWithMnemonic(mnemonic, pin)
   } catch (error) {
     console.error('Failed to connect with mnemonic:', error)
   }
