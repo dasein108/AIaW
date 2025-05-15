@@ -153,7 +153,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide, ref, watch } from 'vue'
+
+import { computed, provide, ref, toRaw, watch, onErrorCaptured } from 'vue'
 import AssistantsExpansion from 'src/components/AssistantsExpansion.vue'
 import ArtifactsExpansion from 'src/components/ArtifactsExpansion.vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
@@ -173,7 +174,11 @@ import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import DialogsExpansion from 'src/components/DialogsExpansion.vue'
 import ChatsExpansion from 'src/components/social/ChatsExpansion.vue'
-import { WorkspaceMapped } from '@/services/supabase/types'
+import { Workspace } from '@/services/supabase/types'
+onErrorCaptured((err, instance, info) => {
+  console.error('Global Vue error:', err, info)
+  return false // let it propagate
+})
 const props = defineProps<{
   id: string
 }>()
@@ -186,12 +191,13 @@ const listOpen = computed(() => userStore.data.listOpen[props.id] || {
   dialogs: true,
   chats: true
 })
+
 // const workspace = useChildWorkspaces(props.id)
-const workspace = computed<WorkspaceMapped | undefined>(() => workspacesStore.workspaces.find(item => item.id === props.id) as WorkspaceMapped)
+const workspace = computed<Workspace | undefined>(() => workspacesStore.workspaces.find(item => item.id === props.id) as Workspace)
 console.log('!!!!workspace page', workspace.value, props.id)
 
 watch(workspace, val => {
-  console.log('!!!!workspace page watch', val)
+  console.log('!!!!workspace page watch', toRaw(val))
 }, { immediate: true })
 
 const dialogs = useLiveQueryWithDeps(() => props.id, () => db.dialogs.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Dialog[] })
@@ -250,7 +256,11 @@ const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
 provide('rightDrawerAbove', rightDrawerAbove)
 
 const { perfs } = useUserPerfsStore()
-
+console.log('workspace:', workspace.value)
+console.log('dialogs:', dialogs.value)
+console.log('artifacts:', artifacts.value)
+console.log('route:', route)
+console.log('perfs:', perfs)
 function setListOpen(key: keyof ListOpen, value: boolean) {
   if (!userStore.data.listOpen[workspace.value.id]) {
     userStore.data.listOpen[workspace.value.id] = {

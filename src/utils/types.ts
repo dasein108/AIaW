@@ -401,7 +401,7 @@ interface Workspace {
   type: 'workspace'
   parentId: string
   vars: Record<string, string>
-  indexContent: string
+  index_content: string
   defaultAssistantId?: string
   lastDialogId?: string
   listOpen: {

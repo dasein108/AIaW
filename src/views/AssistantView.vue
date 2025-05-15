@@ -73,7 +73,7 @@
           <q-item-section>
             <a-input
               filled
-              v-model="assistant.promptTemplate"
+              v-model="assistant.prompt_template"
               autogrow
               clearable
             />
@@ -86,7 +86,7 @@
           <q-item-section>
             <prompt-var-editor
               ml-2
-              v-model="assistant.promptVars"
+              v-model="assistant.prompt_vars"
             />
           </q-item-section>
         </q-item>
@@ -169,7 +169,7 @@
               class="w-100px"
               filled
               dense
-              v-model.number="assistant.modelSettings.maxRetries"
+              v-model.number="assistant.model_settings.maxRetries"
               type="number"
             />
           </q-item-section>
@@ -186,7 +186,7 @@
               class="w-100px"
               filled
               dense
-              v-model.number="assistant.modelSettings.maxSteps"
+              v-model.number="assistant.model_settings.maxSteps"
               type="number"
             />
           </q-item-section>
@@ -203,7 +203,7 @@
               class="w-100px"
               filled
               dense
-              v-model.number="assistant.contextNum"
+              v-model.number="assistant.context_num"
               type="number"
               clearable
             />
@@ -218,7 +218,7 @@
               class="w-100px"
               filled
               dense
-              v-model="assistant.promptRole"
+              v-model="assistant.prompt_role"
               :options="['system', 'user', 'assistant']"
             />
           </q-item-section>
@@ -242,7 +242,7 @@
               class="w-100px"
               filled
               dense
-              v-model.number="assistant.modelSettings.temperature"
+              v-model.number="assistant.model_settings.temperature"
               type="number"
               step="0.1"
             />
@@ -260,7 +260,7 @@
               class="w-100px"
               filled
               dense
-              v-model.number="assistant.modelSettings.topP"
+              v-model.number="assistant.model_settings.topP"
               type="number"
               step="0.1"
             />
@@ -278,7 +278,7 @@
               class="w-100px"
               filled
               dense
-              v-model.number="assistant.modelSettings.presencePenalty"
+              v-model.number="assistant.model_settings.presencePenalty"
               type="number"
               step="0.1"
             />
@@ -296,7 +296,7 @@
               class="w-100px"
               filled
               dense
-              v-model.number="assistant.modelSettings.frequencyPenalty"
+              v-model.number="assistant.model_settings.frequencyPenalty"
               type="number"
               step="0.1"
             />
@@ -314,7 +314,7 @@
               class="w-150px"
               filled
               dense
-              v-model="assistant.modelSettings.stopSequences"
+              v-model="assistant.model_settings.stopSequences"
               use-input
               use-chips
               multiple
@@ -336,7 +336,7 @@
               class="w-150px"
               filled
               dense
-              v-model.number="assistant.modelSettings.maxTokens"
+              v-model.number="assistant.model_settings.maxTokens"
               type="number"
               clearable
             />
@@ -354,7 +354,7 @@
               class="w-100px"
               filled
               dense
-              v-model.number="assistant.modelSettings.seed"
+              v-model.number="assistant.model_settings.seed"
               type="number"
               clearable
             />
@@ -468,7 +468,6 @@ import { useAssistantsStore } from 'src/stores/assistants'
 import { computed, inject, toRaw } from 'vue'
 import ProviderInputItems from 'src/components/ProviderInputItems.vue'
 import PromptVarEditor from 'src/components/PromptVarEditor.vue'
-import { Assistant } from 'src/utils/types'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import AAvatar from 'src/components/AAvatar.vue'
 import { copyToClipboard, useQuasar } from 'quasar'
@@ -482,6 +481,7 @@ import { useSetTitle } from 'src/composables/set-title'
 import { db } from 'src/utils/db'
 import EnablePluginsItems from 'src/components/EnablePluginsItems.vue'
 import { exportFile } from 'src/utils/platform-api'
+import { AssistantMapped } from '@/services/supabase/types'
 
 const props = defineProps<{
   id: string
@@ -490,7 +490,7 @@ const props = defineProps<{
 defineEmits(['toggle-drawer'])
 
 const store = useAssistantsStore()
-const assistant = syncRef<Assistant>(
+const assistant = syncRef<AssistantMapped>(
   () => store.assistants.find(a => a.id === props.id),
   val => { store.put(toRaw(val)) },
   { valueDeep: true }
@@ -521,8 +521,8 @@ async function exportAssistant(target: 'file' | 'clipboard') {
     const base64 = await blobToBase64(new Blob([avatarImage.contentBuffer], { type: avatarImage.mimeType }))
     avatar = { type: 'url', url: base64 }
   }
-  const { name, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description } = assistant.value
-  const json = JSON.stringify({ name, avatar, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description })
+  const { name, prompt, prompt_vars, prompt_template, model, model_settings, author, homepage, description } = assistant.value
+  const json = JSON.stringify({ name, avatar, prompt, prompt_vars, prompt_template, model, model_settings, author, homepage, description })
   if (target === 'file') {
     exportFile(`${name}.json`, json)
   } else {

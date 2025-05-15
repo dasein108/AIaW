@@ -14,11 +14,13 @@ import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { useUserStore } from 'src/stores/user'
 import { useQuasar } from 'quasar'
 import { usePluginsStore } from './stores/plugins'
+import { useAssistantsStore } from './stores/assistants'
 defineOptions({
   name: 'App'
 })
 const userStore = useUserStore()
 const pluginsStore = usePluginsStore()
+const assistantsStore = useAssistantsStore()
 
 const $q = useQuasar()
 
@@ -54,7 +56,8 @@ onMounted(async () => {
   checkUpdate()
   await Promise.all([
     userStore.init(),
-    pluginsStore.init()
+    pluginsStore.init(),
+    assistantsStore.init()
   ])
 })
 

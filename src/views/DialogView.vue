@@ -276,7 +276,7 @@
             >
           </q-btn>
           <q-btn
-            v-if="assistant?.promptVars.length"
+            v-if="Object.keys(assistant?.prompt_vars).length"
             flat
             icon="sym_o_tune"
             :title="showVars ? $t('dialogView.hideVars') : $t('dialogView.showVars')"
@@ -359,7 +359,7 @@
         >
           <prompt-var-input
             class="mt-2 mr-2"
-            v-for="promptVar of assistant.promptVars"
+            v-for="promptVar of Object.values(assistant.prompt_vars)"
             :key="promptVar.id"
             :prompt-var="promptVar"
             v-model="dialog.inputVars[promptVar.name]"
@@ -462,7 +462,7 @@ const dialog = syncRef<Dialog>(
 const assistantsStore = useAssistantsStore()
 const workspace: Ref<Workspace> = inject('workspace')
 const assistants = computed(() => assistantsStore.assistants.filter(
-  a => [workspace.value.id, '$root'].includes(a.workspaceId)
+  a => [workspace.value.id, '$root'].includes(a.workspace_id)
 ))
 const assistant = computed(() => ({ ...assistantsStore.assistants.find(a => a.id === dialog.value?.assistantId) })) // force trigger updates
 provide('dialog', dialog)
@@ -742,7 +742,7 @@ function getChainMessages() {
   const val: CoreMessage[] = []
   historyChain.value
     .slice(1)
-    .slice(-assistant.value.contextNum || 0)
+    .slice(-assistant.value.context_num || 0)
     .filter(id => messageMap.value[id].status !== 'inputing')
     .map(id => messageMap.value[id].contents)
     .flat()
@@ -810,7 +810,7 @@ function getChainMessages() {
 
 function getSystemPrompt(enabledPlugins) {
   try {
-    const prompt = engine.parseAndRenderSync(assistant.value.promptTemplate, {
+    const prompt = engine.parseAndRenderSync(assistant.value.prompt_template, {
       ...getCommonVars(),
       ...workspace.value.vars,
       ...dialog.value.inputVars,
@@ -895,8 +895,8 @@ const artifacts = inject<Ref<Artifact[]>>('artifacts')
 const abortController = ref<AbortController>()
 async function stream(target, insert = false) {
   const settings: Partial<ModelSettings> = {}
-  for (const key in assistant.value.modelSettings) {
-    const val = assistant.value.modelSettings[key]
+  for (const key in assistant.value.model_settings) {
+    const val = assistant.value.model_settings[key]
     if (val || val === 0) {
       settings[key] = val
     }
@@ -1021,7 +1021,7 @@ async function stream(target, insert = false) {
     abortController.value = new AbortController()
     const messages = getChainMessages()
     const prompt = getSystemPrompt(enabledPlugins.filter(p => p.prompt))
-    prompt && messages.unshift({ role: assistant.value.promptRole, content: prompt })
+    prompt && messages.unshift({ role: assistant.value.prompt_role, content: prompt })
     const params = {
       model: sdkModel.value,
       messages,

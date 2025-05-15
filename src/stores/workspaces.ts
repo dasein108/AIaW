@@ -7,25 +7,23 @@ import { useI18n } from 'vue-i18n'
 import { supabase } from 'src/services/supabase/client'
 import { useWorkspaces } from 'src/components/social/composable/useWorkspaces'
 import type { WorkspaceMapped } from '@/services/supabase/types'
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
-  const { workspaces } = useWorkspaces()
+  const { workspaces, isLoaded } = useWorkspaces()
   // const workspaces = useLiveQuery(() => db.workspaces.toArray(), { initialValue: [] as Workspace[] })
   const { t } = useI18n()
-  watch(workspaces, (val) => {
-    console.log('=---workspaces store', val)
-  })
+  // watch(workspaces, (val) => {
+  //   console.log('=---workspaces store', val)
+  // })
 
   async function addWorkspace(props: Partial<WorkspaceMapped>) {
     const workspace = {
       name: t('stores.workspaces.newWorkspace'),
       type: 'workspace',
-      metadata: {
-        avatar: { type: 'icon', icon: 'sym_o_deployed_code' },
-        vars: {},
-        indexContent: DefaultWsIndexContent
-      },
+      avatar: { type: 'icon', icon: 'sym_o_deployed_code' },
+      vars: {},
+      index_content: DefaultWsIndexContent,
       parent_id: null,
       ...props
     }
@@ -45,7 +43,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     //   type: 'workspace',
     //   parentId: '$root',
     //   prompt: '',
-    //   indexContent: DefaultWsIndexContent,
+    //   index_content: DefaultWsIndexContent,
     //   vars: {},
     //   listOpen: {
     //     assistants: true,
@@ -64,14 +62,19 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     }
     return data
   }
-
-  async function putItem(workspace: WorkspaceMapped) {
+  async function insertItem(workspace: WorkspaceMapped) {
     const { data, error } = await supabase.from('workspaces').insert(workspace).select().single()
     if (error) {
       console.error('❌ Failed to put workspace:', error.message)
       return null
     }
     return data
+  }
+  async function putItem(workspace: WorkspaceMapped) {
+    if (workspace.id) {
+      return await updateItem(workspace.id, workspace)
+    }
+    return await insertItem(workspace)
   }
 
   async function deleteItem(id: string) {
@@ -84,6 +87,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
   }
 
   return {
+    isLoaded,
     workspaces,
     addWorkspace,
     updateItem,

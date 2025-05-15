@@ -39,7 +39,7 @@
             {{ $t('workspaceSettings.avatar') }}
           </q-item-section>
           <q-item-section side>
-            <a-avatar :avatar="workspace.metadata.avatar" />
+            <a-avatar :avatar="workspace.avatar" />
           </q-item-section>
         </q-item>
         <q-item>
@@ -49,7 +49,7 @@
           <q-item-section pl-4>
             <a-input
               filled
-              v-model="workspace.metadata.indexContent"
+              v-model="workspace.index_content"
               autogrow
               clearable
             />
@@ -61,7 +61,7 @@
         {{ $t('workspaceSettings.variables') }}
       </q-item-label>
       <vars-input
-        v-model="workspace.metadata.vars"
+        v-model="workspace.vars"
         :input-props="{
           filled: true,
           autogrow: true,
@@ -94,6 +94,7 @@ const { t } = useI18n()
 defineEmits(['toggle-drawer'])
 const userDataStore = useUserDataStore()
 const store = useWorkspacesStore()
+
 const workspace = syncRef(
   inject('workspace') as Ref<WorkspaceMapped>,
   val => { store.putItem(toRaw(val)) },
@@ -101,7 +102,7 @@ const workspace = syncRef(
 )
 const assistantsStore = useAssistantsStore()
 const assistantOptions = computed(() => assistantsStore.assistants.filter(
-  a => [workspace.value.id, '$root'].includes(a.workspaceId)
+  a => [workspace.value.id, '$root'].includes(a.workspace_id)
 ).map(a => ({
   label: a.name,
   value: a.id,
@@ -112,8 +113,8 @@ const $q = useQuasar()
 function pickAvatar() {
   $q.dialog({
     component: PickAvatarDialog,
-    componentProps: { model: workspace.value.metadata.avatar, defaultTab: 'icon' }
-  }).onOk(avatar => { workspace.value.metadata.avatar = avatar })
+    componentProps: { model: workspace.value.avatar, defaultTab: 'icon' }
+  }).onOk(avatar => { workspace.value.avatar = avatar })
 }
 
 useSetTitle(computed(() => `${t('workspaceSettings.title')} - ${workspace.value?.name}`))

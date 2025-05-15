@@ -15,7 +15,7 @@
       >
         <a-avatar
           size="32px"
-          :avatar="item.metadata.avatar"
+          :avatar="item.avatar"
         />
       </q-item-section>
       <q-item-section>
@@ -84,7 +84,7 @@
     >
       <a-avatar
         size="32px"
-        :avatar="item.metadata.avatar"
+        :avatar="item.avatar"
       />
     </q-item-section>
     <q-item-section>{{ item.name }}</q-item-section>

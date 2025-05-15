@@ -67,7 +67,7 @@ function deleteItem(plugin) {
       flat: true
     }
   }).onOk(() => {
-    pluginsStore.uninstall(plugin.id)
+    pluginsStore.uninstall(plugin.key)
   })
 }
 </script>

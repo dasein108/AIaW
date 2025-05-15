@@ -1,12 +1,10 @@
 import { LobeChatPluginManifest } from '@lobehub/chat-plugin-sdk'
 import { defineStore } from 'pinia'
-import { useLiveQuery } from 'src/composables/live-query'
 import { persistentReactive } from 'src/composables/persistent-reactive'
 import { db } from 'src/utils/db'
 import { GradioPluginManifest, HuggingPluginManifest, InstalledPlugin, McpPluginDump, McpPluginManifest, PluginsData } from 'src/utils/types'
 import { buildLobePlugin, timePlugin, defaultData, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, docParsePlugin, mermaidPlugin, mcpDefaultData, dumpMcpPlugin, buildMcpPlugin } from 'src/utils/plugins'
 import { computed, ref } from 'vue'
-import { genId } from 'src/utils/functions'
 import artifacts from 'src/utils/artifacts-plugin'
 import { IsTauri } from 'src/utils/platform-api'
 import { useI18n } from 'vue-i18n'
@@ -14,8 +12,10 @@ import webSearchPlugin from 'src/utils/web-search-plugin'
 import { keplerPlugin } from 'src/services/kepler/kepler-plugin'
 import { supabase } from 'src/services/supabase/client'
 import { UserPlugin } from '@/services/supabase/types'
+import { useAssistantsStore } from './assistants'
 
 export const usePluginsStore = defineStore('plugins', () => {
+  const assistantsStore = useAssistantsStore()
   const installedPlugins = ref<UserPlugin[]>([])
   async function fetchPlugins() {
     const { data, error } = await supabase
@@ -70,7 +70,6 @@ export const usePluginsStore = defineStore('plugins', () => {
       else return buildMcpPlugin(i.manifest as McpPluginDump, i.available)
     })
   ])
-  console.log('---plugins', plugins.value)
   async function installLobePlugin(manifest: LobeChatPluginManifest) {
     const id = await upsertPlugin({
       key: `lobe-${manifest.identifier}`,
@@ -80,20 +79,9 @@ export const usePluginsStore = defineStore('plugins', () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
-    // @ts-expect-error - Dexie transaction doesn't support recursive type inference (LobeChatPluginManifest)
-    await db.transaction('rw', db.installedPluginsV2, db.reactives, async () => {
-      // const id = `lobe-${manifest.identifier}`
-      // await db.installedPluginsV2.put({
-      //   id,
-      //   key: genId(),
-      //   type: 'lobechat',
-      //   available: true,
-      //   manifest
-      // })
 
-      await db.reactives.update('#plugins-data', {
-        [`value.${id}`]: lobeDefaultData(manifest)
-      })
+    await db.reactives.update('#plugins-data', {
+      [`value.${id}`]: lobeDefaultData(manifest)
     })
   }
 
@@ -106,10 +94,8 @@ export const usePluginsStore = defineStore('plugins', () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
-    await db.transaction('rw', db.installedPluginsV2, db.reactives, async () => {
-      await db.reactives.update('#plugins-data', {
-        [`value.${manifest.id}`]: gradioDefaultData(manifest)
-      })
+    await db.reactives.update('#plugins-data', {
+      [`value.${manifest.id}`]: gradioDefaultData(manifest)
     })
   }
 
@@ -127,22 +113,22 @@ export const usePluginsStore = defineStore('plugins', () => {
       available: true,
       manifest: dump,
     })
-    await db.transaction('rw', db.installedPluginsV2, db.reactives, async () => {
-      await db.reactives.update('#plugins-data', {
-        [`value.${manifest.id}`]: mcpDefaultData(manifest)
-      })
+    await db.reactives.update('#plugins-data', {
+      [`value.${manifest.id}`]: mcpDefaultData(manifest)
     })
   }
 
-  async function uninstall(id) {
-    await db.transaction('rw', db.installedPluginsV2, db.assistants, async () => {
-      const { error } = await supabase.from('user_plugins').update({ available: false }).eq('id', id)
-      if (error) {
-        console.error('❌ Failed to uninstall plugin:', error.message)
-        return
+  async function uninstall(id: string) {
+    const { error } = await supabase.from('user_plugins').update({ available: false }).eq('id', id)
+    if (error) {
+      console.error('❌ Failed to uninstall plugin:', error.message)
+      return
+    }
+    for (const assistant of assistantsStore.assistants) {
+      if (assistant.plugins[id]) {
+        assistantsStore.update(assistant.id, { plugins: { ...assistant.plugins, [id]: undefined } })
       }
-      await db.assistants.filter(a => !!a.plugins[id]).modify({ [`plugins.${id}`]: undefined })
-    })
+    }
   }
 
   async function init() {

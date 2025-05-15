@@ -108,5 +108,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'comma-dangle': 'off',
     '@typescript-eslint/comma-dangle': 'off',
+    'camelcase': 'off',
+    '@typescript-eslint/camelcase': 'off',
   }
 }

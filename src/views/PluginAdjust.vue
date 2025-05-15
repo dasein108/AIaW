@@ -135,6 +135,7 @@ import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import { useSetTitle } from 'src/composables/set-title'
 import { useI18n } from 'vue-i18n'
+import { AssistantMapped } from '@/services/supabase/types'
 
 defineEmits(['toggle-drawer'])
 
@@ -143,7 +144,7 @@ const props = defineProps<{
   id: string,
   assistantId: string
 }>()
-const assistant = syncRef<Assistant>(
+const assistant = syncRef<AssistantMapped>(
   () => assistantsStore.assistants.find(a => a.id === props.assistantId),
   val => { assistantsStore.put(toRaw(val)) },
   { valueDeep: true }

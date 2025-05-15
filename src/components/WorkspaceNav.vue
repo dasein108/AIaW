@@ -43,11 +43,24 @@ const workspaceStore = useWorkspacesStore()
 const router = useRouter()
 const route = useRoute()
 
-function goTo(id: string) {
+async function goTo(id: string) {
   const workspace = workspaceStore.workspaces.find(w => w.id === id) as WorkspaceMapped
   let path = `/workspaces/${workspace.id}`
   const dialogId = userDataStore.data.lastDialogIds[workspace.id]
   if (dialogId) path += `/dialogs/${dialogId}`
+  console.log('Current route:', router.currentRoute.value)
+  console.log('Attempting to go to:', path)
   router.push(path)
+    .then(result => {
+      console.log('Navigation result:', result)
+      console.log('New route:', router.currentRoute.value)
+    })
+    .catch(error => {
+      console.error('Navigation error:', error)
+      // Optionally, log the stack trace
+      if (error && error.stack) {
+        console.error(error.stack)
+      }
+    })
 }
 </script>

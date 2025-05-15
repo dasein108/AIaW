@@ -3,24 +3,6 @@ export type Json = Record<string, any>
 export type Database = {
   public: {
     Tables: {
-      broadcast_messages: {
-        Row: {
-          content: string
-          created_at: string | null
-          id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string | null
-          id?: string
-        }
-        Update: {
-          content?: string
-          created_at?: string | null
-          id?: string
-        }
-        Relationships: []
-      }
       chat_members: {
         Row: {
           chat_id: string
@@ -159,6 +141,83 @@ export type Database = {
         }
         Relationships: []
       }
+      user_assistants: {
+        Row: {
+          author: string | null
+          avatar: Json | null
+          context_num: number
+          created_at: string | null
+          description: string | null
+          homepage: string | null
+          id: string
+          model: Json | null
+          model_settings: Json
+          name: string
+          plugins: Json
+          prompt: string | null
+          prompt_role: string | null
+          prompt_template: string | null
+          prompt_vars: Json
+          provider: Json | null
+          stream: boolean
+          updated_at: string | null
+          user_id: string | null
+          workspace_id: string | null
+        }
+        Insert: {
+          author?: string | null
+          avatar?: Json | null
+          context_num?: number
+          created_at?: string | null
+          description?: string | null
+          homepage?: string | null
+          id?: string
+          model?: Json | null
+          model_settings?: Json
+          name: string
+          plugins?: Json
+          prompt?: string | null
+          prompt_role?: string | null
+          prompt_template?: string | null
+          prompt_vars?: Json
+          provider?: Json | null
+          stream?: boolean
+          updated_at?: string | null
+          user_id?: string | null
+          workspace_id?: string | null
+        }
+        Update: {
+          author?: string | null
+          avatar?: Json | null
+          context_num?: number
+          created_at?: string | null
+          description?: string | null
+          homepage?: string | null
+          id?: string
+          model?: Json | null
+          model_settings?: Json
+          name?: string
+          plugins?: Json
+          prompt?: string | null
+          prompt_role?: string | null
+          prompt_template?: string | null
+          prompt_vars?: Json
+          provider?: Json | null
+          stream?: boolean
+          updated_at?: string | null
+          user_id?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_assistants_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_plugins: {
         Row: {
           available: boolean
@@ -230,37 +289,43 @@ export type Database = {
       }
       workspaces: {
         Row: {
+          avatar: Json | null
           created_at: string | null
           description: string | null
           id: string
+          index_content: string | null
           is_public: boolean | null
-          metadata: Json
           name: string
           owner_id: string | null
           parent_id: string | null
           type: string
+          vars: Json
         }
         Insert: {
+          avatar?: Json | null
           created_at?: string | null
           description?: string | null
           id?: string
+          index_content?: string | null
           is_public?: boolean | null
-          metadata?: Json
           name: string
           owner_id?: string | null
           parent_id?: string | null
           type: string
+          vars?: Json
         }
         Update: {
+          avatar?: Json | null
           created_at?: string | null
           description?: string | null
           id?: string
+          index_content?: string | null
           is_public?: boolean | null
-          metadata?: Json
           name?: string
           owner_id?: string | null
           parent_id?: string | null
           type?: string
+          vars?: Json
         }
         Relationships: [
           {

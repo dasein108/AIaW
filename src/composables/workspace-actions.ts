@@ -4,7 +4,7 @@ import { useQuasar } from 'quasar'
 import { dialogOptions } from 'src/utils/values'
 import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
-import { genId } from 'src/utils/functions'
+import { defaultAvatar, genId } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { db } from 'src/utils/db'
 import { useI18n } from 'vue-i18n'
@@ -28,14 +28,14 @@ export function useWorkspaceActions() {
       cancel: true,
       ok: t('workspace.create'),
       ...dialogOptions
-    }).onOk(name => {
-      // const workspaceId = genId()
-      const assistantId = genId()
-      db.transaction('rw', db.assistants, async () => {
-        const workspace = await workspacesStore.addWorkspace({ name: name.trim(), parent_id: parentId, type: 'workspace' })
-        userDataStore.data.defaultAssistantIds[workspace.id] = assistantId
-        assistantsStore.add({ id: assistantId, name: t('workspace.defaultAssistant'), workspaceId: workspace.id })
+    }).onOk(async name => {
+      const workspace = await workspacesStore.addWorkspace({ name: name.trim(), parent_id: parentId, type: 'workspace' })
+      const assistant = await assistantsStore.add({
+        name: t('workspace.defaultAssistant'),
+        workspace_id: workspace.id,
+        avatar: defaultAvatar('AI')
       })
+      userDataStore.data.defaultAssistantIds[workspace.id] = assistant.id
     })
   }
   function addFolder(parentId = null) {
@@ -76,7 +76,7 @@ export function useWorkspaceActions() {
       component: PickAvatarDialog,
       componentProps: { model: item.avatar, defaultTab: 'icon' }
     }).onOk(avatar => {
-      workspacesStore.updateItem(item.id, { metadata: { avatar: toRaw(avatar) } })
+      workspacesStore.updateItem(item.id, { avatar: toRaw(avatar) })
     })
   }
   function moveItem({ id }, exclude?: string[]) {

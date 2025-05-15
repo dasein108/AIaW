@@ -107,6 +107,7 @@ import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
 import { dialogOptions } from 'src/utils/values'
 import { useI18n } from 'vue-i18n'
+import { defaultAvatar } from 'src/utils/functions'
 
 const { t } = useI18n()
 
@@ -118,15 +119,20 @@ const props = defineProps<{
 
 const assistantsStore = useAssistantsStore()
 
-const assistants = computed(() => assistantsStore.assistants.filter(a => a.workspaceId === props.workspaceId))
+const assistants = computed(() => assistantsStore.assistants.filter(a => a.workspace_id === props.workspaceId))
 
 function getLink(id) {
-  return props.workspaceId === '$root' ? `/assistants/${id}` : `/workspaces/${props.workspaceId}/assistants/${id}`
+  return !props.workspaceId ? `/assistants/${id}` : `/workspaces/${props.workspaceId}/assistants/${id}`
 }
 const router = useRouter()
 async function addItem() {
-  const id = await assistantsStore.add({ workspaceId: props.workspaceId })
-  router.push(getLink(id))
+  const assistant = await assistantsStore.add({
+    name: 'New Assistant',
+    workspace_id: props.workspaceId,
+    avatar: defaultAvatar("AI")
+  })
+  console.log('---addItem', assistant)
+  router.push(getLink(assistant.id))
 }
 
 function move(id, workspaceId) {

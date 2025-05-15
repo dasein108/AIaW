@@ -283,6 +283,45 @@ $$;
 ALTER FUNCTION "public"."set_sender_id"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."set_user_id_on_insert"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+begin
+  -- Set user_id if not provided
+  if new.user_id is null then
+    new.user_id := auth.uid();  -- Attach authenticated user_id
+  end if;
+
+  -- Set created_at and updated_at timestamps
+  new.created_at := now();
+  new.updated_at := now();
+  
+  return new;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."set_user_id_on_insert"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."set_user_plugin_user_id"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$begin
+  -- Set the user_id on insert if not provided
+  if tg_op = 'INSERT' then
+    if new.user_id is null then
+      new.user_id := auth.uid();
+    end if;
+    new.created_at := now();
+  end if;
+
+return new;
+end;$$;
+
+
+ALTER FUNCTION "public"."set_user_plugin_user_id"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."set_workspace_owner"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
@@ -357,18 +396,6 @@ SET default_tablespace = '';
 SET default_table_access_method = "heap";
 
 
-CREATE TABLE IF NOT EXISTS "public"."broadcast_messages" (
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "content" "text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"()
-);
-
-ALTER TABLE ONLY "public"."broadcast_messages" REPLICA IDENTITY FULL;
-
-
-ALTER TABLE "public"."broadcast_messages" OWNER TO "postgres";
-
-
 CREATE TABLE IF NOT EXISTS "public"."chat_members" (
     "chat_id" "uuid" NOT NULL,
     "user_id" "uuid" NOT NULL,
@@ -418,6 +445,33 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
 ALTER TABLE "public"."profiles" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."user_assistants" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "workspace_id" "uuid",
+    "user_id" "uuid" NOT NULL,
+    "name" "text" NOT NULL,
+    "prompt" "text" NOT NULL,
+    "prompt_vars" "jsonb" NOT NULL,
+    "prompt_template" "text" NOT NULL,
+    "provider" "jsonb" NOT NULL,
+    "model" "jsonb",
+    "model_settings" "jsonb" NOT NULL,
+    "plugins" "jsonb" NOT NULL,
+    "prompt_role" "text",
+    "stream" boolean DEFAULT false NOT NULL,
+    "description" "text",
+    "author" "text",
+    "homepage" "text",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "avatar" "jsonb",
+    CONSTRAINT "user_assistants_prompt_role_check" CHECK (("prompt_role" = ANY (ARRAY['system'::"text", 'user'::"text", 'assistant'::"text"])))
+);
+
+
+ALTER TABLE "public"."user_assistants" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."user_plugins" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "user_id" "uuid",
@@ -455,18 +509,15 @@ CREATE TABLE IF NOT EXISTS "public"."workspaces" (
     "is_public" boolean DEFAULT false,
     "owner_id" "uuid",
     "created_at" timestamp with time zone DEFAULT "now"(),
-    "metadata" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "avatar" "jsonb",
+    "vars" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "index_content" "text",
     CONSTRAINT "workspace_parent_not_self" CHECK ((("parent_id" IS NULL) OR ("parent_id" <> "id"))),
     CONSTRAINT "workspaces_type_check" CHECK (("type" = ANY (ARRAY['folder'::"text", 'workspace'::"text"])))
 );
 
 
 ALTER TABLE "public"."workspaces" OWNER TO "postgres";
-
-
-ALTER TABLE ONLY "public"."broadcast_messages"
-    ADD CONSTRAINT "broadcast_messages_pkey" PRIMARY KEY ("id");
-
 
 
 ALTER TABLE ONLY "public"."chat_members"
@@ -486,6 +537,11 @@ ALTER TABLE ONLY "public"."messages"
 
 ALTER TABLE ONLY "public"."profiles"
     ADD CONSTRAINT "profiles_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."user_assistants"
+    ADD CONSTRAINT "user_assistants_pkey" PRIMARY KEY ("id");
 
 
 
@@ -544,6 +600,16 @@ CREATE OR REPLACE TRIGGER "set_updated_at" BEFORE UPDATE ON "public"."user_plugi
 
 
 
+CREATE OR REPLACE TRIGGER "set_user_id_on_insert_trigger" BEFORE INSERT ON "public"."user_assistants" FOR EACH ROW EXECUTE FUNCTION "public"."set_user_id_on_insert"();
+
+ALTER TABLE "public"."user_assistants" ENABLE ALWAYS TRIGGER "set_user_id_on_insert_trigger";
+
+
+
+CREATE OR REPLACE TRIGGER "set_user_plugin_user_id_trigger" BEFORE INSERT ON "public"."user_plugins" FOR EACH ROW EXECUTE FUNCTION "public"."set_user_plugin_user_id"();
+
+
+
 CREATE OR REPLACE TRIGGER "set_workspace_owner_trigger" BEFORE INSERT ON "public"."workspaces" FOR EACH ROW EXECUTE FUNCTION "public"."set_workspace_owner"();
 
 
@@ -583,6 +649,16 @@ ALTER TABLE ONLY "public"."profiles"
 
 
 
+ALTER TABLE ONLY "public"."user_assistants"
+    ADD CONSTRAINT "user_assistants_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."user_assistants"
+    ADD CONSTRAINT "user_assistants_workspace_id_fkey" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."user_plugins"
     ADD CONSTRAINT "user_plugins_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
@@ -619,14 +695,6 @@ CREATE POLICY "Anyone can read profiles" ON "public"."profiles" FOR SELECT USING
 
 
 CREATE POLICY "Authenticated users can create chats" ON "public"."chats" FOR INSERT WITH CHECK (("auth"."uid"() = "owner_id"));
-
-
-
-CREATE POLICY "Authenticated users can insert broadcast messages" ON "public"."broadcast_messages" FOR INSERT WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
-
-
-
-CREATE POLICY "Authenticated users can read broadcast messages" ON "public"."broadcast_messages" FOR SELECT USING (("auth"."role"() = 'authenticated'::"text"));
 
 
 
@@ -676,7 +744,15 @@ CREATE POLICY "Send messages in workspace chats" ON "public"."messages" FOR INSE
 
 
 
+CREATE POLICY "Users can delete their assistants" ON "public"."user_assistants" FOR DELETE USING (("user_id" = "auth"."uid"()));
+
+
+
 CREATE POLICY "Users can delete their plugins" ON "public"."user_plugins" FOR DELETE USING (("auth"."uid"() = "user_id"));
+
+
+
+CREATE POLICY "Users can insert their assistants" ON "public"."user_assistants" FOR INSERT WITH CHECK (("user_id" = "auth"."uid"()));
 
 
 
@@ -702,11 +778,19 @@ CREATE POLICY "Users can read their plugins" ON "public"."user_plugins" FOR SELE
 
 
 
+CREATE POLICY "Users can update their assistants" ON "public"."user_assistants" FOR UPDATE USING (("user_id" = "auth"."uid"()));
+
+
+
 CREATE POLICY "Users can update their own profile" ON "public"."profiles" FOR UPDATE USING (("auth"."uid"() = "id"));
 
 
 
 CREATE POLICY "Users can update their plugins" ON "public"."user_plugins" FOR UPDATE USING (("auth"."uid"() = "user_id"));
+
+
+
+CREATE POLICY "Users can view their assistants" ON "public"."user_assistants" FOR SELECT USING (("user_id" = "auth"."uid"()));
 
 
 
@@ -756,9 +840,6 @@ CREATE POLICY "Workspace-level chat read access" ON "public"."chats" FOR SELECT 
 
 
 
-ALTER TABLE "public"."broadcast_messages" ENABLE ROW LEVEL SECURITY;
-
-
 ALTER TABLE "public"."chat_members" ENABLE ROW LEVEL SECURITY;
 
 
@@ -769,6 +850,9 @@ ALTER TABLE "public"."messages" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."user_assistants" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."user_plugins" ENABLE ROW LEVEL SECURITY;
@@ -786,10 +870,6 @@ ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
 
 
 
-
-
-
-ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."broadcast_messages";
 
 
 
@@ -1070,6 +1150,18 @@ GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "service_role";
 
 
 
+GRANT ALL ON FUNCTION "public"."set_user_id_on_insert"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_user_id_on_insert"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_user_id_on_insert"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."set_user_plugin_user_id"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_user_plugin_user_id"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_user_plugin_user_id"() TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."set_workspace_owner"() TO "anon";
 GRANT ALL ON FUNCTION "public"."set_workspace_owner"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."set_workspace_owner"() TO "service_role";
@@ -1103,12 +1195,6 @@ GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."broadcast_messages" TO "anon";
-GRANT ALL ON TABLE "public"."broadcast_messages" TO "authenticated";
-GRANT ALL ON TABLE "public"."broadcast_messages" TO "service_role";
-
-
-
 GRANT ALL ON TABLE "public"."chat_members" TO "anon";
 GRANT ALL ON TABLE "public"."chat_members" TO "authenticated";
 GRANT ALL ON TABLE "public"."chat_members" TO "service_role";
@@ -1130,6 +1216,12 @@ GRANT ALL ON TABLE "public"."messages" TO "service_role";
 GRANT ALL ON TABLE "public"."profiles" TO "anon";
 GRANT ALL ON TABLE "public"."profiles" TO "authenticated";
 GRANT ALL ON TABLE "public"."profiles" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."user_assistants" TO "anon";
+GRANT ALL ON TABLE "public"."user_assistants" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_assistants" TO "service_role";
 
 
 
