@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import WorkspaceListSelect from './WorkspaceListSelect.vue'
-import { useWorkspaceActions } from 'src/composables/workspace-actions'
+import { useWorkspaceActions } from 'src/composables/workspaces/workspace-actions'
 import { useRouter, useRoute } from 'vue-router'
 import type { WorkspaceMapped } from '@/services/supabase/types'
 import { useUserDataStore } from 'src/stores/user-data'

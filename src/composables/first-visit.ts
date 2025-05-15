@@ -28,7 +28,7 @@ export function useFirstVisit() {
           avatar: defaultAvatar('AI'),
           prompt: '',
           prompt_template: AssistantDefaultPrompt,
-          prompt_vars: {},
+          prompt_vars: [],
           provider: null,
           model: null,
           model_settings: { ...defaultModelSettings },

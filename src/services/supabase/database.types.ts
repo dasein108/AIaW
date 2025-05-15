@@ -1,4 +1,4 @@
-export type Json = Record<string, any>
+export type Json = Record<string, any> | any[]
 
 export type Database = {
   public: {

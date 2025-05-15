@@ -13,11 +13,8 @@ export function useStorage() {
   }
 
   const getFileUrl = async (path: string) => {
-    const { data, error } = await supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path)
-    if (error) {
-      console.error('Error getting file url:', error)
-    }
-    return data
+    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path)
+    return data.publicUrl
   }
 
   const deleteFile = async (path: string) => {

@@ -13,7 +13,7 @@ function mapWorkspaceTypes(item: Assistant): AssistantMapped {
   const { avatar, prompt_vars, prompt_role, provider, model, model_settings, plugins, ...rest } = item
   return {
     avatar: (avatar ?? { type: 'text', text: item.name.slice(0, 1) }) as Avatar,
-    prompt_vars: prompt_vars ?? {} as Record<string, PromptVar>,
+    prompt_vars: (prompt_vars ?? []) as PromptVar[],
     provider: provider as Provider,
     model: model as Model,
     model_settings: model_settings as ModelSettings,

@@ -118,13 +118,13 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
-import { useWorkspacesStore } from 'src/stores/workspaces'
-// import { Folder, Workspace } from 'src/utils/types'
 import type { WorkspaceMapped } from '@/services/supabase/types'
 import AAvatar from './AAvatar.vue'
-import { useWorkspaceActions } from 'src/composables/workspace-actions'
+import { useWorkspaceActions } from 'src/composables/workspaces/workspace-actions'
 import MenuItem from './MenuItem.vue'
-import { useChildWorkspaces } from './social/composable/useChildWorkspaces'
+import { useRootWorkspace } from '../composables/workspaces/useRootWorkspaces'
+
+// import { Folder, Workspace } from 'src/utils/types'
 
 const props = defineProps<{
   item: WorkspaceMapped
@@ -132,8 +132,7 @@ const props = defineProps<{
 }>()
 
 const { addWorkspace, addFolder, renameItem, moveItem, deleteItem, changeAvatar } = useWorkspaceActions()
-const workspaces = useChildWorkspaces(props.item.id)
-console.log('---workspaces list item', props.item, workspaces.value)
+const workspaces = useRootWorkspace(props.item.id)
 
 const selected = defineModel<string>('selected')
 const expanded = ref(false)

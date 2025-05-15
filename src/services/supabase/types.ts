@@ -1,7 +1,7 @@
 import { AssistantPlugins, Avatar, Model, ModelSettings, PluginManifest, PromptVar, Provider } from '@/utils/types'
 import { Database, Json } from './database.types'
 
-type Message = Database['public']['Tables']['messages']['Row']
+type ChatMessage = Database['public']['Tables']['messages']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Chat = Database['public']['Tables']['chats']['Row']
 type ChatMember = Database['public']['Tables']['chat_members']['Row']
@@ -15,13 +15,13 @@ type WorkspaceMapped = Workspace & {
   index_content?: string;
 };
 
-type MessageWithProfile = Message & {
+type ChatMessageWithProfile = ChatMessage & {
   sender: Profile | null
 }
 
 type AssistantMapped = Assistant & {
   avatar: Avatar
-  prompt_vars: Record<string, PromptVar>
+  prompt_vars: PromptVar[]
   provider: Provider
   model: Model
   model_settings: ModelSettings
@@ -30,6 +30,6 @@ type AssistantMapped = Assistant & {
 };
 
 export type {
-  MessageWithProfile, Chat, Profile, ChatMember, WorkspaceMapped,
-  Workspace, UserPlugin, Assistant, AssistantMapped
+  ChatMessageWithProfile, Chat, Profile, ChatMember, WorkspaceMapped,
+  Workspace, UserPlugin, Assistant, AssistantMapped, ChatMessage
 }

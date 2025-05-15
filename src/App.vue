@@ -5,9 +5,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useFirstVisit } from './composables/first-visit'
-import { useLoginDialogs } from './composables/login-dialogs'
 import { useSetTheme } from './composables/set-theme'
-import { useSubscriptionNotify } from './composables/subscription-notify'
 import { onMounted, provide } from 'vue'
 import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
@@ -15,12 +13,25 @@ import { useUserStore } from 'src/stores/user'
 import { useQuasar } from 'quasar'
 import { usePluginsStore } from './stores/plugins'
 import { useAssistantsStore } from './stores/assistants'
+import { useChatMessagesStore } from './stores/chat-messages'
+// import { useLoginDialogs } from './composables/login-dialogs'
+// import { useSubscriptionNotify } from './composables/subscription-notify'
+
 defineOptions({
   name: 'App'
 })
+
 const userStore = useUserStore()
-const pluginsStore = usePluginsStore()
-const assistantsStore = useAssistantsStore()
+
+async function initStores() {
+  useChatMessagesStore()
+
+  await Promise.all([
+    usePluginsStore().init(),
+    useAssistantsStore().init(),
+    userStore.init()
+  ])
+}
 
 const $q = useQuasar()
 
@@ -28,9 +39,10 @@ const $q = useQuasar()
 provide('kepler', createKeplerWallet())
 
 useSetTheme()
-useLoginDialogs()
 useFirstVisit()
-useSubscriptionNotify()
+// TODO: remove this
+// useLoginDialogs()
+// useSubscriptionNotify()
 
 const router = useRouter()
 router.afterEach(to => {
@@ -54,11 +66,7 @@ router.beforeEach(async (to, from, next) => {
 onMounted(async () => {
   ready()
   checkUpdate()
-  await Promise.all([
-    userStore.init(),
-    pluginsStore.init(),
-    assistantsStore.init()
-  ])
+  await initStores()
 })
 
 </script>

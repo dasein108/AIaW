@@ -173,7 +173,7 @@ import DragableSeparator from 'src/components/DragableSeparator.vue'
 import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import DialogsExpansion from 'src/components/DialogsExpansion.vue'
-import ChatsExpansion from 'src/components/social/ChatsExpansion.vue'
+import ChatsExpansion from 'src/components/chats/ChatsExpansion.vue'
 import { Workspace } from '@/services/supabase/types'
 onErrorCaptured((err, instance, info) => {
   console.error('Global Vue error:', err, info)

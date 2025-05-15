@@ -15,7 +15,7 @@ console.log('Applying patch...')
 
 // Find the Json type on the generated file and replace it
 content = content.replace(/export type Json =\s*\|\s*string\s*\|\s*number\s*\|\s*boolean\s*\|\s*null\s*\|\s*{\s*\[key: string\]: Json \| undefined\s*}\s*\|\s*Json\[\]/g,
-  'export type Json = Record<string, any>') // You can change the type to any other type you want
+  'export type Json = Record<string, any> | any[]') // You can change the type to any other type you want
 
 fs.writeFileSync(typesFilePath, content)
 

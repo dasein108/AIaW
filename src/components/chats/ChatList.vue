@@ -59,31 +59,29 @@
 import { useQuasar } from 'quasar'
 import { isPlatformEnabled } from 'src/utils/functions'
 import { dialogOptions } from 'src/utils/values'
-import { inject, Ref, toRef } from 'vue'
+import { computed, inject, Ref, toRef } from 'vue'
 // import { useI18n } from 'vue-i18n' #TODO: implement i18n
 import MenuItem from '../MenuItem.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { useListenKey } from 'src/composables/listen-key'
 import { useRoute } from 'vue-router'
-import { supabase } from 'src/services/supabase/client'
-import { useChats } from 'src/components/social/composable/useChats'
 import { Workspace } from '@/utils/types'
 import type { Chat } from '@/services/supabase/types'
 import { useUserStore } from 'src/stores/user'
-const { chats } = useChats()
-
+import { useWorkspaceChats } from '../../composables/chats/useWorkspaceChats'
 const $q = useQuasar()
 const route = useRoute()
 const workspace: Ref<Workspace> = inject('workspace')
+const workspaceId = computed(() => workspace.value.id)
 
+const { chats, addChat, updateChat, removeChat } = useWorkspaceChats(workspaceId)
 const userStore = useUserStore()
 
-console.log('chats', chats.value)
 async function addItem() {
-  await supabase.from('chats').insert({
+  await addChat({
     name: 'New chat',
     is_public: true,
-    is_group: true
+    is_group: true,
   })
 }
 
@@ -99,7 +97,7 @@ function renameItem(chat: Chat) {
     cancel: true,
     ...dialogOptions
   }).onOk(async newName => {
-    await supabase.from('chats').update({ name: newName.trim() }).eq('id', chat.id)
+    await updateChat(chat.id, { name: newName.trim() })
   })
 }
 
@@ -112,15 +110,12 @@ function deleteItem(chat: Chat) {
     cancel: true,
     ...dialogOptions
   }).onOk(async () => {
-    const { error } = await supabase
-      .rpc('delete_chat_if_authorized', { chat_id: chat.id })
-    if (error) {
-      console.error('error', error)
+    await removeChat(chat.id).catch(error => {
       $q.notify({
         message: error.message,
         color: 'negative'
       })
-    }
+    })
   })
 }
 

@@ -1,24 +1,23 @@
 import { ref, readonly, inject, watch } from 'vue'
 import { supabase } from 'src/services/supabase/client'
 import type { Workspace, WorkspaceMapped } from 'src/services/supabase/types'
-import { jsonToObject } from 'src/services/supabase/json'
 import { Avatar } from '@/utils/types'
 import { useUserStore } from 'src/stores/user'
+
+export function mapWorkspaceTypes(item: Workspace): WorkspaceMapped {
+  const { avatar, vars, index_content, ...rest } = item
+  return {
+    avatar: (avatar ?? { type: 'text', text: item.name.slice(0, 1) }) as Avatar,
+    vars: (vars ?? {}) as Record<string, string>,
+    index_content,
+    ...rest
+  }
+}
 
 const workspaces = ref<WorkspaceMapped[]>([])
 let isSubscribed = false
 let subscription: ReturnType<typeof supabase.channel> | null = null
 const isLoaded = ref(false)
-
-function mapWorkspaceTypes(item: Workspace): WorkspaceMapped {
-  const { avatar, vars, index_content, ...rest } = item
-  return {
-    avatar: (avatar ?? { type: 'text', text: item.name.slice(0, 1) }) as Avatar,
-    vars: vars ?? {},
-    index_content,
-    ...rest
-  }
-}
 
 async function fetchWorkspaces() {
   const { data, error } = await supabase
@@ -86,9 +85,8 @@ function unsubscribeFromWorkspaces() {
   isSubscribed = false
 }
 
-export function useWorkspaces() {
+export function useWorkspacesWithSubscription() {
   const userStore = useUserStore()
-  const { currentUserId } = userStore
   // Initial fetch and subscribe
   if (!isSubscribed) {
     fetchWorkspaces()
@@ -97,7 +95,7 @@ export function useWorkspaces() {
 
   // Watch for currentUser changes
   watch(
-    () => currentUserId,
+    () => userStore.currentUserId,
     (newId, oldId) => {
       if (newId !== oldId) {
         unsubscribeFromWorkspaces()

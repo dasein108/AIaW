@@ -98,11 +98,11 @@ import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { copyToClipboard, useQuasar } from 'quasar'
 import { genId, textBeginning } from 'src/utils/functions'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
-import { MessageWithProfile } from '@/services/supabase/types'
+import { ChatMessageWithProfile } from '@/services/supabase/types'
 import { useUserStore } from 'src/stores/user'
 
 const props = defineProps<{
-  message: MessageWithProfile,
+  message: ChatMessageWithProfile,
   scrollContainer: HTMLElement
 }>()
 

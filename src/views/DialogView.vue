@@ -276,7 +276,7 @@
             >
           </q-btn>
           <q-btn
-            v-if="Object.keys(assistant?.prompt_vars).length"
+            v-if="assistant?.prompt_vars.length"
             flat
             icon="sym_o_tune"
             :title="showVars ? $t('dialogView.hideVars') : $t('dialogView.showVars')"
@@ -359,7 +359,7 @@
         >
           <prompt-var-input
             class="mt-2 mr-2"
-            v-for="promptVar of Object.values(assistant.prompt_vars)"
+            v-for="promptVar of assistant.prompt_vars"
             :key="promptVar.id"
             :prompt-var="promptVar"
             v-model="dialog.inputVars[promptVar.name]"

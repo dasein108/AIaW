@@ -5,12 +5,12 @@ import { genId } from 'src/utils/functions'
 import { DefaultWsIndexContent } from 'src/utils/templates'
 import { useI18n } from 'vue-i18n'
 import { supabase } from 'src/services/supabase/client'
-import { useWorkspaces } from 'src/components/social/composable/useWorkspaces'
+import { useWorkspacesWithSubscription } from 'src/composables/workspaces/useWorkspacesWithSubscription'
 import type { WorkspaceMapped } from '@/services/supabase/types'
-import { ref, watch } from 'vue'
+import { readonly, ref, watch } from 'vue'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
-  const { workspaces, isLoaded } = useWorkspaces()
+  const { workspaces, isLoaded } = useWorkspacesWithSubscription()
   // const workspaces = useLiveQuery(() => db.workspaces.toArray(), { initialValue: [] as Workspace[] })
   const { t } = useI18n()
   // watch(workspaces, (val) => {

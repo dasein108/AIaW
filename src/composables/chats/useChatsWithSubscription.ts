@@ -1,4 +1,4 @@
-import { ref, readonly, inject, watch } from 'vue'
+import { ref, readonly, watch } from 'vue'
 import { supabase } from 'src/services/supabase/client'
 import type { Chat } from 'src/services/supabase/types'
 import { useUserStore } from 'src/stores/user'
@@ -101,7 +101,7 @@ function unsubscribeFromChats() {
   isSubscribed = false
 }
 
-export function useChats() {
+export function useChatsWithSubscription() {
   const userStore = useUserStore()
 
   // Initial fetch and subscribe
@@ -123,7 +123,5 @@ export function useChats() {
     }
   )
 
-  return {
-    chats: readonly(chats)
-  }
+  return readonly(chats)
 }

@@ -58,7 +58,7 @@ import { useUiStateStore } from 'src/stores/ui-state'
 import { useRouter } from 'vue-router'
 import { pageFhStyle } from 'src/utils/functions'
 import { useUserStore } from 'src/stores/user'
-import { useAuth } from 'src/components/auth/composable/auth'
+import { useAuth } from 'src/composables/auth/useAuth'
 
 const userStore = useUserStore()
 
