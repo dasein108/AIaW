@@ -14,6 +14,7 @@ import { toRef } from 'vue'
 const props = defineProps<{
   id: string
 }>()
+const BASE_AVATAR_URL = process.env.SUPABASE_URL + '/storage/v1/object/public/avatar.images'
 
-const url = useAvatarImage(toRef(props, 'id'))
+const url = `${BASE_AVATAR_URL}/${props.id}`
 </script>

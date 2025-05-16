@@ -268,6 +268,24 @@ $$;
 ALTER FUNCTION "public"."set_chat_owner"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."set_dialog_user_id"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+begin
+  if new.user_id is null then
+    new.user_id := auth.uid();
+  end if;
+
+  new.created_at := now();
+
+  return new;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."set_dialog_user_id"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."set_sender_id"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
@@ -420,6 +438,23 @@ CREATE TABLE IF NOT EXISTS "public"."chats" (
 ALTER TABLE "public"."chats" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."dialogs" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "name" "text" NOT NULL,
+    "workspace_id" "uuid" NOT NULL,
+    "assistant_id" "uuid",
+    "user_id" "uuid" NOT NULL,
+    "msg_tree" "jsonb" NOT NULL,
+    "msg_route" integer[] NOT NULL,
+    "input_vars" "jsonb" NOT NULL,
+    "model_override" "jsonb",
+    "created_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."dialogs" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."messages" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "chat_id" "uuid",
@@ -448,15 +483,15 @@ ALTER TABLE "public"."profiles" OWNER TO "postgres";
 CREATE TABLE IF NOT EXISTS "public"."user_assistants" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "workspace_id" "uuid",
-    "user_id" "uuid" NOT NULL,
+    "user_id" "uuid",
     "name" "text" NOT NULL,
-    "prompt" "text" NOT NULL,
-    "prompt_vars" "jsonb" NOT NULL,
-    "prompt_template" "text" NOT NULL,
-    "provider" "jsonb" NOT NULL,
+    "prompt" "text",
+    "prompt_vars" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "prompt_template" "text",
+    "provider" "jsonb",
     "model" "jsonb",
-    "model_settings" "jsonb" NOT NULL,
-    "plugins" "jsonb" NOT NULL,
+    "model_settings" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "plugins" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "prompt_role" "text",
     "stream" boolean DEFAULT false NOT NULL,
     "description" "text",
@@ -465,6 +500,7 @@ CREATE TABLE IF NOT EXISTS "public"."user_assistants" (
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
     "avatar" "jsonb",
+    "context_num" bigint DEFAULT '0'::bigint NOT NULL,
     CONSTRAINT "user_assistants_prompt_role_check" CHECK (("prompt_role" = ANY (ARRAY['system'::"text", 'user'::"text", 'assistant'::"text"])))
 );
 
@@ -530,6 +566,11 @@ ALTER TABLE ONLY "public"."chats"
 
 
 
+ALTER TABLE ONLY "public"."dialogs"
+    ADD CONSTRAINT "dialogs_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."messages"
     ADD CONSTRAINT "messages_pkey" PRIMARY KEY ("id");
 
@@ -590,6 +631,10 @@ ALTER TABLE "public"."chats" ENABLE ALWAYS TRIGGER "set_chat_owner_trigger";
 
 
 
+CREATE OR REPLACE TRIGGER "set_dialog_user_id_trigger" BEFORE INSERT ON "public"."dialogs" FOR EACH ROW EXECUTE FUNCTION "public"."set_dialog_user_id"();
+
+
+
 CREATE OR REPLACE TRIGGER "set_sender_id_trigger" BEFORE INSERT ON "public"."messages" FOR EACH ROW EXECUTE FUNCTION "public"."set_sender_id"();
 
 ALTER TABLE "public"."messages" ENABLE ALWAYS TRIGGER "set_sender_id_trigger";
@@ -631,6 +676,21 @@ ALTER TABLE ONLY "public"."chats"
 
 ALTER TABLE ONLY "public"."chats"
     ADD CONSTRAINT "chats_workspace_id_fkey" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."dialogs"
+    ADD CONSTRAINT "dialogs_assistant_id_fkey" FOREIGN KEY ("assistant_id") REFERENCES "public"."user_assistants"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."dialogs"
+    ADD CONSTRAINT "dialogs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."dialogs"
+    ADD CONSTRAINT "dialogs_workspace_id_fkey" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE CASCADE;
 
 
 
@@ -748,11 +808,19 @@ CREATE POLICY "Users can delete their assistants" ON "public"."user_assistants" 
 
 
 
+CREATE POLICY "Users can delete their own dialogs" ON "public"."dialogs" FOR DELETE USING (("user_id" = "auth"."uid"()));
+
+
+
 CREATE POLICY "Users can delete their plugins" ON "public"."user_plugins" FOR DELETE USING (("auth"."uid"() = "user_id"));
 
 
 
 CREATE POLICY "Users can insert their assistants" ON "public"."user_assistants" FOR INSERT WITH CHECK (("user_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "Users can insert their own dialogs" ON "public"."dialogs" FOR INSERT WITH CHECK (("user_id" = "auth"."uid"()));
 
 
 
@@ -782,6 +850,10 @@ CREATE POLICY "Users can update their assistants" ON "public"."user_assistants" 
 
 
 
+CREATE POLICY "Users can update their own dialogs" ON "public"."dialogs" FOR UPDATE USING (("user_id" = "auth"."uid"()));
+
+
+
 CREATE POLICY "Users can update their own profile" ON "public"."profiles" FOR UPDATE USING (("auth"."uid"() = "id"));
 
 
@@ -791,6 +863,10 @@ CREATE POLICY "Users can update their plugins" ON "public"."user_plugins" FOR UP
 
 
 CREATE POLICY "Users can view their assistants" ON "public"."user_assistants" FOR SELECT USING (("user_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "Users can view their dialogs" ON "public"."dialogs" FOR SELECT USING (("user_id" = "auth"."uid"()));
 
 
 
@@ -844,6 +920,9 @@ ALTER TABLE "public"."chat_members" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."chats" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."dialogs" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."messages" ENABLE ROW LEVEL SECURITY;
@@ -1144,6 +1223,12 @@ GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "service_role";
 
 
 
+GRANT ALL ON FUNCTION "public"."set_dialog_user_id"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_dialog_user_id"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_dialog_user_id"() TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "anon";
 GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "service_role";
@@ -1204,6 +1289,12 @@ GRANT ALL ON TABLE "public"."chat_members" TO "service_role";
 GRANT ALL ON TABLE "public"."chats" TO "anon";
 GRANT ALL ON TABLE "public"."chats" TO "authenticated";
 GRANT ALL ON TABLE "public"."chats" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."dialogs" TO "anon";
+GRANT ALL ON TABLE "public"."dialogs" TO "authenticated";
+GRANT ALL ON TABLE "public"."dialogs" TO "service_role";
 
 
 

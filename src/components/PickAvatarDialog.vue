@@ -141,7 +141,7 @@
           />
           <q-btn
             :label="$t('pickAvatarDialog.confirm')"
-            @click="onDialogOK(selected)"
+            @click="onConfirm"
             flat
             bg-pri
             text-on-pri
@@ -156,7 +156,7 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { Avatar } from 'src/utils/types'
-import { ref, watch } from 'vue'
+import { ref, watch, toRaw } from 'vue'
 import AvatarPanel from './AvatarPanel.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import AAvatar from './AAvatar.vue'
@@ -166,6 +166,7 @@ import { genId } from 'src/utils/functions'
 import { cropSquareBlob } from 'src/utils/image-process'
 import { db } from 'src/utils/db'
 import { materialSymbols } from 'src/utils/values'
+import { useStorage } from 'src/composables/storage/useStorage'
 
 const props = defineProps<{
   defaultTab: string,
@@ -179,7 +180,10 @@ defineEmits([
 const tab = ref(props.defaultTab)
 
 const { perfs } = useUserPerfsStore()
+const storage = useStorage()
 const selected = ref<Avatar>({ ...props.model })
+const initialAvatar = toRaw(selected.value)
+
 function select(avatar: Avatar, addColor: boolean = false) {
   if (addColor) {
     selected.value = { ...avatar, hue: perfs.themeHue }
@@ -245,17 +249,29 @@ function toggleHue(value: boolean) {
 function setText(text: string) {
   selected.value = { type: 'text', text, hue: perfs.themeHue }
 }
+async function prunePreviousFile() {
+  console.log("---prunePreviousFile", initialAvatar)
+  if (initialAvatar.type === 'image') {
+    await storage.deleteFile(initialAvatar.imageId)
+  }
+}
 async function onImageInput(file: File) {
   const blob = await cropSquareBlob(file, 96)
+  const ext = file.name.split('.').pop() || 'png'
+
   const id = genId()
-  await db.avatarImages.add({ id, contentBuffer: await blob.arrayBuffer(), mimeType: file.type })
-  selected.value = { type: 'image', imageId: id }
+  const newFile = new File([blob], `${id}.${ext}`, { type: file.type })
+  const path = await storage.uploadFile(newFile)
+  // const prevAvatar = toRaw(selected.value)
+  selected.value = { type: 'image', imageId: path }
+  // await deleteFile(prevAvatar)
+  // console.log("---selected onImageInput", selected.value)
 }
-watch(selected, (to, from) => {
-  if (from.type === 'image') {
-    db.avatarImages.delete(from.imageId)
-  }
-})
+
+async function onConfirm() {
+  await prunePreviousFile()
+  onDialogOK(selected)
+}
 
 const { dialogRef, onDialogCancel, onDialogHide, onDialogOK } = useDialogPluginComponent()
 </script>

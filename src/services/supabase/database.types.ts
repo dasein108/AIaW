@@ -81,6 +81,60 @@ export type Database = {
           },
         ]
       }
+      dialogs: {
+        Row: {
+          assistant_id: string | null
+          created_at: string | null
+          id: string
+          input_vars: Json
+          model_override: Json | null
+          msg_route: number[]
+          msg_tree: Json
+          name: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          assistant_id?: string | null
+          created_at?: string | null
+          id?: string
+          input_vars: Json
+          model_override?: Json | null
+          msg_route: number[]
+          msg_tree: Json
+          name: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          assistant_id?: string | null
+          created_at?: string | null
+          id?: string
+          input_vars?: Json
+          model_override?: Json | null
+          msg_route?: number[]
+          msg_tree?: Json
+          name?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dialogs_assistant_id_fkey"
+            columns: ["assistant_id"]
+            isOneToOne: false
+            referencedRelation: "user_assistants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dialogs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           chat_id: string | null
