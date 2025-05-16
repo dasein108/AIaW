@@ -1,12 +1,11 @@
 import { LiveUpdate } from '@capawesome/capacitor-live-update'
-import { check } from '@tauri-apps/plugin-updater'
+import { invoke } from '@tauri-apps/api/core'
 import { relaunch } from '@tauri-apps/plugin-process'
-import { fetch, IsCapacitor, IsTauri, IsWeb, TauriPlatform } from './platform-api'
-import version from 'src/version.json'
 import { Loading, Notify, QNotifyAction } from 'quasar'
 import { i18n } from 'src/boot/i18n'
+import version from 'src/version.json'
 import { localData } from './local-data'
-import { invoke } from '@tauri-apps/api/core'
+import { fetch, IsCapacitor, IsWeb, TauriPlatform } from './platform-api'
 
 const BaseURL = 'https://github.com/NitroRCr/AIaW/releases/latest/download'
 type Version = typeof version
@@ -20,8 +19,6 @@ async function checkUpdate() {
   const force = version.versionCode <= latest.forceUpdateFrom
   if (IsCapacitor) {
     await capLiveUpdate(latest, force)
-  } else if (IsTauri) {
-    await tauriUpdate(latest, force)
   }
 }
 
@@ -67,43 +64,6 @@ async function capLiveUpdate(latest: Version, force: boolean) {
         label: t('update.download'),
         handler: () => {
           window.open(`${BaseURL}/AIaW_${latest.version}.apk`)
-        }
-      }]
-    )
-  }
-}
-
-async function tauriUpdate(latest: Version, force: boolean) {
-  const isDeb = TauriPlatform === 'linux' && await invoke('is_deb_package')
-  const update = await check(isDeb ? { target: 'linux-deb' } : {})
-  if (!update) return
-  if (TauriPlatform === 'windows' || isDeb) {
-    if (force && !isUpdateIgnored(latest.version)) {
-      await update.download()
-      wrapNotify(
-        t('update.downloadedNewVersion', { version: latest.version }),
-        [{
-          label: t('update.ignore'),
-          handler: () => {
-            ignoreUpdate(latest.version)
-          }
-        }, {
-          label: t('update.install'),
-          handler: async () => {
-            await update.install()
-            await relaunch()
-          }
-        }]
-      )
-    }
-  } else {
-    await update.downloadAndInstall()
-    force && wrapNotify(
-      t('update.installedNewVersion', { version: latest.version }),
-      [{
-        label: t('update.relaunch'),
-        handler: () => {
-          relaunch()
         }
       }]
     )

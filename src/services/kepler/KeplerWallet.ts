@@ -140,7 +140,6 @@ export function createKeplerWallet() {
       if (!window.keplr) {
         throw new Error('Keplr extension not installed')
       }
-
       const offlineSigner = window.keplr.getOfflineSigner(config.CHAIN_ID)
       const accounts = await offlineSigner.getAccounts()
 

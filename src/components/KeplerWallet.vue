@@ -8,6 +8,7 @@
         color="primary"
         @click="connectWallet"
         label="Connect Wallet"
+        :disable="!hasKeplr"
       />
     </div>
     <div
@@ -30,6 +31,8 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
 import { KeplerWallet } from '@/services/kepler/KeplerWallet'
+
+const hasKeplr = computed(() => typeof window !== 'undefined' && window.keplr)
 
 const wallet = inject<KeplerWallet>('kepler')
 
@@ -64,6 +67,7 @@ const disconnectWallet = async () => {
 .connected {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 1rem;
 }
 
