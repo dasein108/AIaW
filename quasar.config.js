@@ -17,6 +17,7 @@ export default configure((ctx) => {
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
     boot: [
       'i18n',
+      'pinia-persist',
       'unocss',
       'global-components'
     ],
@@ -187,7 +188,7 @@ export default configure((ctx) => {
       // useCredentialsForManifestTag: true,
       // injectPwaMetaTags: false,
       // extendPWACustomSWConf (esbuildConf) {},
-      extendGenerateSWOptions (cfg) {
+      extendGenerateSWOptions(cfg) {
         cfg.navigateFallbackDenylist = [/^\/budget\//]
       }
       // extendInjectManifestOptions (cfg) {}

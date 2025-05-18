@@ -24,14 +24,6 @@
           {{ walletState.address }}
         </div>
       </div>
-      <div class="type">
-        <div class="label">
-          Type:
-        </div>
-        <div class="value">
-          {{ walletState.type }}
-        </div>
-      </div>
       <q-btn
         color="grey"
         outline

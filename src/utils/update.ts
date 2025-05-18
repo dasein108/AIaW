@@ -1,11 +1,9 @@
 import { LiveUpdate } from '@capawesome/capacitor-live-update'
-import { invoke } from '@tauri-apps/api/core'
-import { relaunch } from '@tauri-apps/plugin-process'
 import { Loading, Notify, QNotifyAction } from 'quasar'
 import { i18n } from 'src/boot/i18n'
 import version from 'src/version.json'
 import { localData } from './local-data'
-import { fetch, IsCapacitor, IsWeb, TauriPlatform } from './platform-api'
+import { fetch, IsCapacitor, IsWeb } from './platform-api'
 
 const BaseURL = 'https://github.com/NitroRCr/AIaW/releases/latest/download'
 type Version = typeof version

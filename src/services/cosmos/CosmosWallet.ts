@@ -9,32 +9,12 @@ import { CYBER_CONTRACT_ADDRESS } from '../kepler/KeplerWallet'
 import { saveMnemonic, getMnemonic, removeMnemonic } from 'src/stores/tauri-store'
 import { IsTauri } from 'src/utils/platform-api'
 import { EncryptionService } from '../encryption/EncryptionService'
+import { config } from '../constants'
 
 export interface CosmosSignerState {
   isConnected: boolean
   address: string | null
   type: 'keplr' | 'mnemonic' | null
-}
-
-export interface ChainConfig {
-  CHAIN_ID: string
-  FEE_DENOM: string
-  DENOM: string
-  NODE_RPC_URL: string
-  LCD_URL: string
-  RPC_TIMEOUT: number
-  GAS_PRICE_AMOUNT: string
-}
-
-// Chain configuration
-const config: ChainConfig = {
-  CHAIN_ID: 'cyber42-1',
-  FEE_DENOM: 'ustake',
-  DENOM: 'STAKE',
-  NODE_RPC_URL: 'https://rpc.cyber-rollup.chatcyber.ai',
-  LCD_URL: 'https://api.cyber-rollup.chatcyber.ai',
-  RPC_TIMEOUT: 60000,
-  GAS_PRICE_AMOUNT: '0.15'
 }
 
 type CyberOfflineSigner = (OfflineDirectSigner | OfflineAminoSigner) & {

@@ -4,6 +4,7 @@ import { GasPrice } from '@cosmjs/stargate'
 import type { OfflineAminoSigner, StdSignDoc } from '@cosmjs/amino'
 import type { TxStatusResponse, KeplerWalletState, ChainConfig } from './types'
 import { parseTxStatus } from './utils'
+import { config } from '../constants'
 
 declare global {
   interface Window {
@@ -22,17 +23,6 @@ export const getLocalStorageWalletState = () => {
   return typeof window !== 'undefined'
     ? JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"isConnected": false, "address": null}')
     : { isConnected: false, address: null }
-}
-
-// Configure Kepler wallet
-const config: ChainConfig = {
-  CHAIN_ID: 'cyber42-1',
-  FEE_DENOM: 'ustake',
-  DENOM: 'STAKE',
-  NODE_RPC_URL: 'https://rpc.cyber-rollup.chatcyber.ai',
-  LCD_URL: 'https://api.cyber-rollup.chatcyber.ai',
-  RPC_TIMEOUT: 60000,
-  GAS_PRICE_AMOUNT: '0.15'
 }
 
 // Chain suggestion configuration for Keplr
