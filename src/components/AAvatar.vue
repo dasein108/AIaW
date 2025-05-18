@@ -36,6 +36,7 @@ import { hctToHex } from 'src/utils/functions'
 import { Avatar } from 'src/utils/types'
 import { computed } from 'vue'
 import ImageAvatar from './ImageAvatar.vue'
+const BASE_URL = 'https://aiaw-assets.s3.us-east-2.amazonaws.com'
 const props = defineProps<{
   avatar: Avatar
 }>()

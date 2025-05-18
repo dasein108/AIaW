@@ -1,4 +1,5 @@
-import { AvatarImage, StoredItem } from 'src/utils/types'
+import { AvatarImage } from 'src/utils/types'
+import { StoredItem } from '@/services/supabase/types'
 import { onUnmounted, Ref, ref, watch } from 'vue'
 
 const objectURLs: {
@@ -7,12 +8,12 @@ const objectURLs: {
 
 export function useFileURL(file: Ref<StoredItem | AvatarImage>) {
   const url = ref(null)
-  function mount({ id, contentBuffer, mimeType }: StoredItem | AvatarImage) {
+  function mount({ id, content_buffer, mime_type }: StoredItem | AvatarImage) {
     if (objectURLs[id]) {
       objectURLs[id].active++
       url.value = objectURLs[id].url
     } else {
-      const blob = new Blob([contentBuffer], { type: mimeType })
+      const blob = new Blob([content_buffer], { type: mime_type })
       url.value = URL.createObjectURL(blob)
       objectURLs[id] = { url: url.value, active: 1 }
     }

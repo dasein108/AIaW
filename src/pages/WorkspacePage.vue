@@ -194,11 +194,6 @@ const listOpen = computed(() => userStore.data.listOpen[props.id] || {
 
 // const workspace = useChildWorkspaces(props.id)
 const workspace = computed<Workspace | undefined>(() => workspacesStore.workspaces.find(item => item.id === props.id) as Workspace)
-console.log('!!!!workspace page', workspace.value, props.id)
-
-watch(workspace, val => {
-  console.log('!!!!workspace page watch', toRaw(val))
-}, { immediate: true })
 
 const dialogs = useLiveQueryWithDeps(() => props.id, () => db.dialogs.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Dialog[] })
 const artifacts = useLiveQueryWithDeps(() => props.id, () => db.artifacts.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Artifact[] })

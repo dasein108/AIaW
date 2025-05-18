@@ -81,6 +81,70 @@ export type Database = {
           },
         ]
       }
+      dialog_messages: {
+        Row: {
+          assistant_id: string | null
+          dialog_id: string
+          error: string | null
+          generating_session: string | null
+          id: string
+          model_name: string | null
+          status: string
+          type: string
+          usage: Json | null
+          warnings: Json | null
+          workspace_id: string | null
+        }
+        Insert: {
+          assistant_id?: string | null
+          dialog_id: string
+          error?: string | null
+          generating_session?: string | null
+          id?: string
+          model_name?: string | null
+          status: string
+          type: string
+          usage?: Json | null
+          warnings?: Json | null
+          workspace_id?: string | null
+        }
+        Update: {
+          assistant_id?: string | null
+          dialog_id?: string
+          error?: string | null
+          generating_session?: string | null
+          id?: string
+          model_name?: string | null
+          status?: string
+          type?: string
+          usage?: Json | null
+          warnings?: Json | null
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dialog_messages_assistant_id_fkey"
+            columns: ["assistant_id"]
+            isOneToOne: false
+            referencedRelation: "user_assistants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dialog_messages_dialog_id_fkey"
+            columns: ["dialog_id"]
+            isOneToOne: false
+            referencedRelation: "dialogs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dialog_messages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dialogs: {
         Row: {
           assistant_id: string | null
@@ -91,7 +155,7 @@ export type Database = {
           msg_route: number[]
           msg_tree: Json
           name: string
-          user_id: string
+          user_id: string | null
           workspace_id: string
         }
         Insert: {
@@ -103,7 +167,7 @@ export type Database = {
           msg_route: number[]
           msg_tree: Json
           name: string
-          user_id: string
+          user_id?: string | null
           workspace_id: string
         }
         Update: {
@@ -115,7 +179,7 @@ export type Database = {
           msg_route?: number[]
           msg_tree?: Json
           name?: string
-          user_id?: string
+          user_id?: string | null
           workspace_id?: string
         }
         Relationships: [
@@ -131,6 +195,56 @@ export type Database = {
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_contents: {
+        Row: {
+          args: Json | null
+          error: string | null
+          id: string
+          message_id: string
+          name: string | null
+          plugin_id: string | null
+          reasoning: string | null
+          result: Json | null
+          status: string | null
+          text: string | null
+          type: string
+        }
+        Insert: {
+          args?: Json | null
+          error?: string | null
+          id?: string
+          message_id: string
+          name?: string | null
+          plugin_id?: string | null
+          reasoning?: string | null
+          result?: Json | null
+          status?: string | null
+          text?: string | null
+          type: string
+        }
+        Update: {
+          args?: Json | null
+          error?: string | null
+          id?: string
+          message_id?: string
+          name?: string | null
+          plugin_id?: string | null
+          reasoning?: string | null
+          result?: Json | null
+          status?: string | null
+          text?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_contents_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "dialog_messages"
             referencedColumns: ["id"]
           },
         ]
@@ -194,6 +308,57 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      stored_items: {
+        Row: {
+          content_buffer: string | null
+          content_text: string | null
+          dialog_id: string
+          id: string
+          message_content_id: string
+          mime_type: string | null
+          name: string | null
+          references_count: number | null
+          type: string
+        }
+        Insert: {
+          content_buffer?: string | null
+          content_text?: string | null
+          dialog_id: string
+          id?: string
+          message_content_id: string
+          mime_type?: string | null
+          name?: string | null
+          references_count?: number | null
+          type: string
+        }
+        Update: {
+          content_buffer?: string | null
+          content_text?: string | null
+          dialog_id?: string
+          id?: string
+          message_content_id?: string
+          mime_type?: string | null
+          name?: string | null
+          references_count?: number | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stored_items_dialog_id_fkey"
+            columns: ["dialog_id"]
+            isOneToOne: false
+            referencedRelation: "dialogs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stored_items_message_content_id_fkey"
+            columns: ["message_content_id"]
+            isOneToOne: false
+            referencedRelation: "message_contents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_assistants: {
         Row: {

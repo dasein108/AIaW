@@ -63,7 +63,7 @@ export const useAssistantsStore = defineStore('assistants', () => {
       workspace_id: null,
       prompt: '',
       prompt_template: AssistantDefaultPrompt,
-      prompt_vars: {},
+      prompt_vars: [],
       provider: null,
       model: null,
       model_settings: { ...defaultModelSettings },

@@ -17,7 +17,7 @@
         p-0
         bg-sur-c-low
       >
-        <div v-if="file.contentText">
+        <div v-if="file.content_text">
           <md-preview
             :model-value="markdown"
             v-bind="mdPreviewProps"
@@ -25,14 +25,14 @@
             max-h="70vh"
           />
         </div>
-        <div v-if="file.contentBuffer">
+        <div v-if="file.content_buffer">
           <q-list>
             <q-item>
               <q-item-section>
                 {{ $t('viewFileDialog.fileSize') }}
               </q-item-section>
               <q-item-section side>
-                {{ sizeStr(file.contentBuffer.byteLength) }}
+                {{ sizeStr(file.content_buffer.length) }}
               </q-item-section>
             </q-item>
             <q-item>
@@ -40,7 +40,7 @@
                 {{ $t('viewFileDialog.fileType') }}
               </q-item-section>
               <q-item-section side>
-                {{ file.mimeType }}
+                {{ file.mime_type }}
               </q-item-section>
             </q-item>
           </q-list>
@@ -50,14 +50,14 @@
         bg-sur-c-low
       >
         <copy-btn
-          v-if="file.contentText"
+          v-if="file.content_text"
           flat
           :label="$t('viewFileDialog.copy')"
           color="primary"
-          :value="file.contentText"
+          :value="file.content_text"
         />
         <q-btn
-          v-if="file.contentBuffer"
+          v-if="file.content_buffer"
           flat
           :label="$t('viewFileDialog.download')"
           color="primary"
@@ -105,17 +105,17 @@ function sizeStr(bytes: number) {
 
 const markdown = computed(() => {
   const { file } = props
-  if (file.type === 'quote') return wrapQuote(file.contentText)
+  if (file.type === 'quote') return wrapQuote(file.content_text)
   const splits = file.name.split('.')
-  if (splits.length < 2) return file.contentText
+  if (splits.length < 2) return file.content_text
   const ext = splits.at(-1)
   return codeExtensions.includes(ext)
-    ? wrapCode((file.contentText), ext)
-    : (file.contentText)
+    ? wrapCode((file.content_text), ext)
+    : (file.content_text)
 })
 
 function download() {
-  exportFile(props.file.name, props.file.contentBuffer)
+  exportFile(props.file.name, props.file.content_buffer)
 }
 
 const mdPreviewProps = useMdPreviewProps()

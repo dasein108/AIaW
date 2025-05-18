@@ -97,7 +97,7 @@
 <script setup lang="ts">
 import { caselessIncludes, getFileExt, isTextFile } from 'src/utils/functions'
 import { Artifact, Workspace } from 'src/utils/types'
-import { computed, inject, ref, Ref } from 'vue'
+import { computed, inject, ref, Ref, toRef } from 'vue'
 import { useCloseArtifact } from 'src/composables/close-artifact'
 import ArtifactItemMenu from './ArtifactItemMenu.vue'
 import ArtifactItemIcon from './ArtifactItemIcon.vue'
@@ -121,7 +121,7 @@ const workspace = inject<Ref<Workspace>>('workspace')
 
 const { t } = useI18n()
 const $q = useQuasar()
-const { createArtifact } = useCreateArtifact(workspace)
+const { createArtifact } = useCreateArtifact(toRef(workspace.value, 'id'))
 const router = useRouter()
 const route = useRoute()
 

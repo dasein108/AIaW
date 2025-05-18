@@ -66,11 +66,9 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { db } from 'src/utils/db'
 import { isPlatformEnabled } from 'src/utils/functions'
-import { Dialog, Workspace } from 'src/utils/types'
 import { dialogOptions } from 'src/utils/values'
-import { inject, Ref, toRef } from 'vue'
+import { computed, inject, Ref, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { useCreateDialog } from 'src/composables/create-dialog'
@@ -78,16 +76,19 @@ import MenuItem from './MenuItem.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { useListenKey } from 'src/composables/listen-key'
 import { useRouter, useRoute } from 'vue-router'
+import { useDialogsStore } from 'src/stores/dialogs'
+import { Workspace } from '@/services/supabase/types'
 
 const { t } = useI18n()
 const workspace: Ref<Workspace> = inject('workspace')
-const dialogs: Ref<Dialog[]> = inject('dialogs')
 
 const $q = useQuasar()
 const router = useRouter()
 const route = useRoute()
 
-const { createDialog } = useCreateDialog(workspace)
+const { createDialog } = useCreateDialog(workspace.value.id)
+const dialogsStore = useDialogsStore()
+const dialogs = computed(() => Object.values(dialogsStore.dialogs))
 async function addItem() {
   await createDialog()
 }
@@ -104,7 +105,7 @@ function renameItem({ id, name }) {
     cancel: true,
     ...dialogOptions
   }).onOk(newName => {
-    db.dialogs.update(id, { name: newName.trim() })
+    dialogsStore.updateDialog({ id, name: newName.trim() })
   })
 }
 function moveItem({ id }) {
@@ -114,7 +115,7 @@ function moveItem({ id }) {
       accept: 'workspace'
     }
   }).onOk(workspaceId => {
-    db.dialogs.update(id, { workspaceId })
+    dialogsStore.updateDialog({ id, workspace_id: workspaceId })
   })
 }
 function deleteItem({ id, name }) {
@@ -129,11 +130,7 @@ function deleteItem({ id, name }) {
     },
     ...dialogOptions
   }).onOk(() => {
-    db.transaction('rw', db.dialogs, db.messages, db.items, async () => {
-      await db.dialogs.delete(id)
-      await db.messages.where('dialogId').equals(id).delete()
-      await db.items.where('dialogId').equals(id).delete()
-    })
+    dialogsStore.removeDialog(id)
   })
 }
 

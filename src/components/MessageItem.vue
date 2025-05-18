@@ -52,7 +52,7 @@
             bg-sur
             no-highlight
             :show-code-row-number="false"
-            :auto-fold-threshold="message.generatingSession ? Infinity : 0"
+            :auto-fold-threshold="message.generating_session ? Infinity : 0"
           />
           <div
             ref="textDiv"
@@ -113,7 +113,7 @@
             </transition>
           </div>
           <div
-            v-if="content.type === 'user-message' && content.items.length"
+            v-if="content.type === 'user-message' && content.stored_items.length"
             flex
             flex-wrap
             px-4
@@ -121,20 +121,20 @@
             gap-2
           >
             <message-image
-              v-for="image in content.items.map(id => itemMap[id]).filter(i => i.mimeType?.startsWith('image/'))"
+              v-for="image in content.stored_items.map(item => itemMap[item.id]).filter(i => i.mime_type?.startsWith('image/'))"
               :key="image.id"
               :image
               h="100px"
             />
             <message-file
-              v-for="file in content.items.map(id => itemMap[id]).filter(i => !i.mimeType?.startsWith('image/'))"
+              v-for="file in content.stored_items.map(item => itemMap[item.id]).filter(i => !i.mime_type?.startsWith('image/'))"
               :key="file.id"
               :file
             />
           </div>
           <tool-content
             v-if="content.type === 'assistant-tool'"
-            :content
+            :content="content as AssistantToolContent"
             my-2
             :class="colMode ? 'mx-4' : 'mx-2'"
           />
@@ -189,7 +189,7 @@
           transition="opacity 250"
           whitespace-nowrap
         >
-          <span>{{ message.modelName }}</span>
+          <span>{{ message.model_name }}</span>
           <span ml-3>{{ idDateString(message.id) }}</span>
         </div>
       </div>
@@ -321,7 +321,7 @@ import { MdPreview, MdCatalog } from 'md-editor-v3'
 import { db } from 'src/utils/db'
 import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watchEffect } from 'vue'
 import sessions from 'src/utils/sessions'
-import { MessageContent, Message, ApiResultItem, UserMessageContent, AssistantMessageContent, ConvertArtifactOptions } from 'src/utils/types'
+import { ApiResultItem, UserMessageContent, AssistantMessageContent, ConvertArtifactOptions, AssistantToolContent } from 'src/utils/types'
 import CopyBtn from './CopyBtn.vue'
 import AAvatar from './AAvatar.vue'
 import { useAssistantsStore } from 'src/stores/assistants'
@@ -341,14 +341,16 @@ import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import ConvertArtifactDialog from './ConvertArtifactDialog.vue'
 import { useI18n } from 'vue-i18n'
 import { dialogOptions } from 'src/utils/values'
+import { DialogMessageWithContent, MessageContentWithStoredItems, StoredItem, StoredItemMapped } from '@/services/supabase/types'
+import { useDialogsStore } from 'src/stores/dialogs'
 
 const props = defineProps<{
-  message: Message,
+  message: DialogMessageWithContent,
   childNum: number,
   scrollContainer: HTMLElement
 }>()
 const mdId = `md-${genId()}`
-
+const dialogsStore = useDialogsStore()
 const $q = useQuasar()
 function moreInfo() {
   $q.dialog({
@@ -357,8 +359,8 @@ function moreInfo() {
   })
 }
 const sourceCodeMode = ref(false)
-
-const contents = computed(() => props.message.contents.map(x => {
+// console.log('---messageItem contents', props.message)
+const contents = computed(() => props.message.message_contents.map(x => {
   if (x.type === 'assistant-message' || x.type === 'user-message') {
     return {
       ...x,
@@ -381,13 +383,13 @@ const emit = defineEmits<{
 }>()
 
 watchEffect(async () => {
-  const sessionId = props.message.generatingSession
+  const sessionId = props.message.generating_session
   if (sessionId) {
-    !await sessions.ping(sessionId) && db.messages.update(props.message.id, {
-      generatingSession: null,
+    !await sessions.ping(sessionId) && dialogsStore.updateDialogMessage(props.message.dialog_id, props.message.id, {
+      generating_session: null,
       status: 'failed',
       error: 'aborted',
-      contents: props.message.contents.map(content => {
+      message_contents: props.message.message_contents.map(content => {
         if (content.type === 'assistant-tool' && content.status === 'calling') {
           return {
             ...content,
@@ -396,26 +398,26 @@ watchEffect(async () => {
           }
         }
         return content
-      }) as MessageContent[]
+      }) as MessageContentWithStoredItems[]
     })
   }
 })
 
-const textIndex = computed(() => props.message.contents.findIndex(c => ['user-message', 'assistant-message'].includes(c.type)))
-const textContent = computed(() => (props.message.contents[textIndex.value] as UserMessageContent | AssistantMessageContent))
+const textIndex = computed(() => props.message.message_contents.findIndex(c => ['user-message', 'assistant-message'].includes(c.type)))
+const textContent = computed(() => (props.message.message_contents[textIndex.value] as UserMessageContent | AssistantMessageContent))
 
 const { perfs } = useUserPerfsStore()
 const assistantsStore = useAssistantsStore()
 const avatar = computed(() =>
   props.message.type === 'user'
     ? perfs.userAvatar
-    : assistantsStore.assistants.find(a => a.id === props.message.assistantId)?.avatar
+    : assistantsStore.assistants.find(a => a.id === props.message.assistant_id)?.avatar
 )
 
 const name = computed(() =>
   props.message.type === 'user'
     ? null
-    : assistantsStore.assistants.find(a => a.id === props.message.assistantId)?.name
+    : assistantsStore.assistants.find(a => a.id === props.message.assistant_id)?.name
 )
 
 const showArtifacts = inject<ComputedRef>('showArtifacts')
@@ -425,7 +427,7 @@ const colMode = computed(() => denseMode.value && props.message.type === 'assist
 const router = useRouter()
 function onAvatarClick() {
   if (props.message.type === 'assistant') {
-    router.push(`../assistants/${props.message.assistantId}`)
+    router.push(`../assistants/${props.message.assistant_id}`)
   } else if (props.message.type === 'user') {
     $q.dialog({
       component: PickAvatarDialog,
@@ -486,7 +488,7 @@ function quote(text: string) {
   emit('quote', {
     type: 'quote',
     name: `${name}：${textBeginning(text, 10)}`,
-    contentText: text
+    content_text: text
   })
 }
 function edit() {
@@ -522,7 +524,7 @@ function deleteBranch() {
   })
 }
 
-const itemMap = inject<ComputedRef>('itemMap')
+const itemMap = inject<ComputedRef<Record<string, StoredItem>>>('itemMap')
 
 function convertArtifact(text: string, pattern, lang: string) {
   if (perfs.artifactsAutoName) {

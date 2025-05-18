@@ -438,6 +438,26 @@ CREATE TABLE IF NOT EXISTS "public"."chats" (
 ALTER TABLE "public"."chats" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."dialog_messages" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "type" "text" NOT NULL,
+    "status" "text" NOT NULL,
+    "dialog_id" "uuid" NOT NULL,
+    "assistant_id" "uuid",
+    "workspace_id" "uuid",
+    "generating_session" "text",
+    "error" "text",
+    "warnings" "jsonb",
+    "usage" "jsonb",
+    "model_name" "text",
+    CONSTRAINT "dialog_messages_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'streaming'::"text", 'failed'::"text", 'default'::"text", 'inputing'::"text", 'processed'::"text"]))),
+    CONSTRAINT "dialog_messages_type_check" CHECK (("type" = ANY (ARRAY['user'::"text", 'assistant'::"text"])))
+);
+
+
+ALTER TABLE "public"."dialog_messages" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."dialogs" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "name" "text" NOT NULL,
@@ -453,6 +473,26 @@ CREATE TABLE IF NOT EXISTS "public"."dialogs" (
 
 
 ALTER TABLE "public"."dialogs" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."message_contents" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "message_id" "uuid" NOT NULL,
+    "type" "text" NOT NULL,
+    "text" "text",
+    "reasoning" "text",
+    "plugin_id" "text",
+    "name" "text",
+    "args" "jsonb",
+    "result" "jsonb",
+    "status" "text",
+    "error" "text",
+    CONSTRAINT "message_contents_status_check" CHECK (("status" = ANY (ARRAY['calling'::"text", 'failed'::"text", 'completed'::"text"]))),
+    CONSTRAINT "message_contents_type_check" CHECK (("type" = ANY (ARRAY['user-message'::"text", 'assistant-message'::"text", 'assistant-tool'::"text"])))
+);
+
+
+ALTER TABLE "public"."message_contents" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."messages" (
@@ -478,6 +518,23 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
 
 
 ALTER TABLE "public"."profiles" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."stored_items" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "dialog_id" "uuid" NOT NULL,
+    "message_content_id" "uuid" NOT NULL,
+    "type" "text" NOT NULL,
+    "content_text" "text",
+    "content_buffer" "bytea",
+    "name" "text",
+    "mime_type" "text",
+    "references_count" integer DEFAULT 0,
+    CONSTRAINT "stored_items_type_check" CHECK (("type" = ANY (ARRAY['text'::"text", 'file'::"text", 'quote'::"text"])))
+);
+
+
+ALTER TABLE "public"."stored_items" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."user_assistants" (
@@ -563,6 +620,16 @@ ALTER TABLE ONLY "public"."chat_members"
 
 ALTER TABLE ONLY "public"."chats"
     ADD CONSTRAINT "chats_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."message_contents"
+    ADD CONSTRAINT "dialog_message_contents_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."dialog_messages"
+    ADD CONSTRAINT "dialog_messages_pkey" PRIMARY KEY ("id");
 
 
 
@@ -679,6 +746,21 @@ ALTER TABLE ONLY "public"."chats"
 
 
 
+ALTER TABLE ONLY "public"."dialog_messages"
+    ADD CONSTRAINT "dialog_messages_assistant_id_fkey" FOREIGN KEY ("assistant_id") REFERENCES "public"."user_assistants"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."dialog_messages"
+    ADD CONSTRAINT "dialog_messages_dialog_id_fkey" FOREIGN KEY ("dialog_id") REFERENCES "public"."dialogs"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."dialog_messages"
+    ADD CONSTRAINT "dialog_messages_workspace_id_fkey" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE SET NULL;
+
+
+
 ALTER TABLE ONLY "public"."dialogs"
     ADD CONSTRAINT "dialogs_assistant_id_fkey" FOREIGN KEY ("assistant_id") REFERENCES "public"."user_assistants"("id") ON DELETE SET NULL;
 
@@ -694,6 +776,11 @@ ALTER TABLE ONLY "public"."dialogs"
 
 
 
+ALTER TABLE ONLY "public"."message_contents"
+    ADD CONSTRAINT "message_contents_message_id_fkey" FOREIGN KEY ("message_id") REFERENCES "public"."dialog_messages"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."messages"
     ADD CONSTRAINT "messages_chat_id_fkey" FOREIGN KEY ("chat_id") REFERENCES "public"."chats"("id") ON DELETE CASCADE;
 
@@ -706,6 +793,16 @@ ALTER TABLE ONLY "public"."messages"
 
 ALTER TABLE ONLY "public"."profiles"
     ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."stored_items"
+    ADD CONSTRAINT "stored_items_dialog_id_fkey" FOREIGN KEY ("dialog_id") REFERENCES "public"."dialogs"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."stored_items"
+    ADD CONSTRAINT "stored_items_message_content_id_fkey" FOREIGN KEY ("message_content_id") REFERENCES "public"."message_contents"("id") ON DELETE CASCADE;
 
 
 
@@ -775,6 +872,82 @@ CREATE POLICY "Members or owner can update chat" ON "public"."chats" FOR UPDATE 
 
 
 CREATE POLICY "Owner can delete chat" ON "public"."chats" FOR DELETE USING (("owner_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "Owner can delete dialog messages" ON "public"."dialog_messages" FOR DELETE USING ((EXISTS ( SELECT 1
+   FROM "public"."dialogs" "d"
+  WHERE (("d"."id" = "dialog_messages"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can delete message contents" ON "public"."message_contents" FOR DELETE USING ((EXISTS ( SELECT 1
+   FROM ("public"."dialog_messages" "dm"
+     JOIN "public"."dialogs" "d" ON (("dm"."dialog_id" = "d"."id")))
+  WHERE (("dm"."id" = "message_contents"."message_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can delete stored items" ON "public"."stored_items" FOR DELETE USING ((EXISTS ( SELECT 1
+   FROM "public"."dialogs" "d"
+  WHERE (("d"."id" = "stored_items"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can insert dialog messages" ON "public"."dialog_messages" FOR INSERT WITH CHECK ((EXISTS ( SELECT 1
+   FROM "public"."dialogs" "d"
+  WHERE (("d"."id" = "dialog_messages"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can insert message contents" ON "public"."message_contents" FOR INSERT WITH CHECK ((EXISTS ( SELECT 1
+   FROM ("public"."dialog_messages" "dm"
+     JOIN "public"."dialogs" "d" ON (("dm"."dialog_id" = "d"."id")))
+  WHERE (("dm"."id" = "message_contents"."message_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can insert stored items" ON "public"."stored_items" FOR INSERT WITH CHECK ((EXISTS ( SELECT 1
+   FROM "public"."dialogs" "d"
+  WHERE (("d"."id" = "stored_items"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can read dialog messages" ON "public"."dialog_messages" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM "public"."dialogs" "d"
+  WHERE (("d"."id" = "dialog_messages"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can read message contents" ON "public"."message_contents" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM ("public"."dialog_messages" "dm"
+     JOIN "public"."dialogs" "d" ON (("dm"."dialog_id" = "d"."id")))
+  WHERE (("dm"."id" = "message_contents"."message_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can read stored items" ON "public"."stored_items" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM "public"."dialogs" "d"
+  WHERE (("d"."id" = "stored_items"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can update dialog messages" ON "public"."dialog_messages" FOR UPDATE USING ((EXISTS ( SELECT 1
+   FROM "public"."dialogs" "d"
+  WHERE (("d"."id" = "dialog_messages"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can update message contents" ON "public"."message_contents" FOR UPDATE USING ((EXISTS ( SELECT 1
+   FROM ("public"."dialog_messages" "dm"
+     JOIN "public"."dialogs" "d" ON (("dm"."dialog_id" = "d"."id")))
+  WHERE (("dm"."id" = "message_contents"."message_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Owner can update stored items" ON "public"."stored_items" FOR UPDATE USING ((EXISTS ( SELECT 1
+   FROM "public"."dialogs" "d"
+  WHERE (("d"."id" = "stored_items"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
 
 
 
@@ -916,19 +1089,40 @@ CREATE POLICY "Workspace-level chat read access" ON "public"."chats" FOR SELECT 
 
 
 
+CREATE POLICY "access messages via dialog" ON "public"."dialog_messages" USING ((EXISTS ( SELECT 1
+   FROM "public"."dialogs" "d"
+  WHERE (("d"."id" = "dialog_messages"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "access stored items via dialog" ON "public"."stored_items" USING ((EXISTS ( SELECT 1
+   FROM "public"."dialogs" "d"
+  WHERE (("d"."id" = "stored_items"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
+
+
+
 ALTER TABLE "public"."chat_members" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."chats" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."dialog_messages" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."dialogs" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."message_contents" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."messages" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."stored_items" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."user_assistants" ENABLE ROW LEVEL SECURITY;
@@ -1292,9 +1486,21 @@ GRANT ALL ON TABLE "public"."chats" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."dialog_messages" TO "anon";
+GRANT ALL ON TABLE "public"."dialog_messages" TO "authenticated";
+GRANT ALL ON TABLE "public"."dialog_messages" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."dialogs" TO "anon";
 GRANT ALL ON TABLE "public"."dialogs" TO "authenticated";
 GRANT ALL ON TABLE "public"."dialogs" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."message_contents" TO "anon";
+GRANT ALL ON TABLE "public"."message_contents" TO "authenticated";
+GRANT ALL ON TABLE "public"."message_contents" TO "service_role";
 
 
 
@@ -1307,6 +1513,12 @@ GRANT ALL ON TABLE "public"."messages" TO "service_role";
 GRANT ALL ON TABLE "public"."profiles" TO "anon";
 GRANT ALL ON TABLE "public"."profiles" TO "authenticated";
 GRANT ALL ON TABLE "public"."profiles" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."stored_items" TO "anon";
+GRANT ALL ON TABLE "public"."stored_items" TO "authenticated";
+GRANT ALL ON TABLE "public"."stored_items" TO "service_role";
 
 
 

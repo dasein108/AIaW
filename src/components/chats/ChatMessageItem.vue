@@ -151,7 +151,7 @@ function quote(text: string) {
   emit('quote', {
     type: 'quote',
     name: `${props.message.sender?.name}`,
-    contentText: text
+    content_text: text
   })
 }
 

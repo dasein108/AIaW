@@ -51,7 +51,7 @@
                 v-if="workspaceId !== '$root'"
                 icon="sym_o_add_comment"
                 :label="$t('assistantsExpansion.createDialog')"
-                @click="createDialog({ assistantId: assistant.id })"
+                @click="createDialog({ assistant_id: assistant.id })"
               />
               <menu-item
                 v-if="workspaceId !== '$root'"
@@ -165,5 +165,5 @@ function deleteItem({ id, name }) {
   })
 }
 
-const { createDialog } = useCreateDialog(inject('workspace', ref()))
+const { createDialog } = useCreateDialog(inject('workspace', ref()).value.id)
 </script>

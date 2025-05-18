@@ -1,10 +1,10 @@
 import { db } from 'src/utils/db'
 import { genId } from 'src/utils/functions'
-import { Artifact, Workspace } from 'src/utils/types'
+import { Artifact } from 'src/utils/types'
 import { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-export function useCreateArtifact(workspace: Ref<Workspace>) {
+export function useCreateArtifact(workspaceId: Ref<string>) {
   const router = useRouter()
   async function createArtifact(props: Partial<Artifact> = {}) {
     const id = genId()
@@ -16,7 +16,7 @@ export function useCreateArtifact(workspace: Ref<Workspace>) {
       readable: true,
       writable: true,
       open: true,
-      workspaceId: workspace.value.id,
+      workspaceId: workspaceId.value,
       tmp: '',
       ...props
     })

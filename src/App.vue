@@ -14,6 +14,7 @@ import { useQuasar } from 'quasar'
 import { usePluginsStore } from './stores/plugins'
 import { useAssistantsStore } from './stores/assistants'
 import { useChatMessagesStore } from './stores/chat-messages'
+import { useDialogsStore } from './stores/dialogs'
 // import { useLoginDialogs } from './composables/login-dialogs'
 // import { useSubscriptionNotify } from './composables/subscription-notify'
 
@@ -29,7 +30,8 @@ async function initStores() {
   await Promise.all([
     usePluginsStore().init(),
     useAssistantsStore().init(),
-    userStore.init()
+    userStore.init(),
+    useDialogsStore().init()
   ])
 }
 

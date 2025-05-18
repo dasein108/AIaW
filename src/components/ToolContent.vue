@@ -96,9 +96,9 @@ const props = defineProps<{
 }>()
 
 const pluginsStore = usePluginsStore()
-const plugin = computed(() => pluginsStore.plugins.find(p => p.id === props.content.pluginId))
+const plugin = computed(() => pluginsStore.plugins.find(p => p.id === props.content.plugin_id))
 const api = computed(() => plugin.value?.apis.find(a => a.name === props.content.name))
-const pluginData = computed(() => pluginsStore.data[props.content.pluginId])
+const pluginData = computed(() => pluginsStore.data[props.content.plugin_id])
 
 const contentTemplate =
 `### ${t('toolContent.callParams')}

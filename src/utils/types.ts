@@ -75,27 +75,27 @@ interface ProviderType {
 
 interface AvatarImage {
   id: string
-  contentBuffer: ArrayBuffer
-  mimeType: string
+  content_buffer: ArrayBuffer
+  mime_type: string
 }
 interface ApiResultItem {
   type: 'text' | 'file' | 'quote'
-  contentText?: string
-  contentBuffer?: ArrayBuffer
+  content_text?: string
+  content_buffer?: ArrayBuffer
   name?: string
   mimeType?: string
 }
 interface StoredItem extends ApiResultItem {
   id: string
-  dialogId: string
-  references: number
+  dialog_id: string
+  references_count: number
 }
 type StoredItemId = StoredItem['id']
 
 interface UserMessageContent {
   type: 'user-message'
   text: string
-  items: StoredItemId[]
+  stored_items: StoredItem[]
 }
 
 interface AssistantMessageContent {
@@ -106,7 +106,7 @@ interface AssistantMessageContent {
 
 interface AssistantToolContent {
   type: 'assistant-tool'
-  pluginId: string
+  plugin_id: string
   name: string
   args
   result?: StoredItemId[]

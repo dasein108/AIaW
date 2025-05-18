@@ -1,6 +1,5 @@
 import { supabase } from 'src/services/supabase/client'
-
-const STORAGE_BUCKET = 'avatar.images'
+import { STORAGE_BUCKET } from './utils'
 
 export function useStorage() {
   const uploadFile = async (file: File) => {

@@ -505,6 +505,7 @@ function pickAvatar() {
       defaultTab: 'ai'
     }
   }).onOk(avatar => {
+    console.log("---pickAvatar avatar", avatar)
     assistant.value.avatar = avatar
   })
 }
@@ -518,7 +519,7 @@ async function exportAssistant(target: 'file' | 'clipboard') {
   let { avatar } = assistant.value
   if (avatar.type === 'image') {
     const avatarImage = await db.avatarImages.get(avatar.imageId)
-    const base64 = await blobToBase64(new Blob([avatarImage.contentBuffer], { type: avatarImage.mimeType }))
+    const base64 = await blobToBase64(new Blob([avatarImage.content_buffer], { type: avatarImage.mime_type }))
     avatar = { type: 'url', url: base64 }
   }
   const { name, prompt, prompt_vars, prompt_template, model, model_settings, author, homepage, description } = assistant.value

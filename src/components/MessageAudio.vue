@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { useFileURL } from 'src/composables/file-url'
-import { StoredItem } from 'src/utils/types'
+import { StoredItem } from '@/services/supabase/types'
 import { toRef } from 'vue'
 
 const props = defineProps<{

@@ -10,7 +10,6 @@ export const useUserStore = defineStore('user', () => {
   async function init() {
     const { data: { session } } = await supabase.auth.getSession()
     currentUser.value = session?.user ?? null
-    console.log('currentUser init', session, currentUser.value)
     supabase.auth.onAuthStateChange((event, session) => {
       currentUser.value = session?.user ?? null
     })

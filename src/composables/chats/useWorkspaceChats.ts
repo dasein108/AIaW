@@ -5,7 +5,7 @@ import { useChatsStore } from "src/stores/chats"
 export function useWorkspaceChats(workspaceId: Ref<string>) {
   const chatsStore = useChatsStore()
 
-  const chats = computed<Chat[]>(() => chatsStore.chats.filter(chat => chat.workspace_id === workspaceId.value))
+  const chats = computed<Chat[]>(() => chatsStore.chats.filter(chat => chat.workspace_id === workspaceId.value || chat.workspace_id === null))
 
   const addChat = async (chat: Omit<Chat, 'id' | 'created_at' | 'updated_at' | 'owner_id' | 'workspace_id'>) => {
     await chatsStore.add({ ...chat, workspace_id: workspaceId.value })

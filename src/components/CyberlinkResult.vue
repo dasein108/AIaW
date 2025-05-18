@@ -26,17 +26,17 @@ import { computed, ComputedRef, inject } from 'vue'
 import { KeplerWallet } from '@/services/kepler/KeplerWallet'
 
 import { parseEvents } from '../services/kepler/utils'
-import { Message, MessageContent } from '@/utils/types'
-import { db } from 'src/utils/db'
+import { DialogMessageWithContent, MessageContentWithStoredItems } from '@/services/supabase/types'
+import { useDialogsStore } from 'src/stores/dialogs'
 
-const props = defineProps<{ result: any, message: Message }>()
+const props = defineProps<{ result: any, message: DialogMessageWithContent }>()
 const itemMap = inject<ComputedRef>('itemMap')
 const wallet = inject<KeplerWallet>('kepler')
 const transactionBody = computed(() => JSON.parse(itemMap.value[props.result[0]].contentText))
-
+const dialogsStore = useDialogsStore()
 const handleAccept = async () => {
-  const { contents } = props.message
-  const updatedContents = contents.filter(content => content.type !== 'assistant-tool')
+  const { message_contents } = props.message
+  const updatedContents = message_contents.filter(content => content.type !== 'assistant-tool')
 
   try {
     const tx = await wallet.executeTransaction(transactionBody.value)
@@ -54,19 +54,19 @@ const handleAccept = async () => {
       text: `Transaction failed: ${error.message}`
     })
   }
-  db.messages.update(props.message.id, {
-    generatingSession: null,
+  dialogsStore.updateDialogMessage(props.message.dialog_id, props.message.id, {
+    generating_session: null,
     status: 'processed',
-    contents: updatedContents
+    message_contents: updatedContents
   })
 }
 
 const handleDecline = async () => {
-  db.messages.update(props.message.id, {
-    generatingSession: null,
+  dialogsStore.updateDialogMessage(props.message.dialog_id, props.message.id, {
+    generating_session: null,
     status: 'processed',
     error: 'Transaction Declined',
-    contents: props.message.contents.map(content => {
+    message_contents: props.message.message_contents.map(content => {
       if (content.type === 'assistant-message') {
         return {
           ...content,
@@ -76,7 +76,7 @@ const handleDecline = async () => {
         }
       }
       return content
-    }) as MessageContent[]
+    }) as MessageContentWithStoredItems[]
   })
 }
 </script>

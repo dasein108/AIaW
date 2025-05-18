@@ -1,13 +1,9 @@
 import { defineStore } from 'pinia'
-import { useLiveQuery } from 'src/composables/live-query'
-import { db } from 'src/utils/db'
-import { genId } from 'src/utils/functions'
 import { DefaultWsIndexContent } from 'src/utils/templates'
 import { useI18n } from 'vue-i18n'
 import { supabase } from 'src/services/supabase/client'
 import { useWorkspacesWithSubscription } from 'src/composables/workspaces/useWorkspacesWithSubscription'
 import type { WorkspaceMapped } from '@/services/supabase/types'
-import { readonly, ref, watch } from 'vue'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
   const { workspaces, isLoaded } = useWorkspacesWithSubscription()

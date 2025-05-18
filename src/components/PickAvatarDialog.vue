@@ -270,7 +270,7 @@ async function onImageInput(file: File) {
 
 async function onConfirm() {
   await prunePreviousFile()
-  onDialogOK(selected)
+  onDialogOK(toRaw(selected.value))
 }
 
 const { dialogRef, onDialogCancel, onDialogHide, onDialogOK } = useDialogPluginComponent()
