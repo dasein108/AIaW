@@ -127,9 +127,9 @@
               h="100px"
             />
             <message-file
-              v-for="file in content.stored_items.map(item => itemMap[item.id]).filter(i => !i.mime_type?.startsWith('image/'))"
+              v-for="file in content.stored_items.filter(i => !i.mime_type?.startsWith('image/'))"
               :key="file.id"
-              :file
+              :file="file as StoredItem"
             />
           </div>
           <tool-content
@@ -523,8 +523,6 @@ function deleteBranch() {
     emit('delete')
   })
 }
-
-const itemMap = inject<ComputedRef<Record<string, StoredItem>>>('itemMap')
 
 function convertArtifact(text: string, pattern, lang: string) {
   if (perfs.artifactsAutoName) {

@@ -169,25 +169,35 @@ export const useDialogsStore = defineStore('dialogs', () => {
     console.log("---updateDialogMessage msg/dmsg: ", dialogMessage)
     for (const content of dialogMessage.message_contents) {
       const { stored_items = [], ...contentInput } = content
-      const { data: contentData, error: contentError } = await supabase.from('message_contents').update({ ...contentInput, message_id: dialogMessage.id }).eq('id', content.id).select('*, stored_items(*)').single()
-      if (contentError) {
-        console.error(contentError)
-        throw contentError
+      let messageContent = content as MessageContentWithStoredItems
+      if (content.id) {
+        const { data: contentData, error: contentError } = await supabase.from('message_contents').update({ ...contentInput, message_id: dialogMessage.id }).eq('id', content.id).select('*, stored_items(*)').single()
+        if (contentError) {
+          console.error(contentError)
+          throw contentError
+        }
+        messageContent = contentData as MessageContentWithStoredItems
+      } else {
+        const { data: contentData, error: contentError } = await supabase.from('message_contents').insert({ ...contentInput, message_id: dialogMessage.id }).select('*, stored_items(*)').single()
+        if (contentError) {
+          console.error(contentError)
+          throw contentError
+        }
+        messageContent = contentData as MessageContentWithStoredItems
       }
 
-      const messageContent = contentData as MessageContentWithStoredItems
       console.log("---updateDialogMessage msg/dmsg: messageContent", messageContent)
 
       for (const item of stored_items) {
         if (item.id) {
-          const { data: itemData, error: itemError } = await supabase.from('stored_items').update({ ...item, message_content_id: contentData.id, dialog_id: dialogId }).eq('id', item.id).select().single()
+          const { data: itemData, error: itemError } = await supabase.from('stored_items').update({ ...item, message_content_id: messageContent.id, dialog_id: dialogId }).eq('id', item.id).select().single()
           if (itemError) {
             console.error(itemError)
             throw itemError
           }
           messageContent.stored_items.map(i => i.id === item.id ? itemData as StoredItemMapped : i)
         } else {
-          const { data: itemData, error: itemError } = await supabase.from('stored_items').insert({ ...item, message_content_id: contentData.id, dialog_id: dialogId }).select().single()
+          const { data: itemData, error: itemError } = await supabase.from('stored_items').insert({ ...item, message_content_id: messageContent.id, dialog_id: dialogId }).select().single()
           if (itemError) {
             console.error(itemError)
             throw itemError
@@ -196,7 +206,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
         }
       }
 
-      dialogMessage.message_contents = dialogMessage.message_contents.map(c => c.id === contentData.id ? messageContent : c)
+      dialogMessage.message_contents = dialogMessage.message_contents.map(c => c.id === messageContent.id ? messageContent : c)
       console.log("---updateDialogMessage msg/dmsg: dialogMessage", dialogMessage)
     }
     dialogMessages[dialogId] = dialogMessages[dialogId].map(m => m.id === messageId ? dialogMessage : m)

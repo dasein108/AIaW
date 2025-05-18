@@ -90,7 +90,8 @@ export function useStorage(bucketName: string = AVATAR_BUCKET) {
       }
     }
     return {
-      ...item,
+      content_text: item.contentText,
+      type: item.type,
       dialog_id,
     }
   }

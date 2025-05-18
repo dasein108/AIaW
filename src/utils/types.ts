@@ -109,7 +109,7 @@ interface AssistantToolContent {
   plugin_id: string
   name: string
   args
-  result?: StoredItemId[]
+  result?: any[]
   status: 'calling' | 'failed' | 'completed'
   error?: string
 }

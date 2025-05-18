@@ -1009,7 +1009,7 @@ async function stream(target, insert = false) {
       content.error = error
     } else {
       content.status = 'completed'
-      content.result = result.map(i => i.id)
+      content.result = result.map(i => i)
     }
     update()
 
