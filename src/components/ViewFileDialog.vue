@@ -25,14 +25,14 @@
             max-h="70vh"
           />
         </div>
-        <div v-if="file.content_buffer">
+        <div v-if="file.file_url">
           <q-list>
             <q-item>
               <q-item-section>
                 {{ $t('viewFileDialog.fileSize') }}
               </q-item-section>
               <q-item-section side>
-                {{ sizeStr(file.content_buffer.length) }}
+                {{ fileSize ? sizeStr(fileSize) : '...' }}
               </q-item-section>
             </q-item>
             <q-item>
@@ -57,7 +57,7 @@
           :value="file.content_text"
         />
         <q-btn
-          v-if="file.content_buffer"
+          v-if="file.file_url"
           flat
           :label="$t('viewFileDialog.download')"
           color="primary"
@@ -80,12 +80,14 @@
 import { MdPreview } from 'md-editor-v3'
 import { useDialogPluginComponent } from 'quasar'
 import { wrapCode, wrapQuote } from 'src/utils/functions'
-import { StoredItem } from 'src/utils/types'
+import { StoredItem } from '@/services/supabase/types'
 import { codeExtensions } from 'src/utils/values'
-import { computed } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import CopyBtn from './CopyBtn.vue'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
-import { exportFile } from 'src/utils/platform-api'
+// import { exportFile } from 'src/utils/platform-api'
+import { useStorage } from 'src/composables/storage/useStorage'
+import { FILES_BUCKET } from 'src/composables/storage/utils'
 
 const props = defineProps<{
   file: StoredItem
@@ -95,7 +97,19 @@ defineEmits([
   ...useDialogPluginComponent.emits
 ])
 
+const storage = useStorage(FILES_BUCKET)
+
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent()
+
+const fileSize = ref<number | null>(null)
+
+watchEffect(async () => {
+  if (!props.file.file_url) {
+    fileSize.value = null
+  } else {
+    fileSize.value = await storage.getFileSizeByUrl(props.file.file_url)
+  }
+})
 
 function sizeStr(bytes: number) {
   if (bytes < 1024) return `${bytes} B`
@@ -115,7 +129,12 @@ const markdown = computed(() => {
 })
 
 function download() {
-  exportFile(props.file.name, props.file.content_buffer)
+  // trigger download of props.file.file_url
+  const url = props.file.file_url
+  const a = document.createElement('a')
+  a.href = url
+  a.download = props.file.name
+  a.click()
 }
 
 const mdPreviewProps = useMdPreviewProps()

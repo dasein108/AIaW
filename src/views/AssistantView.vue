@@ -478,10 +478,10 @@ import ATip from 'src/components/ATip.vue'
 import { useLocateId } from 'src/composables/locate-id'
 import { blobToBase64, pageFhStyle } from 'src/utils/functions'
 import { useSetTitle } from 'src/composables/set-title'
-import { db } from 'src/utils/db'
 import EnablePluginsItems from 'src/components/EnablePluginsItems.vue'
 import { exportFile } from 'src/utils/platform-api'
 import { AssistantMapped } from '@/services/supabase/types'
+import { getAvatarUrl } from 'src/composables/storage/utils'
 
 const props = defineProps<{
   id: string
@@ -518,9 +518,7 @@ useSetTitle(computed(() => assistant.value?.name))
 async function exportAssistant(target: 'file' | 'clipboard') {
   let { avatar } = assistant.value
   if (avatar.type === 'image') {
-    const avatarImage = await db.avatarImages.get(avatar.imageId)
-    const base64 = await blobToBase64(new Blob([avatarImage.content_buffer], { type: avatarImage.mime_type }))
-    avatar = { type: 'url', url: base64 }
+    avatar = { type: 'url', url: getAvatarUrl(avatar.imageId) }
   }
   const { name, prompt, prompt_vars, prompt_template, model, model_settings, author, homepage, description } = assistant.value
   const json = JSON.stringify({ name, avatar, prompt, prompt_vars, prompt_template, model, model_settings, author, homepage, description })

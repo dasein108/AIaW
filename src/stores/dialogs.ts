@@ -1,5 +1,5 @@
 import { Database } from '@/services/supabase/database.types'
-import { Dialog, DialogMapped, DialogMessageWithContent, MessageContentWithStoredItems } from '@/services/supabase/types'
+import { Dialog, DialogMapped, DialogMessageWithContent, MessageContentWithStoredItems, StoredItem, StoredItemMapped } from '@/services/supabase/types'
 import { LanguageModelUsage } from 'ai'
 import { defineStore } from 'pinia'
 import { supabase } from 'src/services/supabase/client'
@@ -112,7 +112,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
           console.error(itemError)
           throw itemError
         }
-        messageContent.stored_items.push(itemData)
+        messageContent.stored_items.push(itemData as StoredItemMapped)
       }
       dialogMessage.message_contents.push(messageContent)
     }
@@ -145,23 +145,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
     return mapDialogMessage(data)
   }
 
-  async function _updateDialogMessage(dialogId: string, messageId: string, message: Partial<DialogMessageWithContent>, localOnly = false) {
-    let dialogMessage = merge(dialogMessages[dialogId].find(m => m.id === messageId) || {}, message) as DialogMessageWithContent
-    const { message_contents, ...messageInput } = message
-    if (Object.keys(messageInput).length > 0 && !localOnly) {
-      const { data, error } = await supabase.from('dialog_messages').update(messageInput).eq('id', messageId).eq('dialog_id', dialogId).select(SELECT_DIALOG_MESSAGES).single()
-      // const { data, error } = await supabase.from('dialog_messages').update(message).eq('id', messageId).eq('dialog_id', dialogId).select().single()
-      if (error) {
-        console.error(error)
-        throw error
-      }
-      dialogMessage = mapDialogMessage(data)
-    }
-
-    return dialogMessage
-  }
-
-  async function updateDialogMessage(dialogId: string, messageId: string, message: Partial<DialogMessageWithContent>) {
+  async function updateDialogMessage(dialogId: string, messageId: string, message: Partial<DialogMessageInput>) {
     let dialogMessage = merge(dialogMessages[dialogId].find(m => m.id === messageId) || {}, message) as DialogMessageWithContent
     const shouldSave = dialogMessage.status && dialogMessage.status !== 'streaming' && dialogMessage.status !== 'inputing'
     console.log("---updateDialogMessage dialogMessage merge in", dialogMessage, shouldSave)
@@ -195,12 +179,21 @@ export const useDialogsStore = defineStore('dialogs', () => {
       console.log("---updateDialogMessage msg/dmsg: messageContent", messageContent)
 
       for (const item of stored_items) {
-        const { data: itemData, error: itemError } = await supabase.from('stored_items').update({ ...item, message_content_id: contentData.id, dialog_id: dialogId }).eq('id', item.id).select().single()
-        if (itemError) {
-          console.error(itemError)
-          throw itemError
+        if (item.id) {
+          const { data: itemData, error: itemError } = await supabase.from('stored_items').update({ ...item, message_content_id: contentData.id, dialog_id: dialogId }).eq('id', item.id).select().single()
+          if (itemError) {
+            console.error(itemError)
+            throw itemError
+          }
+          messageContent.stored_items.map(i => i.id === item.id ? itemData as StoredItemMapped : i)
+        } else {
+          const { data: itemData, error: itemError } = await supabase.from('stored_items').insert({ ...item, message_content_id: contentData.id, dialog_id: dialogId }).select().single()
+          if (itemError) {
+            console.error(itemError)
+            throw itemError
+          }
+          messageContent.stored_items.push(itemData as StoredItemMapped)
         }
-        messageContent.stored_items.push(itemData)
       }
 
       dialogMessage.message_contents = dialogMessage.message_contents.map(c => c.id === contentData.id ? messageContent : c)
@@ -221,6 +214,10 @@ export const useDialogsStore = defineStore('dialogs', () => {
     }
   }
 
+  async function removeStoreItem(stored_item: StoredItemMapped) {
+    // TODO: remove stored item from dialog messages, with message_content_id or without
+  }
+
   return {
     init,
     dialogs,
@@ -232,6 +229,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
     fetchDialogMessages,
     addDialogMessage,
     updateDialogMessage,
-    removeDialogMessages
+    removeDialogMessages,
+    removeStoreItem
   }
 })

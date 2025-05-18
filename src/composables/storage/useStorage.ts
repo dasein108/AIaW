@@ -1,10 +1,26 @@
 import { supabase } from 'src/services/supabase/client'
-import { STORAGE_BUCKET } from './utils'
+import { AVATAR_BUCKET, BASE_URL } from './utils'
+import { ApiResultItem } from '@/utils/types'
+import { fileTypeFromBuffer } from 'file-type'
+import { genId } from 'src/utils/functions'
+import { StoredItemMapped } from '@/services/supabase/types'
 
-export function useStorage() {
+async function detectMimeType(arrayBuffer: ArrayBuffer) {
+  const uint8Array = new Uint8Array(arrayBuffer)
+  const fileType = await fileTypeFromBuffer(uint8Array)
+
+  if (fileType) {
+    console.log(`Detected: ${fileType.mime}, Extension: ${fileType.ext}`)
+    return fileType
+  } else {
+    console.log('MIME type not detected')
+    return null
+  }
+}
+
+export function useStorage(bucketName: string = AVATAR_BUCKET) {
   const uploadFile = async (file: File) => {
-    console.log("---uploadFile", file)
-    const { data, error } = await supabase.storage.from(STORAGE_BUCKET).upload(file.name, file)
+    const { data, error } = await supabase.storage.from(bucketName).upload(file.name, file)
     console.log("---uploadFile data", data)
     if (error) {
       console.error('Error uploading file:', error)
@@ -14,16 +30,13 @@ export function useStorage() {
   }
 
   const getFileUrl = async (path: string) => {
-    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path)
+    const { data } = supabase.storage.from(bucketName).getPublicUrl(path)
     console.log("---getFileUrl data", data)
     return data.publicUrl
   }
 
   const deleteFile = async (path: string) => {
-    const cleanPath = path.replace(/^avatar\.images\//, '')
-    console.log("---deleteFile path:", cleanPath)
-
-    const { data, error } = await supabase.storage.from(STORAGE_BUCKET).remove([cleanPath])
+    const { data, error } = await supabase.storage.from(bucketName).remove([path])
     console.log("---deleteFile result:", { data, error })
 
     if (error) {
@@ -31,5 +44,56 @@ export function useStorage() {
     }
   }
 
-  return { uploadFile, getFileUrl, deleteFile }
+  const getFileSizeByUrl = async (path: string): Promise<number | null> => {
+    try {
+      const response = await fetch(`${BASE_URL}${bucketName}/${path}`, { method: 'HEAD' })
+      const length = response.headers.get('Content-Length')
+      return length ? parseInt(length, 10) : null
+    } catch (error) {
+      console.error('Failed to fetch file size:', error)
+      return null
+    }
+  }
+
+  const uploadApiResultItem = async (item: ApiResultItem) => {
+    if (item.type === 'file') {
+      const fileType = await detectMimeType(item.contentBuffer)
+      if (fileType) {
+        // remove extension from name
+        const name = (item.name || '').replace(`.${fileType.ext}`, '') + `_${genId()}.${fileType.ext}`
+
+        const buffer = item.contentBuffer
+        const file = new File([buffer], name, { type: fileType.mime })
+        const path = await uploadFile(file)
+        return {
+          name,
+          file_url: path,
+          mime_type: fileType.mime,
+          type: 'file' // fileType.mime.startsWith('image/') ? 'image' : 'file'
+        } as StoredItemMapped
+      } else {
+        throw Error('Failed to detect mime type')
+      }
+    }
+    return null
+  }
+
+  // TODO: move outside storage
+  const apiResultItemToStoredItem = async(item: ApiResultItem, dialog_id: string): Promise<StoredItemMapped | null> => {
+    if (item.type === 'file') {
+      const fileItem = await uploadApiResultItem(item)
+      if (fileItem) {
+        return {
+          ...fileItem,
+          dialog_id,
+        }
+      }
+    }
+    return {
+      ...item,
+      dialog_id,
+    }
+  }
+
+  return { uploadFile, getFileUrl, deleteFile, getFileSizeByUrl, uploadApiResultItem, apiResultItemToStoredItem }
 }

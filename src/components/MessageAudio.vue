@@ -7,9 +7,8 @@
 </template>
 
 <script setup lang="ts">
-import { useFileURL } from 'src/composables/file-url'
 import { StoredItem } from '@/services/supabase/types'
-import { toRef } from 'vue'
+import { getFileUrl } from 'src/composables/storage/utils'
 
 const props = defineProps<{
   audio: StoredItem,
@@ -17,5 +16,6 @@ const props = defineProps<{
 
 defineEmits(['remove'])
 
-const url = useFileURL(toRef(props, 'audio'))
+// const url = useFileURL(toRef(props, 'audio'))
+const url = getFileUrl(props.audio.file_url)
 </script>

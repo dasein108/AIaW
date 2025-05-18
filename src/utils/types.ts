@@ -75,13 +75,13 @@ interface ProviderType {
 
 interface AvatarImage {
   id: string
-  content_buffer: ArrayBuffer
-  mime_type: string
+  contentBuffer: ArrayBuffer
+  mimeType: string
 }
 interface ApiResultItem {
   type: 'text' | 'file' | 'quote'
-  content_text?: string
-  content_buffer?: ArrayBuffer
+  contentText?: string
+  contentBuffer?: ArrayBuffer
   name?: string
   mimeType?: string
 }

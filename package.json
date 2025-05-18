@@ -74,6 +74,7 @@
     "dexie-export-import": "^4.1.4",
     "eventsource": "^3.0.6",
     "expr-eval": "^2.0.2",
+    "file-type": "^20.5.0",
     "html-to-image": "^1.11.13",
     "json-schema": "^0.4.0",
     "liquidjs": "^10.16.7",

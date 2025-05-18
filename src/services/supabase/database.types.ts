@@ -311,36 +311,33 @@ export type Database = {
       }
       stored_items: {
         Row: {
-          content_buffer: string | null
           content_text: string | null
           dialog_id: string
+          file_url: string | null
           id: string
           message_content_id: string
           mime_type: string | null
           name: string | null
-          references_count: number | null
           type: string
         }
         Insert: {
-          content_buffer?: string | null
           content_text?: string | null
           dialog_id: string
+          file_url?: string | null
           id?: string
           message_content_id: string
           mime_type?: string | null
           name?: string | null
-          references_count?: number | null
           type: string
         }
         Update: {
-          content_buffer?: string | null
           content_text?: string | null
           dialog_id?: string
+          file_url?: string | null
           id?: string
           message_content_id?: string
           mime_type?: string | null
           name?: string | null
-          references_count?: number | null
           type?: string
         }
         Relationships: [

@@ -175,10 +175,10 @@
           <message-image
             v-for="image in inputContentItems.filter(i => i.mime_type?.startsWith('image/'))"
             :key="image.id"
-            :image
+            :image="image as StoredItemMapped"
             removable
             h="100px"
-            @remove="removeItem(image)"
+            @remove="removeItem(image as StoredItemMapped)"
             shadow
           />
           <message-file
@@ -186,7 +186,7 @@
             :key="file.id"
             :file
             removable
-            @remove="removeItem(file)"
+            @remove="removeItem(file as StoredItemMapped)"
             shadow
           />
         </div>
@@ -436,6 +436,8 @@ import { useGetModel } from 'src/composables/get-model'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useDialogsStore } from 'src/stores/dialogs'
 import { Workspace, DialogMessageWithContent, StoredItem, DialogMessage, MessageContentWithStoredItems, StoredItemMapped } from '@/services/supabase/types'
+import { useStorage } from 'src/composables/storage/useStorage'
+import { FILES_BUCKET, getFileUrl } from 'src/composables/storage/utils'
 
 const { t, locale } = useI18n()
 
@@ -654,6 +656,7 @@ function onTextPaste(ev: ClipboardEvent) {
 
 const imageInput = ref()
 const fileInput = ref()
+const storage = useStorage(FILES_BUCKET)
 function onInputFiles({ target }) {
   const files = target.files
   parseFiles(Array.from(files))
@@ -670,7 +673,7 @@ function onPaste(ev: ClipboardEvent) {
       addInputItems([{
         type: 'text',
         name: t('dialogView.pastedText', { text: textBeginning(text, 12) }),
-        content_text: text
+        contentText: text
       }])
     }
     return
@@ -679,18 +682,20 @@ function onPaste(ev: ClipboardEvent) {
 }
 addEventListener('paste', onPaste)
 onUnmounted(() => removeEventListener('paste', onPaste))
-async function removeItem({ id, references_count }: StoredItem) {
-  const items = [...inputMessageContent.value.stored_items.filter(i => i.id !== id)]
-  // items.splice(items.indexOf(id), 1)
-  await dialogsStore.updateDialogMessage(props.id, chain.value.at(-1), {
-    message_contents: [{
-      ...inputMessageContent.value,
-      stored_items: items
-    }]
-  })
+async function removeItem(stored_item: StoredItemMapped) {
+  await dialogsStore.removeStoreItem(stored_item)
+  // const items = [...inputMessageContent.value.stored_items.filter(i => i.id !== id)]
+  // // items.splice(items.indexOf(id), 1)
+  // await dialogsStore.updateDialogMessage(props.id, chain.value.at(-1), {
+  //   message_contents: [{
+  //     ...inputMessageContent.value,
+  //     stored_items: items
+  //   }]
+  // })
   // references_count--
   // references_count === 0 ? db.items.delete(id) : db.items.update(id, { references_count })
 }
+
 async function parseFiles(files: File[]) {
   if (!files.length) return
   const textFiles = []
@@ -707,7 +712,7 @@ async function parseFiles(files: File[]) {
     parsedFiles.push({
       type: 'text',
       name: file.name,
-      content_text: await file.text()
+      contentText: await file.text()
     })
   }
   for (const file of supportedFiles) {
@@ -719,8 +724,8 @@ async function parseFiles(files: File[]) {
     parsedFiles.push({
       type: 'file',
       name: file.name,
-      mime_type: file.type,
-      content_buffer: await f.arrayBuffer().toString() // TODO: fix this
+      mimeType: file.type,
+      contentBuffer: await f.arrayBuffer() // TODO: fix this
     })
   }
   addInputItems(parsedFiles)
@@ -733,18 +738,20 @@ async function parseFiles(files: File[]) {
   })
 }
 function quote(item: ApiResultItem) {
-  if (displayLength(item.content_text) > 200) {
+  if (displayLength(item.contentText) > 200) {
     addInputItems([item])
   } else {
     const { text } = inputMessageContent.value
-    const content = wrapQuote(item.content_text) + '\n\n'
+    const content = wrapQuote(item.contentText) + '\n\n'
     updateInputText(text ? text + '\n' + content : content)
     focusInput()
   }
 }
 async function addInputItems(items: ApiResultItem[]) {
-  const storedItems = items.map(i => ({ ...i, id: genId(), dialogId: props.id, references: 0 }))
-  const ids = storedItems.map(i => i.id)
+  const storedItems: StoredItemMapped[] = await Promise.all(items.map(r => storage.apiResultItemToStoredItem(r, props.id)))
+
+  // const storedItems = items.map(i => ({ ...i, id: genId(), dialogId: props.id, references: 0 }))
+  // const ids = storedItems.map(i => i.id)
   // await db.transaction('rw', db.messages, db.items, () => {
   //   db.messages.update(chain.value.at(-1), {
   //     // use shallow keyPath to avoid dexie's sync bug
@@ -758,7 +765,7 @@ async function addInputItems(items: ApiResultItem[]) {
   await dialogsStore.updateDialogMessage(props.id, chain.value.at(-1), {
     message_contents: [{
       ...inputMessageContent.value,
-      stored_items: [...inputMessageContent.value.stored_items, ...items]
+      stored_items: [...inputMessageContent.value.stored_items, ...storedItems.filter(i => i)]
     }]
   })
 }
@@ -797,9 +804,9 @@ function getChainMessages() {
                 if (!mimeTypeMatch(i.mime_type, model.value.inputTypes.user)) {
                   return null
                 } else if (i.mime_type.startsWith('image/')) {
-                  return { type: 'image' as const, image: i.content_buffer.toString(), mimeType: i.mime_type }
+                  return { type: 'image' as const, image: getFileUrl(i.file_url), mimeType: i.mime_type }
                 } else {
-                  return { type: 'file' as const, mimeType: i.mime_type, data: i.content_buffer.toString() }
+                  return { type: 'file' as const, mimeType: i.mime_type, data: getFileUrl(i.file_url) }
                 }
               }
             }).filter(x => x)
@@ -994,9 +1001,9 @@ async function stream(target, insert = false) {
     update()
 
     const { result: apiResult, error } = await callApi(plugin, api, args)
-    const result: StoredItemMapped[] = apiResult.map(r => ({ ...r, dialog_id: props.id, references_count: 0, content_buffer: r.content_buffer.toString() }))
+    const result: StoredItemMapped[] = await Promise.all(apiResult.map(r => storage.apiResultItemToStoredItem(r, props.id)))
     // saveItems(result)
-    content.stored_items = result
+    content.stored_items = result.filter(i => i)
     if (error) {
       content.status = 'failed'
       content.error = error
@@ -1126,13 +1133,13 @@ async function stream(target, insert = false) {
   perfs.artifactsAutoExtract && autoExtractArtifact()
   lockingBottom.value = false
 }
-function toToolResultContent(items: StoredItem[]) {
+function toToolResultContent(items: ApiResultItem[]) {
   const val = []
   for (const item of items) {
     if (item.type === 'text') {
-      val.push({ type: 'text', text: item.content_text })
-    } else if (mimeTypeMatch(item.mime_type, model.value.inputTypes.tool)) {
-      val.push({ type: item.mime_type.startsWith('image/') ? 'image' : 'file', mime_type: item.mime_type, data: item.content_buffer })
+      val.push({ type: 'text', text: item.contentText })
+    } else if (mimeTypeMatch(item.mimeType, model.value.inputTypes.tool)) {
+      val.push({ type: item.mimeType.startsWith('image/') ? 'image' : 'file', mimeType: item.mimeType, data: item.contentBuffer })
     }
   }
   return val

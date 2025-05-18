@@ -15,7 +15,7 @@ type MessageContent = Database['public']['Tables']['message_contents']['Row']
 type StoredItem = Database['public']['Tables']['stored_items']['Row']
 type WorkspaceMember = Database['public']['Tables']['workspace_members']['Row']
 
-type StoredItemMapped =Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id'> & {dialog_id?: string}
+type StoredItemMapped =Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id' | 'type'> & {dialog_id?: string, type: 'text' | 'file' | 'quote', message_content_id?: string}
 
 type WorkspaceMapped = Workspace & {
   avatar?: Avatar;

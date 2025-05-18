@@ -121,9 +121,9 @@
             gap-2
           >
             <message-image
-              v-for="image in content.stored_items.map(item => itemMap[item.id]).filter(i => i.mime_type?.startsWith('image/'))"
+              v-for="image in content.stored_items.filter(i => i.mime_type?.startsWith('image/'))"
               :key="image.id"
-              :image
+              :image="image as StoredItemMapped"
               h="100px"
             />
             <message-file
@@ -488,7 +488,7 @@ function quote(text: string) {
   emit('quote', {
     type: 'quote',
     name: `${name}：${textBeginning(text, 10)}`,
-    content_text: text
+    contentText: text
   })
 }
 function edit() {

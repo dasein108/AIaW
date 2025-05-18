@@ -12,7 +12,7 @@ type Db = Dexie & {
   // installedPluginsV2: DexieCloudTable<InstalledPlugin, 'id'>
   reactives: DexieCloudTable<StoredReactive, 'key'>
   avatarImages: DexieCloudTable<AvatarImage, 'id'>
-  items: DexieCloudTable<StoredItem, 'id'>
+  // items: DexieCloudTable<StoredItem, 'id'>
   providers: DexieCloudTable<CustomProvider, 'id'>
 }
 
