@@ -102,7 +102,7 @@ const workspace = syncRef(
 )
 const assistantsStore = useAssistantsStore()
 const assistantOptions = computed(() => assistantsStore.assistants.filter(
-  a => [workspace.value.id, '$root'].includes(a.workspace_id)
+  a => [workspace.value.id, null].includes(a.workspace_id)
 ).map(a => ({
   label: a.name,
   value: a.id,

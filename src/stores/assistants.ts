@@ -41,22 +41,6 @@ export const useAssistantsStore = defineStore('assistants', () => {
 
   const { t } = useI18n()
   async function add(props: Partial<Assistant> = {}) {
-    // return await db.assistants.add({
-    //   name: t('stores.assistants.newAssistant'),
-    //   id: genId(),
-    //   avatar: defaultAvatar('AI'),
-    //   workspaceId: '$root',
-    //   prompt: '',
-    //   promptTemplate: AssistantDefaultPrompt,
-    //   promptVars: [],
-    //   provider: null,
-    //   model: null,
-    //   modelSettings: { ...defaultModelSettings },
-    //   plugins: {},
-    //   promptRole: 'system',
-    //   stream: true,
-    //   ...props
-    // })
     const { data, error } = await supabase.from('user_assistants').insert({
       name: t('stores.assistants.newAssistant'),
       avatar: defaultAvatar('AI'),

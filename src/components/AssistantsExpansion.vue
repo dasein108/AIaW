@@ -48,16 +48,16 @@
           >
             <q-list style="min-width: 100px">
               <menu-item
-                v-if="workspaceId !== '$root'"
+                v-if="!workspaceId"
                 icon="sym_o_add_comment"
                 :label="$t('assistantsExpansion.createDialog')"
                 @click="createDialog({ assistant_id: assistant.id })"
               />
               <menu-item
-                v-if="workspaceId !== '$root'"
+                v-if="!workspaceId "
                 icon="sym_o_move_item"
                 :label="$t('assistantsExpansion.moveToGlobal')"
-                @click="move(assistant.id, '$root')"
+                @click="move(assistant.id, null)"
               />
               <menu-item
                 icon="sym_o_move_item"
@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, onUnmounted, ref, watch } from 'vue'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { useRouter } from 'vue-router'
 import AAvatar from './AAvatar.vue'
@@ -112,7 +112,7 @@ import { defaultAvatar } from 'src/utils/functions'
 const { t } = useI18n()
 
 const props = defineProps<{
-  workspaceId: string,
+  workspaceId?: string | null,
   dense?: boolean,
   label?: string
 }>()
@@ -165,5 +165,5 @@ function deleteItem({ id, name }) {
   })
 }
 
-const { createDialog } = useCreateDialog(inject('workspace', ref()).value.id)
+const { createDialog } = useCreateDialog(props.workspaceId)
 </script>

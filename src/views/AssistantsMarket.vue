@@ -167,7 +167,7 @@ load()
 const store = useAssistantsStore()
 
 function addToGlobal(item) {
-  add(item, '$root')
+  add(item, null)
 }
 function addToWorkspace(item) {
   $q.dialog({
