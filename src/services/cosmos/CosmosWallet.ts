@@ -205,6 +205,10 @@ export function createCosmosSigner() {
     throw new Error(`Transaction confirmation timed out after ${timeoutMs}ms`)
   }
 
+  const getOfflineSigner = () => {
+    return offlineSigner
+  }
+
   return {
     state,
     connectWithKeplr,
@@ -212,7 +216,8 @@ export function createCosmosSigner() {
     disconnect,
     signTransaction,
     executeTransaction,
-    getTx: waitForTransaction
+    getTx: waitForTransaction,
+    getOfflineSigner
   }
 }
 

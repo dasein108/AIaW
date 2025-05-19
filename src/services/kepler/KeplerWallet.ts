@@ -1,10 +1,10 @@
-import { ref, watch } from 'vue'
-import { SigningCosmWasmClient, CosmWasmClient } from '@cosmjs/cosmwasm-stargate'
-import { GasPrice } from '@cosmjs/stargate'
 import type { OfflineAminoSigner, StdSignDoc } from '@cosmjs/amino'
-import type { TxStatusResponse, KeplerWalletState, ChainConfig } from './types'
-import { parseTxStatus } from './utils'
+import { CosmWasmClient, SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate'
+import { GasPrice } from '@cosmjs/stargate'
+import { ref, watch } from 'vue'
 import { config } from '../constants'
+import type { KeplerWalletState, TxStatusResponse } from './types'
+import { parseTxStatus } from './utils'
 
 declare global {
   interface Window {
