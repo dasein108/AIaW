@@ -6,7 +6,6 @@ import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
 import { defaultAvatar, genId } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
-import { db } from 'src/utils/db'
 import { useI18n } from 'vue-i18n'
 import { useUserDataStore } from 'src/stores/user-data'
 
@@ -103,5 +102,6 @@ export function useWorkspaceActions() {
       ...dialogOptions
     }).onOk(() => { workspacesStore.deleteItem(id) })
   }
+
   return { addWorkspace, addFolder, renameItem, changeAvatar, moveItem, deleteItem }
 }

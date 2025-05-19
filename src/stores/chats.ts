@@ -30,10 +30,31 @@ export const useChatsStore = defineStore('chats', () => {
       throw error
     }
   }
+
+  const search = async (query: string, workspaceId: string | null) => {
+    const queryBuilder = supabase
+      .from('messages')
+      .select(`
+        id,
+        chat_id,
+        content,
+        chat:chats (
+          workspace_id,
+          name
+        )
+      `)
+    if (workspaceId) {
+      queryBuilder.eq('chats.workspace_id', workspaceId)
+    }
+    const { data, error } = await queryBuilder.textSearch('content', query)
+    return data
+  }
+
   return {
     chats,
     add,
     update,
-    remove
+    remove,
+    search
   }
 })

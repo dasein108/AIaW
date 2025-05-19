@@ -318,7 +318,6 @@
 
 <script setup lang="ts">
 import { MdPreview, MdCatalog } from 'md-editor-v3'
-import { db } from 'src/utils/db'
 import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watchEffect } from 'vue'
 import sessions from 'src/utils/sessions'
 import { ApiResultItem, UserMessageContent, AssistantMessageContent, ConvertArtifactOptions, AssistantToolContent } from 'src/utils/types'
@@ -499,9 +498,10 @@ function edit() {
       model: textContent.value.text
     }
   }).onOk(text => {
-    db.messages.update(props.message.id, {
-      [`contents.${textIndex.value}.text`]: text
-    })
+    debugger
+    // db.messages.update(props.message.id, {
+    //   [`contents.${textIndex.value}.text`]: text
+    // })
   })
 }
 function deleteBranch() {

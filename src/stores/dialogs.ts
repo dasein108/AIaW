@@ -228,6 +228,30 @@ export const useDialogsStore = defineStore('dialogs', () => {
     // TODO: remove stored item from dialog messages, with message_content_id or without
   }
 
+  async function searchDialogs(query: string, workspaceId: string | null = null) {
+    const queryBuilder = supabase.from('message_contents')
+      .select(`
+      message_id,
+      text,
+      dialog_message:dialog_messages(
+        dialog_id,
+        dialog:dialogs(
+          workspace_id,
+          name,
+          msg_tree
+        )
+      )
+    `)
+
+    if (workspaceId) {
+      queryBuilder.eq('dialog_message.dialogs.workspace_id', workspaceId)
+    }
+
+    const { data, error } = await queryBuilder.textSearch('text', query)
+
+    return data
+  }
+
   return {
     init,
     dialogs,
@@ -240,6 +264,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
     addDialogMessage,
     updateDialogMessage,
     removeDialogMessages,
-    removeStoreItem
+    removeStoreItem,
+    searchDialogs
   }
 })

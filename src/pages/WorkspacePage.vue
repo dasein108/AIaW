@@ -192,13 +192,10 @@ const listOpen = computed(() => userStore.data.listOpen[props.id] || {
   chats: true
 })
 
-// const workspace = useChildWorkspaces(props.id)
 const workspace = computed<Workspace | undefined>(() => workspacesStore.workspaces.find(item => item.id === props.id) as Workspace)
 
-const dialogs = useLiveQueryWithDeps(() => props.id, () => db.dialogs.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Dialog[] })
 const artifacts = useLiveQueryWithDeps(() => props.id, () => db.artifacts.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Artifact[] })
 provide('workspace', workspace)
-provide('dialogs', dialogs)
 provide('artifacts', artifacts)
 
 const $q = useQuasar()
@@ -252,7 +249,6 @@ provide('rightDrawerAbove', rightDrawerAbove)
 
 const { perfs } = useUserPerfsStore()
 console.log('workspace:', workspace.value)
-console.log('dialogs:', dialogs.value)
 console.log('artifacts:', artifacts.value)
 console.log('route:', route)
 console.log('perfs:', perfs)

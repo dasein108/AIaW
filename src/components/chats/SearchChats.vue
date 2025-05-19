@@ -58,11 +58,11 @@
             :key="i"
             clickable
             item-rd
-            :to="`/workspaces/${r.workspaceId}/dialogs/${r.dialogId}?goto=${JSON.stringify({ route: r.route, highlight: q })}`"
+            :to="`/workspaces/${r.workspaceId}/chats/${r.chatId}?goto=${JSON.stringify({ messageId: r.messageId, highlight: q })}`"
           >
             <q-item-section>
               <q-item-label>
-                {{ r.title }}
+                {{ r.name }}
               </q-item-label>
               <q-item-label
                 caption
@@ -80,11 +80,10 @@
 
 <script setup lang="ts">
 import { QList, useDialogPluginComponent } from 'quasar'
-import { db } from 'src/utils/db'
-import { caselessIncludes, escapeRegex } from 'src/utils/functions'
-import { Dialog } from 'src/utils/types'
+import { useChatsStore } from 'src/stores/chats'
 import { nextTick, watch, ref, watchEffect } from 'vue'
 import Mark from 'mark.js'
+import { escapeRegex } from 'src/utils/functions'
 
 const props = defineProps<{
   workspaceId: string
@@ -96,65 +95,66 @@ defineEmits([
 
 const open = defineModel<boolean>({ required: true })
 
-interface Doc {
-  id: string
-  dialogId: string
-  content: string
-}
+const chatsStore = useChatsStore()
+const q = ref('')
 
 const global = ref(false)
-const dialogs = ref<Dialog[]>(null)
-const docs = ref<Doc[]>(null)
 watchEffect(async () => {
-  dialogs.value = global.value
-    ? await db.dialogs.toArray()
-    : await db.dialogs.where('workspaceId').equals(props.workspaceId).toArray()
-  const messages = global.value
-    ? await db.messages.toArray()
-    : await db.messages.where('dialogId').anyOf(dialogs.value.map(d => d.id)).toArray()
-  docs.value = messages.map(m => ({
-    id: m.id,
-    dialogId: m.dialogId,
-    content: m.contents
-      .filter(c => c.type === 'assistant-message' || c.type === 'user-message')
-      .map(c => c.text)
-      .join('\n')
-  }))
+  // dialogs.value = global.value
+  //   ? await db.dialogs.toArray()
+  //   : await db.dialogs.where('workspaceId').equals(props.workspaceId).toArray()
+  // const messages = global.value
+  //   ? await db.messages.toArray()
+  //   : await db.messages.where('dialogId').anyOf(dialogs.value.map(d => d.id)).toArray()
+  // docs.value = messages.map(m => ({
+  //   id: m.id,
+  //   dialogId: m.dialogId,
+  //   content: m.contents
+  //     .filter(c => c.type === 'assistant-message' || c.type === 'user-message')
+  //     .map(c => c.text)
+  //     .join('\n')
+  // }))
   search()
 })
 
-const q = ref('')
 interface Result {
   workspaceId: string
-  dialogId: string
-  title: string
-  route: number[]
+  chatId: string
+  name: string
+  messageId: string
   preview?: string
 }
 const results = ref<Result[]>(null)
 const listRef = ref<QList>()
-function search() {
+async function search() {
   if (!q.value) return
-  const hits = docs.value.filter(d => caselessIncludes(d.content, q.value)).slice(0, 100)
+  // const hits = docs.value.filter(d => caselessIncludes(d.content, q.value)).slice(0, 100)
   unmark()
-  results.value = [
-    ...hits.map(h => {
-      const dialog = dialogs.value.find(d => d.id === h.dialogId)
-      return dialog && {
-        workspaceId: dialog.workspaceId,
-        dialogId: dialog.id,
-        title: dialog.name,
-        preview: h.content.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))[0],
-        route: getRoute(dialog.msgTree, h.id)
-      }
-    }).filter(Boolean),
-    ...dialogs.value.filter(d => caselessIncludes(d.name, q.value)).map(d => ({
-      workspaceId: d.workspaceId,
-      dialogId: d.id,
-      title: d.name,
-      route: []
-    }))
-  ].reverse()
+  results.value = (await chatsStore.search(q.value, global.value ? null : props.workspaceId)).map(r => ({
+    workspaceId: r.chat.workspace_id,
+    chatId: r.chat_id,
+    name: r.chat.name,
+    messageId: r.id,
+    preview: r.content.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))[0]
+  }))
+  // results.value = [
+  //   ...hits.map(h => {
+  //     const dialog = dialogs.value.find(d => d.id === h.dialogId)
+  //     return dialog && {
+  //       workspaceId: dialog.workspaceId,
+  //       dialogId: dialog.id,
+  //       title: dialog.name,
+  //       preview: h.content.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))[0],
+  //       route: getRoute(dialog.msgTree, h.id)
+  //     }
+  //   }).filter(Boolean),
+  //   ...dialogs.value.filter(d => caselessIncludes(d.name, q.value)).map(d => ({
+  //     workspaceId: d.workspaceId,
+  //     dialogId: d.id,
+  //     title: d.name,
+  //     route: []
+  //   }))
+  // ].reverse()
   nextTick(() => {
     highlight()
   })
@@ -178,14 +178,6 @@ watch(open, val => {
     highlight()
   })
 })
-
-function getRoute(tree: Record<string, string[]>, target: string, curr = '$root') {
-  for (const [i, v] of tree[curr].entries()) {
-    if (v === target) return [i]
-    const route = getRoute(tree, target, v)
-    if (route) return [i, ...route]
-  }
-}
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent()
 </script>

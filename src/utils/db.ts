@@ -5,13 +5,13 @@ import dexieCloud, { DexieCloudTable } from 'dexie-cloud-addon'
 
 type Db = Dexie & {
   // workspaces: DexieCloudTable<Workspace | Folder, 'id'>
-  dialogs: DexieCloudTable<Dialog, 'id'>
-  messages: DexieCloudTable<Message, 'id'>
+  // dialogs: DexieCloudTable<Dialog, 'id'>
+  // messages: DexieCloudTable<Message, 'id'>
   // assistants: DexieCloudTable<Assistant, 'id'>
   artifacts: DexieCloudTable<Artifact, 'id'>
   // installedPluginsV2: DexieCloudTable<InstalledPlugin, 'id'>
   reactives: DexieCloudTable<StoredReactive, 'key'>
-  avatarImages: DexieCloudTable<AvatarImage, 'id'>
+  // avatarImages: DexieCloudTable<AvatarImage, 'id'>
   // items: DexieCloudTable<StoredItem, 'id'>
   providers: DexieCloudTable<CustomProvider, 'id'>
 }
