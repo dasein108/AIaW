@@ -15,9 +15,7 @@ import { usePluginsStore } from './stores/plugins'
 import { useAssistantsStore } from './stores/assistants'
 import { useChatMessagesStore } from './stores/chat-messages'
 import { useDialogsStore } from './stores/dialogs'
-// import { useLoginDialogs } from './composables/login-dialogs'
-// import { useSubscriptionNotify } from './composables/subscription-notify'
-
+import { useArtifactsStore } from './stores/artifacts'
 defineOptions({
   name: 'App'
 })
@@ -31,7 +29,8 @@ async function initStores() {
     usePluginsStore().init(),
     useAssistantsStore().init(),
     userStore.init(),
-    useDialogsStore().init()
+    useDialogsStore().init(),
+    useArtifactsStore().init()
   ])
 }
 
@@ -42,9 +41,6 @@ provide('kepler', createKeplerWallet())
 
 useSetTheme()
 useFirstVisit()
-// TODO: remove this
-// useLoginDialogs()
-// useSubscriptionNotify()
 
 const router = useRouter()
 router.afterEach(to => {

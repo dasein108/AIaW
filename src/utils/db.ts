@@ -8,7 +8,7 @@ type Db = Dexie & {
   // dialogs: DexieCloudTable<Dialog, 'id'>
   // messages: DexieCloudTable<Message, 'id'>
   // assistants: DexieCloudTable<Assistant, 'id'>
-  artifacts: DexieCloudTable<Artifact, 'id'>
+  // artifacts: DexieCloudTable<Artifact, 'id'>
   // installedPluginsV2: DexieCloudTable<InstalledPlugin, 'id'>
   reactives: DexieCloudTable<StoredReactive, 'key'>
   // avatarImages: DexieCloudTable<AvatarImage, 'id'>
@@ -20,15 +20,15 @@ const db = new Dexie('data') as Db
 
 db.version(6).stores({
   // workspaces: 'id, type, parentId',
-  dialogs: 'id, workspaceId',
-  messages: 'id, type, dialogId',
+  // dialogs: 'id, workspaceId',
+  // messages: 'id, type, dialogId',
   // assistants: 'id, workspaceId',
   // canvases: 'id, workspaceId', // deprecated
-  artifacts: 'id, workspaceId',
+  // artifacts: 'id, workspaceId',
   // installedPluginsV2: 'key, id',
   reactives: 'key',
-  avatarImages: 'id',
-  items: 'id, type, dialogId',
+  // avatarImages: 'id',
+  // items: 'id, type, dialogId',
   providers: 'id'
 })
 

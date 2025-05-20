@@ -174,7 +174,8 @@ import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import DialogsExpansion from 'src/components/DialogsExpansion.vue'
 import ChatsExpansion from 'src/components/chats/ChatsExpansion.vue'
-import { Workspace } from '@/services/supabase/types'
+import { ArtifactMapped, Workspace } from '@/services/supabase/types'
+import { useArtifactsStore } from 'src/stores/artifacts'
 onErrorCaptured((err, instance, info) => {
   console.error('Global Vue error:', err, info)
   return false // let it propagate
@@ -185,6 +186,7 @@ const props = defineProps<{
 
 const workspacesStore = useWorkspacesStore()
 const userStore = useUserDataStore()
+const artifactsStore = useArtifactsStore()
 const listOpen = computed(() => userStore.data.listOpen[props.id] || {
   assistants: true,
   artifacts: false,
@@ -194,14 +196,16 @@ const listOpen = computed(() => userStore.data.listOpen[props.id] || {
 
 const workspace = computed<Workspace | undefined>(() => workspacesStore.workspaces.find(item => item.id === props.id) as Workspace)
 
-const artifacts = useLiveQueryWithDeps(() => props.id, () => db.artifacts.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Artifact[] })
+const artifacts = computed(() => Object.values(artifactsStore.workspaceArtifacts[props.id] || {}).map(a => a as ArtifactMapped))
 provide('workspace', workspace)
 provide('artifacts', artifacts)
 
 const $q = useQuasar()
 
 const drawerBreakpoint = 960
-const openedArtifacts = computed(() => artifacts.value.filter(a => a.open))
+// TODO: opened artifacts should be USER settings
+const userDataStore = useUserDataStore()
+const openedArtifacts = computed(() => artifacts.value.filter(a => userDataStore.data.openedArtifacts.includes(a.id)))
 const showArtifacts = computed(() => $q.screen.width > drawerBreakpoint && openedArtifacts.value.length)
 provide('showArtifacts', showArtifacts)
 const route = useRoute()
@@ -209,6 +213,9 @@ const focusedArtifact = computed(() =>
   openedArtifacts.value.find(a => a.id === route.query.artifactId) || openedArtifacts.value.at(-1)
 )
 const router = useRouter()
+
+console.log('ws page opened artifacts', openedArtifacts.value, focusedArtifact)
+
 watch(focusedArtifact, val => {
   if (val) {
     val.id !== route.query.artifactId && router.replace({ query: { artifactId: val.id } })
@@ -220,8 +227,10 @@ watch(() => route.query.openArtifact, val => {
   if (!val) return
   const artifact = artifacts.value.find(a => a.id === val)
   if (artifact) {
-    !artifact.open && db.artifacts.update(artifact.id, { open: true })
-    router.replace({ query: { artifactId: artifact.id } })
+    if (!userDataStore.data.openedArtifacts.includes(artifact.id)) {
+      userDataStore.data.openedArtifacts.push(artifact.id)
+      router.replace({ query: { artifactId: artifact.id } })
+    }
   } else {
     router.replace({ query: { artifactId: focusedArtifact.value?.id } })
   }

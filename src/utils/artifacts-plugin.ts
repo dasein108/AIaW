@@ -4,11 +4,11 @@ import { engine } from './template-engine'
 import { db } from './db'
 import { saveArtifactChanges } from './functions'
 import { i18n } from 'src/boot/i18n'
+import { useArtifactsStore } from 'src/stores/artifacts'
 
 const pluginId = 'aiaw-artifacts'
 
 const { t } = i18n.global
-
 const api: PluginApi = {
   type: 'tool',
   name: 'edit',
@@ -36,15 +36,17 @@ const api: PluginApi = {
     }))
   }),
   async execute({ id, updates, newName }) {
-    const artifact = await db.artifacts.get(id)
+    const artifactsStore = useArtifactsStore()
+
+    const artifact = artifactsStore.artifacts[id]
     if (!artifact || !artifact.writable) throw new Error(`Artifact ${id} not found`)
-    let content = artifact.versions[artifact.currIndex].text
+    let content = artifact.versions[artifact.curr_index].text
     for (const update of updates) {
       const pattern = new RegExp(update.pattern, update.flags)
       content = content.replace(pattern, update.replacement)
     }
     artifact.tmp = content
-    await db.artifacts.update(id, {
+    await artifactsStore.update({
       ...saveArtifactChanges(artifact),
       tmp: artifact.tmp,
       name: newName ?? artifact.name

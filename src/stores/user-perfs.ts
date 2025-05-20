@@ -111,6 +111,7 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     showWarnings: false
   }
   const [perfs, ready] = persistentReactive('#user-perfs', { ...defaultPerfs })
+  console.log('----user-perfs', perfs)
   watchEffect(() => {
     Dark.set(perfs.darkMode)
   })

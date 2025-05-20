@@ -50,8 +50,9 @@ export const usePluginsStore = defineStore('plugins', () => {
     installedPlugins.value = installedPlugins.value.filter(i => i.id !== id)
   }
 
-  const availableIds = computed(() => installedPlugins.value.filter(i => i.available).map(i => i.id))
+  const availableKeys = computed(() => installedPlugins.value.filter(i => i.available).map(i => i.key))
   const [data, ready] = persistentReactive<PluginsData>('#plugins-data', defaultData)
+  console.log('----plugins-data', data)
   const plugins = computed(() => [
     webSearchPlugin.plugin,
     calculatorPlugin,
@@ -118,17 +119,23 @@ export const usePluginsStore = defineStore('plugins', () => {
     })
   }
 
-  async function uninstall(id: string) {
-    const { error } = await supabase.from('user_plugins').update({ available: false }).eq('id', id)
+  async function uninstall(key: string) {
+    // const plugin = installedPlugins.value.find(i => i.key === id)
+    // if (!plugin) {
+    //   console.error('❌ Plugin not found:', id)
+    //   return
+    // }
+    const { error } = await supabase.from('user_plugins').update({ available: false }).eq('key', key)
     if (error) {
-      console.error('❌ Failed to uninstall plugin:', error.message)
+      console.error(`❌ Failed to uninstall plugin: ${key}`, error.message)
       return
     }
     for (const assistant of assistantsStore.assistants) {
-      if (assistant.plugins[id]) {
-        assistantsStore.update(assistant.id, { plugins: { ...assistant.plugins, [id]: undefined } })
+      if (assistant.plugins[key]) {
+        assistantsStore.update(assistant.id, { plugins: { ...assistant.plugins, [key]: undefined } })
       }
     }
+    installedPlugins.value = installedPlugins.value.filter(i => i.key !== key)
   }
 
   async function init() {
@@ -140,7 +147,7 @@ export const usePluginsStore = defineStore('plugins', () => {
     data,
     ready,
     plugins,
-    availableIds,
+    availableKeys,
     installLobePlugin,
     installHuggingPlugin,
     installGradioPlugin,

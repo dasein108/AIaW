@@ -36,10 +36,10 @@
       <div
         text-out
       >
-        {{ artifact.versions[artifact.currIndex].date.toLocaleString() }}
+        {{ artifact.versions[artifact.curr_index].date.toLocaleString() }}
       </div>
       <q-pagination
-        :model-value="artifact.currIndex + 1"
+        :model-value="artifact.curr_index + 1"
         @update:model-value="setIndex($event - 1)"
         :max="artifact.versions.length"
         input
@@ -101,30 +101,35 @@
 import CodeJar from 'src/components/CodeJar.vue'
 import { useListenKey } from 'src/composables/listen-key'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { db } from 'src/utils/db'
 import { artifactUnsaved, saveArtifactChanges } from 'src/utils/functions'
-import { Artifact } from 'src/utils/types'
+import { ArtifactMapped } from '@/services/supabase/types'
 import { computed, ref, toRef, watchEffect } from 'vue'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import { MdPreview } from 'md-editor-v3'
+import { useArtifactsStore } from 'src/stores/artifacts'
 
 const props = defineProps<{
-  artifact: Artifact
+  artifact: ArtifactMapped
 }>()
 
-function update(changes: Partial<Artifact>) {
-  db.artifacts.update(props.artifact.id, changes)
+const artifactsStore = useArtifactsStore()
+function update(changes: Partial<ArtifactMapped>) {
+  artifactsStore.update({
+    ...changes,
+    id: props.artifact.id,
+    workspace_id: props.artifact.workspace_id
+  })
 }
 function setIndex(index: number) {
   update({
-    currIndex: index,
+    curr_index: index,
     tmp: props.artifact.versions[index].text
   })
 }
 function save() {
   const { artifact } = props
   if (!artifactUnsaved(artifact)) return
-  db.artifacts.update(artifact.id, saveArtifactChanges(artifact))
+  artifactsStore.update(saveArtifactChanges(artifact))
 }
 const { perfs } = useUserPerfsStore()
 useListenKey(toRef(perfs, 'saveArtifactKey'), save)

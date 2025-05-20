@@ -3,6 +3,59 @@ export type Json = Record<string, any> | any[]
 export type Database = {
   public: {
     Tables: {
+      artifacts: {
+        Row: {
+          created_at: string | null
+          curr_index: number
+          id: string
+          language: string | null
+          name: string
+          readable: boolean
+          tmp: string | null
+          updated_at: string | null
+          user_id: string | null
+          versions: Json
+          workspace_id: string
+          writable: boolean
+        }
+        Insert: {
+          created_at?: string | null
+          curr_index?: number
+          id?: string
+          language?: string | null
+          name: string
+          readable?: boolean
+          tmp?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          versions?: Json
+          workspace_id: string
+          writable?: boolean
+        }
+        Update: {
+          created_at?: string | null
+          curr_index?: number
+          id?: string
+          language?: string | null
+          name?: string
+          readable?: boolean
+          tmp?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          versions?: Json
+          workspace_id?: string
+          writable?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artifacts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_members: {
         Row: {
           chat_id: string

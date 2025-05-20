@@ -14,6 +14,7 @@ type DialogMessage = Database['public']['Tables']['dialog_messages']['Row']
 type MessageContent = Database['public']['Tables']['message_contents']['Row']
 type StoredItem = Database['public']['Tables']['stored_items']['Row']
 type WorkspaceMember = Database['public']['Tables']['workspace_members']['Row']
+type Artifact = Database['public']['Tables']['artifacts']['Row']
 
 type StoredItemMapped =Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id' | 'type'> & {dialog_id?: string, type: 'text' | 'file' | 'quote', message_content_id?: string}
 
@@ -22,6 +23,15 @@ type WorkspaceMapped = Workspace & {
   vars?: Record<string, string>;
   index_content?: string;
 };
+
+type ArtifactVersion = {
+    date: string
+    text: string
+}
+
+type ArtifactMapped = Database['public']['Tables']['artifacts']['Insert'] & {
+  versions: ArtifactVersion[]
+}
 
 type DialogMapped = Dialog & {
   assistant: Assistant | null
@@ -61,7 +71,7 @@ type DialogMessageWithContent = DialogMessage & {
 }
 
 export type {
-  ChatMessageWithProfile, Chat, Profile, ChatMember, WorkspaceMapped,
+  ChatMessageWithProfile, Chat, Profile, ChatMember, WorkspaceMapped, ArtifactMapped, ArtifactVersion,
   Workspace, UserPlugin, Assistant, AssistantMapped, ChatMessage, Dialog, DialogMessage,
   MessageContent, WorkspaceMember, StoredItem, DialogMessageWithContent, MessageContentWithStoredItems, DialogMapped, StoredItemMapped
 }

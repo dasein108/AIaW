@@ -13,6 +13,7 @@ interface UserData {
   noobAlertDismissed: boolean,
   lastDialogIds: Record<string, string>
   defaultAssistantIds: Record<string, string>,
+  openedArtifacts: string[],
   listOpen: Record<string, ListOpen>,
   tipDismissed: Record<string, boolean>
   prodExpiredNotifiedTimestamp: number
@@ -28,7 +29,10 @@ export const useUserDataStore = defineStore('user-data', () => {
     defaultAssistantIds: {},
     prodExpiredNotifiedTimestamp: null,
     evalExpiredNotified: false,
-    listOpen: {}
+    listOpen: {},
+    openedArtifacts: []
   })
+  console.log('----user-data', data)
+
   return { data, ready }
 })

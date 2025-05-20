@@ -890,7 +890,9 @@ const { getModel, getSdkModel } = useGetModel()
 const model = computed(() => getModel(dialog.value?.model_override || assistant.value?.model))
 const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value, modelOptions.value))
 const $q = useQuasar()
+
 const { data } = useUserDataStore()
+const openedArtifacts = computed(() => artifacts.value.filter(a => userDataStore.data.openedArtifacts.includes(a.id)))
 async function send() {
   if (!assistant.value) {
     $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
@@ -1062,11 +1064,12 @@ async function stream(target, insert = false) {
       $q.notify({ message: t('dialogView.pluginPromptParseFailed', { title: p.title }), color: 'negative' })
     }
   }))
-  if (isPlatformEnabled(perfs.artifactsEnabled) && artifacts.value.some(a => a.open)) {
+
+  if (isPlatformEnabled(perfs.artifactsEnabled) && openedArtifacts.value.length > 0) {
     const { plugin, getPrompt, api } = artifactsPlugin
     enabledPlugins.push({
       id: plugin.id,
-      prompt: getPrompt(artifacts.value.filter(a => a.open)),
+      prompt: getPrompt(openedArtifacts.value),
       actions: []
     })
     tools[`${plugin.id}-${api.name}`] = tool({
@@ -1394,7 +1397,7 @@ async function extractArtifact(message: DialogMessageWithContent, text: string, 
     name,
     language: options.lang,
     versions: [{
-      date: new Date(),
+      date: new Date().toISOString(),
       text
     }],
     tmp: text
