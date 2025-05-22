@@ -121,7 +121,6 @@ import { CosmosWallet } from 'src/services/cosmos/CosmosWallet'
 const wallet = inject<CosmosWallet>('cosmos')
 const $q = useQuasar()
 const authStore = useAuthStore()
-const walletService = WalletService.getInstance()
 
 const isConnected = computed(() => authStore.isConnected)
 const walletInfo = ref<{ address: string; mnemonic: string } | null>(null)
@@ -256,6 +255,7 @@ async function revokeAuthorization() {
 
   try {
     await authStore.revokeAgentAuthorization(
+      wallet.state.value.address,
       agentAddress.value,
       selectedMsgType.value
     )

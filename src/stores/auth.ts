@@ -88,7 +88,7 @@ export const useAuthStore = defineStore({
       await walletService.grantAuthorization(granterAddress, agentAddress, msgType, expiration)
     },
 
-    async revokeAgentAuthorization(agentAddress: string, msgType: string) {
+    async revokeAgentAuthorization(granterAddress: string, agentAddress: string, msgType: string) {
       console.log('Revoking authorization:', {
         isConnected: this.isConnected,
         walletInfo: this.walletInfo,
@@ -100,7 +100,7 @@ export const useAuthStore = defineStore({
         throw new Error('Wallet not connected')
       }
 
-      await walletService.revokeAuthorization(agentAddress, msgType)
+      await walletService.revokeAuthorization(granterAddress, agentAddress, msgType)
     },
 
     disconnect() {

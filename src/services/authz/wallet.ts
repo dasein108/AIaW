@@ -16,7 +16,8 @@ export interface WalletInfo {
 export class WalletService {
   // eslint-disable-next-line no-use-before-define
   private static instance: WalletService
-  private client: SigningStargateClient | null = null
+  private granteeClient: SigningStargateClient | null = null
+  private granterClient: SigningStargateClient | null = null
   private wallet: DirectSecp256k1HdWallet | null = null
   private isInitialized: boolean = false
 
@@ -28,7 +29,7 @@ export class WalletService {
   }
 
   isConnected(): boolean {
-    return this.client !== null && this.wallet !== null && this.isInitialized
+    return this.granteeClient !== null && this.wallet !== null && this.isInitialized
   }
 
   async initializeFromStorage(): Promise<void> {
@@ -86,7 +87,7 @@ export class WalletService {
       const [firstAccount] = await this.wallet.getAccounts()
       console.log('Connecting wallet:', firstAccount.address)
 
-      this.client = await SigningStargateClient.connectWithSigner(
+      this.granteeClient = await SigningStargateClient.connectWithSigner(
         config.NODE_RPC_URL,
         this.wallet,
         {
@@ -100,7 +101,7 @@ export class WalletService {
       this.isInitialized = true
     } catch (error) {
       console.error('Error connecting wallet:', error)
-      this.client = null
+      this.granteeClient = null
       this.wallet = null
       this.isInitialized = false
       throw new Error(`Failed to connect wallet: ${error.message}`)
@@ -112,7 +113,7 @@ export class WalletService {
     if (accounts.length === 0) throw new Error('No accounts in external signer')
 
     // this.wallet = null // сброс локального кошелька
-    this.client = await SigningStargateClient.connectWithSigner(config.NODE_RPC_URL, signer, {
+    this.granterClient = await SigningStargateClient.connectWithSigner(config.NODE_RPC_URL, signer, {
       gasPrice: {
         amount: Decimal.fromUserInput(config.GAS_PRICE_AMOUNT, 6),
         denom: config.FEE_DENOM
@@ -163,38 +164,42 @@ export class WalletService {
 
     try {
       // Use address from wallet if available
-      const [granter] = await this.wallet?.getAccounts() ?? []
-      const granterAddr = granter?.address ?? granterAddress
       console.log('Granting authorization:', {
-        granter: granterAddr,
+        granter: granterAddress,
         grantee: granteeAddress,
         msgType
       })
 
-      const authorization = this.getAuthorizationType(msgType)
+      const sendAuth = SendAuthorization.fromPartial({
+        spendLimit: coins('10000', config.FEE_DENOM)
+      })
 
-      const msg = MsgGrant.fromPartial({
-        granter: granterAddr,
+      const grantMsg: MsgGrant = {
+        granter: granterAddress,
         grantee: granteeAddress,
         grant: {
           authorization: Any.fromPartial({
-            typeUrl: authorization.typeUrl,
-            value: authorization.value
+            typeUrl: '/cosmos.bank.v1beta1.SendAuthorization',
+            value: SendAuthorization.encode(sendAuth).finish()
           }),
           expiration: expiration ? {
             seconds: BigInt(Math.floor(expiration.getTime() / 1000)),
             nanos: 0
           } : undefined
         }
-      })
+      }
 
-      const result = await this.client!.signAndBroadcast(granterAddr, [{
+      const result = await this.granterClient!.signAndBroadcast(granterAddress, [{
         typeUrl: '/cosmos.authz.v1beta1.MsgGrant',
-        value: msg
+        value: grantMsg
       }], {
         amount: coins('100000', config.FEE_DENOM),
         gas: '100000'
       })
+
+      if (result.code !== 0) {
+        throw new Error(`Failed to grant authorization: ${result.rawLog}`)
+      }
 
       console.log('Authorization granted:', result)
     } catch (error) {
@@ -204,6 +209,7 @@ export class WalletService {
   }
 
   async revokeAuthorization(
+    granterAddress: string,
     granteeAddress: string,
     msgType: string
   ): Promise<void> {
@@ -212,26 +218,29 @@ export class WalletService {
     }
 
     try {
-      const [granter] = await this.wallet!.getAccounts()
       console.log('Revoking authorization:', {
-        granter: granter.address,
+        granter: granterAddress,
         grantee: granteeAddress,
         msgType
       })
 
       const msg = MsgRevoke.fromPartial({
-        granter: granter.address,
+        granter: granterAddress,
         grantee: granteeAddress,
         msgTypeUrl: msgType
       })
 
-      const result = await this.client!.signAndBroadcast(granter.address, [{
+      const result = await this.granterClient!.signAndBroadcast(granterAddress, [{
         typeUrl: '/cosmos.authz.v1beta1.MsgRevoke',
         value: msg
       }], {
         amount: coins('100000', config.FEE_DENOM),
         gas: '100000'
       })
+
+      if (result.code !== 0) {
+        throw new Error(`Failed to revoke authorization: ${result.rawLog}`)
+      }
 
       console.log('Authorization revoked:', result)
     } catch (error) {
