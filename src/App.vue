@@ -16,6 +16,7 @@ import { useAssistantsStore } from './stores/assistants'
 import { useChatMessagesStore } from './stores/chat-messages'
 import { useDialogsStore } from './stores/dialogs'
 import { useArtifactsStore } from './stores/artifacts'
+import { useProvidersStore } from './stores/providers'
 defineOptions({
   name: 'App'
 })
@@ -30,7 +31,8 @@ async function initStores() {
     useAssistantsStore().init(),
     userStore.init(),
     useDialogsStore().init(),
-    useArtifactsStore().init()
+    useArtifactsStore().init(),
+    useProvidersStore().init()
   ])
 }
 

@@ -38,7 +38,7 @@
           </q-item-section>
         </q-item>
         <provider-input-items
-          v-model="provider.fallbackProvider"
+          v-model="provider.fallback_provider"
           :label="$t('customProvider.fallbackProvider')"
           :caption="$t('customProvider.fallbackProviderCaption')"
         />
@@ -59,7 +59,7 @@
                 flat
                 text-on-sur-var
                 hover:text-err
-                @click="provider.subproviders.splice(index, 1)"
+                @click="removeSubprovider(subprovider)"
               />
             </q-item-section>
           </q-item>
@@ -96,11 +96,11 @@ import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import { useSetTitle } from 'src/composables/set-title'
 import { useI18n } from 'vue-i18n'
-import { CustomProvider } from 'src/utils/types'
+import { CustomProviderMapped, SubproviderMapped } from 'src/services/supabase/types'
 import ProviderInputItems from 'src/components/ProviderInputItems.vue'
 import SubproviderInput from 'src/components/SubproviderInput.vue'
 import { syncRef } from 'src/composables/sync-ref'
-import { genId, pageFhStyle } from 'src/utils/functions'
+import { pageFhStyle } from 'src/utils/functions'
 
 const props = defineProps<{
   id: string
@@ -110,18 +110,24 @@ defineEmits(['toggle-drawer'])
 
 const store = useProvidersStore()
 
-const provider = syncRef<CustomProvider>(
+const provider = syncRef<CustomProviderMapped>(
   () => store.providers.find(a => a.id === props.id),
   val => { store.put(toRaw(val)) },
   { valueDeep: true }
 )
 
 function addSubprovider() {
-  provider.value.subproviders.push({
-    id: genId(),
-    provider: null,
-    modelMap: {}
+  store.update(provider.value.id, {
+    subproviders: [{
+      custom_provider_id: provider.value.id,
+      provider: null,
+      model_map: {}
+    }]
   })
+}
+
+function removeSubprovider(subprovider: SubproviderMapped) {
+  store.deleteSubprovider(provider.value.id, subprovider.id)
 }
 
 const $q = useQuasar()

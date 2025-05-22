@@ -14,7 +14,22 @@ type DialogMessage = Database['public']['Tables']['dialog_messages']['Row']
 type MessageContent = Database['public']['Tables']['message_contents']['Row']
 type StoredItem = Database['public']['Tables']['stored_items']['Row']
 type WorkspaceMember = Database['public']['Tables']['workspace_members']['Row']
-type Artifact = Database['public']['Tables']['artifacts']['Row']
+// type Artifact = Database['public']['Tables']['artifacts']['Row']
+type CustomProvider = Database['public']['Tables']['custom_providers']['Row']
+type Subprovider = Database['public']['Tables']['subproviders']['Row']
+
+type SubproviderMapped = Omit<Subprovider, 'custom_provider_id' | 'id' | 'model_map'> & {
+  id?: string
+  custom_provider_id?: string
+  model_map: Record<string, string>
+  provider: Provider
+}
+
+type CustomProviderMapped = CustomProvider & {
+  subproviders: SubproviderMapped[]
+  fallback_provider: Provider
+  avatar: Avatar
+}
 
 type StoredItemMapped =Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id' | 'type'> & {dialog_id?: string, type: 'text' | 'file' | 'quote', message_content_id?: string}
 
@@ -73,5 +88,6 @@ type DialogMessageWithContent = DialogMessage & {
 export type {
   ChatMessageWithProfile, Chat, Profile, ChatMember, WorkspaceMapped, ArtifactMapped, ArtifactVersion,
   Workspace, UserPlugin, Assistant, AssistantMapped, ChatMessage, Dialog, DialogMessage,
-  MessageContent, WorkspaceMember, StoredItem, DialogMessageWithContent, MessageContentWithStoredItems, DialogMapped, StoredItemMapped
+  MessageContent, WorkspaceMember, StoredItem, DialogMessageWithContent, MessageContentWithStoredItems, DialogMapped,
+  StoredItemMapped, CustomProviderMapped, SubproviderMapped
 }

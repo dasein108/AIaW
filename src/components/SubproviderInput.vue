@@ -26,19 +26,19 @@
 </template>
 
 <script setup lang="ts">
-import { Subprovider } from 'src/utils/types'
+import { SubproviderMapped } from 'src/services/supabase/types'
 import ProviderInputItems from './ProviderInputItems.vue'
 import ModelsInput from './ModelsInput.vue'
 import GetModelList from './GetModelList.vue'
 import { computed } from 'vue'
 
-const subprovider = defineModel<Subprovider>()
+const subprovider = defineModel<SubproviderMapped>()
 
 const models = computed({
   get: () =>
-    Object.entries(subprovider.value.modelMap).map(([key, value]) => key === value ? key : `${key}::${value}`),
+    Object.entries(subprovider.value.model_map).map(([key, value]) => key === value ? key : `${key}::${value}`),
   set: (value: string[]) => {
-    subprovider.value.modelMap = Object.fromEntries(value.map(v => v.includes('::') ? v.split('::', 2) : [v, v]))
+    subprovider.value.model_map = Object.fromEntries(value.map(v => v.includes('::') ? v.split('::', 2) : [v, v]))
   }
 })
 </script>

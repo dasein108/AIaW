@@ -253,6 +253,23 @@ $$;
 ALTER FUNCTION "public"."propagate_member_update"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."set_artifact_user_and_timestamps"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+begin
+  if new.user_id is null then
+    new.user_id := auth.uid();
+  end if;
+  new.created_at := now();
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."set_artifact_user_and_timestamps"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."set_chat_owner"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
@@ -397,6 +414,19 @@ $$;
 ALTER FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."update_artifact_updated_at"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+begin
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+
+ALTER FUNCTION "public"."update_artifact_updated_at"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."update_updated_at_column"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$
@@ -412,6 +442,25 @@ ALTER FUNCTION "public"."update_updated_at_column"() OWNER TO "postgres";
 SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
+
+
+CREATE TABLE IF NOT EXISTS "public"."artifacts" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "name" "text" NOT NULL,
+    "workspace_id" "uuid" NOT NULL,
+    "versions" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "curr_index" integer DEFAULT 0 NOT NULL,
+    "readable" boolean DEFAULT true NOT NULL,
+    "writable" boolean DEFAULT true NOT NULL,
+    "language" "text",
+    "tmp" "text",
+    "user_id" "uuid",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."artifacts" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."chat_members" (
@@ -463,7 +512,7 @@ CREATE TABLE IF NOT EXISTS "public"."dialogs" (
     "name" "text" NOT NULL,
     "workspace_id" "uuid" NOT NULL,
     "assistant_id" "uuid",
-    "user_id" "uuid" NOT NULL,
+    "user_id" "uuid",
     "msg_tree" "jsonb" NOT NULL,
     "msg_route" integer[] NOT NULL,
     "input_vars" "jsonb" NOT NULL,
@@ -526,10 +575,9 @@ CREATE TABLE IF NOT EXISTS "public"."stored_items" (
     "message_content_id" "uuid" NOT NULL,
     "type" "text" NOT NULL,
     "content_text" "text",
-    "content_buffer" "bytea",
     "name" "text",
     "mime_type" "text",
-    "references_count" integer DEFAULT 0,
+    "file_url" "text",
     CONSTRAINT "stored_items_type_check" CHECK (("type" = ANY (ARRAY['text'::"text", 'file'::"text", 'quote'::"text"])))
 );
 
@@ -613,6 +661,11 @@ CREATE TABLE IF NOT EXISTS "public"."workspaces" (
 ALTER TABLE "public"."workspaces" OWNER TO "postgres";
 
 
+ALTER TABLE ONLY "public"."artifacts"
+    ADD CONSTRAINT "artifacts_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."chat_members"
     ADD CONSTRAINT "chat_members_pkey" PRIMARY KEY ("chat_id", "user_id");
 
@@ -648,8 +701,18 @@ ALTER TABLE ONLY "public"."profiles"
 
 
 
+ALTER TABLE ONLY "public"."stored_items"
+    ADD CONSTRAINT "stored_items_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."user_assistants"
     ADD CONSTRAINT "user_assistants_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."user_plugins"
+    ADD CONSTRAINT "user_plugins_key_key" UNIQUE ("key");
 
 
 
@@ -692,6 +755,10 @@ CREATE OR REPLACE TRIGGER "propagate_workspace_member_update" AFTER UPDATE OF "r
 
 
 
+CREATE OR REPLACE TRIGGER "set_artifact_user_and_timestamps_trigger" BEFORE INSERT ON "public"."artifacts" FOR EACH ROW EXECUTE FUNCTION "public"."set_artifact_user_and_timestamps"();
+
+
+
 CREATE OR REPLACE TRIGGER "set_chat_owner_trigger" BEFORE INSERT ON "public"."chats" FOR EACH ROW EXECUTE FUNCTION "public"."set_chat_owner"();
 
 ALTER TABLE "public"."chats" ENABLE ALWAYS TRIGGER "set_chat_owner_trigger";
@@ -723,6 +790,20 @@ CREATE OR REPLACE TRIGGER "set_user_plugin_user_id_trigger" BEFORE INSERT ON "pu
 
 
 CREATE OR REPLACE TRIGGER "set_workspace_owner_trigger" BEFORE INSERT ON "public"."workspaces" FOR EACH ROW EXECUTE FUNCTION "public"."set_workspace_owner"();
+
+
+
+CREATE OR REPLACE TRIGGER "update_artifact_updated_at_trigger" BEFORE UPDATE ON "public"."artifacts" FOR EACH ROW EXECUTE FUNCTION "public"."update_artifact_updated_at"();
+
+
+
+ALTER TABLE ONLY "public"."artifacts"
+    ADD CONSTRAINT "artifacts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."artifacts"
+    ADD CONSTRAINT "artifacts_workspace_id_fkey" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE CASCADE;
 
 
 
@@ -977,6 +1058,18 @@ CREATE POLICY "Send messages in workspace chats" ON "public"."messages" FOR INSE
 
 
 
+CREATE POLICY "User can delete own artifact" ON "public"."artifacts" FOR DELETE USING (("user_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "User can insert own artifact" ON "public"."artifacts" FOR INSERT WITH CHECK (("user_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "User can update own artifact" ON "public"."artifacts" FOR UPDATE USING (("user_id" = "auth"."uid"()));
+
+
+
 CREATE POLICY "Users can delete their assistants" ON "public"."user_assistants" FOR DELETE USING (("user_id" = "auth"."uid"()));
 
 
@@ -1067,6 +1160,14 @@ CREATE POLICY "Workspace delete access" ON "public"."workspaces" FOR DELETE USIN
 
 
 
+CREATE POLICY "Workspace members or public workspace can read artifacts" ON "public"."artifacts" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM "public"."workspaces"
+  WHERE (("workspaces"."id" = "artifacts"."workspace_id") AND (("workspaces"."is_public" = true) OR (EXISTS ( SELECT 1
+           FROM "public"."workspace_members"
+          WHERE (("workspace_members"."workspace_id" = "artifacts"."workspace_id") AND ("workspace_members"."user_id" = "auth"."uid"())))))))));
+
+
+
 CREATE POLICY "Workspace read access" ON "public"."workspaces" FOR SELECT USING ((("is_public" = true) OR ("owner_id" = "auth"."uid"()) OR (EXISTS ( SELECT 1
    FROM "public"."workspace_members"
   WHERE (("workspace_members"."workspace_id" = "workspaces"."id") AND ("workspace_members"."user_id" = "auth"."uid"()))))));
@@ -1099,6 +1200,9 @@ CREATE POLICY "access stored items via dialog" ON "public"."stored_items" USING 
    FROM "public"."dialogs" "d"
   WHERE (("d"."id" = "stored_items"."dialog_id") AND ("d"."user_id" = "auth"."uid"())))));
 
+
+
+ALTER TABLE "public"."artifacts" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."chat_members" ENABLE ROW LEVEL SECURITY;
@@ -1411,6 +1515,12 @@ GRANT ALL ON FUNCTION "public"."propagate_member_update"() TO "service_role";
 
 
 
+GRANT ALL ON FUNCTION "public"."set_artifact_user_and_timestamps"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_artifact_user_and_timestamps"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_artifact_user_and_timestamps"() TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "anon";
 GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "service_role";
@@ -1453,6 +1563,12 @@ GRANT ALL ON FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid"
 
 
 
+GRANT ALL ON FUNCTION "public"."update_artifact_updated_at"() TO "anon";
+GRANT ALL ON FUNCTION "public"."update_artifact_updated_at"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."update_artifact_updated_at"() TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "anon";
 GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "service_role";
@@ -1471,6 +1587,12 @@ GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "service_role";
 
 
 
+
+
+
+GRANT ALL ON TABLE "public"."artifacts" TO "anon";
+GRANT ALL ON TABLE "public"."artifacts" TO "authenticated";
+GRANT ALL ON TABLE "public"."artifacts" TO "service_role";
 
 
 

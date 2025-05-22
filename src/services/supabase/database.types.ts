@@ -134,6 +134,30 @@ export type Database = {
           },
         ]
       }
+      custom_providers: {
+        Row: {
+          avatar: Json | null
+          fallback_provider: Json | null
+          id: string
+          name: string
+          user_id: string | null
+        }
+        Insert: {
+          avatar?: Json | null
+          fallback_provider?: Json | null
+          id?: string
+          name: string
+          user_id?: string | null
+        }
+        Update: {
+          avatar?: Json | null
+          fallback_provider?: Json | null
+          id?: string
+          name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       dialog_messages: {
         Row: {
           assistant_id: string | null
@@ -406,6 +430,35 @@ export type Database = {
             columns: ["message_content_id"]
             isOneToOne: false
             referencedRelation: "message_contents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subproviders: {
+        Row: {
+          custom_provider_id: string
+          id: string
+          model_map: Json
+          provider: Json | null
+        }
+        Insert: {
+          custom_provider_id: string
+          id?: string
+          model_map: Json
+          provider?: Json | null
+        }
+        Update: {
+          custom_provider_id?: string
+          id?: string
+          model_map?: Json
+          provider?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subproviders_custom_provider_id_fkey"
+            columns: ["custom_provider_id"]
+            isOneToOne: false
+            referencedRelation: "custom_providers"
             referencedColumns: ["id"]
           },
         ]
