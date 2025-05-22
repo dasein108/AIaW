@@ -18,9 +18,7 @@ export class WalletService {
   private static instance: WalletService
   private client: SigningStargateClient | null = null
   private wallet: DirectSecp256k1HdWallet | null = null
-
-  // eslint-disable-next-line no-useless-constructor
-  private constructor() { }
+  private isInitialized: boolean = false
 
   static getInstance(): WalletService {
     if (!WalletService.instance) {
@@ -30,7 +28,30 @@ export class WalletService {
   }
 
   isConnected(): boolean {
-    return this.client !== null && this.wallet !== null
+    return this.client !== null && this.wallet !== null && this.isInitialized
+  }
+
+  async initializeFromStorage(): Promise<void> {
+    if (this.isInitialized) {
+      return
+    }
+
+    try {
+      const storedWalletInfo = localStorage.getItem('walletInfo')
+      if (!storedWalletInfo) {
+        console.log('No wallet info found in storage')
+        return
+      }
+
+      const walletInfo: WalletInfo = JSON.parse(storedWalletInfo)
+      await this.connectWallet(walletInfo.mnemonic)
+      this.isInitialized = true
+      console.log('Wallet initialized from storage:', walletInfo.address)
+    } catch (error) {
+      console.error('Failed to initialize wallet from storage:', error)
+      this.isInitialized = false
+      throw new Error(`Failed to initialize wallet: ${error.message}`)
+    }
   }
 
   async getAccounts() {
@@ -76,10 +97,12 @@ export class WalletService {
         }
       )
       console.log('Connected to RPC:', config.NODE_RPC_URL)
+      this.isInitialized = true
     } catch (error) {
       console.error('Error connecting wallet:', error)
       this.client = null
       this.wallet = null
+      this.isInitialized = false
       throw new Error(`Failed to connect wallet: ${error.message}`)
     }
   }
@@ -88,7 +111,7 @@ export class WalletService {
     const accounts = await signer.getAccounts()
     if (accounts.length === 0) throw new Error('No accounts in external signer')
 
-    this.wallet = null // сброс локального кошелька
+    // this.wallet = null // сброс локального кошелька
     this.client = await SigningStargateClient.connectWithSigner(config.NODE_RPC_URL, signer, {
       gasPrice: {
         amount: Decimal.fromUserInput(config.GAS_PRICE_AMOUNT, 6),
@@ -97,6 +120,7 @@ export class WalletService {
     })
 
     console.log('Connected with external signer:', accounts[0].address)
+    this.isInitialized = true
   }
 
   private getAuthorizationType(msgType: string): { typeUrl: string; value: Uint8Array } {
@@ -214,5 +238,12 @@ export class WalletService {
       console.error('Error revoking authorization:', error)
       throw new Error(`Failed to revoke authorization: ${error.message}`)
     }
+  }
+
+  async getSigner(): Promise<OfflineSigner> {
+    if (!this.wallet) {
+      throw new Error('Wallet not connected')
+    }
+    return this.wallet
   }
 }

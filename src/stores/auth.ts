@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { WalletService, WalletInfo } from 'src/services/authz/wallet'
 import { OfflineSigner } from '@cosmjs/proto-signing'
+import { CosmosWallet } from '@/services/cosmos/CosmosWallet'
 
 interface AuthState {
   walletInfo: WalletInfo | null;
@@ -32,7 +33,7 @@ export const useAuthStore = defineStore({
     },
 
     async connectWithExternalSigner(signer: OfflineSigner) {
-      console.log('Connecting external signer')
+      console.log('[External] Connecting external signer')
       const walletService = WalletService.getInstance()
       await walletService.connectWithExternalSigner(signer)
       this.isConnected = walletService.isConnected()
@@ -57,9 +58,23 @@ export const useAuthStore = defineStore({
       }
     },
 
-    async grantAgentAuthorization(geaterAddress: string, agentAddress: string, msgType: string, expiration?: Date) {
+    async initializeFromStorage(granterWallet: CosmosWallet) {
+      if (!this.walletInfo?.mnemonic) {
+        console.log('[External] Wallet not found')
+        return
+      }
+
+      const walletService = WalletService.getInstance()
+      await this.connectWallet(this.walletInfo.mnemonic)
+      await walletService.connectWithExternalSigner(granterWallet.getOfflineSigner())
+      this.isConnected = true
+
+      console.log('Wallet initialized from storage, state:', { isConnected: this.isConnected })
+    },
+
+    async grantAgentAuthorization(granterAddress: string, agentAddress: string, msgType: string, expiration?: Date) {
       console.log('Granting authorization:', {
-        userAddress: geaterAddress,
+        userAddress: granterAddress,
         isConnected: this.isConnected,
         walletInfo: this.walletInfo,
         msgType
@@ -70,7 +85,7 @@ export const useAuthStore = defineStore({
         throw new Error('Wallet not connected')
       }
 
-      await walletService.grantAuthorization(geaterAddress, agentAddress, msgType, expiration)
+      await walletService.grantAuthorization(granterAddress, agentAddress, msgType, expiration)
     },
 
     async revokeAgentAuthorization(agentAddress: string, msgType: string) {

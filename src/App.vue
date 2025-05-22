@@ -17,6 +17,7 @@ import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { createCosmosSigner } from './services/cosmos/CosmosWallet'
 import { IsTauri } from './utils/platform-api'
+import { WalletService } from './services/authz/wallet'
 // import { createDbService } from './services/database/Db'
 
 import { createUserProvider } from './services/supabase/userProvider'
@@ -26,6 +27,7 @@ import PinModal from './components/PinModal.vue'
 import { getMnemonic } from './stores/tauri-store'
 import { EncryptionService } from './services/encryption/EncryptionService'
 import type { CosmosWallet } from './services/cosmos/CosmosWallet'
+import { useAuthStore } from './stores/auth'
 
 defineOptions({
   name: 'App'
@@ -85,9 +87,15 @@ const handlePinSubmit = async (pin: string) => {
     if (encryptedMnemonic) {
       const mnemonic = await EncryptionService.decryptMnemonic(encryptedMnemonic, pin)
       await cosmosWallet.connectWithMnemonic(mnemonic, pin)
+
+      // Initialize WalletService after successful PIN verification
+      const authStore = useAuthStore()
+      await authStore.initializeFromStorage(cosmosWallet)
+
       showPinModal.value = false
     }
   } catch (error) {
+    console.error('[App] Error during PIN verification', error)
     $q.notify({
       message: 'Invalid PIN code',
       color: 'negative'
@@ -100,6 +108,12 @@ onMounted(async () => {
   checkUpdate()
   // Check for encrypted mnemonic on startup
   await checkEncryptedMnemonic()
+  const authStore = useAuthStore()
+  // await authStore.restoreConnection()
+  console.log('[MOUNT] WALLET', cosmosWallet)
+  const walletService = WalletService.getInstance()
+  console.log('[MOUNT] WALLET SERVICE', walletService)
+  console.log('[MOUNT] WALLET INFO', authStore)
 })
 
 </script>

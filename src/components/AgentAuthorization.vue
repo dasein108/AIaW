@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, computed, onMounted, onUnmounted } from 'vue'
+import { ref, inject, computed, onMounted } from 'vue'
 import { useAuthStore } from 'src/stores/auth'
 import { useQuasar } from 'quasar'
 import { WalletService } from 'src/services/authz/wallet'
@@ -121,6 +121,7 @@ import { CosmosWallet } from 'src/services/cosmos/CosmosWallet'
 const wallet = inject<CosmosWallet>('cosmos')
 const $q = useQuasar()
 const authStore = useAuthStore()
+const walletService = WalletService.getInstance()
 
 const isConnected = computed(() => authStore.isConnected)
 const walletInfo = ref<{ address: string; mnemonic: string } | null>(null)
@@ -140,10 +141,6 @@ const msgTypes = [
 ]
 
 onMounted(async () => {
-  await authStore.restoreConnection()
-  console.log('WALLET INFO', authStore.walletInfo)
-  console.log('WALLET', await wallet.state.value)
-
   if (authStore.walletInfo) {
     walletInfo.value = authStore.walletInfo
     agentAddress.value = authStore.walletInfo.address

@@ -50,7 +50,7 @@ const granteeMnemonic = 'letter asthma orange sight cake negative miracle auctio
 
   // Создаём SendAuthorization
   const sendAuth = SendAuthorization.fromPartial({
-    spendLimit: coins('1000', config.FEE_DENOM)
+    spendLimit: coins('10000', config.FEE_DENOM)
   })
 
   const grantMsg: MsgGrant = {

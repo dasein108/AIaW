@@ -9,6 +9,7 @@ export function usePinModal() {
     if (!IsTauri) return false
 
     const encryptedMnemonic = await getMnemonic()
+    console.log('[CHECK] ENCRYPTED MNEMONIC', encryptedMnemonic)
     if (encryptedMnemonic) {
       showPinModal.value = true
       return true
