@@ -8,7 +8,7 @@ import { UserDataMapped } from '@/services/supabase/types'
 import { supabase } from 'src/services/supabase/client'
 import { CODE_NO_RECORD_FOUND } from 'src/services/supabase/consts'
 import { useUserStore } from './user'
-import { throttle } from 'lodash'
+import { isEqual, throttle, cloneDeep } from 'lodash'
 
 interface Perfs {
   darkMode: boolean | 'auto'
@@ -120,7 +120,8 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
   const perfs = reactive<Perfs>(defaultPerfs)
   const ready = ref(false)
   const userStore = useUserStore()
-  let updateFlag = false
+  const lastPerfsSnapshot = ref(cloneDeep(perfs))
+
   const fetchPerfs = async () => {
     const { data, error } = await supabase.from('user_data').select('*').eq('key', USER_PERFS_KEY).single()
     if (error) {
@@ -148,16 +149,13 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     }
   }
 
-  const updatePerfs = async (value:Perfs) => {
-    updateFlag = true
+  const updatePerfs = async (value: Perfs) => {
     const { data, error } = await supabase.from('user_data').update({ key: USER_PERFS_KEY, value })
       .eq('key', USER_PERFS_KEY).eq('user_id', userStore.currentUserId).select().single()
 
     if (data) {
       Object.assign(perfs, data.value as Perfs)
     }
-    updateFlag = false
-
     if (error) {
       console.error(error)
     }
@@ -173,8 +171,11 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
   }, 2000)
 
   watch(perfs, () => {
-    if (!ready.value || updateFlag) return
-    throttledUpdate(perfs)
+    if (!ready.value) return
+    if (!isEqual(perfs, lastPerfsSnapshot.value)) {
+      throttledUpdate(perfs)
+      lastPerfsSnapshot.value = cloneDeep(perfs)
+    }
   }, { deep: true })
 
   watchEffect(() => {

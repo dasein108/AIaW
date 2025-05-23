@@ -18,6 +18,7 @@ import { useDialogsStore } from './stores/dialogs'
 import { useArtifactsStore } from './stores/artifacts'
 import { useProvidersStore } from './stores/providers'
 import { useUserPerfsStore } from './stores/user-perfs'
+import { main } from './services/supabase/client'
 
 defineOptions({
   name: 'App'
@@ -36,7 +37,9 @@ async function initStores() {
     useArtifactsStore().init(),
     useProvidersStore().init(),
     useUserPerfsStore().init()
-  ])
+  ]).then(() => {
+    main('d78214a2-9168-49e2-882c-63a4bb694b8e')
+  })
 }
 
 const $q = useQuasar()
