@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { defineStore } from 'pinia'
-import { defaultModelSettings } from 'src/common/types/consts'
+import { defaultModelSettings } from 'src/common/consts'
 import { defaultAvatar, genId } from 'src/utils/functions'
 import { AssistantDefaultPrompt } from 'src/utils/templates'
 import { useI18n } from 'vue-i18n'

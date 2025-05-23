@@ -58,6 +58,16 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
 
 
+CREATE TYPE "public"."chat_type" AS ENUM (
+    'workspace',
+    'group',
+    'private'
+);
+
+
+ALTER TYPE "public"."chat_type" OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."add_chat_owner_as_member"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
@@ -86,6 +96,28 @@ $$;
 
 
 ALTER FUNCTION "public"."add_workspace_owner_as_member"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."can_insert_workspace_member"("p_workspace_id" "uuid") RETURNS boolean
+    LANGUAGE "sql" STABLE SECURITY DEFINER
+    AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.workspaces
+    WHERE id = p_workspace_id
+      AND (
+        owner_id = auth.uid()
+        OR EXISTS (
+          SELECT 1 FROM public.workspace_members
+          WHERE workspace_id = p_workspace_id
+            AND user_id = auth.uid()
+            AND role = 'admin'
+        )
+      )
+  );
+$$;
+
+
+ALTER FUNCTION "public"."can_insert_workspace_member"("p_workspace_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."create_profile_on_signup"() RETURNS "trigger"
@@ -189,6 +221,21 @@ $_$;
 
 
 ALTER FUNCTION "public"."is_chat_member"("chat_id" "uuid", "user_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."is_workspace_admin"("p_workspace_id" "uuid", "p_user_id" "uuid") RETURNS boolean
+    LANGUAGE "sql" SECURITY DEFINER
+    AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.workspace_members
+    WHERE workspace_id = p_workspace_id
+      AND user_id = p_user_id
+      AND role = 'admin'
+  );
+$$;
+
+
+ALTER FUNCTION "public"."is_workspace_admin"("p_workspace_id" "uuid", "p_user_id" "uuid") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."propagate_member_delete"() RETURNS "trigger"
@@ -390,39 +437,42 @@ ALTER FUNCTION "public"."set_workspace_owner"() OWNER TO "postgres";
 CREATE OR REPLACE FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") RETURNS "uuid"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
-declare
+DECLARE
   existing_chat_id uuid;
   new_chat_id uuid;
-begin
-  if target_user_id = current_user_id then
-    raise exception 'Cannot create private chat with yourself';
-  end if;
+BEGIN
+  IF target_user_id = current_user_id THEN
+    RAISE EXCEPTION 'Cannot create private chat with yourself';
+  END IF;
 
-  -- Check if chat exists
-  select c.id into existing_chat_id
-  from public.chats c
-  join public.chat_members m1 on c.id = m1.chat_id
-  join public.chat_members m2 on c.id = m2.chat_id
-  where c.is_group = false 
-    and c.is_public = false
-    and m1.user_id = current_user_id
-    and m2.user_id = target_user_id
-  limit 1;
+  -- Check if such a private chat already exists
+  SELECT c.id INTO existing_chat_id
+  FROM public.chats c
+  JOIN public.chat_members m1 ON c.id = m1.chat_id
+  JOIN public.chat_members m2 ON c.id = m2.chat_id
+  WHERE c.type = 'private'
+    AND m1.user_id = current_user_id
+    AND m2.user_id = target_user_id
+  LIMIT 1;
 
-  if existing_chat_id is not null then
-    return existing_chat_id;
-  end if;
+  IF existing_chat_id IS NOT NULL THEN
+    RETURN existing_chat_id;
+  END IF;
 
-  insert into public.chats (is_group, is_public, owner_id)
-  values (false, false, current_user_id)
-  returning id into new_chat_id;
+  -- Insert new private chat
+  INSERT INTO public.chats (type, owner_id)
+  VALUES ('private', current_user_id)
+  RETURNING id INTO new_chat_id;
 
-  insert into public.chat_members (chat_id, user_id)
-  values (new_chat_id, current_user_id), (new_chat_id, target_user_id)
-  on conflict do nothing;
+  -- Add both users as members
+  INSERT INTO public.chat_members (chat_id, user_id)
+  VALUES 
+    (new_chat_id, current_user_id),
+    (new_chat_id, target_user_id)
+  ON CONFLICT DO NOTHING;
 
-  return new_chat_id;
-end;
+  RETURN new_chat_id;
+END;
 $$;
 
 
@@ -490,12 +540,11 @@ ALTER TABLE "public"."chat_members" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."chats" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "is_group" boolean DEFAULT false NOT NULL,
-    "is_public" boolean,
     "owner_id" "uuid",
     "name" "text",
     "created_at" timestamp with time zone DEFAULT "now"(),
-    "workspace_id" "uuid"
+    "workspace_id" "uuid",
+    "type" "public"."chat_type" DEFAULT 'private'::"public"."chat_type" NOT NULL
 );
 
 
@@ -1021,12 +1070,6 @@ ALTER TABLE ONLY "public"."workspaces"
 
 
 
-CREATE POLICY "Add members" ON "public"."workspace_members" FOR INSERT WITH CHECK ((("user_id" = "auth"."uid"()) OR (EXISTS ( SELECT 1
-   FROM "public"."workspaces"
-  WHERE (("workspaces"."id" = "workspace_members"."workspace_id") AND ("workspaces"."owner_id" = "auth"."uid"()))))));
-
-
-
 CREATE POLICY "Anyone can read profiles" ON "public"."profiles" FOR SELECT USING (true);
 
 
@@ -1035,9 +1078,52 @@ CREATE POLICY "Authenticated users can create chats" ON "public"."chats" FOR INS
 
 
 
+CREATE POLICY "Delete chat members if owner or admin" ON "public"."chat_members" FOR DELETE USING ((EXISTS ( SELECT 1
+   FROM ("public"."chats"
+     JOIN "public"."workspaces" ON (("chats"."workspace_id" = "workspaces"."id")))
+  WHERE (("chats"."id" = "chat_members"."chat_id") AND (("workspaces"."owner_id" = "auth"."uid"()) OR (EXISTS ( SELECT 1
+           FROM "public"."workspace_members"
+          WHERE (("workspace_members"."workspace_id" = "chats"."workspace_id") AND ("workspace_members"."user_id" = "auth"."uid"()) AND ("workspace_members"."role" = 'admin'::"text")))))))));
+
+
+
 CREATE POLICY "Delete members" ON "public"."workspace_members" FOR DELETE USING ((EXISTS ( SELECT 1
    FROM "public"."workspaces"
   WHERE (("workspaces"."id" = "workspace_members"."workspace_id") AND ("workspaces"."owner_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Group chat access" ON "public"."messages" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM ("public"."chats" "c"
+     JOIN "public"."chat_members" "cm" ON (("cm"."chat_id" = "c"."id")))
+  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."type" = 'group'::"public"."chat_type") AND ("cm"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Group chat delete" ON "public"."messages" FOR DELETE USING ((EXISTS ( SELECT 1
+   FROM ("public"."chats" "c"
+     JOIN "public"."chat_members" "cm" ON (("cm"."chat_id" = "c"."id")))
+  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."type" = 'group'::"public"."chat_type") AND ("cm"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Group chat insert" ON "public"."messages" FOR INSERT WITH CHECK ((EXISTS ( SELECT 1
+   FROM ("public"."chats" "c"
+     JOIN "public"."chat_members" "cm" ON (("cm"."chat_id" = "c"."id")))
+  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."type" = 'group'::"public"."chat_type") AND ("cm"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Insert chat members if owner or admin" ON "public"."chat_members" FOR INSERT WITH CHECK ((("user_id" = "auth"."uid"()) OR (EXISTS ( SELECT 1
+   FROM ("public"."chats"
+     JOIN "public"."workspaces" ON (("chats"."workspace_id" = "workspaces"."id")))
+  WHERE (("chats"."id" = "chat_members"."chat_id") AND (("workspaces"."owner_id" = "auth"."uid"()) OR (EXISTS ( SELECT 1
+           FROM "public"."workspace_members"
+          WHERE (("workspace_members"."workspace_id" = "chats"."workspace_id") AND ("workspace_members"."user_id" = "auth"."uid"()) AND ("workspace_members"."role" = 'admin'::"text"))))))))));
+
+
+
+CREATE POLICY "Insert workspace members by owner or admin" ON "public"."workspace_members" FOR INSERT TO "authenticated" WITH CHECK ("public"."can_insert_workspace_member"("workspace_id"));
 
 
 
@@ -1131,6 +1217,16 @@ CREATE POLICY "Owner can update stored items" ON "public"."stored_items" FOR UPD
 
 
 
+CREATE POLICY "Private chat full access" ON "public"."messages" USING ((EXISTS ( SELECT 1
+   FROM ("public"."chats" "c"
+     JOIN "public"."chat_members" "cm" ON (("cm"."chat_id" = "c"."id")))
+  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."type" = 'private'::"public"."chat_type") AND ("cm"."user_id" = "auth"."uid"()))))) WITH CHECK ((EXISTS ( SELECT 1
+   FROM ("public"."chats" "c"
+     JOIN "public"."chat_members" "cm" ON (("cm"."chat_id" = "c"."id")))
+  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."type" = 'private'::"public"."chat_type") AND ("cm"."user_id" = "auth"."uid"())))));
+
+
+
 CREATE POLICY "Public workspace read access" ON "public"."workspaces" FOR SELECT USING (("is_public" = true));
 
 
@@ -1145,43 +1241,20 @@ CREATE POLICY "Read messages for chat members" ON "public"."messages" FOR SELECT
 
 
 
-CREATE POLICY "Read messages from public workspace chats" ON "public"."messages" FOR SELECT USING ((EXISTS ( SELECT 1
-   FROM ("public"."chats" "c"
-     JOIN "public"."workspaces" "w" ON (("w"."id" = "c"."workspace_id")))
-  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."is_public" = true) AND ("w"."is_public" = true)))));
-
-
-
-CREATE POLICY "Read messages if user is member or chat is public" ON "public"."messages" FOR SELECT USING (((EXISTS ( SELECT 1
-   FROM "public"."chat_members"
-  WHERE (("chat_members"."chat_id" = "messages"."chat_id") AND ("chat_members"."user_id" = "auth"."uid"())))) OR (EXISTS ( SELECT 1
-   FROM "public"."chats"
-  WHERE (("chats"."id" = "messages"."chat_id") AND ("chats"."is_public" = true))))));
-
-
-
-CREATE POLICY "Read private or direct chats if member" ON "public"."chats" FOR SELECT USING ((EXISTS ( SELECT 1
-   FROM "public"."chat_members"
-  WHERE (("chat_members"."chat_id" = "chats"."id") AND ("chat_members"."user_id" = "auth"."uid"())))));
-
-
-
-CREATE POLICY "Read public chats in public workspaces" ON "public"."chats" FOR SELECT USING ((("is_public" = true) AND ("workspace_id" IS NOT NULL) AND (EXISTS ( SELECT 1
+CREATE POLICY "Safe chat access" ON "public"."chats" FOR SELECT USING (((("type" = 'workspace'::"public"."chat_type") AND ((EXISTS ( SELECT 1
+   FROM "public"."workspace_members"
+  WHERE (("workspace_members"."workspace_id" = "chats"."workspace_id") AND ("workspace_members"."user_id" = "auth"."uid"())))) OR (EXISTS ( SELECT 1
    FROM "public"."workspaces"
-  WHERE (("workspaces"."id" = "chats"."workspace_id") AND ("workspaces"."is_public" = true))))));
+  WHERE (("workspaces"."id" = "chats"."workspace_id") AND ("workspaces"."is_public" = true)))))) OR (("type" = ANY (ARRAY['group'::"public"."chat_type", 'private'::"public"."chat_type"])) AND "public"."is_chat_member"("id", "auth"."uid"())) OR ("owner_id" = "auth"."uid"())));
 
 
 
-CREATE POLICY "Read public chats, member chats, or owned chats" ON "public"."chats" FOR SELECT USING ((("is_public" = true) OR (EXISTS ( SELECT 1
-   FROM "public"."chat_members"
-  WHERE (("chat_members"."chat_id" = "chats"."id") AND ("chat_members"."user_id" = "auth"."uid"())))) OR ("owner_id" = "auth"."uid"())));
-
-
-
-CREATE POLICY "Send in public workspace chats" ON "public"."messages" FOR INSERT WITH CHECK ((("sender_id" = "auth"."uid"()) AND (EXISTS ( SELECT 1
-   FROM ("public"."chats" "c"
-     JOIN "public"."workspaces" "w" ON (("w"."id" = "c"."workspace_id")))
-  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."is_public" = true) AND ("w"."is_public" = true))))));
+CREATE POLICY "Select chat members for admins, owners or self" ON "public"."chat_members" FOR SELECT USING ((("user_id" = "auth"."uid"()) OR (EXISTS ( SELECT 1
+   FROM ("public"."chats"
+     JOIN "public"."workspaces" ON (("chats"."workspace_id" = "workspaces"."id")))
+  WHERE (("chats"."id" = "chat_members"."chat_id") AND (("workspaces"."owner_id" = "auth"."uid"()) OR (EXISTS ( SELECT 1
+           FROM "public"."workspace_members"
+          WHERE (("workspace_members"."workspace_id" = "chats"."workspace_id") AND ("workspace_members"."user_id" = "auth"."uid"()))))))))));
 
 
 
@@ -1191,15 +1264,12 @@ CREATE POLICY "Send messages if member of chat" ON "public"."messages" FOR INSER
 
 
 
-CREATE POLICY "Send messages in workspace chats" ON "public"."messages" FOR INSERT WITH CHECK ((("sender_id" = "auth"."uid"()) AND ((EXISTS ( SELECT 1
-   FROM ("public"."chats" "c"
-     JOIN "public"."workspace_members" "wm" ON (("wm"."workspace_id" = "c"."workspace_id")))
-  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."is_public" = true) AND ("wm"."user_id" = "auth"."uid"())))) OR (EXISTS ( SELECT 1
-   FROM ("public"."chats" "c"
-     JOIN "public"."workspaces" "w" ON (("w"."id" = "c"."workspace_id")))
-  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."is_public" = true) AND ("w"."is_public" = true)))) OR (EXISTS ( SELECT 1
-   FROM "public"."chat_members"
-  WHERE (("chat_members"."chat_id" = "messages"."chat_id") AND ("chat_members"."user_id" = "auth"."uid"())))))));
+CREATE POLICY "Update chat members if owner or admin" ON "public"."chat_members" FOR UPDATE USING ((EXISTS ( SELECT 1
+   FROM ("public"."chats"
+     JOIN "public"."workspaces" ON (("chats"."workspace_id" = "workspaces"."id")))
+  WHERE (("chats"."id" = "chat_members"."chat_id") AND (("workspaces"."owner_id" = "auth"."uid"()) OR (EXISTS ( SELECT 1
+           FROM "public"."workspace_members"
+          WHERE (("workspace_members"."workspace_id" = "chats"."workspace_id") AND ("workspace_members"."user_id" = "auth"."uid"()) AND ("workspace_members"."role" = 'admin'::"text")))))))));
 
 
 
@@ -1275,20 +1345,6 @@ CREATE POLICY "Users can insert their plugins" ON "public"."user_plugins" FOR IN
 
 
 
-CREATE POLICY "Users can join group chats or their own private chats" ON "public"."chat_members" FOR INSERT WITH CHECK ((("user_id" = "auth"."uid"()) AND ((EXISTS ( SELECT 1
-   FROM "public"."chats"
-  WHERE (("chats"."id" = "chat_members"."chat_id") AND ("chats"."is_public" = true)))) OR (EXISTS ( SELECT 1
-   FROM "public"."chats"
-  WHERE (("chats"."id" = "chat_members"."chat_id") AND ("chats"."owner_id" = "auth"."uid"())))))));
-
-
-
-CREATE POLICY "Users can join group or own private chats" ON "public"."chat_members" FOR INSERT WITH CHECK ((("user_id" = "auth"."uid"()) AND (EXISTS ( SELECT 1
-   FROM "public"."chats"
-  WHERE (("chats"."id" = "chat_members"."chat_id") AND (("chats"."is_public" = true) OR ("chats"."owner_id" = "auth"."uid"())))))));
-
-
-
 CREATE POLICY "Users can read their plugins" ON "public"."user_plugins" FOR SELECT USING (("auth"."uid"() = "user_id"));
 
 
@@ -1341,15 +1397,32 @@ CREATE POLICY "Users can view their subproviders" ON "public"."subproviders" FOR
 
 
 
-CREATE POLICY "Users or chat owners can add members" ON "public"."chat_members" FOR INSERT WITH CHECK (((("user_id" = "auth"."uid"()) AND (EXISTS ( SELECT 1
-   FROM "public"."chats"
-  WHERE (("chats"."id" = "chat_members"."chat_id") AND (("chats"."is_public" = true) OR ("chats"."owner_id" = "auth"."uid"())))))) OR (EXISTS ( SELECT 1
-   FROM "public"."chats"
-  WHERE (("chats"."id" = "chat_members"."chat_id") AND ("chats"."owner_id" = "auth"."uid"()))))));
+CREATE POLICY "View own memberships" ON "public"."workspace_members" FOR SELECT TO "authenticated" USING ((("user_id" = "auth"."uid"()) OR "public"."can_insert_workspace_member"("workspace_id")));
 
 
 
-CREATE POLICY "View own memberships" ON "public"."workspace_members" FOR SELECT USING (("user_id" = "auth"."uid"()));
+CREATE POLICY "Workspace chat admin delete" ON "public"."messages" FOR DELETE USING ((EXISTS ( SELECT 1
+   FROM ("public"."chats" "c"
+     JOIN "public"."workspace_members" "wm" ON (("c"."workspace_id" = "wm"."workspace_id")))
+  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."type" = 'workspace'::"public"."chat_type") AND ("wm"."user_id" = "auth"."uid"()) AND ("wm"."role" = 'admin'::"text")))));
+
+
+
+CREATE POLICY "Workspace chat insert access" ON "public"."messages" FOR INSERT WITH CHECK ((EXISTS ( SELECT 1
+   FROM ("public"."chats" "c"
+     JOIN "public"."workspaces" "w" ON (("c"."workspace_id" = "w"."id")))
+  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."type" = 'workspace'::"public"."chat_type") AND (("w"."is_public" = true) OR (EXISTS ( SELECT 1
+           FROM "public"."workspace_members" "wm"
+          WHERE (("wm"."workspace_id" = "c"."workspace_id") AND ("wm"."user_id" = "auth"."uid"())))))))));
+
+
+
+CREATE POLICY "Workspace chat read access" ON "public"."messages" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM ("public"."chats" "c"
+     JOIN "public"."workspaces" "w" ON (("c"."workspace_id" = "w"."id")))
+  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."type" = 'workspace'::"public"."chat_type") AND (("w"."is_public" = true) OR (EXISTS ( SELECT 1
+           FROM "public"."workspace_members" "wm"
+          WHERE (("wm"."workspace_id" = "c"."workspace_id") AND ("wm"."user_id" = "auth"."uid"())))))))));
 
 
 
@@ -1384,16 +1457,6 @@ CREATE POLICY "Workspace read access" ON "public"."workspaces" FOR SELECT USING 
 CREATE POLICY "Workspace write access" ON "public"."workspaces" FOR UPDATE USING ((("owner_id" = "auth"."uid"()) OR (EXISTS ( SELECT 1
    FROM "public"."workspace_members"
   WHERE (("workspace_members"."workspace_id" = "workspaces"."id") AND ("workspace_members"."user_id" = "auth"."uid"()) AND ("workspace_members"."role" = 'admin'::"text"))))));
-
-
-
-CREATE POLICY "Workspace-level chat read access" ON "public"."chats" FOR SELECT USING (((("is_public" = true) AND ("workspace_id" IS NOT NULL) AND (EXISTS ( SELECT 1
-   FROM "public"."workspaces"
-  WHERE (("workspaces"."id" = "chats"."workspace_id") AND ("workspaces"."is_public" = true))))) OR (("is_public" = true) AND ("workspace_id" IS NOT NULL) AND (EXISTS ( SELECT 1
-   FROM "public"."workspace_members"
-  WHERE (("workspace_members"."workspace_id" = "chats"."workspace_id") AND ("workspace_members"."user_id" = "auth"."uid"()))))) OR (EXISTS ( SELECT 1
-   FROM "public"."chat_members"
-  WHERE (("chat_members"."chat_id" = "chats"."id") AND ("chat_members"."user_id" = "auth"."uid"())))) OR ("owner_id" = "auth"."uid"())));
 
 
 
@@ -1683,6 +1746,12 @@ GRANT ALL ON FUNCTION "public"."add_workspace_owner_as_member"() TO "service_rol
 
 
 
+GRANT ALL ON FUNCTION "public"."can_insert_workspace_member"("p_workspace_id" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."can_insert_workspace_member"("p_workspace_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."can_insert_workspace_member"("p_workspace_id" "uuid") TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."create_profile_on_signup"() TO "anon";
 GRANT ALL ON FUNCTION "public"."create_profile_on_signup"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."create_profile_on_signup"() TO "service_role";
@@ -1710,6 +1779,12 @@ GRANT ALL ON FUNCTION "public"."inherit_workspace_members_from_parent"() TO "ser
 GRANT ALL ON FUNCTION "public"."is_chat_member"("chat_id" "uuid", "user_id" "uuid") TO "anon";
 GRANT ALL ON FUNCTION "public"."is_chat_member"("chat_id" "uuid", "user_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."is_chat_member"("chat_id" "uuid", "user_id" "uuid") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."is_workspace_admin"("p_workspace_id" "uuid", "p_user_id" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."is_workspace_admin"("p_workspace_id" "uuid", "p_user_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."is_workspace_admin"("p_workspace_id" "uuid", "p_user_id" "uuid") TO "service_role";
 
 
 

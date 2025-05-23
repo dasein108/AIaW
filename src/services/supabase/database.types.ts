@@ -93,28 +93,25 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
-          is_group: boolean
-          is_public: boolean | null
           name: string | null
           owner_id: string | null
+          type: Database["public"]["Enums"]["chat_type"]
           workspace_id: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
-          is_group?: boolean
-          is_public?: boolean | null
           name?: string | null
           owner_id?: string | null
+          type?: Database["public"]["Enums"]["chat_type"]
           workspace_id?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
-          is_group?: boolean
-          is_public?: boolean | null
           name?: string | null
           owner_id?: string | null
+          type?: Database["public"]["Enums"]["chat_type"]
           workspace_id?: string | null
         }
         Relationships: [
@@ -698,6 +695,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_insert_workspace_member: {
+        Args: { p_workspace_id: string }
+        Returns: boolean
+      }
       delete_chat_if_authorized: {
         Args: { chat_id: string }
         Returns: undefined
@@ -712,13 +713,17 @@ export type Database = {
         Args: { chat_id: string; user_id: string }
         Returns: boolean
       }
+      is_workspace_admin: {
+        Args: { p_workspace_id: string; p_user_id: string }
+        Returns: boolean
+      }
       start_private_chat_with: {
         Args: { target_user_id: string; current_user_id: string }
         Returns: string
       }
     }
     Enums: {
-      [_ in never]: never
+      chat_type: "workspace" | "group" | "private"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -833,6 +838,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      chat_type: ["workspace", "group", "private"],
+    },
   },
 } as const

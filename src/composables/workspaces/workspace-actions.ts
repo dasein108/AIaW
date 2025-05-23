@@ -8,6 +8,7 @@ import { defaultAvatar, genId } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { useI18n } from 'vue-i18n'
 import { useUserDataStore } from 'src/stores/user-data'
+import { useCheckLogin } from '../auth/useCheckLogin'
 
 export function useWorkspaceActions() {
   const workspacesStore = useWorkspacesStore()
@@ -15,7 +16,10 @@ export function useWorkspaceActions() {
   const userDataStore = useUserDataStore()
   const $q = useQuasar()
   const { t } = useI18n()
+  const { ensureLogin } = useCheckLogin()
   function addWorkspace(parentId = null) {
+    ensureLogin()
+
     $q.dialog({
       title: t('workspace.newWorkspace'),
       prompt: {
@@ -38,6 +42,8 @@ export function useWorkspaceActions() {
     })
   }
   function addFolder(parentId = null) {
+    ensureLogin()
+
     $q.dialog({
       title: t('workspace.newFolder'),
       prompt: {

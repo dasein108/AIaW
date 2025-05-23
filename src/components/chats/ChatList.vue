@@ -30,7 +30,7 @@
         <q-icon
           class="q-mr-md"
           size="sm"
-          :name="chat.is_group ? 'sym_o_groups' : 'sym_o_person'"
+          :name="chat.type === 'private' ? 'sym_o_person' : 'sym_o_groups'"
         />
         <span>{{ chat.name }}</span>
       </div>
@@ -79,8 +79,7 @@ const userStore = useUserStore()
 async function addItem() {
   await addChat({
     name: 'New chat',
-    is_public: true,
-    is_group: true,
+    type: 'workspace',
   })
 }
 

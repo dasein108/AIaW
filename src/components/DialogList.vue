@@ -78,6 +78,7 @@ import { useListenKey } from 'src/composables/listen-key'
 import { useRouter, useRoute } from 'vue-router'
 import { useDialogsStore } from 'src/stores/dialogs'
 import { Workspace } from '@/services/supabase/types'
+import { useCheckLogin } from 'src/composables/auth/useCheckLogin'
 
 const { t } = useI18n()
 const workspace: Ref<Workspace> = inject('workspace')
@@ -85,11 +86,14 @@ const workspace: Ref<Workspace> = inject('workspace')
 const $q = useQuasar()
 const router = useRouter()
 const route = useRoute()
-
+const { ensureLogin } = useCheckLogin()
 const { createDialog } = useCreateDialog(workspace.value.id)
 const dialogsStore = useDialogsStore()
 const dialogs = computed(() => Object.values(dialogsStore.dialogs))
+
 async function addItem() {
+  ensureLogin()
+
   await createDialog()
 }
 

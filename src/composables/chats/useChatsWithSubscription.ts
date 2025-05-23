@@ -11,7 +11,7 @@ async function extendChatsWithDisplayName(chatsArr: Chat[], currentUserId: strin
   // For each chat, if not group, fetch members and set displayName
   const extended = await Promise.all(
     chatsArr.map(async chat => {
-      if (chat.is_group) {
+      if (chat.type === 'workspace' || chat.type === 'group') {
         return chat
       } else {
         // Fetch chat members with profile
@@ -38,7 +38,7 @@ async function fetchChats(currentUserId: string | null) {
     .from('chats')
     .select('*')
     .order('created_at', { ascending: false })
-
+  console.log('---fetchChats data', data)
   if (error) {
     console.error('❌ Failed to fetch chats:', error.message)
     return
