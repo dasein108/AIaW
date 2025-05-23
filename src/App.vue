@@ -17,6 +17,8 @@ import { useChatMessagesStore } from './stores/chat-messages'
 import { useDialogsStore } from './stores/dialogs'
 import { useArtifactsStore } from './stores/artifacts'
 import { useProvidersStore } from './stores/providers'
+import { useUserPerfsStore } from './stores/user-perfs'
+
 defineOptions({
   name: 'App'
 })
@@ -32,7 +34,8 @@ async function initStores() {
     userStore.init(),
     useDialogsStore().init(),
     useArtifactsStore().init(),
-    useProvidersStore().init()
+    useProvidersStore().init(),
+    useUserPerfsStore().init()
   ])
 }
 

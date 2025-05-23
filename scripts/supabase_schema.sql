@@ -318,6 +318,21 @@ $$;
 ALTER FUNCTION "public"."set_sender_id"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."set_user_id_on_custom_provider_insert"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  IF NEW.user_id IS NULL THEN
+    NEW.user_id := auth.uid();
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."set_user_id_on_custom_provider_insert"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."set_user_id_on_insert"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
@@ -487,6 +502,18 @@ CREATE TABLE IF NOT EXISTS "public"."chats" (
 ALTER TABLE "public"."chats" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."custom_providers" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "name" "text" NOT NULL,
+    "avatar" "jsonb",
+    "fallback_provider" "jsonb",
+    "user_id" "uuid"
+);
+
+
+ALTER TABLE "public"."custom_providers" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."dialog_messages" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "type" "text" NOT NULL,
@@ -585,6 +612,17 @@ CREATE TABLE IF NOT EXISTS "public"."stored_items" (
 ALTER TABLE "public"."stored_items" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."subproviders" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "provider" "jsonb",
+    "model_map" "jsonb" NOT NULL,
+    "custom_provider_id" "uuid" NOT NULL
+);
+
+
+ALTER TABLE "public"."subproviders" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."user_assistants" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "workspace_id" "uuid",
@@ -611,6 +649,19 @@ CREATE TABLE IF NOT EXISTS "public"."user_assistants" (
 
 
 ALTER TABLE "public"."user_assistants" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."user_data" (
+    "key" "text" NOT NULL,
+    "value" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
+    "user_id" "uuid",
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "created_at" timestamp without time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp without time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."user_data" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."user_plugins" (
@@ -676,6 +727,11 @@ ALTER TABLE ONLY "public"."chats"
 
 
 
+ALTER TABLE ONLY "public"."custom_providers"
+    ADD CONSTRAINT "custom_providers_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."message_contents"
     ADD CONSTRAINT "dialog_message_contents_pkey" PRIMARY KEY ("id");
 
@@ -706,8 +762,28 @@ ALTER TABLE ONLY "public"."stored_items"
 
 
 
+ALTER TABLE ONLY "public"."user_data"
+    ADD CONSTRAINT "stored_reactives_user_id_key_key" UNIQUE ("user_id", "key");
+
+
+
+ALTER TABLE ONLY "public"."subproviders"
+    ADD CONSTRAINT "subproviders_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."user_assistants"
     ADD CONSTRAINT "user_assistants_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."user_data"
+    ADD CONSTRAINT "user_data_key_key" UNIQUE ("key");
+
+
+
+ALTER TABLE ONLY "public"."user_data"
+    ADD CONSTRAINT "user_data_pkey" PRIMARY KEY ("id");
 
 
 
@@ -779,9 +855,17 @@ CREATE OR REPLACE TRIGGER "set_updated_at" BEFORE UPDATE ON "public"."user_plugi
 
 
 
+CREATE OR REPLACE TRIGGER "set_user_id_on_custom_provider_insert" BEFORE INSERT ON "public"."custom_providers" FOR EACH ROW EXECUTE FUNCTION "public"."set_user_id_on_custom_provider_insert"();
+
+
+
 CREATE OR REPLACE TRIGGER "set_user_id_on_insert_trigger" BEFORE INSERT ON "public"."user_assistants" FOR EACH ROW EXECUTE FUNCTION "public"."set_user_id_on_insert"();
 
 ALTER TABLE "public"."user_assistants" ENABLE ALWAYS TRIGGER "set_user_id_on_insert_trigger";
+
+
+
+CREATE OR REPLACE TRIGGER "set_user_id_on_stored_reactive_insert" BEFORE INSERT ON "public"."user_data" FOR EACH ROW EXECUTE FUNCTION "public"."set_user_id_on_insert"();
 
 
 
@@ -824,6 +908,11 @@ ALTER TABLE ONLY "public"."chats"
 
 ALTER TABLE ONLY "public"."chats"
     ADD CONSTRAINT "chats_workspace_id_fkey" FOREIGN KEY ("workspace_id") REFERENCES "public"."workspaces"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."custom_providers"
+    ADD CONSTRAINT "custom_providers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -884,6 +973,16 @@ ALTER TABLE ONLY "public"."stored_items"
 
 ALTER TABLE ONLY "public"."stored_items"
     ADD CONSTRAINT "stored_items_message_content_id_fkey" FOREIGN KEY ("message_content_id") REFERENCES "public"."message_contents"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."user_data"
+    ADD CONSTRAINT "stored_reactives_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."subproviders"
+    ADD CONSTRAINT "subproviders_custom_provider_id_fkey" FOREIGN KEY ("custom_provider_id") REFERENCES "public"."custom_providers"("id") ON DELETE CASCADE;
 
 
 
@@ -1032,6 +1131,27 @@ CREATE POLICY "Owner can update stored items" ON "public"."stored_items" FOR UPD
 
 
 
+CREATE POLICY "Public workspace read access" ON "public"."workspaces" FOR SELECT USING (("is_public" = true));
+
+
+
+CREATE POLICY "Read chats if owner" ON "public"."chats" FOR SELECT USING (("owner_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "Read messages for chat members" ON "public"."messages" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM "public"."chat_members"
+  WHERE (("chat_members"."chat_id" = "messages"."chat_id") AND ("chat_members"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Read messages from public workspace chats" ON "public"."messages" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM ("public"."chats" "c"
+     JOIN "public"."workspaces" "w" ON (("w"."id" = "c"."workspace_id")))
+  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."is_public" = true) AND ("w"."is_public" = true)))));
+
+
+
 CREATE POLICY "Read messages if user is member or chat is public" ON "public"."messages" FOR SELECT USING (((EXISTS ( SELECT 1
    FROM "public"."chat_members"
   WHERE (("chat_members"."chat_id" = "messages"."chat_id") AND ("chat_members"."user_id" = "auth"."uid"())))) OR (EXISTS ( SELECT 1
@@ -1040,9 +1160,34 @@ CREATE POLICY "Read messages if user is member or chat is public" ON "public"."m
 
 
 
+CREATE POLICY "Read private or direct chats if member" ON "public"."chats" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM "public"."chat_members"
+  WHERE (("chat_members"."chat_id" = "chats"."id") AND ("chat_members"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Read public chats in public workspaces" ON "public"."chats" FOR SELECT USING ((("is_public" = true) AND ("workspace_id" IS NOT NULL) AND (EXISTS ( SELECT 1
+   FROM "public"."workspaces"
+  WHERE (("workspaces"."id" = "chats"."workspace_id") AND ("workspaces"."is_public" = true))))));
+
+
+
 CREATE POLICY "Read public chats, member chats, or owned chats" ON "public"."chats" FOR SELECT USING ((("is_public" = true) OR (EXISTS ( SELECT 1
    FROM "public"."chat_members"
   WHERE (("chat_members"."chat_id" = "chats"."id") AND ("chat_members"."user_id" = "auth"."uid"())))) OR ("owner_id" = "auth"."uid"())));
+
+
+
+CREATE POLICY "Send in public workspace chats" ON "public"."messages" FOR INSERT WITH CHECK ((("sender_id" = "auth"."uid"()) AND (EXISTS ( SELECT 1
+   FROM ("public"."chats" "c"
+     JOIN "public"."workspaces" "w" ON (("w"."id" = "c"."workspace_id")))
+  WHERE (("c"."id" = "messages"."chat_id") AND ("c"."is_public" = true) AND ("w"."is_public" = true))))));
+
+
+
+CREATE POLICY "Send messages if member of chat" ON "public"."messages" FOR INSERT WITH CHECK ((("sender_id" = "auth"."uid"()) AND (EXISTS ( SELECT 1
+   FROM "public"."chat_members"
+  WHERE (("chat_members"."chat_id" = "messages"."chat_id") AND ("chat_members"."user_id" = "auth"."uid"()))))));
 
 
 
@@ -1062,7 +1207,19 @@ CREATE POLICY "User can delete own artifact" ON "public"."artifacts" FOR DELETE 
 
 
 
+CREATE POLICY "User can delete own stored reactives" ON "public"."user_data" FOR DELETE USING (("auth"."uid"() = "user_id"));
+
+
+
 CREATE POLICY "User can insert own artifact" ON "public"."artifacts" FOR INSERT WITH CHECK (("user_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "User can insert own stored reactives" ON "public"."user_data" FOR INSERT WITH CHECK (("auth"."uid"() = "user_id"));
+
+
+
+CREATE POLICY "User can read own stored reactives" ON "public"."user_data" FOR SELECT USING (("auth"."uid"() = "user_id"));
 
 
 
@@ -1070,7 +1227,15 @@ CREATE POLICY "User can update own artifact" ON "public"."artifacts" FOR UPDATE 
 
 
 
+CREATE POLICY "User can update own stored reactives" ON "public"."user_data" FOR UPDATE USING (("auth"."uid"() = "user_id"));
+
+
+
 CREATE POLICY "Users can delete their assistants" ON "public"."user_assistants" FOR DELETE USING (("user_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "Users can delete their custom providers" ON "public"."custom_providers" FOR DELETE USING (("user_id" = "auth"."uid"()));
 
 
 
@@ -1082,7 +1247,23 @@ CREATE POLICY "Users can delete their plugins" ON "public"."user_plugins" FOR DE
 
 
 
+CREATE POLICY "Users can delete their subproviders" ON "public"."subproviders" FOR DELETE USING ((EXISTS ( SELECT 1
+   FROM "public"."custom_providers" "cp"
+  WHERE (("cp"."id" = "subproviders"."custom_provider_id") AND ("cp"."user_id" = "auth"."uid"())))));
+
+
+
+CREATE POLICY "Users can insert subproviders under their custom providers" ON "public"."subproviders" FOR INSERT WITH CHECK ((EXISTS ( SELECT 1
+   FROM "public"."custom_providers" "cp"
+  WHERE (("cp"."id" = "subproviders"."custom_provider_id") AND ("cp"."user_id" = "auth"."uid"())))));
+
+
+
 CREATE POLICY "Users can insert their assistants" ON "public"."user_assistants" FOR INSERT WITH CHECK (("user_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "Users can insert their custom providers" ON "public"."custom_providers" FOR INSERT WITH CHECK (("user_id" = "auth"."uid"()));
 
 
 
@@ -1116,6 +1297,10 @@ CREATE POLICY "Users can update their assistants" ON "public"."user_assistants" 
 
 
 
+CREATE POLICY "Users can update their custom providers" ON "public"."custom_providers" FOR UPDATE USING (("user_id" = "auth"."uid"()));
+
+
+
 CREATE POLICY "Users can update their own dialogs" ON "public"."dialogs" FOR UPDATE USING (("user_id" = "auth"."uid"()));
 
 
@@ -1128,7 +1313,17 @@ CREATE POLICY "Users can update their plugins" ON "public"."user_plugins" FOR UP
 
 
 
+CREATE POLICY "Users can update their subproviders" ON "public"."subproviders" FOR UPDATE USING ((EXISTS ( SELECT 1
+   FROM "public"."custom_providers" "cp"
+  WHERE (("cp"."id" = "subproviders"."custom_provider_id") AND ("cp"."user_id" = "auth"."uid"())))));
+
+
+
 CREATE POLICY "Users can view their assistants" ON "public"."user_assistants" FOR SELECT USING (("user_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "Users can view their custom providers" ON "public"."custom_providers" FOR SELECT USING (("user_id" = "auth"."uid"()));
 
 
 
@@ -1137,6 +1332,12 @@ CREATE POLICY "Users can view their dialogs" ON "public"."dialogs" FOR SELECT US
 
 
 CREATE POLICY "Users can view their memberships" ON "public"."chat_members" FOR SELECT USING (("user_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "Users can view their subproviders" ON "public"."subproviders" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM "public"."custom_providers" "cp"
+  WHERE (("cp"."id" = "subproviders"."custom_provider_id") AND ("cp"."user_id" = "auth"."uid"())))));
 
 
 
@@ -1157,6 +1358,12 @@ CREATE POLICY "Workspace create" ON "public"."workspaces" FOR INSERT WITH CHECK 
 
 
 CREATE POLICY "Workspace delete access" ON "public"."workspaces" FOR DELETE USING (("owner_id" = "auth"."uid"()));
+
+
+
+CREATE POLICY "Workspace members can read" ON "public"."workspaces" FOR SELECT USING ((EXISTS ( SELECT 1
+   FROM "public"."workspace_members"
+  WHERE (("workspace_members"."workspace_id" = "workspaces"."id") AND ("workspace_members"."user_id" = "auth"."uid"())))));
 
 
 
@@ -1211,6 +1418,9 @@ ALTER TABLE "public"."chat_members" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."chats" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."custom_providers" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."dialog_messages" ENABLE ROW LEVEL SECURITY;
 
 
@@ -1229,7 +1439,13 @@ ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."stored_items" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."subproviders" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."user_assistants" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."user_data" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."user_plugins" ENABLE ROW LEVEL SECURITY;
@@ -1539,6 +1755,12 @@ GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "service_role";
 
 
 
+GRANT ALL ON FUNCTION "public"."set_user_id_on_custom_provider_insert"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_user_id_on_custom_provider_insert"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_user_id_on_custom_provider_insert"() TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."set_user_id_on_insert"() TO "anon";
 GRANT ALL ON FUNCTION "public"."set_user_id_on_insert"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."set_user_id_on_insert"() TO "service_role";
@@ -1608,6 +1830,12 @@ GRANT ALL ON TABLE "public"."chats" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."custom_providers" TO "anon";
+GRANT ALL ON TABLE "public"."custom_providers" TO "authenticated";
+GRANT ALL ON TABLE "public"."custom_providers" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."dialog_messages" TO "anon";
 GRANT ALL ON TABLE "public"."dialog_messages" TO "authenticated";
 GRANT ALL ON TABLE "public"."dialog_messages" TO "service_role";
@@ -1644,9 +1872,21 @@ GRANT ALL ON TABLE "public"."stored_items" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."subproviders" TO "anon";
+GRANT ALL ON TABLE "public"."subproviders" TO "authenticated";
+GRANT ALL ON TABLE "public"."subproviders" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."user_assistants" TO "anon";
 GRANT ALL ON TABLE "public"."user_assistants" TO "authenticated";
 GRANT ALL ON TABLE "public"."user_assistants" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."user_data" TO "anon";
+GRANT ALL ON TABLE "public"."user_data" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_data" TO "service_role";
 
 
 

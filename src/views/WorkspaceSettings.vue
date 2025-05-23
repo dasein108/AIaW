@@ -9,6 +9,30 @@
       <q-list>
         <q-item>
           <q-item-section>
+            {{ $t('workspacePage.isPublic') }}
+          </q-item-section>
+          <q-item-section side>
+            <q-toggle v-model="workspace.is_public" />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            {{ $t('workspacePage.description') }}
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              v-model="workspace.description"
+              autogrow
+              filled
+              clearable
+              placeholder="Description of workspace..."
+            />
+          </q-item-section>
+        </q-item>
+        <q-separator spaced />
+
+        <q-item>
+          <q-item-section>
             {{ $t('workspaceSettings.defaultAssistant') }}
           </q-item-section>
           <q-item-section side>
@@ -69,6 +93,10 @@
           placeholder: $t('workspaceSettings.inputPlaceholder')
         }"
       />
+      <workspace-members
+        v-if="!workspace.is_public"
+        :workspace-id="workspace.id"
+      />
     </q-page>
   </q-page-container>
 </template>
@@ -88,6 +116,7 @@ import VarsInput from 'src/components/VarsInput.vue'
 import { useSetTitle } from 'src/composables/set-title'
 import { useI18n } from 'vue-i18n'
 import { useUserDataStore } from 'src/stores/user-data'
+import WorkspaceMembers from 'src/components/workspace/WorkspaceMembers.vue'
 
 const { t } = useI18n()
 

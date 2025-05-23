@@ -1,5 +1,5 @@
 import { Hct, hexFromArgb } from '@material/material-color-utilities'
-import { Artifact, Avatar, PlatformEnabled } from './types'
+import { Avatar, PlatformEnabled } from './types'
 import { ArtifactMapped } from '@/services/supabase/types'
 import { Platform } from 'quasar'
 import { i18n } from 'src/boot/i18n'

@@ -121,7 +121,7 @@ import { caselessIncludes, pageFhStyle } from 'src/utils/functions'
 import AAvatar from 'src/components/AAvatar.vue'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { AssistantDefaultPrompt } from 'src/utils/templates'
-import { defaultModelSettings } from 'src/utils/db'
+import { defaultModelSettings } from 'src/common/types/consts'
 import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
 import { clipboardReadText } from 'src/utils/platform-api'
 

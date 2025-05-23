@@ -25,6 +25,7 @@ until(() => userPerfsStore.ready).toBeTruthy().then(() => {
     }
     const bak = userPerfsStore.perfs.provider
     userPerfsStore.perfs.provider = provider
+    console.log('----perfs1 form', userPerfsStore.perfs)
     $q.notify({
       message: t('setProviderPage.providerSet', { baseURL: provider.settings.baseURL }),
       color: 'positive',

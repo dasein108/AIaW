@@ -26,10 +26,10 @@ import { computed, ComputedRef, inject } from 'vue'
 import { KeplerWallet } from '@/services/kepler/KeplerWallet'
 
 import { parseEvents } from '../services/kepler/utils'
-import { DialogMessageWithContent, MessageContentWithStoredItems } from '@/services/supabase/types'
+import { DialogMessageMapped, MessageContentMapped } from '@/services/supabase/types'
 import { useDialogsStore } from 'src/stores/dialogs'
 
-const props = defineProps<{ result: any, message: DialogMessageWithContent }>()
+const props = defineProps<{ result: any, message: DialogMessageMapped }>()
 const itemMap = inject<ComputedRef>('itemMap')
 const wallet = inject<KeplerWallet>('kepler')
 const transactionBody = computed(() => JSON.parse(itemMap.value[props.result[0]].contentText))
@@ -76,7 +76,7 @@ const handleDecline = async () => {
         }
       }
       return content
-    }) as MessageContentWithStoredItems[]
+    }) as MessageContentMapped[]
   })
 }
 </script>

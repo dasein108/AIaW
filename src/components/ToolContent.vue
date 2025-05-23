@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import { usePluginsStore } from 'src/stores/plugins'
-import { AssistantToolContent } from 'src/utils/types'
+import { AssistantToolContent } from '@/common/types/dialogs'
 import { computed, ComputedRef, inject } from 'vue'
 import AAvatar from './AAvatar.vue'
 import { engine } from 'src/utils/template-engine'

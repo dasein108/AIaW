@@ -401,7 +401,8 @@ import AssistantItem from 'src/components/AssistantItem.vue'
 import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
-import { PluginApi, ApiCallError, Plugin, UserMessageContent, ModelSettings, ApiResultItem, Artifact, ConvertArtifactOptions, AssistantMessageContent } from 'src/utils/types'
+import { PluginApi, ApiCallError, Plugin, ModelSettings, ApiResultItem, ConvertArtifactOptions } from 'src/utils/types'
+import { UserMessageContent, AssistantMessageContent } from '@/common/types/dialogs'
 import { usePluginsStore } from 'src/stores/plugins'
 import MessageItem from 'src/components/MessageItem.vue'
 import { scaleBlob } from 'src/utils/image-process'
@@ -410,7 +411,6 @@ import { engine } from 'src/utils/template-engine'
 import { useCallApi } from 'src/composables/call-api'
 import { until } from '@vueuse/core'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
-import { syncRef } from 'src/composables/sync-ref'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import ModelItem from 'src/components/ModelItem.vue'
 import ParseFilesDialog from 'src/components/ParseFilesDialog.vue'
@@ -435,7 +435,7 @@ import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
 import { useGetModel } from 'src/composables/get-model'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useDialogsStore } from 'src/stores/dialogs'
-import { Workspace, DialogMessageWithContent, StoredItem, DialogMessage, MessageContentWithStoredItems, StoredItemMapped } from '@/services/supabase/types'
+import { Workspace, DialogMessageMapped, StoredItem, MessageContentMapped, StoredItemMapped, ArtifactMapped } from '@/services/supabase/types'
 import { useStorage } from 'src/composables/storage/useStorage'
 import { FILES_BUCKET, getFileUrl } from 'src/composables/storage/utils'
 
@@ -614,13 +614,13 @@ async function updateInputText(text) {
     message_contents: [{
       ...inputMessageContent.value,
       text
-    }] as MessageContentWithStoredItems[],
+    }] as MessageContentMapped[],
     status: 'inputing'
   })
 }
 const inputMessageContent = computed(() => messageMap.value[chain.value.at(-1)]?.message_contents[0] as UserMessageContent)
 const inputContentItems = computed(() => inputMessageContent.value.stored_items.map(item => itemMap.value[item.id]).filter(x => x))
-const messageMap = computed<Record<string, DialogMessageWithContent>>(() => {
+const messageMap = computed<Record<string, DialogMessageMapped>>(() => {
   const map = {}
   dialogMessages.value.forEach(m => { map[m.id] = m })
   return map
@@ -933,7 +933,7 @@ async function send() {
   perfs.autoGenTitle && chain.value.length === 4 && genTitle()
 }
 
-const artifacts = inject<Ref<Artifact[]>>('artifacts')
+const artifacts = inject<Ref<ArtifactMapped[]>>('artifacts')
 const abortController = ref<AbortController>()
 async function stream(target, insert = false) {
   const settings: Partial<ModelSettings> = {}
@@ -947,7 +947,7 @@ async function stream(target, insert = false) {
     type: 'assistant-message',
     text: ''
   }
-  const contents: MessageContentWithStoredItems[] = [messageContent]
+  const contents: MessageContentMapped[] = [messageContent]
   // let id
   // await db.transaction('rw', db.dialogs, db.messages, async () => {
   //   id = await appendMessage(target, {
@@ -990,7 +990,7 @@ async function stream(target, insert = false) {
   const update = () => dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents })
 
   async function callTool(plugin: Plugin, api: PluginApi, args) {
-    const content: MessageContentWithStoredItems = {
+    const content: MessageContentMapped = {
       type: 'assistant-tool',
       plugin_id: plugin.id,
       name: api.name,
@@ -1391,7 +1391,7 @@ async function genArtifactName(content: string, lang?: string) {
   return text
 }
 const { createArtifact } = useCreateArtifact(toRef(workspace.value, 'id'))
-async function extractArtifact(message: DialogMessageWithContent, text: string, pattern, options: ConvertArtifactOptions) {
+async function extractArtifact(message: DialogMessageMapped, text: string, pattern, options: ConvertArtifactOptions) {
   const name = options.name || await genArtifactName(text, options.lang)
   const id = await createArtifact({
     name,

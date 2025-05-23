@@ -1,7 +1,7 @@
 import { Object as TObject } from '@sinclair/typebox'
 import { defineStore } from 'pinia'
-import { genId, removeDuplicates } from 'src/utils/functions'
-import { ProviderType, Provider, Avatar, CustomProvider } from 'src/utils/types'
+import { removeDuplicates } from 'src/utils/functions'
+import { ProviderType, Provider, Avatar } from 'src/utils/types'
 import { CustomProviderMapped, SubproviderMapped } from 'src/services/supabase/types'
 
 import { modelOptions as baseModelOptions, ProviderTypes } from 'src/utils/values'
@@ -122,15 +122,6 @@ export const useProvidersStore = defineStore('providers', () => {
       return
     }
 
-    // for (const spData of subprovidersData) {
-    //   const existing = provider.subproviders.find(sp => sp.id === spData.id)
-    //   if (existing) {
-    //     existing.model_map = spData.model_map as Record<string, string>
-    //     existing.provider = spData.provider as Provider
-    //   } else {
-    //     provider.subproviders.push(spData as unknown as SubproviderMapped)
-    //   }
-    // }
     return subprovidersData
   }
 
@@ -156,30 +147,6 @@ export const useProvidersStore = defineStore('providers', () => {
     providerResult.subproviders = await upsertSubproviders(providerResult, subproviders) as SubproviderMapped[]
     providersMap[data.id] = providerResult
     return providersMap[data.id] as CustomProviderMapped
-
-    // if (subproviders.length > 0) {
-    //   providers.value = providers.value.map(p => p.id === providerData.id ? mapCustomProvider(providerData as CustomProviderMapped) : p)
-    //   return
-    // }
-
-    // const { data: subprovidersData, error: subprovidersError } = await supabase.from('subproviders').insert(subproviders.map(sp => ({
-    //   ...sp,
-    //   custom_provider_id: providerData.id
-    // }))).select(SELECT_QUERY)
-    // if (subprovidersError) {
-    //   console.error(subprovidersError)
-    //   return
-    // }
-
-    // for (const spData of subprovidersData) {
-    //   const existing = providerData.subproviders.find(sp => sp.id === spData.id)
-    //   if (existing) {
-    //     existing.model_map = spData.model_map as Record<string, string>
-    //     existing.provider = spData.provider as Provider
-    //   } else {
-    //     providerData.subproviders.push(spData as unknown as SubproviderMapped)
-    //   }
-    // }
   }
 
   async function update(id: string, changes) {

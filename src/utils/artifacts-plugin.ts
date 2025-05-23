@@ -1,5 +1,6 @@
 import { Array as TArray, Object, Optional, String } from '@sinclair/typebox'
-import { Artifact, Plugin, PluginApi, PluginData } from './types'
+import { Plugin, PluginApi, PluginData } from './types'
+import { ArtifactMapped } from '@/services/supabase/types'
 import { engine } from './template-engine'
 import { db } from './db'
 import { saveArtifactChanges } from './functions'
@@ -82,7 +83,7 @@ const promptTemplate =
 {%- endfor %}
 `
 
-function getPrompt(artifacts: Artifact[]) {
+function getPrompt(artifacts: ArtifactMapped[]) {
   return engine.parseAndRenderSync(promptTemplate, { artifacts: artifacts.filter(a => a.readable) })
 }
 

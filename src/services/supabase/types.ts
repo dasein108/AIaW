@@ -1,4 +1,4 @@
-import { AssistantPlugins, Avatar, Model, ModelSettings, PluginManifest, PromptVar, Provider } from '@/utils/types'
+import { ArtifactVersion, AssistantPlugins, Avatar, Model, ModelSettings, PromptVar, Provider } from '@/utils/types'
 import { Database, Json } from './database.types'
 import { LanguageModelUsage } from 'ai'
 
@@ -17,6 +17,7 @@ type WorkspaceMember = Database['public']['Tables']['workspace_members']['Row']
 // type Artifact = Database['public']['Tables']['artifacts']['Row']
 type CustomProvider = Database['public']['Tables']['custom_providers']['Row']
 type Subprovider = Database['public']['Tables']['subproviders']['Row']
+type UserData = Database['public']['Tables']['user_data']['Row']
 
 type SubproviderMapped = Omit<Subprovider, 'custom_provider_id' | 'id' | 'model_map'> & {
   id?: string
@@ -31,18 +32,19 @@ type CustomProviderMapped = CustomProvider & {
   avatar: Avatar
 }
 
+type UserDataMapped = UserData & {
+  value: Record<string, any>
+}
+
 type StoredItemMapped =Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id' | 'type'> & {dialog_id?: string, type: 'text' | 'file' | 'quote', message_content_id?: string}
+
+type WorkspaceMemberRole = 'admin' | 'member' | 'readonly'
 
 type WorkspaceMapped = Workspace & {
   avatar?: Avatar;
   vars?: Record<string, string>;
   index_content?: string;
 };
-
-type ArtifactVersion = {
-    date: string
-    text: string
-}
 
 type ArtifactMapped = Database['public']['Tables']['artifacts']['Insert'] & {
   versions: ArtifactVersion[]
@@ -71,7 +73,7 @@ type AssistantMapped = Assistant & {
   prompt_role: 'system' | 'user' | 'assistant'
 };
 
-type MessageContentWithStoredItems = Omit<Database['public']['Tables']['message_contents']['Insert'], 'message_id'> & {
+type MessageContentMapped = Omit<Database['public']['Tables']['message_contents']['Insert'], 'message_id'> & {
   stored_items?: StoredItemMapped[]
   message_id?: string
 
@@ -79,15 +81,21 @@ type MessageContentWithStoredItems = Omit<Database['public']['Tables']['message_
 
 type DialogMessageStatus = 'pending' | 'streaming' | 'failed' | 'default' | 'inputing' | 'processed'
 
-type DialogMessageWithContent = DialogMessage & {
-  message_contents: MessageContentWithStoredItems[]
+type DialogMessageMapped = DialogMessage & {
+  message_contents: MessageContentMapped[]
   usage: LanguageModelUsage | null
   status: DialogMessageStatus
+}
+
+type WorkspaceMemberMapped = WorkspaceMember & {
+  profile: Profile
 }
 
 export type {
   ChatMessageWithProfile, Chat, Profile, ChatMember, WorkspaceMapped, ArtifactMapped, ArtifactVersion,
   Workspace, UserPlugin, Assistant, AssistantMapped, ChatMessage, Dialog, DialogMessage,
-  MessageContent, WorkspaceMember, StoredItem, DialogMessageWithContent, MessageContentWithStoredItems, DialogMapped,
-  StoredItemMapped, CustomProviderMapped, SubproviderMapped
+  MessageContent, WorkspaceMember, StoredItem, DialogMessageMapped, MessageContentMapped, DialogMapped,
+  StoredItemMapped, CustomProviderMapped, SubproviderMapped, UserDataMapped,
+  WorkspaceMemberRole,
+  WorkspaceMemberMapped
 }

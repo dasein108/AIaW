@@ -16,6 +16,5 @@ const props = defineProps<{
 
 defineEmits(['remove'])
 
-// const url = useFileURL(toRef(props, 'audio'))
 const url = getFileUrl(props.audio.file_url)
 </script>

@@ -1,6 +1,7 @@
 import { useQuasar } from 'quasar'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
-import { db, defaultModelSettings } from 'src/utils/db'
+import { db } from 'src/utils/db'
+import { defaultModelSettings } from 'src/common/types/consts'
 import { localData } from 'src/utils/local-data'
 import { dialogOptions } from 'src/utils/values'
 import { onMounted, watch } from 'vue'

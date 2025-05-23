@@ -320,7 +320,8 @@
 import { MdPreview, MdCatalog } from 'md-editor-v3'
 import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watchEffect } from 'vue'
 import sessions from 'src/utils/sessions'
-import { ApiResultItem, UserMessageContent, AssistantMessageContent, ConvertArtifactOptions, AssistantToolContent } from 'src/utils/types'
+import { ApiResultItem, ConvertArtifactOptions } from 'src/utils/types'
+import { UserMessageContent, AssistantMessageContent, AssistantToolContent } from '@/common/types/dialogs'
 import CopyBtn from './CopyBtn.vue'
 import AAvatar from './AAvatar.vue'
 import { useAssistantsStore } from 'src/stores/assistants'
@@ -340,11 +341,11 @@ import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import ConvertArtifactDialog from './ConvertArtifactDialog.vue'
 import { useI18n } from 'vue-i18n'
 import { dialogOptions } from 'src/utils/values'
-import { DialogMessageWithContent, MessageContentWithStoredItems, StoredItem, StoredItemMapped } from '@/services/supabase/types'
+import { DialogMessageMapped, MessageContentMapped, StoredItem, StoredItemMapped } from '@/services/supabase/types'
 import { useDialogsStore } from 'src/stores/dialogs'
 
 const props = defineProps<{
-  message: DialogMessageWithContent,
+  message: DialogMessageMapped,
   childNum: number,
   scrollContainer: HTMLElement
 }>()
@@ -397,7 +398,7 @@ watchEffect(async () => {
           }
         }
         return content
-      }) as MessageContentWithStoredItems[]
+      }) as MessageContentMapped[]
     })
   }
 })

@@ -53,7 +53,6 @@ const props = defineProps<{
 
 defineEmits(['remove'])
 
-// const url = useFileURL(toRef(props, 'image'))
 const url = getFileUrl(props.image.file_url)
 
 const $q = useQuasar()

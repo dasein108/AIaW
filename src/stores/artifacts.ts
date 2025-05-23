@@ -5,22 +5,8 @@ import { reactive, ref, watch, toRef, computed } from 'vue'
 import { throttle } from 'lodash'
 
 export const useArtifactsStore = defineStore('artifacts', () => {
-  // const artifacts = reactive < Record<string, ArtifactMapped>>({})
   const workspaceArtifacts = reactive<Record<string, Record<string, ArtifactMapped>>>({})
   const artifacts = computed(() => Object.values(workspaceArtifacts).flatMap(workspace => Object.values(workspace)))
-  // watch(artifacts, (value) => {
-  //   const newWorkspaceArtifacts = Object.values(value).reduce((acc, artifact) => {
-  //     acc[artifact.workspace_id] = [...(acc[artifact.workspace_id] || []), artifact]
-  //     return acc
-  //   }, {} as Record<string, ArtifactMapped[]>)
-  //   for (const workspaceId of Object.keys(newWorkspaceArtifacts)) {
-  //     if (!(workspaceId in workspaceArtifacts)) {
-  //       delete workspaceArtifacts[workspaceId]
-  //     } else {
-  //       workspaceArtifacts[workspaceId] = newWorkspaceArtifacts[workspaceId]
-  //     }
-  //   }
-  // })
 
   const fetchArtifacts = async () => {
     const { data, error } = await supabase.from('artifacts').select('*')

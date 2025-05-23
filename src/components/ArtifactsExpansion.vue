@@ -96,7 +96,6 @@
 
 <script setup lang="ts">
 import { caselessIncludes, getFileExt, isTextFile } from 'src/utils/functions'
-import { Workspace } from 'src/utils/types'
 import { computed, inject, ref, Ref, toRef } from 'vue'
 import { useCloseArtifact } from 'src/composables/close-artifact'
 import ArtifactItemMenu from './ArtifactItemMenu.vue'
@@ -108,7 +107,7 @@ import { dialogOptions } from 'src/utils/values'
 import { useI18n } from 'vue-i18n'
 import ATip from './ATip.vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ArtifactMapped } from '@/services/supabase/types'
+import { ArtifactMapped, Workspace } from '@/services/supabase/types'
 import { useUserDataStore } from 'src/stores/user-data'
 
 const artifacts: Ref<ArtifactMapped[]> = inject('artifacts')

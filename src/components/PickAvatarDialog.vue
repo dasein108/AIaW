@@ -250,7 +250,6 @@ function setText(text: string) {
   selected.value = { type: 'text', text, hue: perfs.themeHue }
 }
 async function prunePreviousFile() {
-  console.log("---prunePreviousFile", initialAvatar)
   if (initialAvatar.type === 'image') {
     await storage.deleteFile(initialAvatar.imageId)
   }
@@ -262,10 +261,7 @@ async function onImageInput(file: File) {
   const id = genId()
   const newFile = new File([blob], `${id}.${ext}`, { type: file.type })
   const path = await storage.uploadFile(newFile)
-  // const prevAvatar = toRaw(selected.value)
   selected.value = { type: 'image', imageId: path }
-  // await deleteFile(prevAvatar)
-  // console.log("---selected onImageInput", selected.value)
 }
 
 async function onConfirm() {

@@ -28,7 +28,7 @@ export function useWorkspaceActions() {
       ok: t('workspace.create'),
       ...dialogOptions
     }).onOk(async name => {
-      const workspace = await workspacesStore.addWorkspace({ name: name.trim(), parent_id: parentId, type: 'workspace' })
+      const workspace = await workspacesStore.addWorkspace({ name: name.trim(), parent_id: parentId, type: 'workspace', is_public: true })
       const assistant = await assistantsStore.add({
         name: t('workspace.defaultAssistant'),
         workspace_id: workspace.id,

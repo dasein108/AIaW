@@ -84,7 +84,10 @@ export default {
     closeArtifact: 'Close',
     closeAllArtifacts: 'Close All Artifacts',
     workspaceHome: 'Workspace Home',
-    workspaceSettings: 'Workspace Settings'
+    workspaceSettings: 'Workspace Settings',
+    isPublic: 'Public',
+    description: 'Description',
+    members: 'Members'
   },
   mainLayout: {
     workspace: 'Workspace | Workspaces',

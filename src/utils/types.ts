@@ -73,11 +73,6 @@ interface ProviderType {
   getModelList?: (settings) => Promise<string[]>
 }
 
-interface AvatarImage {
-  id: string
-  contentBuffer: ArrayBuffer
-  mimeType: string
-}
 interface ApiResultItem {
   type: 'text' | 'file' | 'quote'
   contentText?: string
@@ -85,36 +80,6 @@ interface ApiResultItem {
   name?: string
   mimeType?: string
 }
-interface StoredItem extends ApiResultItem {
-  id: string
-  dialog_id: string
-  references_count: number
-}
-type StoredItemId = StoredItem['id']
-
-interface UserMessageContent {
-  type: 'user-message'
-  text: string
-  stored_items: StoredItem[]
-}
-
-interface AssistantMessageContent {
-  type: 'assistant-message'
-  text: string
-  reasoning?: string
-}
-
-interface AssistantToolContent {
-  type: 'assistant-tool'
-  plugin_id: string
-  name: string
-  args
-  result?: any[]
-  status: 'calling' | 'failed' | 'completed'
-  error?: string
-}
-
-type MessageContent = UserMessageContent | AssistantMessageContent | AssistantToolContent
 
 class ApiCallError extends Error {}
 
@@ -386,78 +351,6 @@ interface Model {
   inputTypes: ModelInputTypes
 }
 
-interface Folder {
-  id: string
-  name: string
-  avatar: Avatar
-  type: 'folder'
-  parentId: string
-}
-
-interface Workspace {
-  id: string
-  name: string
-  avatar: Avatar
-  type: 'workspace'
-  parentId: string
-  vars: Record<string, string>
-  index_content: string
-  defaultAssistantId?: string
-  lastDialogId?: string
-  listOpen: {
-    assistants: boolean
-    artifacts: boolean
-    dialogs: boolean
-    chats: boolean
-  }
-}
-
-interface Dialog {
-  id: string
-  name: string
-  workspaceId: string
-  assistantId?: string
-  msgTree: Record<string, string[]>
-  msgRoute: number[]
-  inputVars: Record<string, PromptVarValue>
-  modelOverride?: Model
-}
-
-interface Message {
-  id: string
-  type: 'user' | 'assistant'
-  assistantId?: string
-  workspaceId?: string
-  dialogId: string
-  contents: MessageContent[]
-  status: 'pending' | 'streaming' | 'failed' | 'default' | 'inputing' | 'processed'
-  generatingSession?: string
-  error?: string
-  warnings?: string[]
-  usage?: LanguageModelUsage
-  modelName?: string
-}
-
-interface Assistant {
-  id: string
-  name: string
-  avatar: Avatar
-  prompt: string
-  promptVars: PromptVar[]
-  promptTemplate: string
-  provider: Provider
-  model?: Model
-  modelSettings: ModelSettings
-  workspaceId: string
-  plugins: AssistantPlugins
-  promptRole: 'system' | 'user' | 'assistant'
-  contextNum?: number
-  stream: boolean
-  description?: string
-  author?: string
-  homepage?: string
-}
-
 const TSOptional = <T extends TSchema>(schema: T) => Optional(Union([Null(), schema]))
 const MarketAssistantSchema = Object({
   name: String(),
@@ -474,21 +367,8 @@ const MarketAssistantSchema = Object({
 type MarketAssistant = Static<typeof MarketAssistantSchema>
 
 interface ArtifactVersion {
-  date: Date
+  date: Date | string
   text: string
-}
-
-interface Artifact {
-  id: string
-  name: string
-  workspaceId: string
-  versions: ArtifactVersion[]
-  currIndex: number
-  readable: boolean
-  writable: boolean
-  open: boolean
-  language?: string
-  tmp: string
 }
 
 interface StoredReactive {
@@ -516,20 +396,6 @@ interface ConvertArtifactOptions {
   reserveOriginal: boolean
 }
 
-interface Subprovider {
-  id: string
-  provider?: Provider
-  modelMap: Record<string, string>
-}
-
-interface CustomProvider {
-  id: string
-  name: string
-  avatar: Avatar
-  subproviders: Subprovider[]
-  fallbackProvider?: Provider
-}
-
 export {
   ApiCallError,
   HuggingPluginManifestSchema,
@@ -545,10 +411,6 @@ export type {
   ModelSettings,
   PromptVar,
   PromptVarValue,
-  UserMessageContent,
-  AssistantMessageContent,
-  AssistantToolContent,
-  MessageContent,
   PluginApi,
   Plugin,
   PluginData,
@@ -558,17 +420,8 @@ export type {
   AssistantPluginAction,
   AssistantPlugin,
   AssistantPlugins,
-  Folder,
-  Workspace,
-  Dialog,
-  Message,
-  Assistant,
-  Artifact,
   StoredReactive,
-  StoredItem,
-  StoredItemId,
   ApiResultItem,
-  AvatarImage,
   Avatar,
   SvgAvatar,
   TextAvatar,
@@ -600,6 +453,5 @@ export type {
   McpPluginDump,
   McpPluginManifest,
   TransportConf,
-  Subprovider,
-  CustomProvider
+  ArtifactVersion
 }

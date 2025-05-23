@@ -1,5 +1,5 @@
 import { Database } from '@/services/supabase/database.types'
-import { Dialog, DialogMapped, DialogMessageWithContent, MessageContentWithStoredItems, StoredItem, StoredItemMapped } from '@/services/supabase/types'
+import { Dialog, DialogMapped, DialogMessageMapped, MessageContentMapped, StoredItem, StoredItemMapped } from '@/services/supabase/types'
 import { LanguageModelUsage } from 'ai'
 import { defineStore } from 'pinia'
 import { supabase } from 'src/services/supabase/client'
@@ -13,7 +13,7 @@ type DialogInput = Database['public']['Tables']['dialogs']['Insert']
 
 const SELECT_DIALOG_MESSAGES = '*, message_contents(*, stored_items(*))'
 
-const mapDialogMessage = (message): DialogMessageWithContent => {
+const mapDialogMessage = (message): DialogMessageMapped => {
   return {
     ...message,
     usage: message.usage as LanguageModelUsage
@@ -22,7 +22,7 @@ const mapDialogMessage = (message): DialogMessageWithContent => {
 
 export const useDialogsStore = defineStore('dialogs', () => {
   const dialogs = reactive<Record<string, DialogMapped>>({})
-  const dialogMessages = reactive<Record<string, DialogMessageWithContent[]>>({})
+  const dialogMessages = reactive<Record<string, DialogMessageMapped[]>>({})
   async function fetchDialogs() {
     const { data, error } = await supabase.from('dialogs').select('*')// .eq('workspace_id', workspaceId)
     if (error) {
@@ -48,7 +48,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
 
     dialogMessages[dialogId] = messages
     console.log("---fetchDialogMessages: ", dialogMessages[dialogId])
-    return messages as DialogMessageWithContent[]
+    return messages as DialogMessageMapped[]
   }
 
   async function removeDialog(dialogId: string) {
@@ -104,7 +104,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
         console.error(contentError)
         throw contentError
       }
-      const messageContent = contentData as MessageContentWithStoredItems
+      const messageContent = contentData as MessageContentMapped
       // 3. create stored items
       for (const item of stored_items) {
         const { data: itemData, error: itemError } = await supabase.from('stored_items').insert({ ...item, message_content_id: contentData.id, dialog_id: dialogId }).select().single()
@@ -146,9 +146,8 @@ export const useDialogsStore = defineStore('dialogs', () => {
   }
 
   async function updateDialogMessage(dialogId: string, messageId: string, message: Partial<DialogMessageInput>) {
-    let dialogMessage = merge(dialogMessages[dialogId].find(m => m.id === messageId) || {}, message) as DialogMessageWithContent
+    let dialogMessage = merge(dialogMessages[dialogId].find(m => m.id === messageId) || {}, message) as DialogMessageMapped
     const shouldSave = dialogMessage.status && dialogMessage.status !== 'streaming' && dialogMessage.status !== 'inputing'
-    console.log("---updateDialogMessage dialogMessage merge in", dialogMessage, shouldSave)
 
     if (!shouldSave) {
       dialogMessages[dialogId] = dialogMessages[dialogId].map(m => m.id === messageId ? dialogMessage : m)
@@ -166,27 +165,24 @@ export const useDialogsStore = defineStore('dialogs', () => {
       dialogMessage = merge(mapDialogMessage(data), dialogMessage)
     }
 
-    console.log("---updateDialogMessage msg/dmsg: ", dialogMessage)
     for (const content of dialogMessage.message_contents) {
       const { stored_items = [], ...contentInput } = content
-      let messageContent = content as MessageContentWithStoredItems
+      let messageContent = content as MessageContentMapped
       if (content.id) {
         const { data: contentData, error: contentError } = await supabase.from('message_contents').update({ ...contentInput, message_id: dialogMessage.id }).eq('id', content.id).select('*, stored_items(*)').single()
         if (contentError) {
           console.error(contentError)
           throw contentError
         }
-        messageContent = contentData as MessageContentWithStoredItems
+        messageContent = contentData as MessageContentMapped
       } else {
         const { data: contentData, error: contentError } = await supabase.from('message_contents').insert({ ...contentInput, message_id: dialogMessage.id }).select('*, stored_items(*)').single()
         if (contentError) {
           console.error(contentError)
           throw contentError
         }
-        messageContent = contentData as MessageContentWithStoredItems
+        messageContent = contentData as MessageContentMapped
       }
-
-      console.log("---updateDialogMessage msg/dmsg: messageContent", messageContent)
 
       for (const item of stored_items) {
         if (item.id) {
@@ -207,7 +203,6 @@ export const useDialogsStore = defineStore('dialogs', () => {
       }
 
       dialogMessage.message_contents = dialogMessage.message_contents.map(c => c.id === messageContent.id ? messageContent : c)
-      console.log("---updateDialogMessage msg/dmsg: dialogMessage", dialogMessage)
     }
     dialogMessages[dialogId] = dialogMessages[dialogId].map(m => m.id === messageId ? dialogMessage : m)
   }
@@ -226,6 +221,18 @@ export const useDialogsStore = defineStore('dialogs', () => {
 
   async function removeStoreItem(stored_item: StoredItemMapped) {
     // TODO: remove stored item from dialog messages, with message_content_id or without
+    const { error } = await supabase.from('stored_items').delete().eq('id', stored_item.id)
+    if (error) {
+      console.error(error)
+      throw error
+    }
+    dialogMessages[stored_item.dialog_id] = dialogMessages[stored_item.dialog_id].map(m => m.id === stored_item.message_content_id ? {
+      ...m,
+      message_contents: m.message_contents.map(c => c.id === stored_item.message_content_id ? {
+        ...c,
+        stored_items: c.stored_items.filter(i => i.id !== stored_item.id)
+      } : c)
+    } : m)
   }
 
   async function searchDialogs(query: string, workspaceId: string | null = null) {
