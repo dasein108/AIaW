@@ -499,7 +499,6 @@ function edit() {
       model: textContent.value.text
     }
   }).onOk(text => {
-    debugger
     // db.messages.update(props.message.id, {
     //   [`contents.${textIndex.value}.text`]: text
     // })
