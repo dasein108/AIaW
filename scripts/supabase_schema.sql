@@ -1131,12 +1131,6 @@ CREATE POLICY "Members can view all members of their chats" ON "public"."chat_me
 
 
 
-CREATE POLICY "Members or owner can update chat" ON "public"."chats" FOR UPDATE USING (((EXISTS ( SELECT 1
-   FROM "public"."chat_members"
-  WHERE (("chat_members"."chat_id" = "chats"."id") AND ("chat_members"."user_id" = "auth"."uid"())))) OR ("owner_id" = "auth"."uid"())));
-
-
-
 CREATE POLICY "Owner can delete chat" ON "public"."chats" FOR DELETE USING (("owner_id" = "auth"."uid"()));
 
 
@@ -1261,6 +1255,12 @@ CREATE POLICY "Select chat members for admins, owners or self" ON "public"."chat
 CREATE POLICY "Send messages if member of chat" ON "public"."messages" FOR INSERT WITH CHECK ((("sender_id" = "auth"."uid"()) AND (EXISTS ( SELECT 1
    FROM "public"."chat_members"
   WHERE (("chat_members"."chat_id" = "messages"."chat_id") AND ("chat_members"."user_id" = "auth"."uid"()))))));
+
+
+
+CREATE POLICY "Update chat if owner or workspace admin" ON "public"."chats" FOR UPDATE USING ((("owner_id" = "auth"."uid"()) OR (("type" = 'workspace'::"public"."chat_type") AND (EXISTS ( SELECT 1
+   FROM "public"."workspace_members"
+  WHERE (("workspace_members"."workspace_id" = "chats"."workspace_id") AND ("workspace_members"."user_id" = "auth"."uid"()) AND ("workspace_members"."role" = 'admin'::"text")))))));
 
 
 
