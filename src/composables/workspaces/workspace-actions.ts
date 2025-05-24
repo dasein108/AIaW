@@ -4,17 +4,22 @@ import { useQuasar } from 'quasar'
 import { dialogOptions } from 'src/utils/values'
 import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
-import { genId } from 'src/utils/functions'
+import { defaultAvatar, genId } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
-import { db } from 'src/utils/db'
 import { useI18n } from 'vue-i18n'
+import { useUserDataStore } from 'src/stores/user-data'
+import { useCheckLogin } from '../auth/useCheckLogin'
 
 export function useWorkspaceActions() {
   const workspacesStore = useWorkspacesStore()
   const assistantsStore = useAssistantsStore()
+  const userDataStore = useUserDataStore()
   const $q = useQuasar()
   const { t } = useI18n()
-  function addWorkspace(parentId = '$root') {
+  const { ensureLogin } = useCheckLogin()
+  function addWorkspace(parentId = null) {
+    ensureLogin()
+
     $q.dialog({
       title: t('workspace.newWorkspace'),
       prompt: {
@@ -26,16 +31,19 @@ export function useWorkspaceActions() {
       cancel: true,
       ok: t('workspace.create'),
       ...dialogOptions
-    }).onOk(name => {
-      const workspaceId = genId()
-      const assistantId = genId()
-      db.transaction('rw', db.workspaces, db.assistants, () => {
-        workspacesStore.addWorkspace({ id: workspaceId, name: name.trim(), parentId, defaultAssistantId: assistantId })
-        assistantsStore.add({ id: assistantId, name: t('workspace.defaultAssistant'), workspaceId })
+    }).onOk(async name => {
+      const workspace = await workspacesStore.addWorkspace({ name: name.trim(), parent_id: parentId, type: 'workspace', is_public: true })
+      const assistant = await assistantsStore.add({
+        name: t('workspace.defaultAssistant'),
+        workspace_id: workspace.id,
+        avatar: defaultAvatar('AI')
       })
+      userDataStore.data.defaultAssistantIds[workspace.id] = assistant.id
     })
   }
-  function addFolder(parentId = '$root') {
+  function addFolder(parentId = null) {
+    ensureLogin()
+
     $q.dialog({
       title: t('workspace.newFolder'),
       prompt: {
@@ -48,7 +56,7 @@ export function useWorkspaceActions() {
       ok: t('workspace.create'),
       ...dialogOptions
     }).onOk(name => {
-      workspacesStore.addFolder({ name: name.trim(), parentId })
+      workspacesStore.addWorkspace({ name: name.trim(), parent_id: parentId, type: 'folder' })
     })
   }
   function renameItem(item) {
@@ -84,7 +92,7 @@ export function useWorkspaceActions() {
         exclude
       }
     }).onOk(parentId => {
-      workspacesStore.updateItem(id, { parentId })
+      workspacesStore.updateItem(id, { parent_id: parentId })
     })
   }
   function deleteItem({ id, type, name }) {
@@ -100,5 +108,6 @@ export function useWorkspaceActions() {
       ...dialogOptions
     }).onOk(() => { workspacesStore.deleteItem(id) })
   }
+
   return { addWorkspace, addFolder, renameItem, changeAvatar, moveItem, deleteItem }
 }

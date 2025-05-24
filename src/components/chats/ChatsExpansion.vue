@@ -24,7 +24,7 @@
             icon="sym_o_person_add"
             :title="'Create user chat'"
             @click.prevent.stop="showUserSelectDialog"
-            v-if="isLoggedIn"
+            v-if="userStore.isLoggedIn"
           />
         </div>
       </q-item-section>
@@ -51,11 +51,11 @@ import UserListDialog from './UserListDialog.vue'
 import { supabase } from 'src/services/supabase/client'
 import { Profile } from '@/services/supabase/types'
 import { useRouter } from 'vue-router'
-import { UserProvider } from '@/services/supabase/userProvider'
+import { useUserStore } from 'src/stores/user'
 
 const $q = useQuasar()
 const router = useRouter()
-const { isLoggedIn, currentUserId } = inject<UserProvider>('user')
+const userStore = useUserStore()
 
 const props = defineProps<{
   workspaceId: string
@@ -65,7 +65,7 @@ const showUserSelectDialog = () => {
   $q.dialog({
     component: UserListDialog,
     componentProps: {
-      currentUserId: currentUserId.value
+      currentUserId: userStore.currentUserId
     }
   }).onOk((user) => {
     onSelectUser(user)
@@ -75,7 +75,7 @@ const showUserSelectDialog = () => {
 const onSelectUser = async (user: Profile) => {
   const { data: chatId, error } = await supabase.rpc('start_private_chat_with', {
     target_user_id: user.id,
-    current_user_id: currentUserId.value
+    current_user_id: userStore.currentUserId
   })
   if (error) {
     console.error('error', error)

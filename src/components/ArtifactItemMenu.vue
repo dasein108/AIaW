@@ -4,7 +4,7 @@
   >
     <q-list style="min-width: 100px">
       <menu-item
-        v-if="artifact.open"
+        v-if="isOpen"
         icon="sym_o_save"
         :label="$t('artifactItemMenu.save')"
         :disable="!artifactUnsaved(artifact)"
@@ -40,51 +40,63 @@ import { useQuasar } from 'quasar'
 import { dialogOptions } from 'src/utils/values'
 import MenuItem from './MenuItem.vue'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
-import { Artifact } from 'src/utils/types'
+import { ArtifactMapped } from '@/services/supabase/types'
 import { db } from 'src/utils/db'
 import { artifactUnsaved, saveArtifactChanges } from 'src/utils/functions'
 import { useI18n } from 'vue-i18n'
 import { exportFile } from 'src/utils/platform-api'
+import { useArtifactsStore } from 'src/stores/artifacts'
+import { useUserDataStore } from 'src/stores/user-data'
+import { computed } from 'vue'
 
 const $q = useQuasar()
 const { t } = useI18n()
-
-defineProps<{
-  artifact: Artifact
+const artifactsStore = useArtifactsStore()
+const userDataStore = useUserDataStore()
+const props = defineProps<{
+  artifact: ArtifactMapped
 }>()
 
-function renameItem({ id, name }) {
+const isOpen = computed(() => userDataStore.data.openedArtifacts.find(id => id === props.artifact.id))
+
+function renameItem(artifact: ArtifactMapped) {
   $q.dialog({
     title: t('artifactItemMenu.rename'),
     prompt: {
-      model: name,
+      model: artifact.name,
       type: 'text',
       label: t('artifactItemMenu.rename'),
-      isValid: v => v.trim() && v !== name
+      isValid: v => v.trim() && v !== artifact.name
     },
     cancel: true,
     ...dialogOptions
   }).onOk(newName => {
-    db.artifacts.update(id, { name: newName.trim() })
+    artifactsStore.update({
+      ...artifact,
+      name: newName.trim()
+    })
   })
 }
-function moveItem({ id }) {
+function moveItem(artifact: ArtifactMapped) {
   $q.dialog({
     component: SelectWorkspaceDialog,
     componentProps: {
       accept: 'workspace'
     }
   }).onOk(workspaceId => {
-    db.artifacts.update(id, { workspaceId })
+    artifactsStore.update({
+      ...artifact,
+      workspace_id: workspaceId
+    })
   })
 }
-function downloadItem({ name, versions, currIndex }) {
-  exportFile(name, versions[currIndex].text)
+function downloadItem({ name, versions, curr_index }: ArtifactMapped) {
+  exportFile(name, versions[curr_index].text)
 }
-function deleteItem({ id, name }) {
+function deleteItem(artifact: ArtifactMapped) {
   $q.dialog({
     title: t('artifactItemMenu.deleteConfirmTitle'),
-    message: t('artifactItemMenu.deleteConfirmMessage', { name }),
+    message: t('artifactItemMenu.deleteConfirmMessage', { name: artifact.name }),
     cancel: true,
     ok: {
       label: t('artifactItemMenu.deleteConfirmOk'),
@@ -93,11 +105,11 @@ function deleteItem({ id, name }) {
     },
     ...dialogOptions
   }).onOk(() => {
-    db.artifacts.delete(id)
+    artifactsStore.remove(artifact)
   })
 }
-function saveItem(artifact: Artifact) {
-  db.artifacts.update(artifact.id, saveArtifactChanges(artifact))
+function saveItem(artifact: ArtifactMapped) {
+  artifactsStore.update(saveArtifactChanges(artifact))
 }
 </script>
 

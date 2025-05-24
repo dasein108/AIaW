@@ -80,7 +80,7 @@
         </div>
         <div
           style="display: flex; align-items: stretch; height: 56px;"
-          v-if="isLoggedIn"
+          v-if="userStore.isLoggedIn"
         >
           <a-input
             ref="messageInput"
@@ -118,18 +118,18 @@
 </template>
 
 <script setup lang="ts">
-import { inject, nextTick, ref, toRef, watch } from 'vue'
+import { computed, inject, nextTick, onMounted, ref, toRef, watch } from 'vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 
 import { QPageContainer, QPage, useQuasar } from 'quasar'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { almostEqual, isPlatformEnabled, pageFhStyle } from 'src/utils/functions'
-import ChatMessageItem from 'src/components/social/ChatMessageItem.vue'
-import { useChatMessages } from 'src/components/social/composable/useChatMessages'
-import type { UserProvider } from '@/services/supabase/userProvider'
-import { supabase } from 'src/services/supabase/client'
-
+import ChatMessageItem from 'src/components/chats/ChatMessageItem.vue'
+import { useUserStore } from 'src/stores/user'
+import { useChatsStore } from 'src/stores/chats'
+import { Chat, ChatMessageWithProfile } from '@/services/supabase/types'
+import { useChatMessagesStore } from 'src/stores/chat-messages'
 const props = defineProps<{
   id: string
 }>()
@@ -242,10 +242,22 @@ function scroll(action: 'up' | 'down' | 'top' | 'bottom', behavior: 'smooth' | '
 const rightDrawerAbove = inject('rightDrawerAbove')
 
 // const workspace: Ref<Workspace> = inject('workspace')
-const { chat, messages } = useChatMessages(toRef(props, 'id'))
+// const { chat, messages } = useChatMessagesWithSubscription(toRef(props, 'id'))
+const chatsStore = useChatsStore()
+const chatMessagesStore = useChatMessagesStore()
+const messages = computed<ChatMessageWithProfile[]>(() => chatMessagesStore.messagesByChat[props.id] ?? [])
+const chat = computed<Chat>(() => chatsStore.chats.find(chat => chat.id === props.id))
+
+watch(
+  () => props.id,
+  (newId) => {
+    chatMessagesStore.fetchMessages(newId)
+  },
+  { immediate: true }
+)
 
 const uiStateStore = useUiStateStore()
-const { currentUserId, isLoggedIn } = inject<UserProvider>('user')
+const userStore = useUserStore()
 const scrollTops = uiStateStore.dialogScrollTops
 const $q = useQuasar()
 function onScroll(ev) {
@@ -270,22 +282,17 @@ watch(
   }
 )
 async function send() {
-  const { error } = await supabase
-    .from('messages')
-    .insert({
-      chat_id: props.id,
-      sender_id: currentUserId.value,
-      content: inputMessage.value
-    })
-
-  if (error) {
+  chatMessagesStore.add({
+    chat_id: props.id,
+    sender_id: userStore.currentUserId,
+    content: inputMessage.value
+  }).catch(error => {
     console.error('error', error)
     $q.notify({
       message: error.message,
       color: 'negative'
     })
-    return
-  }
+  })
 
   inputMessage.value = ''
 }
@@ -293,6 +300,7 @@ async function send() {
 function onEnter(ev) {
   if (ev.ctrlKey || ev.shiftKey) return
   send()
+  ev.preventDefault()
 }
 
 const inputMessage = ref('')

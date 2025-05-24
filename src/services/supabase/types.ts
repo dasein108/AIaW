@@ -1,11 +1,101 @@
-import { Database } from './database.types'
+import { ArtifactVersion, AssistantPlugins, Avatar, Model, ModelSettings, PromptVar, Provider } from '@/utils/types'
+import { Database, Json } from './database.types'
+import { LanguageModelUsage } from 'ai'
 
-type Message = Database['public']['Tables']['messages']['Row']
+type ChatMessage = Database['public']['Tables']['messages']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Chat = Database['public']['Tables']['chats']['Row']
 type ChatMember = Database['public']['Tables']['chat_members']['Row']
-type MessageWithProfile = Message & {
+type UserPlugin = Database['public']['Tables']['user_plugins']['Insert']
+type Workspace = Database['public']['Tables']['workspaces']['Row']
+type Assistant = Database['public']['Tables']['user_assistants']['Row']
+type Dialog = Database['public']['Tables']['dialogs']['Row']
+type DialogMessage = Database['public']['Tables']['dialog_messages']['Row']
+type MessageContent = Database['public']['Tables']['message_contents']['Row']
+type StoredItem = Database['public']['Tables']['stored_items']['Row']
+type WorkspaceMember = Database['public']['Tables']['workspace_members']['Row']
+// type Artifact = Database['public']['Tables']['artifacts']['Row']
+type CustomProvider = Database['public']['Tables']['custom_providers']['Row']
+type Subprovider = Database['public']['Tables']['subproviders']['Row']
+type UserData = Database['public']['Tables']['user_data']['Row']
+
+type SubproviderMapped = Omit<Subprovider, 'custom_provider_id' | 'id' | 'model_map'> & {
+  id?: string
+  custom_provider_id?: string
+  model_map: Record<string, string>
+  provider: Provider
+}
+
+type CustomProviderMapped = CustomProvider & {
+  subproviders: SubproviderMapped[]
+  fallback_provider: Provider
+  avatar: Avatar
+}
+
+type UserDataMapped = UserData & {
+  value: Record<string, any>
+}
+
+type StoredItemMapped =Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id' | 'type'> & {dialog_id?: string, type: 'text' | 'file' | 'quote', message_content_id?: string}
+
+type WorkspaceMemberRole = 'admin' | 'member' | 'readonly'
+
+type WorkspaceMapped = Workspace & {
+  avatar?: Avatar;
+  vars?: Record<string, string>;
+  index_content?: string;
+};
+
+type ArtifactMapped = Database['public']['Tables']['artifacts']['Insert'] & {
+  versions: ArtifactVersion[]
+}
+
+type DialogMapped = Dialog & {
+  assistant: Assistant | null
+  model_override: Model | null
+  input_vars: Record<string, string>
+  msg_tree: Record<string, string[]>
+  msg_route: number[]
+  usage: LanguageModelUsage | null
+}
+
+type ChatMessageWithProfile = ChatMessage & {
   sender: Profile | null
 }
 
-export type { MessageWithProfile, Chat, Profile, ChatMember }
+type AssistantMapped = Assistant & {
+  avatar: Avatar
+  prompt_vars: PromptVar[]
+  provider: Provider
+  model: Model
+  model_settings: ModelSettings
+  plugins: AssistantPlugins
+  prompt_role: 'system' | 'user' | 'assistant'
+};
+
+type MessageContentMapped = Omit<Database['public']['Tables']['message_contents']['Insert'], 'message_id'> & {
+  stored_items?: StoredItemMapped[]
+  message_id?: string
+
+}
+
+type DialogMessageStatus = 'pending' | 'streaming' | 'failed' | 'default' | 'inputing' | 'processed'
+
+type DialogMessageMapped = DialogMessage & {
+  message_contents: MessageContentMapped[]
+  usage: LanguageModelUsage | null
+  status: DialogMessageStatus
+}
+
+type WorkspaceMemberMapped = WorkspaceMember & {
+  profile: Profile
+}
+
+export type {
+  ChatMessageWithProfile, Chat, Profile, ChatMember, WorkspaceMapped, ArtifactMapped, ArtifactVersion,
+  Workspace, UserPlugin, Assistant, AssistantMapped, ChatMessage, Dialog, DialogMessage,
+  MessageContent, WorkspaceMember, StoredItem, DialogMessageMapped, MessageContentMapped, DialogMapped,
+  StoredItemMapped, CustomProviderMapped, SubproviderMapped, UserDataMapped,
+  WorkspaceMemberRole,
+  WorkspaceMemberMapped
+}

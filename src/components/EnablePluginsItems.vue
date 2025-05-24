@@ -60,7 +60,8 @@
 import { syncRef } from 'src/composables/sync-ref'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { usePluginsStore } from 'src/stores/plugins'
-import { AssistantPlugin, Plugin, Assistant } from 'src/utils/types'
+import { AssistantPlugin, Plugin } from 'src/utils/types'
+import { AssistantMapped } from '@/services/supabase/types'
 import { toRaw } from 'vue'
 import AAvatar from './AAvatar.vue'
 import PluginTypeBadge from './PluginTypeBadge.vue'
@@ -72,7 +73,7 @@ const props = defineProps<{
 
 const store = useAssistantsStore()
 
-const assistant = syncRef<Assistant>(
+const assistant = syncRef<AssistantMapped>(
   () => store.assistants.find(a => a.id === props.assistantId),
   val => { store.put(toRaw(val)) },
   { valueDeep: true }

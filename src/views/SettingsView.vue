@@ -65,7 +65,7 @@
           caption
           p="x-4 y-2"
           text-on-sur-var
-          v-if="!perfs.provider && user?.isLoggedIn && LitellmBaseURL"
+          v-if="!perfs.provider && LitellmBaseURL"
         >
           {{ $t('settingsView.noProviderConfigured') }}
           <router-link
@@ -464,35 +464,6 @@
         >
           {{ $t('settingsView.dataHeader') }}
         </q-item-label>
-        <q-item>
-          <q-item-section avatar>
-            <q-icon name="sym_o_database" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>{{ $t('settingsView.userData') }}</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <div
-              flex
-              gap-2
-            >
-              <q-btn
-                :label="$t('settingsView.export')"
-                @click="exportData"
-                unelevated
-                bg-sec-c
-                text-on-sec-c
-              />
-              <q-btn
-                :label="$t('settingsView.import')"
-                unelevated
-                bg-sec-c
-                text-on-sec-c
-                @click="importData"
-              />
-            </div>
-          </q-item-section>
-        </q-item>
         <q-item
           clickable
           v-ripple
@@ -522,18 +493,14 @@ import CopyBtn from 'src/components/CopyBtn.vue'
 import AAvatar from 'src/components/AAvatar.vue'
 import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import ModelInputItems from 'src/components/ModelInputItems.vue'
-import { useObservable } from '@vueuse/rxjs'
-import { db } from 'src/utils/db'
 import ProviderInputItems from 'src/components/ProviderInputItems.vue'
 import { useLocateId } from 'src/composables/locate-id'
 import { pageFhStyle } from 'src/utils/functions'
-import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
+import { LitellmBaseURL } from 'src/utils/config'
 import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
-import { exportDB } from 'dexie-export-import'
-import ImportDataDialog from 'src/components/ImportDataDialog.vue'
 import { useI18n } from 'vue-i18n'
 import { localData } from 'src/utils/local-data'
-import { exportFile, PublicOrigin } from 'src/utils/platform-api'
+import { PublicOrigin } from 'src/utils/platform-api'
 import ModelsInput from 'src/components/ModelsInput.vue'
 import GetModelList from 'src/components/GetModelList.vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
@@ -577,27 +544,10 @@ const providerLink = computed(() => {
   const provider = encodeURIComponent(JSON.stringify(perfs.provider))
   return `${PublicOrigin}/set-provider?provider=${provider}`
 })
-const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
 
 const { getProvider } = useGetModel()
 const provider = computed(() => getProvider())
 
-function exportData() {
-  exportDB(db).then(blob => {
-    exportFile('aiaw_user_db.json', blob)
-  }).catch(err => {
-    console.error(err)
-    $q.notify({
-      message: t('settingsView.exportFailed'),
-      color: 'negative'
-    })
-  })
-}
-function importData() {
-  $q.dialog({
-    component: ImportDataDialog
-  })
-}
 const langOptions = [
   { label: t('settingsView.auto'), value: null },
   { label: 'English', value: 'en-US' },

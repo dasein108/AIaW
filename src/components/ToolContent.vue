@@ -53,23 +53,23 @@
       >
         <md-preview
           v-if="['markdown', 'textbox'].includes(component)"
-          :model-value="itemMap[content.result[index]].contentText"
+          :model-value="content.result[index].content_text"
           v-bind="mdPreviewProps"
           bg-sur-c-low
           rd-md
         />
         <md-preview
           v-else-if="['json', 'code'].includes(component)"
-          :model-value="wrapCode(itemMap[content.result[index]].contentText, component === 'json' ? 'json' : '')"
+          :model-value="wrapCode(content.result[index].content_text, component === 'json' ? 'json' : '')"
           v-bind="mdPreviewProps"
           bg-sur-c-low
           rd-md
         />
         <div v-else-if="component === 'image'">
-          <message-image :image="itemMap[content.result[index]]" />
+          <message-image :image="content.result[index]" />
         </div>
         <div v-else-if="component === 'audio'">
-          <message-audio :audio="itemMap[content.result[index]]" />
+          <message-audio :audio="content.result[index]" />
         </div>
       </template>
     </div>
@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import { usePluginsStore } from 'src/stores/plugins'
-import { AssistantToolContent } from 'src/utils/types'
+import { AssistantToolContent } from '@/common/types/dialogs'
 import { computed, ComputedRef, inject } from 'vue'
 import AAvatar from './AAvatar.vue'
 import { engine } from 'src/utils/template-engine'
@@ -88,6 +88,7 @@ import MessageImage from './MessageImage.vue'
 import MessageAudio from './MessageAudio.vue'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import { useI18n } from 'vue-i18n'
+import { StoredItem } from '@/services/supabase/types'
 
 const { t } = useI18n()
 
@@ -96,9 +97,9 @@ const props = defineProps<{
 }>()
 
 const pluginsStore = usePluginsStore()
-const plugin = computed(() => pluginsStore.plugins.find(p => p.id === props.content.pluginId))
+const plugin = computed(() => pluginsStore.plugins.find(p => p.id === props.content.plugin_id))
 const api = computed(() => plugin.value?.apis.find(a => a.name === props.content.name))
-const pluginData = computed(() => pluginsStore.data[props.content.pluginId])
+const pluginData = computed(() => pluginsStore.data[props.content.plugin_id])
 
 const contentTemplate =
 `### ${t('toolContent.callParams')}
@@ -125,14 +126,12 @@ const contentMd = computed(() => {
   const { content } = props
   return engine.parseAndRenderSync(contentTemplate, {
     content,
-    result: content.result?.map(id => {
-      const { name, type, mimeType, contentText } = itemMap.value[id]
-      return { name, type, mimeType, contentText }
+    result: content.result?.map(item => {
+      const { name = '', type, mime_type, content_text } = item as StoredItem
+      return { name, type, mime_type, content_text }
     })
   })
 })
-
-const itemMap = inject<ComputedRef>('itemMap')
 
 const mdPreviewProps = useMdPreviewProps()
 </script>

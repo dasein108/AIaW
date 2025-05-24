@@ -26,6 +26,7 @@ import PromptVarItem from './PromptVarItem.vue'
 const model = defineModel<PromptVar[]>()
 
 function add() {
+  const id = genId()
   model.value.push({
     id: genId(),
     name: null,

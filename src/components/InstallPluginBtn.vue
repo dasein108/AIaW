@@ -1,7 +1,7 @@
 <template>
   <q-btn
-    :label="store.availableIds.includes(id) ? $t('installPluginBtn.installed') : $t('installPluginBtn.install')"
-    :disable="store.availableIds.includes(id)"
+    :label="store.availableKeys.includes(id) ? $t('installPluginBtn.installed') : $t('installPluginBtn.install')"
+    :disable="store.availableKeys.includes(id)"
     :loading
     @click="installIt"
   />

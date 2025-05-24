@@ -56,7 +56,7 @@
           :key="artifact.id"
           clickable
           @click="route.query.artifactId !== artifact.id && router.push({ query: { openArtifact: artifact.id } })"
-          :class="{ 'route-active': artifact.open }"
+          :class="{ 'route-active': openedArtifacts.includes(artifact.id) }"
           item-rd
           min-h="32px"
           py-1
@@ -77,7 +77,7 @@
           </q-item-section>
           <q-item-section side>
             <q-btn
-              v-if="artifact.open"
+              v-if="openedArtifacts.includes(artifact.id)"
               flat
               dense
               round
@@ -96,8 +96,7 @@
 
 <script setup lang="ts">
 import { caselessIncludes, getFileExt, isTextFile } from 'src/utils/functions'
-import { Artifact, Workspace } from 'src/utils/types'
-import { computed, inject, ref, Ref } from 'vue'
+import { computed, inject, ref, Ref, toRef } from 'vue'
 import { useCloseArtifact } from 'src/composables/close-artifact'
 import ArtifactItemMenu from './ArtifactItemMenu.vue'
 import ArtifactItemIcon from './ArtifactItemIcon.vue'
@@ -108,20 +107,22 @@ import { dialogOptions } from 'src/utils/values'
 import { useI18n } from 'vue-i18n'
 import ATip from './ATip.vue'
 import { useRouter, useRoute } from 'vue-router'
+import { ArtifactMapped, Workspace } from '@/services/supabase/types'
+import { useUserDataStore } from 'src/stores/user-data'
 
-const artifacts: Ref<Artifact[]> = inject('artifacts')
+const artifacts: Ref<ArtifactMapped[]> = inject('artifacts')
 const filter = ref(null)
 const filteredArtifacts = computed(() => {
   return artifacts.value.filter(d => !filter.value || caselessIncludes(d.name, filter.value)).reverse()
 })
 
 const { closeArtifact } = useCloseArtifact()
-
+const userDataStore = useUserDataStore()
 const workspace = inject<Ref<Workspace>>('workspace')
-
+const openedArtifacts = computed(() => userDataStore.data.openedArtifacts[workspace.value.id] || [])
 const { t } = useI18n()
 const $q = useQuasar()
-const { createArtifact } = useCreateArtifact(workspace)
+const { createArtifact } = useCreateArtifact(toRef(workspace.value, 'id'))
 const router = useRouter()
 const route = useRoute()
 
@@ -155,8 +156,8 @@ async function artifactFromFiles(files: File[]) {
     await createArtifact({
       name: file.name,
       language: getFileExt(file.name),
-      versions: [{ date: new Date(file.lastModified), text }],
-      currIndex: 0,
+      versions: [{ date: new Date(file.lastModified).toISOString(), text }],
+      curr_index: 0,
       tmp: text
     })
   }

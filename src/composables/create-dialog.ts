@@ -1,41 +1,38 @@
-import { db } from 'src/utils/db'
-import { genId } from 'src/utils/functions'
-import { Dialog, Workspace } from 'src/utils/types'
+import { Dialog, Workspace } from '@/services/supabase/types'
 import { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useDialogsStore } from 'src/stores/dialogs'
+import { useUserDataStore } from 'src/stores/user-data'
 
-export function useCreateDialog(workspace: Ref<Workspace>) {
+export function useCreateDialog(workspaceId: string) {
   const router = useRouter()
+  const dialogsStore = useDialogsStore()
   const { t } = useI18n()
 
   async function createDialog(props: Partial<Dialog> = {}) {
-    const id = genId()
-    const messageId = genId()
-    await db.transaction('rw', db.dialogs, db.messages, () => {
-      db.dialogs.add({
-        id,
-        workspaceId: workspace.value.id,
-        name: t('createDialog.newDialog'),
-        msgTree: { $root: [messageId], [messageId]: [] },
-        msgRoute: [],
-        assistantId: workspace.value.defaultAssistantId,
-        inputVars: {},
-        ...props
-      })
-      db.messages.add({
-        id: messageId,
-        dialogId: id,
-        type: 'user',
-        contents: [{
-          type: 'user-message',
-          text: '',
-          items: []
-        }],
-        status: 'inputing'
-      })
+    const userStore = useUserDataStore()
+
+    const dialog = await dialogsStore.addDialog({
+      workspace_id: workspaceId,
+      name: t('createDialog.newDialog'),
+      msg_tree: { null: [] },
+      msg_route: [],
+      assistant_id: userStore.data.defaultAssistantIds[workspaceId] || null,
+      input_vars: {},
+      ...props
+    }, {
+      type: 'user',
+      message_contents: [{
+        type: 'user-message',
+        text: '',
+        name: '',
+        stored_items: []
+      }],
+      status: 'inputing'
     })
-    router.push(`/workspaces/${workspace.value.id}/dialogs/${id}`)
+
+    router.push(`/workspaces/${workspaceId}/dialogs/${dialog.id}`)
   }
   return { createDialog }
 }

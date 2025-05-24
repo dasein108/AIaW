@@ -59,7 +59,7 @@
     </template>
     <template #default>
       <workspace-list-item
-        v-for="child in children"
+        v-for="child in workspaces"
         :key="child.id"
         :item="child"
         :accept
@@ -117,29 +117,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useWorkspacesStore } from 'src/stores/workspaces'
-import { Folder, Workspace } from 'src/utils/types'
+import { computed, ref, watch, onMounted } from 'vue'
+import type { WorkspaceMapped } from '@/services/supabase/types'
 import AAvatar from './AAvatar.vue'
-import { useWorkspaceActions } from 'src/composables/workspace-actions'
+import { useWorkspaceActions } from 'src/composables/workspaces/workspace-actions'
 import MenuItem from './MenuItem.vue'
+import { useRootWorkspace } from '../composables/workspaces/useRootWorkspaces'
+
+// import { Folder, Workspace } from 'src/utils/types'
 
 const props = defineProps<{
-  item: Workspace | Folder
+  item: WorkspaceMapped
   accept: 'workspace' | 'folder'
 }>()
-const workspacesStore = useWorkspacesStore()
 
 const { addWorkspace, addFolder, renameItem, moveItem, deleteItem, changeAvatar } = useWorkspaceActions()
-
-const children = computed(() => {
-  return workspacesStore.workspaces.filter(item => item.parentId === props.item.id)
-})
+const workspaces = useRootWorkspace(props.item.id)
 
 const selected = defineModel<string>('selected')
 const expanded = ref(false)
 watch(selected, () => {
-  if (children.value.some(c => c.id === selected.value)) {
+  if (workspaces.value.some(c => c.id === selected.value)) {
     expanded.value = true
   }
 }, { immediate: true })

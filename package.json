@@ -16,8 +16,8 @@
     "docs:preview": "vitepress preview docs",
     "sync-version": "node scripts/sync-version.js",
     "test": "jest",
-    "supabase:types": "supabase gen types typescript --project-id \"$PROJECT_ID\" --schema public > ./src/services/supabase/database.types.ts",
-    "supabase:export": "supabase db dump --data-only=false --file ./scripts/supabase_schema.sql"
+    "supabase:export-types:patch": "node scripts/generate-types.js",
+    "supabase:export-sql": "supabase db dump --data-only=false --file ./scripts/supabase_schema.sql"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.13",
@@ -74,9 +74,11 @@
     "dexie-export-import": "^4.1.4",
     "eventsource": "^3.0.6",
     "expr-eval": "^2.0.2",
+    "file-type": "^20.5.0",
     "html-to-image": "^1.11.13",
     "json-schema": "^0.4.0",
     "liquidjs": "^10.16.7",
+    "lodash": "^4.17.21",
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-link-attributes": "^4.0.1",
     "md-editor-v3": "^5.4.5",
@@ -97,6 +99,7 @@
     "@quasar/app-vite": "^2.2.0",
     "@tauri-apps/cli": "^2.2.7",
     "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.16",
     "@types/node": "^20.16.1",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
