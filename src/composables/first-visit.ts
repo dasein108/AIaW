@@ -11,6 +11,7 @@ import { useAssistantsStore } from 'src/stores/assistants'
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import { defaultAvatar } from 'src/utils/functions'
 import { AssistantDefaultPrompt } from 'src/utils/templates'
+import AuthDialog from 'src/components/auth/AuthDialog.vue'
 
 export function useFirstVisit() {
   const $q = useQuasar()
@@ -54,32 +55,28 @@ export function useFirstVisit() {
       return
     }
     if (!localData.visited) {
-      const serviceAvailable = DexieDBURL && LitellmBaseURL
-      const message = serviceAvailable
-        ? t('firstVisit.messageWithLogin')
-        : t('firstVisit.messageWithoutLogin')
       $q.dialog({
         title: t('firstVisit.title'),
-        message,
+        message: t('firstVisit.messageWithLogin'),
         html: true,
-        cancel: {
-          label: t('firstVisit.cancel'),
-          noCaps: true,
-          flat: true
-        },
+
         persistent: true,
-        ok: serviceAvailable ? {
+        ok: {
           label: t('firstVisit.ok'),
           noCaps: true,
           flat: true
-        } : false,
+        },
         ...dialogOptions
       }).onCancel(() => {
         router.push('/settings')
         localData.visited = true
       }).onOk(() => {
-        db.cloud.login()
-        localData.visited = true
+        $q.dialog({
+          component: AuthDialog
+        }).onOk(() => {
+          localData.visited = true
+          router.push('/settings')
+        })
       })
     }
   })

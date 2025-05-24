@@ -1,7 +1,7 @@
 export default {
   firstVisit: {
     title: 'Welcome to AI as Workspace',
-    messageWithLogin: 'AIaW is a full-featured, lightweight, and extensible AI client.<br><br>To use the AI model, you need to <b>configure a service provider (API)</b> or <b>log in</b>.<br>After logging in, you can also use cross-device real-time cloud synchronization.',
+    messageWithLogin: 'Cyber AI (Testnet) is a full-featured, lightweight, and extensible AI client.<br><br>To use the AI model, you need to <b>log in</b>.<br>After logging in, you can also use cross-device real-time synchronization.',
     messageWithoutLogin: 'AIaW is a full-featured, lightweight, and extensible AI client.<br><br>To use the AI model, you need to <b>configure a service provider (API)</b>.',
     cancel: 'Configure Provider',
     ok: 'Log In'
@@ -15,15 +15,6 @@ export default {
   },
   order: {
     failure: 'Order failed'
-  },
-  login: {
-    register: 'Log In / Register',
-    next: 'Next',
-    otp: 'OTP Code',
-    enterOtp: 'Please enter the OTP code from the verification email',
-    logout: 'Log Out',
-    confirmLogout: 'Are you sure you want to log out?',
-    loggedIn: 'Logged in: {email}'
   },
   installPlugin: {
     fetchFailed: 'Failed to get plugin configuration: {message}',

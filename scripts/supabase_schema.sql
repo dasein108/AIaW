@@ -703,8 +703,7 @@ ALTER TABLE "public"."user_assistants" OWNER TO "postgres";
 CREATE TABLE IF NOT EXISTS "public"."user_data" (
     "key" "text" NOT NULL,
     "value" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "user_id" "uuid",
-    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
     "created_at" timestamp without time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp without time zone DEFAULT "now"()
 );
@@ -827,17 +826,7 @@ ALTER TABLE ONLY "public"."user_assistants"
 
 
 ALTER TABLE ONLY "public"."user_data"
-    ADD CONSTRAINT "user_data_key_key" UNIQUE ("key");
-
-
-
-ALTER TABLE ONLY "public"."user_data"
-    ADD CONSTRAINT "user_data_pkey" PRIMARY KEY ("id");
-
-
-
-ALTER TABLE ONLY "public"."user_plugins"
-    ADD CONSTRAINT "user_plugins_key_key" UNIQUE ("key");
+    ADD CONSTRAINT "user_data_pkey" PRIMARY KEY ("key", "user_id");
 
 
 

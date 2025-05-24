@@ -540,26 +540,23 @@ export type Database = {
       user_data: {
         Row: {
           created_at: string
-          id: string
           key: string
           updated_at: string | null
-          user_id: string | null
+          user_id: string
           value: Json
         }
         Insert: {
           created_at?: string
-          id?: string
           key: string
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
           value?: Json
         }
         Update: {
           created_at?: string
-          id?: string
           key?: string
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
           value?: Json
         }
         Relationships: []

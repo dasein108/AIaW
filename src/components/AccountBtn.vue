@@ -12,7 +12,6 @@ import { useQuasar } from 'quasar'
 import { useRouter, useRoute } from 'vue-router'
 import AuthDialog from './auth/AuthDialog.vue'
 import { useUserStore } from 'src/stores/user'
-import { watch } from 'vue'
 const $q = useQuasar()
 
 const router = useRouter()

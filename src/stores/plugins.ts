@@ -37,7 +37,11 @@ export const usePluginsStore = defineStore('plugins', () => {
       console.error('❌ Failed to put plugin:', error.message)
       return
     }
-    installedPlugins.value = installedPlugins.value.map(i => i.id === plugin.id ? data : i)
+    if (installedPlugins.value.find(i => i.id === plugin.id)) {
+      installedPlugins.value = installedPlugins.value.map(i => i.id === plugin.id ? data : i)
+    } else {
+      installedPlugins.value.push(data)
+    }
     return data.id
   }
 

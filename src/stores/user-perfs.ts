@@ -143,14 +143,14 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
   }
 
   const addPerfs = async (value:Perfs) => {
-    const { data, error } = await supabase.from('user_data').insert({ key: USER_PERFS_KEY, value }).select().single()
+    const { data, error } = await supabase.from('user_data').insert({ user_id: userStore.currentUserId, key: USER_PERFS_KEY, value }).select().single()
     if (data) {
       Object.assign(perfs, data.value as Perfs)
     }
   }
 
   const updatePerfs = async (value: Perfs) => {
-    const { data, error } = await supabase.from('user_data').update({ key: USER_PERFS_KEY, value })
+    const { data, error } = await supabase.from('user_data').upsert({ key: USER_PERFS_KEY, value })
       .eq('key', USER_PERFS_KEY).eq('user_id', userStore.currentUserId).select().single()
 
     if (data) {
