@@ -1,6 +1,7 @@
+import { IsTauri } from 'src/utils/platform-api'
 import { Store } from '@tauri-apps/plugin-store'
 
-const store = await Store.load('settings.json')
+const store = IsTauri ? await Store.load('settings.json') : null
 
 export async function saveMnemonic(mnemonic: string) {
   await store.set('mnemonic', mnemonic)
