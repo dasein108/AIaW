@@ -23,7 +23,6 @@ import ShortcutKeys from 'src/views/ShortcutKeys.vue'
 import { i18n } from 'src/boot/i18n'
 import SettingsView from 'src/views/SettingsView.vue'
 import CustomProvider from 'src/views/CustomProvider.vue'
-import AgentAuthorizationPage from 'src/pages/AgentAuthorizationPage.vue'
 
 const { t } = i18n.global
 
@@ -81,7 +80,6 @@ const routes: RouteRecordRaw[] = [
         ]
       },
       { path: '/set-provider', component: SetProvider },
-      { path: '/agent-authorization', component: AgentAuthorizationPage, meta: { title: 'Авторизация агентов' } },
       ...(DexieDBURL ? [
         { path: '/account', component: AccountPage, meta: { title: t('routes.account'), requiresAuth: true } }
       ] : []),

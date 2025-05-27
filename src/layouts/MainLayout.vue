@@ -78,19 +78,6 @@
             {{ t('mainLayout.settings') }}
           </q-item-section>
         </q-item>
-        <q-item
-          clickable
-          to="/agent-authorization"
-          active-class="route-active"
-          item-rd
-        >
-          <q-item-section avatar>
-            <q-icon name="sym_o_key" />
-          </q-item-section>
-          <q-item-section>
-            {{ t('mainLayout.agentAuthorization') }}
-          </q-item-section>
-        </q-item>
         <q-separator spaced />
         <div
           px-2

@@ -128,20 +128,11 @@ const authzPlugin: Plugin = {
           const [granteeAccount] = await walletService.getAccounts()
 
           // Create a new client instance for this transaction
-          const client = await SigningStargateClient.connectWithSigner(
-            config.NODE_RPC_URL,
-            await walletService.getSigner(),
-            {
-              gasPrice: {
-                amount: Decimal.fromUserInput(config.GAS_PRICE_AMOUNT, 6),
-                denom: config.FEE_DENOM
-              }
-            }
-          )
+          const granteeClient = await walletService.getGranteeClient()
 
           // Convert amount to proper format
           // const amountDecimal = Decimal.fromUserInput(sanitizedAmount, 6)
-          const amountDecimal = Decimal.fromUserInput(sanitizedAmount, 1)
+          const amountDecimal = Decimal.fromUserInput(sanitizedAmount, 0)
           const amountString = amountDecimal.atomics.toString()
 
           console.log('Transaction details:', {
@@ -168,7 +159,7 @@ const authzPlugin: Plugin = {
             ]
           }
 
-          const tx = await client.signAndBroadcast(granteeAccount.address, [
+          const tx = await granteeClient.signAndBroadcast(granteeAccount.address, [
             {
               typeUrl: '/cosmos.authz.v1beta1.MsgExec',
               value: execMsg

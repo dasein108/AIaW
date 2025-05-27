@@ -25,6 +25,7 @@
             <cosmos-wallet v-else />
           </q-item-section>
         </q-item>
+        <grantee-wallet />
         <q-item-label
           header
           id="default-provider"
@@ -545,6 +546,9 @@ import { exportFile, IsTauri, IsWeb } from 'src/utils/platform-api'
 import { dialogOptions, mdCodeThemes, mdPreviewThemes } from 'src/utils/values'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import PinModal from '../components/PinModal.vue'
+import { useAuthStore } from '../stores/auth'
+import GranteeWallet from '../components/GranteeWallet.vue'
 
 defineEmits(['toggle-drawer'])
 
@@ -625,4 +629,12 @@ function sortModels() {
 }
 
 useLocateId(ref(true))
+
+const showPinModal = ref(false)
+const authStore = useAuthStore()
+const walletInfo = ref(authStore.walletInfo)
+const handlePinSubmit = async (pin: string) => {
+  walletInfo.value = await authStore.createGranteeWallet(pin)
+  showPinModal.value = false
+}
 </script>

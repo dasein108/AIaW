@@ -16,7 +16,7 @@ import { onMounted, provide, ref, inject } from 'vue'
 import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { createCosmosSigner } from './services/cosmos/CosmosWallet'
-import { IsTauri } from './utils/platform-api'
+import { IsTauri, IsWeb } from './utils/platform-api'
 import { WalletService } from './services/authz/wallet-service'
 // import { createDbService } from './services/database/Db'
 
@@ -79,18 +79,35 @@ router.beforeEach(async (to, from, next) => {
 
 const handlePinSubmit = async (pin: string) => {
   try {
-    if (!cosmosWallet) {
-      throw new Error('Cosmos wallet not initialized')
+    if (IsTauri) {
+      if (!cosmosWallet) {
+        throw new Error('Cosmos wallet not initialized')
+      }
+
+      const encryptedMnemonic = await getMnemonic()
+      if (encryptedMnemonic) {
+        const mnemonic = await EncryptionService.decryptMnemonic(encryptedMnemonic, pin)
+        await cosmosWallet.connectWithMnemonic(mnemonic, pin)
+
+        // Initialize WalletService after successful PIN verification
+        const authStore = useAuthStore()
+        await authStore.initializeFromStorage(cosmosWallet, pin)
+
+        showPinModal.value = false
+      }
     }
 
-    const encryptedMnemonic = await getMnemonic()
-    if (encryptedMnemonic) {
-      const mnemonic = await EncryptionService.decryptMnemonic(encryptedMnemonic, pin)
-      await cosmosWallet.connectWithMnemonic(mnemonic, pin)
+    if (IsWeb) {
+      // if (!keplerWallet?.state.value.isConnected) {
+      //   throw new Error('Kepler wallet not initialized')
+      // }
 
-      // Initialize WalletService after successful PIN verification
       const authStore = useAuthStore()
-      await authStore.initializeFromStorage(cosmosWallet, pin)
+      await authStore.connectWithExternalSigner(keplerWallet.getOfflineSigner())
+      const encryptedMnemonic = authStore.walletInfo?.mnemonic
+      if (encryptedMnemonic) {
+        await authStore.connectGranteeWallet(encryptedMnemonic, pin)
+      }
 
       showPinModal.value = false
     }
@@ -109,6 +126,7 @@ onMounted(async () => {
   // Check for encrypted mnemonic on startup
   await checkEncryptedMnemonic()
   const authStore = useAuthStore()
+  authStore.connectWithExternalSigner(keplerWallet.getOfflineSigner())
 
   console.log('[MOUNT] WALLET', cosmosWallet)
   const walletService = WalletService.getInstance()

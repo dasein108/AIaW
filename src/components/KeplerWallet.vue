@@ -15,9 +15,9 @@
       v-else
       class="connected"
     >
-      <div class="address">
+      <span class="address">
         {{ walletState.address }}
-      </div>
+      </span>
       <q-btn
         color="grey"
         outline
@@ -31,6 +31,7 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
 import { KeplerWallet } from '@/services/kepler/KeplerWallet'
+import { useAuthStore } from 'src/stores/auth'
 
 const hasKeplr = computed(() => typeof window !== 'undefined' && window.keplr)
 
@@ -41,6 +42,8 @@ const walletState = computed(() => wallet.state.value)
 const connectWallet = async () => {
   try {
     await wallet.connect()
+    const authStore = useAuthStore()
+    authStore.connectWithExternalSigner(wallet.getOfflineSigner())
   } catch (error) {
     console.error('Failed to connect wallet:', error)
     // You might want to show an error message to the user here
@@ -50,6 +53,8 @@ const connectWallet = async () => {
 const disconnectWallet = async () => {
   try {
     await wallet.disconnect()
+    const authStore = useAuthStore()
+    authStore.disconnect()
   } catch (error) {
     console.error('Failed to disconnect wallet:', error)
   }

@@ -1,13 +1,11 @@
+import { Decimal } from '@cosmjs/math'
+import { DirectSecp256k1HdWallet, OfflineDirectSigner, OfflineSigner } from '@cosmjs/proto-signing'
 import { SigningStargateClient, coins } from '@cosmjs/stargate'
-import { DirectSecp256k1HdWallet, OfflineSigner } from '@cosmjs/proto-signing'
+import { GenericAuthorization } from 'cosmjs-types/cosmos/authz/v1beta1/authz'
 import { MsgGrant, MsgRevoke } from 'cosmjs-types/cosmos/authz/v1beta1/tx'
 import { Any } from 'cosmjs-types/google/protobuf/any'
-import { Timestamp } from 'cosmjs-types/google/protobuf/timestamp'
-import { Decimal } from '@cosmjs/math'
-import { config } from '../constants'
-import { SendAuthorization } from 'cosmjs-types/cosmos/bank/v1beta1/authz'
-import { StakeAuthorization } from 'cosmjs-types/cosmos/staking/v1beta1/authz'
 import { EncryptionService } from 'src/services/encryption/EncryptionService'
+import { config } from '../constants'
 
 export interface WalletInfo {
   address: string;
@@ -17,11 +15,8 @@ export interface WalletInfo {
 export class WalletService {
   // eslint-disable-next-line no-use-before-define
   private static instance: WalletService
-  private granteeClient: SigningStargateClient | null = null
-  private granterClient: SigningStargateClient | null = null
-  private granterWallet: DirectSecp256k1HdWallet | null = null
-  private granteeWallet: DirectSecp256k1HdWallet | null = null
-  private isInitialized: boolean = false
+  private granterWallet: OfflineDirectSigner | null = null
+  private granteeWallet: OfflineDirectSigner | null = null
 
   static getInstance(): WalletService {
     if (!WalletService.instance) {
@@ -31,7 +26,7 @@ export class WalletService {
   }
 
   isConnected(): boolean {
-    return this.granteeClient !== null && this.granterWallet !== null && this.isInitialized
+    return this.isGranterConnected() && this.isGranteeConnected()
   }
 
   async getAccounts() {
@@ -66,76 +61,24 @@ export class WalletService {
       this.granteeWallet = await DirectSecp256k1HdWallet.fromMnemonic(decryptedMnemonic, {
         prefix: 'cyber'
       })
-
-      this.granteeClient = await SigningStargateClient.connectWithSigner(
-        config.NODE_RPC_URL,
-        this.granteeWallet,
-        {
-          gasPrice: {
-            amount: Decimal.fromUserInput(config.GAS_PRICE_AMOUNT, 6),
-            denom: config.FEE_DENOM
-          }
-        }
-      )
-
-      this.isInitialized = true
     } catch (error) {
       console.error('Error connecting wallet:', error)
-      this.granteeClient = null
       this.granterWallet = null
-      this.isInitialized = false
+
       throw new Error(`Failed to connect wallet: ${error.message}`)
     }
   }
 
   async connectWithExternalSigner(signer: OfflineSigner): Promise<void> {
+    this.granterWallet = signer as OfflineDirectSigner
     const accounts = await signer.getAccounts()
     if (accounts.length === 0) throw new Error('No accounts in external signer')
-
-    // this.wallet = null // сброс локального кошелька
-    this.granterClient = await SigningStargateClient.connectWithSigner(config.NODE_RPC_URL, signer, {
-      gasPrice: {
-        amount: Decimal.fromUserInput(config.GAS_PRICE_AMOUNT, 6),
-        denom: config.FEE_DENOM
-      }
-    })
-
-    console.log('Connected with external signer:', accounts[0].address)
-    this.isInitialized = true
-  }
-
-  private getAuthorizationType(msgType: string): { typeUrl: string; value: Uint8Array } {
-    switch (msgType) {
-      case '/cosmos.bank.v1beta1.MsgSend':
-        return {
-          typeUrl: '/cosmos.bank.v1beta1.SendAuthorization',
-          value: SendAuthorization.encode({
-            spendLimit: [],
-            allowList: []
-          }).finish()
-        }
-      case '/cosmos.staking.v1beta1.MsgDelegate':
-      case '/cosmos.staking.v1beta1.MsgUndelegate':
-      case '/cosmos.staking.v1beta1.MsgWithdrawDelegatorReward':
-        return {
-          typeUrl: '/cosmos.staking.v1beta1.StakeAuthorization',
-          value: StakeAuthorization.encode({
-            allowList: {
-              address: []
-            },
-            maxTokens: undefined,
-            authorizationType: 1 // AUTHORIZATION_TYPE_DELEGATE
-          }).finish()
-        }
-      default:
-        throw new Error(`Unsupported message type: ${msgType}`)
-    }
   }
 
   async grantAuthorization(
     granterAddress: string,
     granteeAddress: string,
-    msgType: string,
+    msgType: string = '/cosmwasm.wasm.v1.MsgExecuteContract',
     expiration?: Date
   ): Promise<void> {
     if (!this.isConnected()) {
@@ -150,8 +93,9 @@ export class WalletService {
         msgType
       })
 
-      const sendAuth = SendAuthorization.fromPartial({
-        spendLimit: coins('10000', config.FEE_DENOM)
+      // GenericAuthorization для любого типа
+      const genericAuth = GenericAuthorization.fromPartial({
+        msg: msgType
       })
 
       const grantMsg: MsgGrant = {
@@ -159,8 +103,8 @@ export class WalletService {
         grantee: granteeAddress,
         grant: {
           authorization: Any.fromPartial({
-            typeUrl: '/cosmos.bank.v1beta1.SendAuthorization',
-            value: SendAuthorization.encode(sendAuth).finish()
+            typeUrl: '/cosmos.authz.v1beta1.GenericAuthorization',
+            value: GenericAuthorization.encode(genericAuth).finish()
           }),
           expiration: expiration ? {
             seconds: BigInt(Math.floor(expiration.getTime() / 1000)),
@@ -169,7 +113,15 @@ export class WalletService {
         }
       }
 
-      const result = await this.granterClient!.signAndBroadcast(granterAddress, [{
+      if (!this.granterWallet) throw new Error('Granter wallet not connected')
+      const client = await SigningStargateClient.connectWithSigner(config.NODE_RPC_URL, this.granterWallet, {
+        gasPrice: {
+          amount: Decimal.fromUserInput(config.GAS_PRICE_AMOUNT, 6),
+          denom: config.FEE_DENOM
+        }
+      })
+
+      const result = await client.signAndBroadcast(granterAddress, [{
         typeUrl: '/cosmos.authz.v1beta1.MsgGrant',
         value: grantMsg
       }], {
@@ -191,7 +143,7 @@ export class WalletService {
   async revokeAuthorization(
     granterAddress: string,
     granteeAddress: string,
-    msgType: string
+    msgType: string = '/cosmwasm.wasm.v1.MsgExecuteContract'
   ): Promise<void> {
     if (!this.isConnected()) {
       throw new Error('Wallet not connected')
@@ -210,7 +162,15 @@ export class WalletService {
         msgTypeUrl: msgType
       })
 
-      const result = await this.granterClient!.signAndBroadcast(granterAddress, [{
+      if (!this.granterWallet) throw new Error('Granter wallet not connected')
+      const client = await SigningStargateClient.connectWithSigner(config.NODE_RPC_URL, this.granterWallet, {
+        gasPrice: {
+          amount: Decimal.fromUserInput(config.GAS_PRICE_AMOUNT, 6),
+          denom: config.FEE_DENOM
+        }
+      })
+
+      const result = await client.signAndBroadcast(granterAddress, [{
         typeUrl: '/cosmos.authz.v1beta1.MsgRevoke',
         value: msg
       }], {
@@ -229,10 +189,79 @@ export class WalletService {
     }
   }
 
-  async getSigner(): Promise<OfflineSigner> {
+  async sendTokensToGrantee(
+    granteeAddress: string,
+    amountDenom: string = config.FEE_DENOM,
+    amountValue: string = '1'
+  ): Promise<void> {
     if (!this.granterWallet) {
-      throw new Error('Wallet not connected')
+      throw new Error('Granter wallet not connected. Cannot send tokens.')
     }
-    return this.granterWallet
+
+    try {
+      const [granterAccount] = await this.granterWallet.getAccounts()
+      const granterAddress = granterAccount.address
+
+      console.log(`Sending ${amountValue}${amountDenom} from ${granterAddress} to ${granteeAddress}`)
+
+      const client = await this.getClient(this.granterWallet)
+      const amount = coins(amountValue, amountDenom)
+
+      const result = await client.sendTokens(granterAddress, granteeAddress, amount, 'auto')
+
+      if (result.code !== 0) {
+        throw new Error(`Failed to send tokens to grantee: ${result.rawLog}`)
+      }
+      console.log('Tokens sent to grantee successfully:', result)
+    } catch (error) {
+      console.error('Error sending tokens to grantee:', error)
+      throw new Error(`Failed to send tokens to grantee: ${error.message}`)
+    }
+  }
+
+  isGranterConnected(): boolean {
+    return this.granterWallet !== null
+  }
+
+  isGranteeConnected(): boolean {
+    return this.granteeWallet !== null
+  }
+
+  async getGranterClient(): Promise<SigningStargateClient> {
+    if (!this.granterWallet) {
+      throw new Error('Granter wallet not connected')
+    }
+    return this.getClient(this.granterWallet)
+  }
+
+  async getGranteeClient(): Promise<SigningStargateClient> {
+    if (!this.granteeWallet) {
+      throw new Error('Grantee wallet not connected')
+    }
+    return this.getClient(this.granteeWallet)
+  }
+
+  disconnectGranter() {
+    this.granterWallet = null
+  }
+
+  disconnectGrantee() {
+    this.granteeWallet = null
+  }
+
+  private async getClient(wallet: OfflineDirectSigner): Promise<SigningStargateClient> {
+    return SigningStargateClient.connectWithSigner(config.NODE_RPC_URL, wallet, {
+      gasPrice: {
+        amount: Decimal.fromUserInput(config.GAS_PRICE_AMOUNT, 6),
+        denom: config.FEE_DENOM
+      }
+    })
   }
 }
+declare global {
+  interface Window {
+    WalletService: typeof WalletService;
+  }
+}
+
+window.WalletService = WalletService
