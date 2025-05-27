@@ -7,6 +7,7 @@ import { Decimal } from '@cosmjs/math'
 import { config } from '../constants'
 import { SendAuthorization } from 'cosmjs-types/cosmos/bank/v1beta1/authz'
 import { StakeAuthorization } from 'cosmjs-types/cosmos/staking/v1beta1/authz'
+import { EncryptionService } from 'src/services/encryption/EncryptionService'
 
 export interface WalletInfo {
   address: string;
@@ -18,7 +19,8 @@ export class WalletService {
   private static instance: WalletService
   private granteeClient: SigningStargateClient | null = null
   private granterClient: SigningStargateClient | null = null
-  private wallet: DirectSecp256k1HdWallet | null = null
+  private granterWallet: DirectSecp256k1HdWallet | null = null
+  private granteeWallet: DirectSecp256k1HdWallet | null = null
   private isInitialized: boolean = false
 
   static getInstance(): WalletService {
@@ -29,49 +31,28 @@ export class WalletService {
   }
 
   isConnected(): boolean {
-    return this.granteeClient !== null && this.wallet !== null && this.isInitialized
-  }
-
-  async initializeFromStorage(): Promise<void> {
-    if (this.isInitialized) {
-      return
-    }
-
-    try {
-      const storedWalletInfo = localStorage.getItem('walletInfo')
-      if (!storedWalletInfo) {
-        console.log('No wallet info found in storage')
-        return
-      }
-
-      const walletInfo: WalletInfo = JSON.parse(storedWalletInfo)
-      await this.connectWallet(walletInfo.mnemonic)
-      this.isInitialized = true
-      console.log('Wallet initialized from storage:', walletInfo.address)
-    } catch (error) {
-      console.error('Failed to initialize wallet from storage:', error)
-      this.isInitialized = false
-      throw new Error(`Failed to initialize wallet: ${error.message}`)
-    }
+    return this.granteeClient !== null && this.granterWallet !== null && this.isInitialized
   }
 
   async getAccounts() {
-    if (!this.wallet) {
+    if (!this.granterWallet) {
       throw new Error('Wallet not connected')
     }
-    return this.wallet.getAccounts()
+    return this.granterWallet.getAccounts()
   }
 
-  async createWallet(): Promise<WalletInfo> {
+  async createGranteeWallet(pin: string): Promise<WalletInfo> {
     try {
-      const wallet = await DirectSecp256k1HdWallet.generate(24, {
+      const granteeWallet = await DirectSecp256k1HdWallet.generate(24, {
         prefix: 'cyber'
       })
-      const [firstAccount] = await wallet.getAccounts()
-      console.log('Created wallet:', firstAccount.address)
+      const [firstAccount] = await granteeWallet.getAccounts()
+      const encryptedMnemonic = await EncryptionService.encryptMnemonic(granteeWallet.mnemonic, pin)
+      this.granteeWallet = granteeWallet
+
       return {
         address: firstAccount.address,
-        mnemonic: wallet.mnemonic
+        mnemonic: encryptedMnemonic
       }
     } catch (error) {
       console.error('Error creating wallet:', error)
@@ -79,17 +60,16 @@ export class WalletService {
     }
   }
 
-  async connectWallet(mnemonic: string): Promise<void> {
+  async connectGranteeWallet(encryptedMnemonic: string, pin: string): Promise<void> {
     try {
-      this.wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
+      const decryptedMnemonic = await EncryptionService.decryptMnemonic(encryptedMnemonic, pin)
+      this.granteeWallet = await DirectSecp256k1HdWallet.fromMnemonic(decryptedMnemonic, {
         prefix: 'cyber'
       })
-      const [firstAccount] = await this.wallet.getAccounts()
-      console.log('Connecting wallet:', firstAccount.address)
 
       this.granteeClient = await SigningStargateClient.connectWithSigner(
         config.NODE_RPC_URL,
-        this.wallet,
+        this.granteeWallet,
         {
           gasPrice: {
             amount: Decimal.fromUserInput(config.GAS_PRICE_AMOUNT, 6),
@@ -97,12 +77,12 @@ export class WalletService {
           }
         }
       )
-      console.log('Connected to RPC:', config.NODE_RPC_URL)
+
       this.isInitialized = true
     } catch (error) {
       console.error('Error connecting wallet:', error)
       this.granteeClient = null
-      this.wallet = null
+      this.granterWallet = null
       this.isInitialized = false
       throw new Error(`Failed to connect wallet: ${error.message}`)
     }
@@ -250,9 +230,9 @@ export class WalletService {
   }
 
   async getSigner(): Promise<OfflineSigner> {
-    if (!this.wallet) {
+    if (!this.granterWallet) {
       throw new Error('Wallet not connected')
     }
-    return this.wallet
+    return this.granterWallet
   }
 }

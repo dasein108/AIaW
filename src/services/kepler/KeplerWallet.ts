@@ -222,13 +222,21 @@ export function createKeplerWallet() {
     throw new Error(`Transaction confirmation timed out after ${timeoutMs}ms`)
   }
 
+  const getOfflineSigner = () => {
+    if (!window.keplr) {
+      throw new Error('Keplr extension not installed')
+    }
+    return window.keplr.getOfflineSigner(config.CHAIN_ID)
+  }
+
   return {
     state,
     connect,
     disconnect,
     signTransaction,
     executeTransaction,
-    getTx: waitForTransaction
+    getTx: waitForTransaction,
+    getOfflineSigner
   }
 }
 

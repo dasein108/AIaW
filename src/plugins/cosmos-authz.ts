@@ -4,7 +4,7 @@ import { GasPrice, SigningStargateClient } from '@cosmjs/stargate'
 import { MsgExec } from 'cosmjs-types/cosmos/authz/v1beta1/tx'
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx'
 import { useAuthStore } from 'src/stores/auth'
-import { WalletService } from 'src/services/authz/wallet'
+import { WalletService } from 'src/services/authz/wallet-service'
 import { config } from 'src/services/constants'
 import { Decimal } from '@cosmjs/math'
 

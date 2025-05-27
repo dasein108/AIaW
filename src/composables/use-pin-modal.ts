@@ -6,9 +6,7 @@ export function usePinModal() {
   const showPinModal = ref(false)
 
   const checkEncryptedMnemonic = async () => {
-    if (!IsTauri) return false
-
-    const encryptedMnemonic = await getMnemonic()
+    const encryptedMnemonic = IsTauri ? await getMnemonic() : null
     console.log('[CHECK] ENCRYPTED MNEMONIC', encryptedMnemonic)
     if (encryptedMnemonic) {
       showPinModal.value = true

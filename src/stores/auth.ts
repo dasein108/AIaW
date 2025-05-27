@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
-import { WalletService, WalletInfo } from 'src/services/authz/wallet'
+import { WalletService, WalletInfo } from 'src/services/authz/wallet-service'
 import { OfflineSigner } from '@cosmjs/proto-signing'
-import { CosmosWallet } from '@/services/cosmos/CosmosWallet'
+import { CosmosWallet } from 'src/services/cosmos/CosmosWallet'
+import { KeplerWallet } from 'src/services/kepler/KeplerWallet'
 
 interface AuthState {
   walletInfo: WalletInfo | null;
@@ -16,18 +17,16 @@ export const useAuthStore = defineStore({
   }),
 
   actions: {
-    async createWallet() {
+    async createGranteeWallet(pin: string) {
       const walletService = WalletService.getInstance()
-      this.walletInfo = await walletService.createWallet()
-      console.log('Wallet created:', this.walletInfo)
-      await this.connectWallet(this.walletInfo.mnemonic)
+      this.walletInfo = await walletService.createGranteeWallet(pin)
+
       return this.walletInfo
     },
 
-    async connectWallet(mnemonic: string) {
-      console.log('Connecting wallet with mnemonic:', mnemonic)
+    async connectGranteeWallet(encryptedMnemonic: string, pin: string) {
       const walletService = WalletService.getInstance()
-      await walletService.connectWallet(mnemonic)
+      await walletService.connectGranteeWallet(encryptedMnemonic, pin)
       this.isConnected = walletService.isConnected()
       console.log('Wallet connected, state:', { isConnected: this.isConnected, walletInfo: this.walletInfo })
     },
@@ -40,32 +39,14 @@ export const useAuthStore = defineStore({
       console.log('External signer connected, state:', { isConnected: this.isConnected })
     },
 
-    async restoreConnection() {
-      console.log('Attempting to restore connection:', {
-        hasWalletInfo: !!this.walletInfo,
-        isConnected: this.isConnected,
-        walletInfo: this.walletInfo
-      })
-
-      if (this.walletInfo?.mnemonic) {
-        try {
-          await this.connectWallet(this.walletInfo.mnemonic)
-          console.log('Connection restored successfully')
-        } catch (error) {
-          console.error('Failed to restore wallet connection:', error)
-          this.disconnect()
-        }
-      }
-    },
-
-    async initializeFromStorage(granterWallet: CosmosWallet) {
+    async initializeFromStorage(granterWallet: CosmosWallet | KeplerWallet, pin: string) {
       if (!this.walletInfo?.mnemonic) {
         console.log('[External] Wallet not found')
         return
       }
 
       const walletService = WalletService.getInstance()
-      await this.connectWallet(this.walletInfo.mnemonic)
+      await this.connectGranteeWallet(this.walletInfo.mnemonic, pin)
       await walletService.connectWithExternalSigner(granterWallet.getOfflineSigner())
       this.isConnected = true
 

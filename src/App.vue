@@ -17,7 +17,7 @@ import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { createCosmosSigner } from './services/cosmos/CosmosWallet'
 import { IsTauri } from './utils/platform-api'
-import { WalletService } from './services/authz/wallet'
+import { WalletService } from './services/authz/wallet-service'
 // import { createDbService } from './services/database/Db'
 
 import { createUserProvider } from './services/supabase/userProvider'
@@ -90,7 +90,7 @@ const handlePinSubmit = async (pin: string) => {
 
       // Initialize WalletService after successful PIN verification
       const authStore = useAuthStore()
-      await authStore.initializeFromStorage(cosmosWallet)
+      await authStore.initializeFromStorage(cosmosWallet, pin)
 
       showPinModal.value = false
     }
@@ -109,7 +109,7 @@ onMounted(async () => {
   // Check for encrypted mnemonic on startup
   await checkEncryptedMnemonic()
   const authStore = useAuthStore()
-  // await authStore.restoreConnection()
+
   console.log('[MOUNT] WALLET', cosmosWallet)
   const walletService = WalletService.getInstance()
   console.log('[MOUNT] WALLET SERVICE', walletService)
