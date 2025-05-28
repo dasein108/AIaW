@@ -9,6 +9,7 @@ import { AssistantMapped, Assistant } from '@/services/supabase/types'
 import { ref } from 'vue'
 import { AssistantPlugins, Avatar, Model, ModelSettings, PromptVar, Provider } from '@/utils/types'
 import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
+import { throttle } from 'lodash'
 
 function mapWorkspaceTypes(item: Assistant): AssistantMapped {
   const { avatar, prompt_vars, prompt_role, provider, model, model_settings, plugins, ...rest } = item
@@ -80,9 +81,13 @@ export const useAssistantsStore = defineStore('assistants', () => {
     // return await db.assistants.update(id, changes)
   }
 
+  const throttledUpdate = throttle(async(assistant: Assistant) => {
+    await update(assistant.id, assistant)
+  }, 2000)
+
   async function put(assistant: Assistant) {
     if (assistant.id) {
-      return update(assistant.id, assistant)
+      return throttledUpdate(assistant)
     }
     return add(assistant)
   }

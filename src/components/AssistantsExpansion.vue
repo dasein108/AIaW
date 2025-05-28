@@ -108,6 +108,7 @@ import MenuItem from './MenuItem.vue'
 import { dialogOptions } from 'src/utils/values'
 import { useI18n } from 'vue-i18n'
 import { defaultAvatar } from 'src/utils/functions'
+import { useUserPerfsStore } from 'src/stores/user-perfs'
 
 const { t } = useI18n()
 
@@ -118,7 +119,7 @@ const props = defineProps<{
 }>()
 
 const assistantsStore = useAssistantsStore()
-
+const userPerfsStore = useUserPerfsStore()
 const assistants = computed(() => assistantsStore.assistants.filter(a => a.workspace_id === props.workspaceId))
 
 function getLink(id) {
@@ -129,7 +130,9 @@ async function addItem() {
   const assistant = await assistantsStore.add({
     name: 'New Assistant',
     workspace_id: props.workspaceId,
-    avatar: defaultAvatar("AI")
+    avatar: defaultAvatar("AI"),
+    provider: userPerfsStore.perfs.provider,
+    model: userPerfsStore.perfs.model,
   })
   console.log('---addItem', assistant)
   router.push(getLink(assistant.id))

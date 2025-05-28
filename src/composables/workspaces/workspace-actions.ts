@@ -9,11 +9,13 @@ import { useAssistantsStore } from 'src/stores/assistants'
 import { useI18n } from 'vue-i18n'
 import { useUserDataStore } from 'src/stores/user-data'
 import { useCheckLogin } from '../auth/useCheckLogin'
+import { useUserPerfsStore } from 'src/stores/user-perfs'
 
 export function useWorkspaceActions() {
   const workspacesStore = useWorkspacesStore()
   const assistantsStore = useAssistantsStore()
   const userDataStore = useUserDataStore()
+  const userPerfsStore = useUserPerfsStore()
   const $q = useQuasar()
   const { t } = useI18n()
   const { ensureLogin } = useCheckLogin()
@@ -36,7 +38,9 @@ export function useWorkspaceActions() {
       const assistant = await assistantsStore.add({
         name: t('workspace.defaultAssistant'),
         workspace_id: workspace.id,
-        avatar: defaultAvatar('AI')
+        avatar: defaultAvatar('AI'),
+        provider: userPerfsStore.perfs.provider,
+        model: userPerfsStore.perfs.model,
       })
       userDataStore.data.defaultAssistantIds[workspace.id] = assistant.id
     })
