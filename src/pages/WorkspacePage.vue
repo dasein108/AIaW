@@ -154,7 +154,7 @@
 
 <script setup lang="ts">
 
-import { computed, provide, ref, toRaw, watch, onErrorCaptured } from 'vue'
+import { computed, provide, ref, watch } from 'vue'
 import AssistantsExpansion from 'src/components/AssistantsExpansion.vue'
 import ArtifactsExpansion from 'src/components/ArtifactsExpansion.vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
@@ -173,10 +173,7 @@ import DialogsExpansion from 'src/components/DialogsExpansion.vue'
 import ChatsExpansion from 'src/components/chats/ChatsExpansion.vue'
 import { ArtifactMapped, Workspace } from '@/services/supabase/types'
 import { useArtifactsStore } from 'src/stores/artifacts'
-onErrorCaptured((err, instance, info) => {
-  console.error('Global Vue error:', err, info)
-  return false // let it propagate
-})
+
 const props = defineProps<{
   id: string
 }>()
@@ -254,10 +251,7 @@ const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
 provide('rightDrawerAbove', rightDrawerAbove)
 
 const { perfs } = useUserPerfsStore()
-console.log('workspace:', workspace.value)
-console.log('artifacts:', artifacts.value)
-console.log('route:', route)
-console.log('perfs:', perfs)
+
 function setListOpen(key: keyof ListOpen, value: boolean) {
   if (!userStore.data.listOpen[workspace.value.id]) {
     userStore.data.listOpen[workspace.value.id] = {

@@ -447,25 +447,9 @@ const props = defineProps<{
 
 const rightDrawerAbove = inject('rightDrawerAbove')
 
-// const dialogs: Ref<Dialog[]> = inject('dialogs')
 const dialogsStore = useDialogsStore()
 const dialogs = computed(() => Object.values(dialogsStore.dialogs))
 
-// const assistant = computed(() => assistantsStore.assistants.find(a => a.id === dialog.value?.assistant_id))
-
-// const liveData = useLiveQueryWithDeps(() => props.id, async () => {
-//   const [dialog, messages, items] = await Promise.all([
-//     db.dialogs.get(props.id),
-//     db.messages.where('dialogId').equals(props.id).toArray(),
-//     db.items.where('dialogId').equals(props.id).toArray()
-//   ])
-//   return { dialog, messages, items }
-// }, { initialValue: { dialog: null, messages: [], items: [] } as { dialog: Dialog, messages: Message[], items: StoredItem[] } })
-// const dialog = syncRef<Dialog>(
-//   () => liveData.value.dialog,
-//   val => { db.dialogs.put(toRaw(val)) },
-//   { valueDeep: true }
-// )
 const assistantsStore = useAssistantsStore()
 const workspace: Ref<Workspace> = inject('workspace')
 const assistants = computed(() => assistantsStore.assistants.filter(
@@ -473,7 +457,6 @@ const assistants = computed(() => assistantsStore.assistants.filter(
 ))
 const dialog = computed(() => dialogsStore.dialogs[props.id])
 const dialogMessages = computed(() => dialogsStore.dialogMessages[props.id] || [])
-console.log('---dialogMessages', dialogMessages.value, dialogsStore.dialogMessages[props.id])
 onMounted(() => {
   // dialogsStore.fetchDialogs()
   dialogsStore.fetchDialogMessages(props.id)
@@ -483,9 +466,6 @@ const assistant = computed(() => ({ ...assistantsStore.assistants.find(a => a.id
 provide('dialog', dialog)
 
 const chain = computed<string[]>(() => dialog.value ? getChain(null, dialog.value.msg_route)[0] : [])
-console.log("---dialog", dialog.value, "assistant", assistant.value, "dialogMessages", dialogMessages.value,
-  "chain", chain.value
-)
 
 const historyChain = ref<string[]>([])
 function switchChain(index: number, value: number) {
@@ -498,7 +478,6 @@ function updateChain(route) {
   dialogsStore.updateDialog({ id: dialog.value.id, msg_route: res[1] })
 }
 watch([() => dialogMessages.value.length, () => dialog.value?.id], () => {
-  // console.log('---dialogMessages.value.length', dialogMessages.value, dialog.value)
   dialog.value && updateChain(dialog.value.msg_route)
 })
 function getChain(node, route: number[]) {
@@ -520,15 +499,7 @@ async function edit(index: number) {
   const target = chain.value[index - 1]
   const { type, message_contents } = messageMap.value[chain.value[index]]
   switchChain(index - 1, dialog.value.msg_tree[target].length)
-  // await db.transaction('rw', db.dialogs, db.messages, db.items, () => {
-  //   appendMessage(target, {
-  //     type,
-  //     message_contents,
-  //     status: 'inputing'
-  //   })
-  //   // const content = contents[0] as UserMessageContent
-  //   // saveItems(content.items.map(id => itemMap.value[id]))
-  // })
+
   await dialogsStore.addDialogMessage(props.id, target, {
     type,
     message_contents,
@@ -580,30 +551,6 @@ async function deleteBranch(index) {
   // })
 }
 
-// async function appendMessage(target, info: Partial<DialogMessage>, insert = false) {
-//   const id = genId()
-//   await db.transaction('rw', db.dialogs, db.messages, async () => {
-//     await db.messages.add({
-//       id,
-//       dialogId: dialog.value.id,
-//       workspaceId: dialog.value.workspace_id,
-//       ...info
-//     } as Message)
-//     const d = await db.dialogs.get(props.id)
-//     const children = d.msgTree[target]
-//     const changes = insert ? {
-//       [target]: [id],
-//       [id]: children
-//     } : {
-//       [target]: [...children, id],
-//       [id]: []
-//     }
-//     await db.dialogs.update(props.id, {
-//       msgTree: { ...d.msgTree, ...changes }
-//     })
-//   })
-//   return id
-// }
 function expandMessageTree(root): string[] {
   return [root, ...dialog.value.msg_tree[root].flatMap(id => expandMessageTree(id))]
 }
@@ -683,16 +630,6 @@ addEventListener('paste', onPaste)
 onUnmounted(() => removeEventListener('paste', onPaste))
 async function removeItem(stored_item: StoredItemMapped) {
   await dialogsStore.removeStoreItem(stored_item)
-  // const items = [...inputMessageContent.value.stored_items.filter(i => i.id !== id)]
-  // // items.splice(items.indexOf(id), 1)
-  // await dialogsStore.updateDialogMessage(props.id, chain.value.at(-1), {
-  //   message_contents: [{
-  //     ...inputMessageContent.value,
-  //     stored_items: items
-  //   }]
-  // })
-  // references_count--
-  // references_count === 0 ? db.items.delete(id) : db.items.update(id, { references_count })
 }
 
 async function parseFiles(files: File[]) {
@@ -749,18 +686,6 @@ function quote(item: ApiResultItem) {
 async function addInputItems(items: ApiResultItem[]) {
   const storedItems: StoredItemMapped[] = await Promise.all(items.map(r => storage.apiResultItemToStoredItem(r, props.id)))
 
-  // const storedItems = items.map(i => ({ ...i, id: genId(), dialogId: props.id, references: 0 }))
-  // const ids = storedItems.map(i => i.id)
-  // await db.transaction('rw', db.messages, db.items, () => {
-  //   db.messages.update(chain.value.at(-1), {
-  //     // use shallow keyPath to avoid dexie's sync bug
-  //     contents: [{
-  //       ...inputMessageContent.value,
-  //       items: [...inputMessageContent.value.stored_items, ...items]
-  //     }]
-  //   })
-  //   saveItems(storedItems)
-  // })
   await dialogsStore.updateDialogMessage(props.id, chain.value.at(-1), {
     message_contents: [{
       ...inputMessageContent.value,
@@ -768,13 +693,6 @@ async function addInputItems(items: ApiResultItem[]) {
     }]
   })
 }
-
-// async function saveItems(items: StoredItem[]) {
-//   items.forEach(i => {
-//     i.references++
-//   })
-//   await db.items.bulkPut(items)
-// }
 
 function getChainMessages() {
   const val: CoreMessage[] = []
@@ -947,26 +865,7 @@ async function stream(target, insert = false) {
     text: ''
   }
   const contents: MessageContentMapped[] = [messageContent]
-  // let id
-  // await db.transaction('rw', db.dialogs, db.messages, async () => {
-  //   id = await appendMessage(target, {
-  //     type: 'assistant',
-  //     assistantId: assistant.value.id,
-  //     contents,
-  //     status: 'pending',
-  //     generatingSession: sessions.id,
-  //     modelName: model.value.name
-  //   }, insert)
-  //   !insert && await appendMessage(id, {
-  //     type: 'user',
-  //     contents: [{
-  //       type: 'user-message',
-  //       text: '',
-  //       items: []
-  //     }],
-  //     status: 'inputing'
-  //   })
-  // })
+
   const { id } = await dialogsStore.addDialogMessage(props.id, target, {
     type: 'assistant',
     assistant_id: assistant.value.id,
