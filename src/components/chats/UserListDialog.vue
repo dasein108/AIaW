@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { supabase } from 'src/services/supabase/client'
-import type { Profile } from '@/services/supabase/types'
+import type { ProfileMapped } from '@/services/supabase/types'
 import { onMounted, ref } from 'vue'
 
 const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
@@ -49,9 +49,9 @@ const props = defineProps<{
   currentUserId: string
 }>()
 
-const users = ref<Profile[]>([])
+const users = ref<ProfileMapped[]>([])
 
-const onSelectUser = async (user: Profile) => {
+const onSelectUser = async (user: ProfileMapped) => {
   onDialogOK(user)
 }
 
@@ -61,7 +61,7 @@ onMounted(async () => {
     users.value = []
     return
   }
-  users.value = data
+  users.value = data as ProfileMapped[]
 })
 
 </script>

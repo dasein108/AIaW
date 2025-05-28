@@ -1,12 +1,13 @@
 import { useChatsWithSubscription } from 'src/composables/chats/useChatsWithSubscription'
-import { Chat } from '@/services/supabase/types'
+import { ChatMapped } from '@/services/supabase/types'
 import { defineStore } from 'pinia'
 import { supabase } from 'src/services/supabase/client'
+import { throttle } from 'lodash'
 
 export const useChatsStore = defineStore('chats', () => {
   const chats = useChatsWithSubscription()
 
-  const add = async (chat: Omit<Chat, 'id' | 'created_at' | 'updated_at' | 'owner_id'>) => {
+  const add = async (chat: Omit<ChatMapped, 'id' | 'created_at' | 'updated_at' | 'owner_id'>) => {
     console.log('addChat', chat)
     const { data, error } = await supabase.from('chats').insert(chat).select().single()
     if (error) {
@@ -15,7 +16,7 @@ export const useChatsStore = defineStore('chats', () => {
     return data
   }
 
-  const update = async (id: string, chat: Partial<Chat>) => {
+  const update = async (id: string, chat: Partial<ChatMapped>) => {
     const { data, error } = await supabase.from('chats').update(chat).eq('id', id).select().single()
     if (error) {
       console.error('error', error)
@@ -50,11 +51,22 @@ export const useChatsStore = defineStore('chats', () => {
     return data
   }
 
+  const throttleUpdate = throttle(update, 1000)
+
+  const putItem = async(chat: Partial<ChatMapped>) => {
+    if (chat.id) {
+      throttleUpdate(chat.id, chat)
+    } else {
+      await add(chat as Omit<ChatMapped, 'id' | 'created_at' | 'updated_at' | 'owner_id'>)
+    }
+  }
+
   return {
     chats,
     add,
     update,
     remove,
-    search
+    search,
+    putItem
   }
 })

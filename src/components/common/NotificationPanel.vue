@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <q-card>
-      <q-card-section :class="{ 'bg-red': warning, 'shadow-1': true }">
+      <q-card-section :class="{ 'bg-red': warning, 'bg-grey-3': !warning, 'shadow-1': true }">
         {{ title }}
       </q-card-section>
     </q-card>

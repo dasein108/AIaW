@@ -30,7 +30,7 @@
       </q-item-section>
     </template>
     <template #default>
-      <chat-list />
+      <chat-list :workspace-id="workspaceId" />
       <search-chats
         v-model="showSearchDialog"
         :workspace-id
@@ -49,16 +49,16 @@ import { isPlatformEnabled } from 'src/utils/functions'
 import { useQuasar } from 'quasar'
 import UserListDialog from './UserListDialog.vue'
 import { supabase } from 'src/services/supabase/client'
-import { Profile } from '@/services/supabase/types'
 import { useRouter } from 'vue-router'
 import { useUserStore } from 'src/stores/user'
+import { ProfileMapped } from '@/services/supabase/types'
 
 const $q = useQuasar()
 const router = useRouter()
 const userStore = useUserStore()
 
 const props = defineProps<{
-  workspaceId: string
+  workspaceId: string | null
 }>()
 
 const showUserSelectDialog = () => {
@@ -72,7 +72,7 @@ const showUserSelectDialog = () => {
   })
 }
 
-const onSelectUser = async (user: Profile) => {
+const onSelectUser = async (user: ProfileMapped) => {
   const { data: chatId, error } = await supabase.rpc('start_private_chat_with', {
     target_user_id: user.id,
     current_user_id: userStore.currentUserId
@@ -85,7 +85,7 @@ const onSelectUser = async (user: Profile) => {
     })
     return
   }
-  router.push(`/workspaces/${props.workspaceId}/chats/${chatId}`)
+  router.push(props.workspaceId ? `/workspaces/${props.workspaceId}/chats/${chatId}` : `/chats/${chatId}`)
 }
 
 const showSearchDialog = ref(false)

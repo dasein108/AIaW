@@ -300,140 +300,6 @@ $$;
 ALTER FUNCTION "public"."propagate_member_update"() OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."set_artifact_user_and_timestamps"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$
-begin
-  if new.user_id is null then
-    new.user_id := auth.uid();
-  end if;
-  new.created_at := now();
-  new.updated_at := now();
-  return new;
-end;
-$$;
-
-
-ALTER FUNCTION "public"."set_artifact_user_and_timestamps"() OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."set_chat_owner"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$
-begin
-  if new.owner_id is null then
-    new.owner_id := auth.uid();
-  end if;
-  return new;
-end;
-$$;
-
-
-ALTER FUNCTION "public"."set_chat_owner"() OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."set_dialog_user_id"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$
-begin
-  if new.user_id is null then
-    new.user_id := auth.uid();
-  end if;
-
-  new.created_at := now();
-
-  return new;
-end;
-$$;
-
-
-ALTER FUNCTION "public"."set_dialog_user_id"() OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."set_sender_id"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$
-begin
-  if new.sender_id is null then
-    new.sender_id := auth.uid();
-  end if;
-  return new;
-end;
-$$;
-
-
-ALTER FUNCTION "public"."set_sender_id"() OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."set_user_id_on_custom_provider_insert"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$
-BEGIN
-  IF NEW.user_id IS NULL THEN
-    NEW.user_id := auth.uid();
-  END IF;
-  RETURN NEW;
-END;
-$$;
-
-
-ALTER FUNCTION "public"."set_user_id_on_custom_provider_insert"() OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."set_user_id_on_insert"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$
-begin
-  -- Set user_id if not provided
-  if new.user_id is null then
-    new.user_id := auth.uid();  -- Attach authenticated user_id
-  end if;
-
-  -- Set created_at and updated_at timestamps
-  new.created_at := now();
-  new.updated_at := now();
-  
-  return new;
-end;
-$$;
-
-
-ALTER FUNCTION "public"."set_user_id_on_insert"() OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."set_user_plugin_user_id"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$begin
-  -- Set the user_id on insert if not provided
-  if tg_op = 'INSERT' then
-    if new.user_id is null then
-      new.user_id := auth.uid();
-    end if;
-    new.created_at := now();
-  end if;
-
-return new;
-end;$$;
-
-
-ALTER FUNCTION "public"."set_user_plugin_user_id"() OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."set_workspace_owner"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$
-begin
-  if new.owner_id is null then
-    new.owner_id := auth.uid();
-  end if;
-  return new;
-end;
-$$;
-
-
-ALTER FUNCTION "public"."set_workspace_owner"() OWNER TO "postgres";
-
-
 CREATE OR REPLACE FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") RETURNS "uuid"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
@@ -478,32 +344,6 @@ $$;
 
 ALTER FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") OWNER TO "postgres";
 
-
-CREATE OR REPLACE FUNCTION "public"."update_artifact_updated_at"() RETURNS "trigger"
-    LANGUAGE "plpgsql"
-    AS $$
-begin
-  new.updated_at := now();
-  return new;
-end;
-$$;
-
-
-ALTER FUNCTION "public"."update_artifact_updated_at"() OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."update_updated_at_column"() RETURNS "trigger"
-    LANGUAGE "plpgsql"
-    AS $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$;
-
-
-ALTER FUNCTION "public"."update_updated_at_column"() OWNER TO "postgres";
-
 SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
@@ -519,9 +359,9 @@ CREATE TABLE IF NOT EXISTS "public"."artifacts" (
     "writable" boolean DEFAULT true NOT NULL,
     "language" "text",
     "tmp" "text",
-    "user_id" "uuid",
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "updated_at" timestamp with time zone DEFAULT "now"()
+    "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
 
@@ -540,11 +380,13 @@ ALTER TABLE "public"."chat_members" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."chats" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "owner_id" "uuid",
+    "owner_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
     "name" "text",
-    "created_at" timestamp with time zone DEFAULT "now"(),
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "workspace_id" "uuid",
-    "type" "public"."chat_type" DEFAULT 'private'::"public"."chat_type" NOT NULL
+    "type" "public"."chat_type" DEFAULT 'private'::"public"."chat_type" NOT NULL,
+    "description" "text",
+    "avatar" "jsonb"
 );
 
 
@@ -556,7 +398,7 @@ CREATE TABLE IF NOT EXISTS "public"."custom_providers" (
     "name" "text" NOT NULL,
     "avatar" "jsonb",
     "fallback_provider" "jsonb",
-    "user_id" "uuid"
+    "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL
 );
 
 
@@ -588,12 +430,12 @@ CREATE TABLE IF NOT EXISTS "public"."dialogs" (
     "name" "text" NOT NULL,
     "workspace_id" "uuid" NOT NULL,
     "assistant_id" "uuid",
-    "user_id" "uuid",
+    "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
     "msg_tree" "jsonb" NOT NULL,
     "msg_route" integer[] NOT NULL,
     "input_vars" "jsonb" NOT NULL,
     "model_override" "jsonb",
-    "created_at" timestamp with time zone DEFAULT "now"()
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
 
@@ -623,9 +465,9 @@ ALTER TABLE "public"."message_contents" OWNER TO "postgres";
 CREATE TABLE IF NOT EXISTS "public"."messages" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "chat_id" "uuid",
-    "sender_id" "uuid",
+    "sender_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
     "content" "text" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"()
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
 ALTER TABLE ONLY "public"."messages" REPLICA IDENTITY FULL;
@@ -638,7 +480,8 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "id" "uuid" NOT NULL,
     "name" "text" NOT NULL,
     "description" "text",
-    "created_at" timestamp with time zone DEFAULT "now"()
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "avatar" "jsonb"
 );
 
 
@@ -675,7 +518,7 @@ ALTER TABLE "public"."subproviders" OWNER TO "postgres";
 CREATE TABLE IF NOT EXISTS "public"."user_assistants" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "workspace_id" "uuid",
-    "user_id" "uuid",
+    "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
     "name" "text" NOT NULL,
     "prompt" "text",
     "prompt_vars" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
@@ -689,8 +532,8 @@ CREATE TABLE IF NOT EXISTS "public"."user_assistants" (
     "description" "text",
     "author" "text",
     "homepage" "text",
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "avatar" "jsonb",
     "context_num" bigint DEFAULT '0'::bigint NOT NULL,
     CONSTRAINT "user_assistants_prompt_role_check" CHECK (("prompt_role" = ANY (ARRAY['system'::"text", 'user'::"text", 'assistant'::"text"])))
@@ -705,7 +548,7 @@ CREATE TABLE IF NOT EXISTS "public"."user_data" (
     "value" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
     "created_at" timestamp without time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp without time zone DEFAULT "now"()
+    "updated_at" timestamp without time zone DEFAULT "now"() NOT NULL
 );
 
 
@@ -714,13 +557,13 @@ ALTER TABLE "public"."user_data" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."user_plugins" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "user_id" "uuid",
+    "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
     "key" "text" NOT NULL,
     "type" "text",
     "available" boolean DEFAULT true NOT NULL,
     "manifest" "jsonb" NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     CONSTRAINT "user_plugins_type_check" CHECK (("type" = ANY (ARRAY['gradio'::"text", 'lobechat'::"text", 'mcp'::"text"])))
 );
 
@@ -747,8 +590,8 @@ CREATE TABLE IF NOT EXISTS "public"."workspaces" (
     "type" "text" NOT NULL,
     "parent_id" "uuid",
     "is_public" boolean DEFAULT false,
-    "owner_id" "uuid",
-    "created_at" timestamp with time zone DEFAULT "now"(),
+    "owner_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "avatar" "jsonb",
     "vars" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
     "index_content" "text",
@@ -866,56 +709,6 @@ CREATE OR REPLACE TRIGGER "propagate_workspace_member_insert" AFTER INSERT ON "p
 
 
 CREATE OR REPLACE TRIGGER "propagate_workspace_member_update" AFTER UPDATE OF "role" ON "public"."workspace_members" FOR EACH ROW EXECUTE FUNCTION "public"."propagate_member_update"();
-
-
-
-CREATE OR REPLACE TRIGGER "set_artifact_user_and_timestamps_trigger" BEFORE INSERT ON "public"."artifacts" FOR EACH ROW EXECUTE FUNCTION "public"."set_artifact_user_and_timestamps"();
-
-
-
-CREATE OR REPLACE TRIGGER "set_chat_owner_trigger" BEFORE INSERT ON "public"."chats" FOR EACH ROW EXECUTE FUNCTION "public"."set_chat_owner"();
-
-ALTER TABLE "public"."chats" ENABLE ALWAYS TRIGGER "set_chat_owner_trigger";
-
-
-
-CREATE OR REPLACE TRIGGER "set_dialog_user_id_trigger" BEFORE INSERT ON "public"."dialogs" FOR EACH ROW EXECUTE FUNCTION "public"."set_dialog_user_id"();
-
-
-
-CREATE OR REPLACE TRIGGER "set_sender_id_trigger" BEFORE INSERT ON "public"."messages" FOR EACH ROW EXECUTE FUNCTION "public"."set_sender_id"();
-
-ALTER TABLE "public"."messages" ENABLE ALWAYS TRIGGER "set_sender_id_trigger";
-
-
-
-CREATE OR REPLACE TRIGGER "set_updated_at" BEFORE UPDATE ON "public"."user_plugins" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
-
-
-
-CREATE OR REPLACE TRIGGER "set_user_id_on_custom_provider_insert" BEFORE INSERT ON "public"."custom_providers" FOR EACH ROW EXECUTE FUNCTION "public"."set_user_id_on_custom_provider_insert"();
-
-
-
-CREATE OR REPLACE TRIGGER "set_user_id_on_insert_trigger" BEFORE INSERT ON "public"."user_assistants" FOR EACH ROW EXECUTE FUNCTION "public"."set_user_id_on_insert"();
-
-ALTER TABLE "public"."user_assistants" ENABLE ALWAYS TRIGGER "set_user_id_on_insert_trigger";
-
-
-
-CREATE OR REPLACE TRIGGER "set_user_id_on_stored_reactive_insert" BEFORE INSERT ON "public"."user_data" FOR EACH ROW EXECUTE FUNCTION "public"."set_user_id_on_insert"();
-
-
-
-CREATE OR REPLACE TRIGGER "set_user_plugin_user_id_trigger" BEFORE INSERT ON "public"."user_plugins" FOR EACH ROW EXECUTE FUNCTION "public"."set_user_plugin_user_id"();
-
-
-
-CREATE OR REPLACE TRIGGER "set_workspace_owner_trigger" BEFORE INSERT ON "public"."workspaces" FOR EACH ROW EXECUTE FUNCTION "public"."set_workspace_owner"();
-
-
-
-CREATE OR REPLACE TRIGGER "update_artifact_updated_at_trigger" BEFORE UPDATE ON "public"."artifacts" FOR EACH ROW EXECUTE FUNCTION "public"."update_artifact_updated_at"();
 
 
 
@@ -1795,69 +1588,9 @@ GRANT ALL ON FUNCTION "public"."propagate_member_update"() TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."set_artifact_user_and_timestamps"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_artifact_user_and_timestamps"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_artifact_user_and_timestamps"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_chat_owner"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."set_dialog_user_id"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_dialog_user_id"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_dialog_user_id"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_sender_id"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."set_user_id_on_custom_provider_insert"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_user_id_on_custom_provider_insert"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_user_id_on_custom_provider_insert"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."set_user_id_on_insert"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_user_id_on_insert"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_user_id_on_insert"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."set_user_plugin_user_id"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_user_plugin_user_id"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_user_plugin_user_id"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."set_workspace_owner"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_workspace_owner"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_workspace_owner"() TO "service_role";
-
-
-
 GRANT ALL ON FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") TO "anon";
 GRANT ALL ON FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."start_private_chat_with"("target_user_id" "uuid", "current_user_id" "uuid") TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."update_artifact_updated_at"() TO "anon";
-GRANT ALL ON FUNCTION "public"."update_artifact_updated_at"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."update_artifact_updated_at"() TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "anon";
-GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."update_updated_at_column"() TO "service_role";
 
 
 

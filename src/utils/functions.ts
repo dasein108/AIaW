@@ -26,6 +26,14 @@ function defaultAvatar(text: string): Avatar {
   }
 }
 
+function defaultTextAvatar(text: string): Avatar {
+  return {
+    type: 'text',
+    text: text.split(' ').map(word => word[0]).join('').toUpperCase(),
+    hue: Math.floor(Math.random() * 360)
+  }
+}
+
 function hctToHex(h: number, c: number, t: number): string {
   return hexFromArgb(Hct.from(h, c, t).toInt())
 }
@@ -262,5 +270,6 @@ export {
   cyrb53,
   hash53,
   removeDuplicates,
-  localePrice
+  localePrice,
+  defaultTextAvatar
 }

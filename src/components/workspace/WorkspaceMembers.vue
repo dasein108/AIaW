@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Profile, WorkspaceMember, WorkspaceMemberMapped, WorkspaceMemberRole } from '@/services/supabase/types'
+import type { ProfileMapped, WorkspaceMember, WorkspaceMemberMapped, WorkspaceMemberRole } from '@/services/supabase/types'
 import { onMounted, ref } from 'vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import { useUserStore } from 'src/stores/user'
@@ -82,7 +82,7 @@ const onRemoveMember = async (member: WorkspaceMemberMapped) => {
   members.value = members.value.filter(m => m.user_id !== member.user_id)
 }
 
-const onAddMember = async (user: Profile) => {
+const onAddMember = async (user: ProfileMapped) => {
   const member = await workspacesStore.addWorkspaceMember(props.workspaceId, user.id, 'member')
   members.value = [...members.value, member]
 }

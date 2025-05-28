@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, Ref, inject, toRaw, toRefs, watch } from 'vue'
+import { computed, Ref, inject, toRaw, toRef, toRefs, watch } from 'vue'
 import { WorkspaceMapped } from '@/services/supabase/types'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { syncRef } from 'src/composables/sync-ref'
@@ -152,7 +152,8 @@ const workspace = syncRef(
   { valueDeep: true }
 )
 
-const { isAdmin, isLoaded } = useIsWorkspaceAdmin()
+const workspaceId = computed(() => workspace.value.id)
+const { isAdmin, isLoaded } = useIsWorkspaceAdmin(workspaceId)
 
 watch(isAdmin, (newVal) => {
   console.log('----isAdmin', newVal)

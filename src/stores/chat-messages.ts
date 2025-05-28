@@ -3,7 +3,6 @@ import { supabase } from 'src/services/supabase/client'
 import { ChatMessage, ChatMessageWithProfile } from '@/services/supabase/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 
 export const useChatMessagesStore = defineStore('chat-messages', () => {
   const messagesByChat = ref<Record<string, ChatMessageWithProfile[]>>({})
@@ -33,9 +32,9 @@ export const useChatMessagesStore = defineStore('chat-messages', () => {
 
     // TODO: temporary solution for lazy loading
     if (offset === 0) {
-      messagesByChat.value[chatId] = data
+      messagesByChat.value[chatId] = data as ChatMessageWithProfile[]
     } else {
-      messagesByChat.value[chatId].unshift(...data)
+      messagesByChat.value[chatId].unshift(...data as ChatMessageWithProfile[])
     }
     return data
   }

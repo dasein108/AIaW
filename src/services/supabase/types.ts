@@ -3,7 +3,6 @@ import { Database, Json } from './database.types'
 import { LanguageModelUsage } from 'ai'
 
 type ChatMessage = Database['public']['Tables']['messages']['Row']
-type Profile = Database['public']['Tables']['profiles']['Row']
 type Chat = Database['public']['Tables']['chats']['Row']
 type ChatMember = Database['public']['Tables']['chat_members']['Row']
 type UserPlugin = Database['public']['Tables']['user_plugins']['Insert']
@@ -36,10 +35,21 @@ type UserDataMapped = UserData & {
   value: Record<string, any>
 }
 
+type ChatType = Database['public']['Enums']['chat_type']
+
+type ChatMapped = Database['public']['Tables']['chats']['Insert'] & {
+  avatar?: Avatar;
+  type?: ChatType
+}
+
 type StoredItemMapped =Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id' | 'type'> & {dialog_id?: string, type: 'text' | 'file' | 'quote', message_content_id?: string}
 
 type WorkspaceMemberRole = 'admin' | 'member' | 'readonly'
 type WorkspaceRole = 'owner' | 'admin' | 'member' | 'readonly' | 'none'
+
+type ProfileMapped = Database['public']['Tables']['profiles']['Insert'] & {
+  avatar?: Avatar;
+}
 
 type WorkspaceMapped = Workspace & {
   avatar?: Avatar;
@@ -61,7 +71,7 @@ type DialogMapped = Dialog & {
 }
 
 type ChatMessageWithProfile = ChatMessage & {
-  sender: Profile | null
+  sender: ProfileMapped | null
 }
 
 type AssistantMapped = Assistant & {
@@ -89,14 +99,14 @@ type DialogMessageMapped = DialogMessage & {
 }
 
 type WorkspaceMemberMapped = WorkspaceMember & {
-  profile: Profile
+  profile: ProfileMapped
 }
 
 export type {
-  ChatMessageWithProfile, Chat, Profile, ChatMember, WorkspaceMapped, ArtifactMapped, ArtifactVersion,
+  ChatMessageWithProfile, Chat, ChatMember, WorkspaceMapped, ArtifactMapped, ArtifactVersion,
   Workspace, UserPlugin, Assistant, AssistantMapped, ChatMessage, Dialog, DialogMessage,
   MessageContent, WorkspaceMember, StoredItem, DialogMessageMapped, MessageContentMapped, DialogMapped,
   StoredItemMapped, CustomProviderMapped, SubproviderMapped, UserDataMapped,
   WorkspaceMemberRole,
-  WorkspaceMemberMapped, WorkspaceRole
+  WorkspaceMemberMapped, WorkspaceRole, ChatMapped, ProfileMapped
 }

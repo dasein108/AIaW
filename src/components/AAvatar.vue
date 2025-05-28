@@ -32,11 +32,10 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { hctToHex } from 'src/utils/functions'
-import { Avatar } from 'src/utils/types'
+import { defaultAvatar, hctToHex } from 'src/utils/functions'
+import { Avatar, TextAvatar } from 'src/utils/types'
 import { computed } from 'vue'
 import ImageAvatar from './ImageAvatar.vue'
-const BASE_URL = 'https://aiaw-assets.s3.us-east-2.amazonaws.com'
 const props = defineProps<{
   avatar: Avatar
 }>()

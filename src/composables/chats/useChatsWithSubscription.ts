@@ -1,18 +1,18 @@
 import { ref, readonly, watch } from 'vue'
 import { supabase } from 'src/services/supabase/client'
-import type { Chat } from 'src/services/supabase/types'
+import type { ChatMapped } from 'src/services/supabase/types'
 import { useUserStore } from 'src/stores/user'
-
-const chats = ref<Chat[]>([])
+import { defaultTextAvatar } from 'src/utils/functions'
+const chats = ref<ChatMapped[]>([])
 let isSubscribed = false
 let subscription: ReturnType<typeof supabase.channel> | null = null
 
-async function extendChatsWithDisplayName(chatsArr: Chat[], currentUserId: string | null) {
+async function extendChatsWithDisplayName(chatsArr: ChatMapped[], currentUserId: string | null) {
   // For each chat, if not group, fetch members and set displayName
   const extended = await Promise.all(
     chatsArr.map(async chat => {
       if (chat.type === 'workspace' || chat.type === 'group') {
-        return chat
+        return { ...chat, avatar: chat.avatar || defaultTextAvatar(chat.name) }
       } else {
         // Fetch chat members with profile
         const { data: members, error } = await supabase
@@ -26,7 +26,7 @@ async function extendChatsWithDisplayName(chatsArr: Chat[], currentUserId: strin
         // Find first member that is not myself
         const other = members.find((m: any) => m.user_id !== currentUserId)
         const displayName = other?.profiles?.name || chat.name || ''
-        return { ...chat, name: displayName }
+        return { ...chat, name: displayName, avatar: defaultTextAvatar(displayName) }
       }
     })
   )
@@ -43,7 +43,7 @@ async function fetchChats(currentUserId: string | null) {
     return
   }
 
-  chats.value = await extendChatsWithDisplayName(data ?? [], currentUserId)
+  chats.value = await extendChatsWithDisplayName(data as ChatMapped[] ?? [], currentUserId)
 }
 
 function subscribeToChats(currentUserId: string | null) {
@@ -60,7 +60,7 @@ function subscribeToChats(currentUserId: string | null) {
       },
       async (payload) => {
         // On insert, extend with displayName
-        const extended = await extendChatsWithDisplayName([payload.new as Chat], currentUserId)
+        const extended = await extendChatsWithDisplayName([payload.new as ChatMapped], currentUserId)
         chats.value.unshift(extended[0])
       }
     )
@@ -72,7 +72,7 @@ function subscribeToChats(currentUserId: string | null) {
         table: 'chats'
       },
       (payload) => {
-        const deletedId = (payload.old as Chat).id
+        const deletedId = (payload.old as ChatMapped).id
         chats.value = chats.value.filter(c => c.id !== deletedId)
       }
     )
@@ -84,7 +84,7 @@ function subscribeToChats(currentUserId: string | null) {
         table: 'chats'
       },
       async (payload) => {
-        const extended = await extendChatsWithDisplayName([payload.new as Chat], currentUserId)
+        const extended = await extendChatsWithDisplayName([payload.new as ChatMapped], currentUserId)
         chats.value = chats.value.map(c => (c.id === extended[0].id ? extended[0] : c))
       }
     )

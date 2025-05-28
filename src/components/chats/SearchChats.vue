@@ -58,7 +58,7 @@
             :key="i"
             clickable
             item-rd
-            :to="`/workspaces/${r.workspaceId}/chats/${r.chatId}?goto=${JSON.stringify({ messageId: r.messageId, highlight: q })}`"
+            :to="`${r.workspaceId ? `/workspaces/${r.workspaceId}` : ''}/chats/${r.chatId}?goto=${JSON.stringify({ messageId: r.messageId, highlight: q })}`"
           >
             <q-item-section>
               <q-item-label>
@@ -86,7 +86,7 @@ import Mark from 'mark.js'
 import { escapeRegex } from 'src/utils/functions'
 
 const props = defineProps<{
-  workspaceId: string
+  workspaceId: string | null
 }>()
 
 defineEmits([

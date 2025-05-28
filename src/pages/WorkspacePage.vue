@@ -102,7 +102,8 @@
             :class="{'route-active': route.path === `/workspaces/${id}`}"
             :title="$t('workspacePage.workspaceHome')"
           />
-          <q-btn
+          <!-- TODO: remove -->
+          <!-- <q-btn
             flat
             dense
             round
@@ -110,7 +111,7 @@
             :to="`/workspaces/${id}/settings`"
             :class="{'route-active': route.path === `/workspaces/${id}/settings`}"
             :title="$t('workspacePage.workspaceSettings')"
-          />
+          /> -->
         </div>
         <assistants-expansion
           :model-value="listOpen.assistants"

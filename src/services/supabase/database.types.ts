@@ -5,43 +5,43 @@ export type Database = {
     Tables: {
       artifacts: {
         Row: {
-          created_at: string | null
+          created_at: string
           curr_index: number
           id: string
           language: string | null
           name: string
           readable: boolean
           tmp: string | null
-          updated_at: string | null
-          user_id: string | null
+          updated_at: string
+          user_id: string
           versions: Json
           workspace_id: string
           writable: boolean
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           curr_index?: number
           id?: string
           language?: string | null
           name: string
           readable?: boolean
           tmp?: string | null
-          updated_at?: string | null
-          user_id?: string | null
+          updated_at?: string
+          user_id?: string
           versions?: Json
           workspace_id: string
           writable?: boolean
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           curr_index?: number
           id?: string
           language?: string | null
           name?: string
           readable?: boolean
           tmp?: string | null
-          updated_at?: string | null
-          user_id?: string | null
+          updated_at?: string
+          user_id?: string
           versions?: Json
           workspace_id?: string
           writable?: boolean
@@ -91,26 +91,32 @@ export type Database = {
       }
       chats: {
         Row: {
-          created_at: string | null
+          avatar: Json | null
+          created_at: string
+          description: string | null
           id: string
           name: string | null
-          owner_id: string | null
+          owner_id: string
           type: Database["public"]["Enums"]["chat_type"]
           workspace_id: string | null
         }
         Insert: {
-          created_at?: string | null
+          avatar?: Json | null
+          created_at?: string
+          description?: string | null
           id?: string
           name?: string | null
-          owner_id?: string | null
+          owner_id?: string
           type?: Database["public"]["Enums"]["chat_type"]
           workspace_id?: string | null
         }
         Update: {
-          created_at?: string | null
+          avatar?: Json | null
+          created_at?: string
+          description?: string | null
           id?: string
           name?: string | null
-          owner_id?: string | null
+          owner_id?: string
           type?: Database["public"]["Enums"]["chat_type"]
           workspace_id?: string | null
         }
@@ -137,21 +143,21 @@ export type Database = {
           fallback_provider: Json | null
           id: string
           name: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           avatar?: Json | null
           fallback_provider?: Json | null
           id?: string
           name: string
-          user_id?: string | null
+          user_id?: string
         }
         Update: {
           avatar?: Json | null
           fallback_provider?: Json | null
           id?: string
           name?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -222,38 +228,38 @@ export type Database = {
       dialogs: {
         Row: {
           assistant_id: string | null
-          created_at: string | null
+          created_at: string
           id: string
           input_vars: Json
           model_override: Json | null
           msg_route: number[]
           msg_tree: Json
           name: string
-          user_id: string | null
+          user_id: string
           workspace_id: string
         }
         Insert: {
           assistant_id?: string | null
-          created_at?: string | null
+          created_at?: string
           id?: string
           input_vars: Json
           model_override?: Json | null
           msg_route: number[]
           msg_tree: Json
           name: string
-          user_id?: string | null
+          user_id?: string
           workspace_id: string
         }
         Update: {
           assistant_id?: string | null
-          created_at?: string | null
+          created_at?: string
           id?: string
           input_vars?: Json
           model_override?: Json | null
           msg_route?: number[]
           msg_tree?: Json
           name?: string
-          user_id?: string | null
+          user_id?: string
           workspace_id?: string
         }
         Relationships: [
@@ -327,23 +333,23 @@ export type Database = {
         Row: {
           chat_id: string | null
           content: string
-          created_at: string | null
+          created_at: string
           id: string
-          sender_id: string | null
+          sender_id: string
         }
         Insert: {
           chat_id?: string | null
           content: string
-          created_at?: string | null
+          created_at?: string
           id?: string
-          sender_id?: string | null
+          sender_id?: string
         }
         Update: {
           chat_id?: string | null
           content?: string
-          created_at?: string | null
+          created_at?: string
           id?: string
-          sender_id?: string | null
+          sender_id?: string
         }
         Relationships: [
           {
@@ -364,18 +370,21 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar: Json | null
           created_at: string | null
           description: string | null
           id: string
           name: string
         }
         Insert: {
+          avatar?: Json | null
           created_at?: string | null
           description?: string | null
           id: string
           name: string
         }
         Update: {
+          avatar?: Json | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -465,7 +474,7 @@ export type Database = {
           author: string | null
           avatar: Json | null
           context_num: number
-          created_at: string | null
+          created_at: string
           description: string | null
           homepage: string | null
           id: string
@@ -479,15 +488,15 @@ export type Database = {
           prompt_vars: Json
           provider: Json | null
           stream: boolean
-          updated_at: string | null
-          user_id: string | null
+          updated_at: string
+          user_id: string
           workspace_id: string | null
         }
         Insert: {
           author?: string | null
           avatar?: Json | null
           context_num?: number
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           homepage?: string | null
           id?: string
@@ -501,15 +510,15 @@ export type Database = {
           prompt_vars?: Json
           provider?: Json | null
           stream?: boolean
-          updated_at?: string | null
-          user_id?: string | null
+          updated_at?: string
+          user_id?: string
           workspace_id?: string | null
         }
         Update: {
           author?: string | null
           avatar?: Json | null
           context_num?: number
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           homepage?: string | null
           id?: string
@@ -523,8 +532,8 @@ export type Database = {
           prompt_vars?: Json
           provider?: Json | null
           stream?: boolean
-          updated_at?: string | null
-          user_id?: string | null
+          updated_at?: string
+          user_id?: string
           workspace_id?: string | null
         }
         Relationships: [
@@ -541,21 +550,21 @@ export type Database = {
         Row: {
           created_at: string
           key: string
-          updated_at: string | null
+          updated_at: string
           user_id: string
           value: Json
         }
         Insert: {
           created_at?: string
           key: string
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
           value?: Json
         }
         Update: {
           created_at?: string
           key?: string
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
           value?: Json
         }
@@ -564,33 +573,33 @@ export type Database = {
       user_plugins: {
         Row: {
           available: boolean
-          created_at: string | null
+          created_at: string
           id: string
           key: string
           manifest: Json
           type: string | null
-          updated_at: string | null
-          user_id: string | null
+          updated_at: string
+          user_id: string
         }
         Insert: {
           available?: boolean
-          created_at?: string | null
+          created_at?: string
           id?: string
           key: string
           manifest: Json
           type?: string | null
-          updated_at?: string | null
-          user_id?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Update: {
           available?: boolean
-          created_at?: string | null
+          created_at?: string
           id?: string
           key?: string
           manifest?: Json
           type?: string | null
-          updated_at?: string | null
-          user_id?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -633,39 +642,39 @@ export type Database = {
       workspaces: {
         Row: {
           avatar: Json | null
-          created_at: string | null
+          created_at: string
           description: string | null
           id: string
           index_content: string | null
           is_public: boolean | null
           name: string
-          owner_id: string | null
+          owner_id: string
           parent_id: string | null
           type: string
           vars: Json
         }
         Insert: {
           avatar?: Json | null
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           id?: string
           index_content?: string | null
           is_public?: boolean | null
           name: string
-          owner_id?: string | null
+          owner_id?: string
           parent_id?: string | null
           type: string
           vars?: Json
         }
         Update: {
           avatar?: Json | null
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           id?: string
           index_content?: string | null
           is_public?: boolean | null
           name?: string
-          owner_id?: string | null
+          owner_id?: string
           parent_id?: string | null
           type?: string
           vars?: Json

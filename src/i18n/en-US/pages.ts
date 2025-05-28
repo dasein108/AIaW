@@ -90,6 +90,16 @@ export default {
     description: 'Description',
     members: 'Members'
   },
+  chatsPage: {
+    chats: 'Chats',
+    chatSettings: 'Chat Settings',
+    isPublic: 'Public',
+    name: 'Name',
+    description: 'Description',
+    avatar: 'Avatar',
+    workspace: 'Chat workspace',
+    privateChat: 'Private Chat Settings (not implemented)'
+  },
   mainLayout: {
     workspace: 'Workspace | Workspaces',
     assistants: 'Assistants',

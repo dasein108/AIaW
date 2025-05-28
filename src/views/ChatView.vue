@@ -128,7 +128,7 @@ import { almostEqual, isPlatformEnabled, pageFhStyle } from 'src/utils/functions
 import ChatMessageItem from 'src/components/chats/ChatMessageItem.vue'
 import { useUserStore } from 'src/stores/user'
 import { useChatsStore } from 'src/stores/chats'
-import { Chat, ChatMessageWithProfile } from '@/services/supabase/types'
+import { ChatMapped, ChatMessageWithProfile } from '@/services/supabase/types'
 import { useChatMessagesStore } from 'src/stores/chat-messages'
 const props = defineProps<{
   id: string
@@ -246,7 +246,7 @@ const rightDrawerAbove = inject('rightDrawerAbove')
 const chatsStore = useChatsStore()
 const chatMessagesStore = useChatMessagesStore()
 const messages = computed<ChatMessageWithProfile[]>(() => chatMessagesStore.messagesByChat[props.id] ?? [])
-const chat = computed<Chat>(() => chatsStore.chats.find(chat => chat.id === props.id))
+const chat = computed<ChatMapped>(() => chatsStore.chats.find(chat => chat.id === props.id))
 
 watch(
   () => props.id,

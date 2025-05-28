@@ -10,14 +10,6 @@
     switch-toggle-side
   >
     <template #header>
-      <!-- <q-btn
-        flat
-        dense
-        size="xs"
-        icon="sym_o_adjust"
-        :title="'More actions'"
-        @click.prevent.stop="showMenu"
-      /> -->
       <q-item-section
         avatar
         min-w-0
@@ -30,14 +22,8 @@
       <q-item-section>
         {{ item.name }}
       </q-item-section>
-      <q-btn
-        flat
-        dense
-        size="xs"
-        icon="sym_o_more_vert"
-        :title="'More actions'"
-        @click.prevent.stop="showMenu($event, 'folder')"
-        switch-toggle-side="left"
+      <menu-button
+        :menu-ref="toRef(menuFolderRef)"
       />
       <q-menu
         ref="menuFolderRef"
@@ -105,13 +91,8 @@
       />
     </q-item-section>
     <q-item-section>{{ item.name }}</q-item-section>
-    <q-btn
-      flat
-      dense
-      size="xs"
-      icon="sym_o_more_vert"
-      :title="'More actions'"
-      @click.prevent.stop="showMenu($event, 'workspace')"
+    <menu-button
+      :menu-ref="toRef(menuWorkspaceRef)"
     />
     <q-menu
       ref="menuWorkspaceRef"
@@ -141,14 +122,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, watch, onMounted, toRef } from 'vue'
 import type { WorkspaceMapped } from '@/services/supabase/types'
 import AAvatar from './AAvatar.vue'
 import { useWorkspaceActions } from 'src/composables/workspaces/workspace-actions'
 import MenuItem from './MenuItem.vue'
 import { useRootWorkspace } from '../composables/workspaces/useRootWorkspaces'
 import { QMenu } from 'quasar'
-
+import MenuButton from './ExpansionItem/MenuButton.vue'
 // import { Folder, Workspace } from 'src/utils/types'
 
 const props = defineProps<{
@@ -164,13 +145,6 @@ const expanded = ref(false)
 
 const menuFolderRef = ref<QMenu | null>(null)
 const menuWorkspaceRef = ref<QMenu | null>(null)
-function showMenu(e: Event, type: 'folder' | 'workspace') {
-  if (type === 'folder') {
-    menuFolderRef.value?.show(e)
-  } else {
-    menuWorkspaceRef.value?.show(e)
-  }
-}
 
 watch(selected, () => {
   if (workspaces.value.some(c => c.id === selected.value)) {

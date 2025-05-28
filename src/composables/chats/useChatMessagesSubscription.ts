@@ -1,9 +1,9 @@
 import { supabase } from 'src/services/supabase/client'
-import type { ChatMessageWithProfile, Profile } from 'src/services/supabase/types'
+import type { ChatMessageWithProfile, ProfileMapped } from 'src/services/supabase/types'
 import { useUserLoginCallback } from '../auth/useUserLoginCallback'
 
 // Cache for sender profiles
-const profileCache = new Map<string, Profile | null>()
+const profileCache = new Map<string, ProfileMapped | null>()
 
 // Subscription reference
 let subscription: ReturnType<typeof supabase.channel> | null = null
@@ -38,10 +38,10 @@ export function useChatMessagesSubscription(
                 .select('*')
                 .eq('id', message.sender_id)
                 .single()
-              profile = data ?? null
+              profile = data as ProfileMapped
               profileCache.set(message.sender_id, profile)
             }
-            message.sender = profile
+            message.sender = profile as ProfileMapped
 
             onNewMessage(message)
           }

@@ -3,15 +3,14 @@ import { useUserStore } from 'src/stores/user'
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import { computed, inject, readonly, Ref, ref, watch } from 'vue'
 
-export const useIsWorkspaceAdmin = () => {
+export const useIsWorkspaceAdmin = (workspaceId: Ref<string | null>) => {
   const store = useWorkspacesStore()
-  const workspace = inject<Ref<Workspace>>('workspace')
 
   const { currentUserId } = useUserStore()
   const isAdmin = ref<null | boolean>(null)
 
   watch(
-    [() => workspace?.value?.id, () => currentUserId],
+    [() => workspaceId.value, () => currentUserId],
     async ([id, userId]) => {
       if (!id || !userId) {
         isAdmin.value = null
