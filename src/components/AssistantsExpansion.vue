@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { computed, inject, onUnmounted, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { useRouter } from 'vue-router'
 import AAvatar from './AAvatar.vue'
@@ -112,16 +112,18 @@ import { useUserPerfsStore } from 'src/stores/user-perfs'
 
 const { t } = useI18n()
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   workspaceId?: string | null,
   dense?: boolean,
   label?: string
-}>()
+}>(), {
+  workspaceId: null,
+  label: ''
+})
 
 const assistantsStore = useAssistantsStore()
 const userPerfsStore = useUserPerfsStore()
-const assistants = computed(() => assistantsStore.assistants.filter(a => a.workspace_id === props.workspaceId))
-
+const assistants = computed(() => assistantsStore.assistants.filter(a => a.workspace_id === props.workspaceId || a.workspace_id == null))
 function getLink(id) {
   return !props.workspaceId ? `/assistants/${id}` : `/workspaces/${props.workspaceId}/assistants/${id}`
 }
@@ -134,7 +136,6 @@ async function addItem() {
     provider: userPerfsStore.perfs.provider,
     model: userPerfsStore.perfs.model,
   })
-  console.log('---addItem', assistant)
   router.push(getLink(assistant.id))
 }
 
