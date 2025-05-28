@@ -5,6 +5,7 @@ import { defineStore } from 'pinia'
 import { supabase } from 'src/services/supabase/client'
 import { reactive, ref } from 'vue'
 import merge from 'lodash/merge'
+import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 
 type StoredItemInput = Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id'>
 type MessageContentInput = Omit<Database['public']['Tables']['message_contents']['Insert'], 'message_id'> & { stored_items?: StoredItemInput[] }
@@ -32,7 +33,6 @@ export const useDialogsStore = defineStore('dialogs', () => {
       acc[dialog.id] = dialog
       return acc
     }, {}))
-    // console.log('---fetchDialogs dialogs', dialogs)
   }
 
   async function fetchDialogMessages(dialogId: string) {
@@ -47,7 +47,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
     const messages = data.map(mapDialogMessage)
 
     dialogMessages[dialogId] = messages
-    console.log("---fetchDialogMessages: ", dialogMessages[dialogId])
+
     return messages as DialogMessageMapped[]
   }
 
@@ -208,8 +208,12 @@ export const useDialogsStore = defineStore('dialogs', () => {
   }
 
   const init = async () => {
+    Object.assign(dialogs, {})
+    Object.assign(dialogMessages, {})
     await fetchDialogs()
   }
+
+  useUserLoginCallback(init)
 
   async function removeDialogMessages(messageIds: string[]) {
     const { error } = await supabase.from('dialog_messages').delete().in('id', messageIds)
@@ -260,7 +264,6 @@ export const useDialogsStore = defineStore('dialogs', () => {
   }
 
   return {
-    init,
     dialogs,
     dialogMessages,
     addDialog,

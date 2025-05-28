@@ -9,6 +9,7 @@ import { supabase } from 'src/services/supabase/client'
 import { CODE_NO_RECORD_FOUND } from 'src/services/supabase/consts'
 import { useUserStore } from './user'
 import { isEqual, throttle, cloneDeep } from 'lodash'
+import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 
 interface Perfs {
   darkMode: boolean | 'auto'
@@ -139,8 +140,11 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
   }
 
   const init = async () => {
+    Object.assign(perfs, defaultPerfs)
     await fetchPerfs()
   }
+
+  useUserLoginCallback(init)
 
   const addPerfs = async (value:Perfs) => {
     const { data, error } = await supabase.from('user_data').insert({ user_id: userStore.currentUserId, key: USER_PERFS_KEY, value }).select().single()

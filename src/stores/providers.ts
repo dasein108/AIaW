@@ -8,6 +8,7 @@ import { modelOptions as baseModelOptions, ProviderTypes } from 'src/utils/value
 import { computed, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { supabase } from 'src/services/supabase/client'
+import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 
 const SELECT_QUERY = `*, subproviders(*)`
 
@@ -191,8 +192,12 @@ export const useProvidersStore = defineStore('providers', () => {
   }
 
   async function init() {
+    Object.assign(providersMap, {})
     await fetchCustomProviders()
   }
+
+  useUserLoginCallback(init)
+
   return {
     init,
     providers,

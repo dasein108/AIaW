@@ -39,6 +39,7 @@ type UserDataMapped = UserData & {
 type StoredItemMapped =Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id' | 'type'> & {dialog_id?: string, type: 'text' | 'file' | 'quote', message_content_id?: string}
 
 type WorkspaceMemberRole = 'admin' | 'member' | 'readonly'
+type WorkspaceRole = 'owner' | 'admin' | 'member' | 'readonly' | 'none'
 
 type WorkspaceMapped = Workspace & {
   avatar?: Avatar;
@@ -97,5 +98,5 @@ export type {
   MessageContent, WorkspaceMember, StoredItem, DialogMessageMapped, MessageContentMapped, DialogMapped,
   StoredItemMapped, CustomProviderMapped, SubproviderMapped, UserDataMapped,
   WorkspaceMemberRole,
-  WorkspaceMemberMapped
+  WorkspaceMemberMapped, WorkspaceRole
 }

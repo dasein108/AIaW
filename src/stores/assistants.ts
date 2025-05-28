@@ -8,6 +8,7 @@ import { supabase } from 'src/services/supabase/client'
 import { AssistantMapped, Assistant } from '@/services/supabase/types'
 import { ref } from 'vue'
 import { AssistantPlugins, Avatar, Model, ModelSettings, PromptVar, Provider } from '@/utils/types'
+import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 
 function mapWorkspaceTypes(item: Assistant): AssistantMapped {
   const { avatar, prompt_vars, prompt_role, provider, model, model_settings, plugins, ...rest } = item
@@ -36,8 +37,12 @@ export const useAssistantsStore = defineStore('assistants', () => {
   }
 
   const init = async () => {
+    assistants.value = []
+    isLoaded.value = false
     await fetchAssistants()
   }
+
+  useUserLoginCallback(init)
 
   const { t } = useI18n()
   async function add(props: Partial<Assistant> = {}) {

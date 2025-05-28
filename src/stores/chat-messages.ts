@@ -3,6 +3,7 @@ import { supabase } from 'src/services/supabase/client'
 import { ChatMessage, ChatMessageWithProfile } from '@/services/supabase/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 
 export const useChatMessagesStore = defineStore('chat-messages', () => {
   const messagesByChat = ref<Record<string, ChatMessageWithProfile[]>>({})
@@ -13,6 +14,8 @@ export const useChatMessagesStore = defineStore('chat-messages', () => {
     }
     messagesByChat.value[message.chat_id].push(message)
   }
+
+  useChatMessagesSubscription(onNewMessage)
 
   // TODO: improve to able to fetch messages with lazy loading
   const fetchMessages = async (chatId: string, offset = 0, limit = 100) => {
@@ -51,7 +54,6 @@ export const useChatMessagesStore = defineStore('chat-messages', () => {
     }
     return data
   }
-  useChatMessagesSubscription(onNewMessage)
 
   return {
     messagesByChat,

@@ -11,14 +11,7 @@ import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { useUserStore } from 'src/stores/user'
 import { useQuasar } from 'quasar'
-import { usePluginsStore } from './stores/plugins'
-import { useAssistantsStore } from './stores/assistants'
 import { useChatMessagesStore } from './stores/chat-messages'
-import { useDialogsStore } from './stores/dialogs'
-import { useArtifactsStore } from './stores/artifacts'
-import { useProvidersStore } from './stores/providers'
-import { useUserPerfsStore } from './stores/user-perfs'
-import { main } from './services/supabase/client'
 
 defineOptions({
   name: 'App'
@@ -26,21 +19,8 @@ defineOptions({
 
 const userStore = useUserStore()
 
-async function initStores() {
-  useChatMessagesStore()
-
-  await Promise.all([
-    usePluginsStore().init(),
-    useAssistantsStore().init(),
-    userStore.init(),
-    useDialogsStore().init(),
-    useArtifactsStore().init(),
-    useProvidersStore().init(),
-    useUserPerfsStore().init()
-  ]).then(() => {
-    main('d78214a2-9168-49e2-882c-63a4bb694b8e')
-  })
-}
+// Subscribes to chat messages
+useChatMessagesStore()
 
 const $q = useQuasar()
 
@@ -72,7 +52,7 @@ router.beforeEach(async (to, from, next) => {
 onMounted(async () => {
   ready()
   checkUpdate()
-  await initStores()
+  await userStore.init()
 })
 
 </script>

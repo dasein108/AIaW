@@ -325,7 +325,8 @@ export default {
     newWorkspace: 'New Workspace',
     newFolder: 'New Folder',
     moveTo: 'Move To',
-    delete: 'Delete'
+    delete: 'Delete',
+    settings: 'Settings'
   },
   modelOptionsBtn: {
     modelOptions: 'Model Options',

@@ -44,7 +44,7 @@ const workspace = syncRef(
 )
 
 const contentMd = computed(() => engine.parseAndRenderSync(workspace.value.index_content, { workspace: workspace.value || DefaultWsIndexContent }))
-console.log('workspaceIndex contentMd', toRaw(contentMd), workspace.value.index_content, toRaw(workspace.value))
+
 useSetTitle(computed(() => workspace.value?.name))
 
 const mdPreviewProps = useMdPreviewProps()

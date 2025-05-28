@@ -38,7 +38,6 @@ async function fetchChats(currentUserId: string | null) {
     .from('chats')
     .select('*')
     .order('created_at', { ascending: false })
-  console.log('---fetchChats data', data)
   if (error) {
     console.error('❌ Failed to fetch chats:', error.message)
     return

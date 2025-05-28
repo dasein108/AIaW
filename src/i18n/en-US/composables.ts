@@ -42,5 +42,9 @@ export default {
     prodExpiring: 'Your cloud sync subscription is about to expire',
     renewal: 'Renew',
     subscribe: 'Subscribe'
+  },
+  common: {
+    loading: 'Loading...',
+    noAdmin: 'You are not an administrator of this workspace'
   }
 }

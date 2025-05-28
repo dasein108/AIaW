@@ -3,13 +3,15 @@ import { DefaultWsIndexContent } from 'src/utils/templates'
 import { useI18n } from 'vue-i18n'
 import { supabase } from 'src/services/supabase/client'
 import { useWorkspacesWithSubscription } from 'src/composables/workspaces/useWorkspacesWithSubscription'
-import type { WorkspaceMapped, WorkspaceMemberMapped, WorkspaceMemberRole } from '@/services/supabase/types'
+import type { WorkspaceMapped, WorkspaceMemberMapped, WorkspaceMemberRole, WorkspaceRole } from '@/services/supabase/types'
 import { throttle } from 'lodash'
+import { ref } from 'vue'
 
 const SELECT_WORKSPACE_MEMBERS = '*, profile:profiles(id, name)'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
   const { workspaces, isLoaded } = useWorkspacesWithSubscription()
+  const workspaceMembers = ref<WorkspaceMemberMapped[]>([])
   const { t } = useI18n()
 
   async function addWorkspace(props: Partial<WorkspaceMapped>) {
@@ -81,6 +83,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
       console.error('❌ Failed to add workspace member:', error.message)
       throw error
     }
+    workspaceMembers.value = [...workspaceMembers.value, data as WorkspaceMemberMapped]
     return data as WorkspaceMemberMapped
   }
 
@@ -90,6 +93,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
       console.error('❌ Failed to remove workspace member:', error.message)
       throw error
     }
+    workspaceMembers.value = workspaceMembers.value.filter(member => member.user_id !== userId)
   }
 
   async function updateWorkspaceMember(workspaceId: string, userId: string, role: WorkspaceMemberRole) {
@@ -98,6 +102,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
       console.error('❌ Failed to update workspace member:', error.message)
       return false
     }
+    workspaceMembers.value = workspaceMembers.value.map(member => member.user_id === userId ? { ...member, role } : member)
   }
 
   async function getWorkspaceMembers(workspaceId: string) {
@@ -106,7 +111,22 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
       console.error('❌ Failed to get workspace members:', error.message)
       throw error
     }
+    workspaceMembers.value = data as WorkspaceMemberMapped[]
     return data as WorkspaceMemberMapped[]
+  }
+
+  async function isUserWorkspaceAdmin(workspaceId: string, userId: string) {
+    const isOwner = workspaces.value.find(workspace => workspace.id === workspaceId && workspace.owner_id === userId) !== undefined
+
+    if (isOwner) {
+      return 'owner' as WorkspaceRole
+    }
+
+    const member = workspaceMembers.value.find(member => member.user_id === userId)
+    if (member) {
+      return member.role as WorkspaceRole
+    }
+    return 'none' as WorkspaceRole
   }
 
   return {
@@ -119,6 +139,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     addWorkspaceMember,
     removeWorkspaceMember,
     updateWorkspaceMember,
-    getWorkspaceMembers
+    getWorkspaceMembers,
+    isUserWorkspaceAdmin
   }
 })

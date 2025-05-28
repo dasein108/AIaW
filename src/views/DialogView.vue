@@ -630,7 +630,6 @@ const itemMap = computed<Record<string, StoredItem>>(() => {
   dialogMessages.value.flatMap(m => m.message_contents).flatMap(c => c.stored_items).forEach(i => { map[i.id] = i })
   return map
 })
-console.log('---messageMap', messageMap.value, chain.value, "dialogMessages", dialogMessages.value)
 
 provide('messageMap', messageMap)
 provide('itemMap', itemMap)

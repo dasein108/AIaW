@@ -3,6 +3,7 @@ import { supabase } from 'src/services/supabase/client'
 import type { Workspace, WorkspaceMapped } from 'src/services/supabase/types'
 import { Avatar } from '@/utils/types'
 import { useUserStore } from 'src/stores/user'
+import { useUserLoginCallback } from '../auth/useUserLoginCallback'
 
 export function mapWorkspaceTypes(item: Workspace): WorkspaceMapped {
   const { avatar, vars, index_content, ...rest } = item
@@ -94,17 +95,12 @@ export function useWorkspacesWithSubscription() {
   }
 
   // Watch for currentUser changes
-  watch(
-    () => userStore.currentUserId,
-    (newId, oldId) => {
-      if (newId !== oldId) {
-        unsubscribeFromWorkspaces()
-        workspaces.value = []
-        fetchWorkspaces()
-        subscribeToWorkspaces()
-      }
-    }
-  )
+  useUserLoginCallback(async() => {
+    unsubscribeFromWorkspaces()
+    workspaces.value = []
+    fetchWorkspaces()
+    subscribeToWorkspaces()
+  })
 
   return {
     isLoaded,

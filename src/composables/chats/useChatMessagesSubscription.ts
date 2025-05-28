@@ -1,7 +1,6 @@
-import { watch } from 'vue'
 import { supabase } from 'src/services/supabase/client'
 import type { ChatMessageWithProfile, Profile } from 'src/services/supabase/types'
-import { useUserStore } from 'src/stores/user'
+import { useUserLoginCallback } from '../auth/useUserLoginCallback'
 
 // Cache for sender profiles
 const profileCache = new Map<string, Profile | null>()
@@ -17,7 +16,6 @@ let subscription: ReturnType<typeof supabase.channel> | null = null
 export function useChatMessagesSubscription(
   onNewMessage: (message: ChatMessageWithProfile) => void
 ) {
-  const userStore = useUserStore()
   // Subscribe only once
   const subscribe = () => {
     if (!subscription) {
@@ -32,7 +30,6 @@ export function useChatMessagesSubscription(
           },
           async (payload) => {
             const message = payload.new as ChatMessageWithProfile
-            const chatId = message.chat_id
             // Fetch sender profile with cache
             let profile = profileCache.get(message.sender_id)
             if (profile === undefined) {
@@ -63,13 +60,8 @@ export function useChatMessagesSubscription(
   subscribe()
 
   // Watch for currentUser changes
-  watch(
-    () => userStore.currentUserId,
-    (newId, oldId) => {
-      if (newId !== oldId) {
-        unsubscribe()
-        subscribe()
-      }
-    }
-  )
+  useUserLoginCallback(async() => {
+    unsubscribe()
+    subscribe()
+  })
 }

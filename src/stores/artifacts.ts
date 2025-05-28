@@ -3,6 +3,7 @@ import { ArtifactMapped } from '@/services/supabase/types'
 import { defineStore } from 'pinia'
 import { reactive, ref, watch, toRef, computed } from 'vue'
 import { throttle } from 'lodash'
+import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 
 export const useArtifactsStore = defineStore('artifacts', () => {
   const workspaceArtifacts = reactive<Record<string, Record<string, ArtifactMapped>>>({})
@@ -61,8 +62,11 @@ export const useArtifactsStore = defineStore('artifacts', () => {
   }
 
   async function init() {
+    Object.assign(workspaceArtifacts, {})
     await fetchArtifacts()
   }
+
+  useUserLoginCallback(init)
 
   return {
     artifacts,

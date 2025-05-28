@@ -9,6 +9,14 @@
     v-model="expanded"
   >
     <template #header>
+      <!-- <q-btn
+        flat
+        dense
+        size="xs"
+        icon="sym_o_adjust"
+        :title="'More actions'"
+        @click.prevent.stop="showMenu"
+      /> -->
       <q-item-section
         avatar
         min-w-0
@@ -21,7 +29,11 @@
       <q-item-section>
         {{ item.name }}
       </q-item-section>
-      <q-menu context-menu>
+
+      <q-menu
+        ref="menuRef"
+        context-menu
+      >
         <q-list style="min-width: 100px">
           <menu-item
             icon="sym_o_edit"
@@ -54,6 +66,12 @@
             @click="deleteItem(item)"
             hover:text-err
           />
+          <menu-item
+            icon="sym_o_settings"
+            :label="$t('workspaceListItem.settings')"
+            :to="`/workspaces/${item.id}/settings`"
+            hover:text-err
+          />
         </q-list>
       </q-menu>
     </template>
@@ -78,6 +96,14 @@
     py-1.5
     min-h-0
   >
+    <!-- <q-btn
+      flat
+      dense
+      size="xs"
+      icon="sym_o_adjust"
+      :title="'More actions'"
+      @click.prevent.stop="console.log('more actions')"
+    /> -->
     <q-item-section
       avatar
       min-w-0
@@ -88,6 +114,7 @@
       />
     </q-item-section>
     <q-item-section>{{ item.name }}</q-item-section>
+
     <q-menu context-menu>
       <q-list style="min-width: 100px">
         <menu-item
@@ -111,6 +138,12 @@
           @click="deleteItem(item)"
           hover:text-err
         />
+        <menu-item
+          icon="sym_o_settings"
+          :label="$t('workspaceListItem.settings')"
+          :to="`/workspaces/${item.id}/settings`"
+          hover:text-err
+        />
       </q-list>
     </q-menu>
   </q-item>
@@ -123,6 +156,7 @@ import AAvatar from './AAvatar.vue'
 import { useWorkspaceActions } from 'src/composables/workspaces/workspace-actions'
 import MenuItem from './MenuItem.vue'
 import { useRootWorkspace } from '../composables/workspaces/useRootWorkspaces'
+import { QMenu } from 'quasar'
 
 // import { Folder, Workspace } from 'src/utils/types'
 
@@ -136,6 +170,12 @@ const workspaces = useRootWorkspace(props.item.id)
 
 const selected = defineModel<string>('selected')
 const expanded = ref(false)
+
+const menuRef = ref<QMenu | null>(null)
+function showMenu(e: MouseEvent) {
+  menuRef.value?.show(e)
+}
+
 watch(selected, () => {
   if (workspaces.value.some(c => c.id === selected.value)) {
     expanded.value = true

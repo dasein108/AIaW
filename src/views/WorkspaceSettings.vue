@@ -4,9 +4,16 @@
       {{ $t('workspaceSettings.title') }}
     </q-toolbar-title>
   </view-common-header>
+
   <q-page-container>
     <q-page bg-sur>
-      <q-list>
+      <loading-panel v-if="!isLoaded" />
+      <notification-panel
+        v-else-if="!isAdmin"
+        :title="$t('common.noAdmin')"
+        :warning="true"
+      />
+      <q-list v-else>
         <q-item>
           <q-item-section>
             {{ $t('workspacePage.isPublic') }}
@@ -102,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, Ref, inject, toRaw } from 'vue'
+import { computed, Ref, inject, toRaw, toRefs, watch } from 'vue'
 import { WorkspaceMapped } from '@/services/supabase/types'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { syncRef } from 'src/composables/sync-ref'
@@ -117,18 +124,25 @@ import { useSetTitle } from 'src/composables/set-title'
 import { useI18n } from 'vue-i18n'
 import { useUserDataStore } from 'src/stores/user-data'
 import WorkspaceMembers from 'src/components/workspace/WorkspaceMembers.vue'
-
+import { useIsWorkspaceAdmin } from 'src/composables/workspaces/useIsWorkspaceAdmin'
+import LoadingPanel from 'src/components/common/LoadingPanel.vue'
+import NotificationPanel from 'src/components/common/NotificationPanel.vue'
 const { t } = useI18n()
 
 defineEmits(['toggle-drawer'])
 const userDataStore = useUserDataStore()
 const store = useWorkspacesStore()
-
 const workspace = syncRef(
   inject('workspace') as Ref<WorkspaceMapped>,
   val => { store.putItem(toRaw(val)) },
   { valueDeep: true }
 )
+
+const { isAdmin, isLoaded } = useIsWorkspaceAdmin()
+
+watch(isAdmin, (newVal) => {
+  console.log('----isAdmin', newVal)
+})
 const assistantsStore = useAssistantsStore()
 const assistantOptions = computed(() => assistantsStore.assistants.filter(
   a => [workspace.value.id, null].includes(a.workspace_id)

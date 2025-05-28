@@ -13,6 +13,7 @@ import { keplerPlugin } from 'src/services/kepler/kepler-plugin'
 import { supabase } from 'src/services/supabase/client'
 import { UserPlugin } from '@/services/supabase/types'
 import { useAssistantsStore } from './assistants'
+import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 
 export const usePluginsStore = defineStore('plugins', () => {
   const assistantsStore = useAssistantsStore()
@@ -28,7 +29,6 @@ export const usePluginsStore = defineStore('plugins', () => {
       return
     }
     installedPlugins.value = data// .map(i => ({ ...i, manifest: i.manifest as PluginManifest }))
-    console.log('---installedPlugins.value', installedPlugins.value)
   }
 
   async function upsertPlugin(plugin: Omit<UserPlugin, 'user_id'>) {
@@ -56,7 +56,7 @@ export const usePluginsStore = defineStore('plugins', () => {
 
   const availableKeys = computed(() => installedPlugins.value.filter(i => i.available).map(i => i.key))
   const [data, ready] = persistentReactive<PluginsData>('#plugins-data', defaultData)
-  console.log('----plugins-data', data)
+
   const plugins = computed(() => [
     webSearchPlugin.plugin,
     calculatorPlugin,
@@ -143,11 +143,13 @@ export const usePluginsStore = defineStore('plugins', () => {
   }
 
   async function init() {
+    installedPlugins.value = []
     await fetchPlugins()
   }
 
+  useUserLoginCallback(init)
+
   return {
-    init,
     data,
     ready,
     plugins,
