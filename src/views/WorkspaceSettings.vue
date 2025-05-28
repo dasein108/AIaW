@@ -24,6 +24,20 @@
         </q-item>
         <q-item>
           <q-item-section>
+            {{ $t('workspacePage.name') }}
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              v-model="workspace.name"
+              autogrow
+              filled
+              clearable
+              placeholder="Name of workspace..."
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
             {{ $t('workspacePage.description') }}
           </q-item-section>
           <q-item-section>

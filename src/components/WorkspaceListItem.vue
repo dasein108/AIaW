@@ -7,6 +7,7 @@
     :header-class="[{ 'route-active': item.id === selected }, 'py-1.5 min-h-0']"
     @update:model-value="accept === 'folder' && (selected = item.id)"
     v-model="expanded"
+    switch-toggle-side
   >
     <template #header>
       <!-- <q-btn
@@ -29,22 +30,20 @@
       <q-item-section>
         {{ item.name }}
       </q-item-section>
-
+      <q-btn
+        flat
+        dense
+        size="xs"
+        icon="sym_o_more_vert"
+        :title="'More actions'"
+        @click.prevent.stop="showMenu($event, 'folder')"
+        switch-toggle-side="left"
+      />
       <q-menu
-        ref="menuRef"
+        ref="menuFolderRef"
         context-menu
       >
         <q-list style="min-width: 100px">
-          <menu-item
-            icon="sym_o_edit"
-            :label="$t('workspaceListItem.rename')"
-            @click="renameItem(item)"
-          />
-          <menu-item
-            icon="sym_o_interests"
-            :label="$t('workspaceListItem.changeIcon')"
-            @click="changeAvatar(item)"
-          />
           <menu-item
             icon="sym_o_add"
             :label="$t('workspaceListItem.newWorkspace')"
@@ -96,14 +95,6 @@
     py-1.5
     min-h-0
   >
-    <!-- <q-btn
-      flat
-      dense
-      size="xs"
-      icon="sym_o_adjust"
-      :title="'More actions'"
-      @click.prevent.stop="console.log('more actions')"
-    /> -->
     <q-item-section
       avatar
       min-w-0
@@ -114,19 +105,19 @@
       />
     </q-item-section>
     <q-item-section>{{ item.name }}</q-item-section>
-
-    <q-menu context-menu>
+    <q-btn
+      flat
+      dense
+      size="xs"
+      icon="sym_o_more_vert"
+      :title="'More actions'"
+      @click.prevent.stop="showMenu($event, 'workspace')"
+    />
+    <q-menu
+      ref="menuWorkspaceRef"
+      context-menu
+    >
       <q-list style="min-width: 100px">
-        <menu-item
-          icon="sym_o_edit"
-          :label="$t('workspaceListItem.rename')"
-          @click="renameItem(item)"
-        />
-        <menu-item
-          icon="sym_o_interests"
-          :label="$t('workspaceListItem.changeIcon')"
-          @click="changeAvatar(item)"
-        />
         <menu-item
           icon="sym_o_move_item"
           :label="$t('workspaceListItem.moveTo')"
@@ -165,15 +156,20 @@ const props = defineProps<{
   accept: 'workspace' | 'folder'
 }>()
 
-const { addWorkspace, addFolder, renameItem, moveItem, deleteItem, changeAvatar } = useWorkspaceActions()
+const { addWorkspace, addFolder, moveItem, deleteItem } = useWorkspaceActions()
 const workspaces = useRootWorkspace(props.item.id)
 
 const selected = defineModel<string>('selected')
 const expanded = ref(false)
 
-const menuRef = ref<QMenu | null>(null)
-function showMenu(e: MouseEvent) {
-  menuRef.value?.show(e)
+const menuFolderRef = ref<QMenu | null>(null)
+const menuWorkspaceRef = ref<QMenu | null>(null)
+function showMenu(e: Event, type: 'folder' | 'workspace') {
+  if (type === 'folder') {
+    menuFolderRef.value?.show(e)
+  } else {
+    menuWorkspaceRef.value?.show(e)
+  }
 }
 
 watch(selected, () => {

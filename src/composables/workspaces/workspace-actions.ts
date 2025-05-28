@@ -63,31 +63,6 @@ export function useWorkspaceActions() {
       workspacesStore.addWorkspace({ name: name.trim(), parent_id: parentId, type: 'folder' })
     })
   }
-  function renameItem(item) {
-    if (item) {
-      $q.dialog({
-        title: t('workspace.rename'),
-        prompt: {
-          model: item.name,
-          type: 'text',
-          isValid: v => !!v.trim() && v !== item.name,
-          label: t('workspace.name')
-        },
-        cancel: true,
-        ...dialogOptions
-      }).onOk(newName => {
-        workspacesStore.updateItem(item.id, { name: newName.trim() })
-      })
-    }
-  }
-  function changeAvatar(item) {
-    $q.dialog({
-      component: PickAvatarDialog,
-      componentProps: { model: item.avatar, defaultTab: 'icon' }
-    }).onOk(avatar => {
-      workspacesStore.updateItem(item.id, { avatar: toRaw(avatar) })
-    })
-  }
   function moveItem({ id }, exclude?: string[]) {
     $q.dialog({
       component: SelectWorkspaceDialog,
@@ -113,5 +88,5 @@ export function useWorkspaceActions() {
     }).onOk(() => { workspacesStore.deleteItem(id) })
   }
 
-  return { addWorkspace, addFolder, renameItem, changeAvatar, moveItem, deleteItem }
+  return { addWorkspace, addFolder, moveItem, deleteItem }
 }
