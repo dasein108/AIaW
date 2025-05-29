@@ -3,12 +3,9 @@ import { ChatMapped } from '@/services/supabase/types'
 import { defineStore } from 'pinia'
 import { supabase } from 'src/services/supabase/client'
 import { throttle } from 'lodash'
-import { useProfileStore } from './profile'
-import { toRef } from 'vue'
 
 export const useChatsStore = defineStore('chats', () => {
-  const profileStore = useProfileStore()
-  const chats = useChatsWithSubscription(toRef(profileStore, 'profiles'))
+  const chats = useChatsWithSubscription()
 
   const add = async (chat: Omit<ChatMapped, 'id' | 'created_at' | 'updated_at' | 'owner_id'>) => {
     console.log('addChat', chat)
