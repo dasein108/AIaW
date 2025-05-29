@@ -5,6 +5,7 @@ import type { User } from '@supabase/supabase-js'
 
 export const useUserStore = defineStore('user', () => {
   const currentUser = ref<User | null>(null)
+  const isInitialized = ref(false)
 
   // Initialize user on store creation
   async function init() {
@@ -13,6 +14,7 @@ export const useUserStore = defineStore('user', () => {
     supabase.auth.onAuthStateChange((event, session) => {
       currentUser.value = session?.user ?? null
     })
+    isInitialized.value = true
   }
 
   const currentUserId = computed(() => currentUser.value?.id ?? null)
@@ -22,6 +24,7 @@ export const useUserStore = defineStore('user', () => {
     currentUser,
     currentUserId,
     isLoggedIn,
-    init
+    init,
+    isInitialized
   }
 })

@@ -17,7 +17,10 @@
     </q-toolbar>
   </q-header>
   <q-page-container>
-    <q-page :style-fn="pageFhStyle">
+    <q-page
+      :style-fn="pageFhStyle"
+      v-if="currentUserId"
+    >
       <q-list
         pb-2
         max-w="1000px"
@@ -31,7 +34,49 @@
             {{ $t('accountPage.emailLabel') }}
           </q-item-section>
           <q-item-section side>
-            {{ userStore.currentUser?.email }}
+            {{ currentUser?.email }}
+          </q-item-section>
+        </q-item>
+        <q-separator spaced />
+        <q-item>
+          <q-item-section>
+            {{ $t('accountPage.name') }}
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              v-model="profile.name"
+              filled
+              clearable
+              autogrow
+
+              placeholder="Name..."
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            {{ $t('accountPage.description') }}
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              v-model="profile.description"
+              autogrow
+              filled
+              clearable
+              placeholder="Description..."
+            />
+          </q-item-section>
+        </q-item>
+        <q-item
+          clickable
+          v-ripple
+          @click="pickAvatar"
+        >
+          <q-item-section>
+            {{ $t('accountPage.avatar') }}
+          </q-item-section>
+          <q-item-section side>
+            <a-avatar :avatar="profile.avatar" />
           </q-item-section>
         </q-item>
         <q-separator spaced />
@@ -53,21 +98,43 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from 'vue'
+import { computed, ref, toRaw, toRef } from 'vue'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useRouter } from 'vue-router'
 import { pageFhStyle } from 'src/utils/functions'
-import { useUserStore } from 'src/stores/user'
 import { useAuth } from 'src/composables/auth/useAuth'
+import { useProfileStore } from 'src/stores/profile'
+import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
+import { useQuasar } from 'quasar'
+import { syncRef } from 'src/composables/sync-ref'
+import { ProfileMapped } from '@/services/supabase/types'
+import { useUserStore } from 'src/stores/user'
 
-const userStore = useUserStore()
-
+const { profiles, put } = useProfileStore()
+const { currentUser, currentUserId } = useUserStore()
 const router = useRouter()
 const loading = ref(false)
+const $q = useQuasar()
+const currentProfile = computed(() => profiles[currentUserId])
 
+const profile = syncRef(
+  currentProfile,
+  val => { put(toRaw(val)) },
+  { valueDeep: true }
+)
 const { signOut } = useAuth(loading, () => {
   router.replace('/')
 })
+
+function pickAvatar() {
+  $q.dialog({
+    component: PickAvatarDialog,
+    componentProps: { model: profile!.value.avatar, defaultTab: 'icon' }
+  }).onOk(avatar => {
+    profile!.value.avatar = avatar
+  })
+}
+console.log('----profile', profile)
 
 const uiStateStore = useUiStateStore()
 

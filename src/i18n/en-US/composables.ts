@@ -45,6 +45,7 @@ export default {
   },
   common: {
     loading: 'Loading...',
-    noAdmin: 'You are not an administrator of this workspace'
+    noAdmin: 'You are not an administrator of this workspace',
+    pleaseLogin: 'Please login to access this page'
   }
 }

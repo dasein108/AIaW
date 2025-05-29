@@ -1,28 +1,21 @@
 /* eslint-disable camelcase */
 import { defineStore } from 'pinia'
 import { defaultModelSettings } from 'src/common/consts'
-import { defaultAvatar, genId } from 'src/utils/functions'
+import { defaultAvatar, defaultTextAvatar } from 'src/utils/functions'
 import { AssistantDefaultPrompt } from 'src/utils/templates'
 import { useI18n } from 'vue-i18n'
 import { supabase } from 'src/services/supabase/client'
 import { AssistantMapped, Assistant } from '@/services/supabase/types'
 import { ref } from 'vue'
-import { AssistantPlugins, Avatar, Model, ModelSettings, PromptVar, Provider } from '@/utils/types'
 import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 import { throttle } from 'lodash'
 
-function mapWorkspaceTypes(item: Assistant): AssistantMapped {
-  const { avatar, prompt_vars, prompt_role, provider, model, model_settings, plugins, ...rest } = item
+function mapAssistantTypes(item: Assistant): AssistantMapped {
+  const { avatar, ...rest } = item
   return {
-    avatar: (avatar ?? { type: 'text', text: item.name.slice(0, 1) }) as Avatar,
-    prompt_vars: (prompt_vars ?? []) as PromptVar[],
-    provider: provider as Provider,
-    model: model as Model,
-    model_settings: model_settings as ModelSettings,
-    plugins: plugins as AssistantPlugins,
-    prompt_role: prompt_role as 'system' | 'user' | 'assistant',
+    avatar: (avatar ?? defaultTextAvatar(item.name)),
     ...rest
-  }
+  } as AssistantMapped
 }
 
 export const useAssistantsStore = defineStore('assistants', () => {
@@ -33,7 +26,7 @@ export const useAssistantsStore = defineStore('assistants', () => {
     if (error) {
       console.error('Error fetching assistants:', error)
     }
-    assistants.value = data.map(mapWorkspaceTypes)
+    assistants.value = data.map(mapAssistantTypes)
     isLoaded.value = true
   }
 
@@ -66,7 +59,7 @@ export const useAssistantsStore = defineStore('assistants', () => {
     if (error) {
       console.error('Error adding assistant:', error)
     }
-    assistants.value.push(mapWorkspaceTypes(data))
+    assistants.value.push(mapAssistantTypes(data))
     return data
   }
 
@@ -76,7 +69,7 @@ export const useAssistantsStore = defineStore('assistants', () => {
       console.error('Error updating assistant:', error)
       return null
     }
-    assistants.value = assistants.value.map(a => a.id === id ? mapWorkspaceTypes(data) : a)
+    assistants.value = assistants.value.map(a => a.id === id ? mapAssistantTypes(data) : a)
     return data
     // return await db.assistants.update(id, changes)
   }

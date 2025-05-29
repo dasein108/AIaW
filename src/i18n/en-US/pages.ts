@@ -36,7 +36,10 @@ export default {
     syncServiceType: 'Cloud Sync Service',
     apiBudgetType: 'Model Quota (CNY)',
     apiBudgetUsdType: 'Model Quota (USD)',
-    amount: 'Amount'
+    amount: 'Amount',
+    name: 'Name',
+    description: 'Description',
+    avatar: 'Avatar'
   },
   modelPricing: {
     modelPrice: 'Model Price',

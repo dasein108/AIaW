@@ -6,13 +6,11 @@ import { useUserStore } from 'src/stores/user'
 import { useUserLoginCallback } from '../auth/useUserLoginCallback'
 
 export function mapWorkspaceTypes(item: Workspace): WorkspaceMapped {
-  const { avatar, vars, index_content, ...rest } = item
+  const { avatar, ...rest } = item
   return {
     avatar: (avatar ?? { type: 'text', text: item.name.slice(0, 1) }) as Avatar,
-    vars: (vars ?? {}) as Record<string, string>,
-    index_content,
     ...rest
-  }
+  } as WorkspaceMapped
 }
 
 const workspaces = ref<WorkspaceMapped[]>([])

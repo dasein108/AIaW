@@ -12,13 +12,14 @@ import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { useUserStore } from 'src/stores/user'
 import { useQuasar } from 'quasar'
 import { useChatMessagesStore } from './stores/chat-messages'
+import { useI18n } from 'vue-i18n'
 
 defineOptions({
   name: 'App'
 })
 
 const userStore = useUserStore()
-
+const { t } = useI18n()
 // Subscribes to chat messages
 useChatMessagesStore()
 
@@ -39,9 +40,13 @@ router.afterEach(to => {
 
 // Check if user is authenticated, if not, redirect to main page
 router.beforeEach(async (to, from, next) => {
-  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+  if (!userStore.isInitialized) {
+    // Allow navigation until initialized
+    return next()
+  }
+  if (to.meta.requiresAuth && !userStore.isInitialized && !userStore.isLoggedIn) {
     $q.notify({
-      message: 'Please login to access this page',
+      message: t('common.pleaseLogin'),
       color: 'negative'
     })
     return next('/')

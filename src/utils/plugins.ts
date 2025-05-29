@@ -1,5 +1,5 @@
 import { GradioFixedInput, GradioManifestEndpoint, GradioPluginManifest, GradioApiInput, HuggingPluginManifest, Plugin, PluginApi, PluginData, PluginsData, McpPluginDump, McpPluginManifest, Avatar } from './types'
-import { base64ToArrayBuffer, defaultAvatar, parsePageRange, parseSeconds } from './functions'
+import { base64ToArrayBuffer, defaultAvatar, defaultTextAvatar, parsePageRange, parseSeconds } from './functions'
 import { createHeadersWithPluginSettings, LobeChatPluginManifest, PluginSchema } from '@lobehub/chat-plugin-sdk'
 import { Boolean as TBoolean, Number as TNumber, Object as TObject, Optional as TOptional, String as TString } from '@sinclair/typebox'
 import { Client as GradioClient } from '@gradio/client'
@@ -492,7 +492,7 @@ function lobeDefaultData(manifest: LobeChatPluginManifest): PluginData {
     settings: {},
     avatar: meta.avatar
       ? (meta.avatar.startsWith('http') ? { type: 'url', url: meta.avatar } : { type: 'text', text: meta.avatar })
-      : defaultAvatar((meta.title || identifier)[0].toUpperCase()),
+      : defaultTextAvatar((meta.title || identifier)),
     fileparsers: {}
   }
 }
@@ -529,7 +529,7 @@ function mcpDefaultData(manifest: McpPluginManifest): PluginData {
   } : {
     url: transport.url
   }
-  const avatar = manifest.avatar as Avatar ?? defaultAvatar(manifest.title[0].toUpperCase())
+  const avatar = manifest.avatar as Avatar ?? defaultTextAvatar(manifest.title[0])
   return { settings, avatar, fileparsers: {} }
 }
 

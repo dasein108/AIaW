@@ -123,9 +123,6 @@ const isPageLoaded = computed(() => currentChat.value !== undefined)
 
 const { isAdmin } = useIsChatAdmin(currentChat)
 
-watch(isPageLoaded, (newVal) => {
-  console.log('----isPageLoaded', newVal)
-})
 const chat = syncRef(
   currentChat,
   val => { chatsStore.putItem(toRaw(val)) },
@@ -147,12 +144,7 @@ function pickAvatar() {
     component: PickAvatarDialog,
     componentProps: { model: chat.value?.avatar, defaultTab: 'icon' }
   }).onOk(avatar => {
-    console.log('----avatar', avatar)
-    // currentChat.value!.avatar = avatar
     chatsStore.update(currentChat.value!.id, { avatar })
-    // if (chat.value) {
-    //   chatsStore.update(chat.value.id, { avatar })
-    // }
   })
 }
 </script>

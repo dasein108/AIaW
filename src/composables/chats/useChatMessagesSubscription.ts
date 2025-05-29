@@ -1,6 +1,7 @@
 import { supabase } from 'src/services/supabase/client'
 import type { ChatMessageWithProfile, ProfileMapped } from 'src/services/supabase/types'
 import { useUserLoginCallback } from '../auth/useUserLoginCallback'
+import { useProfileStore } from 'src/stores/profile'
 
 // Cache for sender profiles
 const profileCache = new Map<string, ProfileMapped | null>()
@@ -16,6 +17,7 @@ let subscription: ReturnType<typeof supabase.channel> | null = null
 export function useChatMessagesSubscription(
   onNewMessage: (message: ChatMessageWithProfile) => void
 ) {
+  const { fetchProfile } = useProfileStore()
   // Subscribe only once
   const subscribe = () => {
     if (!subscription) {
@@ -31,16 +33,8 @@ export function useChatMessagesSubscription(
           async (payload) => {
             const message = payload.new as ChatMessageWithProfile
             // Fetch sender profile with cache
-            let profile = profileCache.get(message.sender_id)
-            if (profile === undefined) {
-              const { data } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', message.sender_id)
-                .single()
-              profile = data as ProfileMapped
-              profileCache.set(message.sender_id, profile)
-            }
+            const profile = await fetchProfile(message.sender_id)
+            profileCache.set(message.sender_id, profile)
             message.sender = profile as ProfileMapped
 
             onNewMessage(message)
