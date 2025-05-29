@@ -40,16 +40,25 @@ router.afterEach(to => {
 
 // Check if user is authenticated, if not, redirect to main page
 router.beforeEach(async (to, from, next) => {
-  if (!userStore.isInitialized) {
-    // Allow navigation until initialized
-    return next()
-  }
-  if (to.meta.requiresAuth && !userStore.isInitialized && !userStore.isLoggedIn) {
-    $q.notify({
-      message: t('common.pleaseLogin'),
-      color: 'negative'
-    })
-    return next('/')
+  if (to.meta.requiresAuth) {
+    const waitUntilInit = () =>
+      new Promise(resolve => {
+        const check = () => {
+          if (userStore.isInitialized) resolve(void 0)
+          else setTimeout(check, 50)
+        }
+        check()
+      })
+
+    await waitUntilInit()
+
+    if (!userStore.isInitialized) {
+      $q.notify({
+        message: t('common.pleaseLogin'),
+        color: 'negative'
+      })
+      return next('/')
+    }
   }
   return next()
 })

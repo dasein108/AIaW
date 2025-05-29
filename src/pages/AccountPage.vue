@@ -19,7 +19,7 @@
   <q-page-container>
     <q-page
       :style-fn="pageFhStyle"
-      v-if="currentUserId"
+      v-if="isInitialized"
     >
       <q-list
         pb-2
@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, toRef } from 'vue'
+import { computed, ref, toRaw, toRefs } from 'vue'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useRouter } from 'vue-router'
 import { pageFhStyle } from 'src/utils/functions'
@@ -109,17 +109,20 @@ import { useQuasar } from 'quasar'
 import { syncRef } from 'src/composables/sync-ref'
 import { ProfileMapped } from '@/services/supabase/types'
 import { useUserStore } from 'src/stores/user'
+import AAvatar from 'src/components/AAvatar.vue'
 
-const { profiles, put } = useProfileStore()
-const { currentUser, currentUserId } = useUserStore()
+// const { profiles, put, isInitialized: profileIsInitialized } = toRefs(useProfileStore())
+const profileStore = useProfileStore()
+const { currentUser, currentUserId, isInitialized: userIsInitialized } = toRefs(useUserStore())
 const router = useRouter()
 const loading = ref(false)
 const $q = useQuasar()
-const currentProfile = computed(() => profiles[currentUserId])
+const currentProfile = computed(() => profileStore.profiles[currentUserId.value])
+const isInitialized = computed(() => profileStore.isInitialized && userIsInitialized.value)
 
 const profile = syncRef(
   currentProfile,
-  val => { put(toRaw(val)) },
+  val => { profileStore.put(toRaw(val)) },
   { valueDeep: true }
 )
 const { signOut } = useAuth(loading, () => {

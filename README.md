@@ -1,12 +1,13 @@
 ![](docs/public/combine.webp)
 
 # AI as Workspace
+Based on  [AIaW](https://github.com/NitroRCr/AIaW/)
 
 ![](https://badge.mcpx.dev?type=client 'MCP Client') ![](https://badge.mcpx.dev?type=client&features=resources,prompts,tools 'MCP client with features')
 
 A better AI client
 
-[Website](https://aiaw.app) - [Download](https://github.com/NitroRCr/AIaW/releases/latest) - [Docs](https://docs.aiaw.app/) - [Self-hosting Guide](https://docs.aiaw.app/self-host/) - [简体中文](README.zh-CN.md)
+[Website](https://app.chatcyber.ai/) - [Download](https://github.com/dasein108/AIaW/releases/latest)
 
 ## Features Overview
 

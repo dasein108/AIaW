@@ -20,6 +20,7 @@ export const useProfileStore = defineStore('profile', () => {
   const profiles = ref<Record<string, ProfileMapped>>({})
   const user = useUserStore()
   const myProfile = computed(() => profiles.value[user.currentUserId])
+  const isInitialized = ref(false)
 
   const fetchProfiles = async () => {
     const { data, error } = await supabase.from('profiles').select('*').throwOnError()
@@ -47,6 +48,7 @@ export const useProfileStore = defineStore('profile', () => {
   const init = async () => {
     profiles.value = {}
     await fetchProfiles()
+    isInitialized.value = true
   }
 
   useUserLoginCallback(init)
@@ -77,6 +79,7 @@ export const useProfileStore = defineStore('profile', () => {
     put,
     fetchProfile,
     fetchProfiles,
-    myProfile
+    myProfile,
+    isInitialized
   }
 })
