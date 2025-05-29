@@ -3,6 +3,7 @@ import { supabase } from 'src/services/supabase/client'
 import type { ChatMapped } from 'src/services/supabase/types'
 import { useUserStore } from 'src/stores/user'
 import { defaultTextAvatar } from 'src/utils/functions'
+import type { Avatar } from 'src/utils/types'
 const chats = ref<ChatMapped[]>([])
 let isSubscribed = false
 let subscription: ReturnType<typeof supabase.channel> | null = null
@@ -17,7 +18,7 @@ async function extendChatsWithDisplayName(chatsArr: ChatMapped[], currentUserId:
         // Fetch chat members with profile
         const { data: members, error } = await supabase
           .from('chat_members')
-          .select('user_id, profiles(name)')
+          .select('user_id, profiles(name,avatar)')
           .eq('chat_id', chat.id)
         if (error || !members) {
           return { ...chat, name: 'no members' }
@@ -26,7 +27,7 @@ async function extendChatsWithDisplayName(chatsArr: ChatMapped[], currentUserId:
         // Find first member that is not myself
         const other = members.find((m: any) => m.user_id !== currentUserId)
         const displayName = other?.profiles?.name || chat.name || ''
-        return { ...chat, name: displayName, avatar: defaultTextAvatar(displayName) }
+        return { ...chat, name: displayName, avatar: other?.profiles?.avatar as Avatar || defaultTextAvatar(displayName) }
       }
     })
   )

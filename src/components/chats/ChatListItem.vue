@@ -16,7 +16,7 @@
     >
       <a-avatar
         :avatar="chat.avatar"
-        size="md"
+        size="sm"
       />
     </q-item-section>
     <q-item-section>

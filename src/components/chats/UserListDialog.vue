@@ -15,13 +15,23 @@
             :key="user.id"
             class="row items-center justify-between"
           >
-            <div>{{ user.name }}</div>
-            <q-btn
-              flat
-              color="primary"
-              icon="sym_o_person_add"
-              @click="onSelectUser(user)"
-            />
+            <q-item-section avatar>
+              <a-avatar
+                :avatar="user.avatar"
+                size="sm"
+              />
+            </q-item-section>
+            <q-item-section>
+              <div>{{ user.name }}</div>
+            </q-item-section>
+            <q-item-section side>
+              <q-btn
+                flat
+                color="primary"
+                icon="sym_o_person_add"
+                @click="onSelectUser(user)"
+              />
+            </q-item-section>
           </q-item>
         </q-list>
       </q-card-section>
@@ -39,9 +49,10 @@
 
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
-import { supabase } from 'src/services/supabase/client'
 import type { ProfileMapped } from '@/services/supabase/types'
+import AAvatar from 'src/components/AAvatar.vue'
 import { onMounted, ref } from 'vue'
+import { useProfileStore } from 'src/stores/profile'
 
 const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 
@@ -49,6 +60,7 @@ const props = defineProps<{
   currentUserId: string
 }>()
 
+const profileStore = useProfileStore()
 const users = ref<ProfileMapped[]>([])
 
 const onSelectUser = async (user: ProfileMapped) => {
@@ -56,12 +68,7 @@ const onSelectUser = async (user: ProfileMapped) => {
 }
 
 onMounted(async () => {
-  const { data, error } = await supabase.from('profiles').select('*').neq('id', props.currentUserId)
-  if (error) {
-    users.value = []
-    return
-  }
-  users.value = data as ProfileMapped[]
+  users.value = Object.values(profileStore.profiles).filter(profile => profile.id !== props.currentUserId)
 })
 
 </script>
