@@ -131,7 +131,7 @@ function save() {
   if (!artifactUnsaved(artifact)) return
   artifactsStore.update(saveArtifactChanges(artifact))
 }
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 useListenKey(toRef(perfs, 'saveArtifactKey'), save)
 
 const mode = ref<'edit' | 'view'>('edit')

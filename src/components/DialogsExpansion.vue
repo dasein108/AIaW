@@ -19,7 +19,7 @@
       </q-item-section>
     </template>
     <template #default>
-      <dialog-list />
+      <dialog-list :workspace-id />
       <search-dialog
         v-model="showSearchDialog"
         :workspace-id
@@ -42,7 +42,7 @@ defineProps<{
 
 const showSearchDialog = ref(false)
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'searchDialogKey'), () => {
     showSearchDialog.value = true

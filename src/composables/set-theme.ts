@@ -6,11 +6,12 @@ import { watchEffect } from 'vue'
 import { IsCapacitor } from 'src/utils/platform-api'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support'
+import { storeToRefs } from 'pinia'
 
 export function useSetTheme() {
   const uiStateStore = useUiStateStore()
   watchEffect(() => {
-    const { perfs } = useUserPerfsStore()
+    const { data: perfs } = useUserPerfsStore()
     const theme = themeFromSourceColor(Hct.from(perfs.themeHue, 48, 40).toInt())
     const { primary, secondary, tertiary, neutral, neutralVariant, error } = theme.palettes
     const success = TonalPalette.fromHueAndChroma(140, 55)

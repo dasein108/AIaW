@@ -20,7 +20,7 @@
       v-for="dialog in [...dialogs].reverse()"
       :key="dialog.id"
       clickable
-      :to="{ path: `/workspaces/${workspace.id}/dialogs/${dialog.id}`, query: route.query }"
+      :to="{ path: `/workspaces/${props.workspaceId}/dialogs/${dialog.id}`, query: route.query }"
       active-class="bg-sec-c text-on-sec-c"
       item-rd
       min-h="40px"
@@ -40,12 +40,12 @@
           <menu-item
             icon="sym_o_auto_fix"
             :label="$t('dialogList.summarizeDialog')"
-            @click="router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#genTitle`)"
+            @click="router.push(`/workspaces/${props.workspaceId}/dialogs/${dialog.id}#genTitle`)"
           />
           <menu-item
             icon="sym_o_content_copy"
             :label="$t('dialogList.copyContent')"
-            @click="router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#copyContent`)"
+            @click="router.push(`/workspaces/${props.workspaceId}/dialogs/${dialog.id}#copyContent`)"
           />
           <menu-item
             icon="sym_o_move_item"
@@ -79,17 +79,23 @@ import { useRouter, useRoute } from 'vue-router'
 import { useDialogsStore } from 'src/stores/dialogs'
 import { Workspace } from '@/services/supabase/types'
 import { useCheckLogin } from 'src/composables/auth/useCheckLogin'
+import { useWorkspacesStore } from 'src/stores/workspaces'
+import { storeToRefs } from 'pinia'
 
 const { t } = useI18n()
-const workspace: Ref<Workspace> = inject('workspace')
+const props = defineProps<{
+  workspaceId: string
+}>()
 
 const $q = useQuasar()
 const router = useRouter()
 const route = useRoute()
 const { ensureLogin } = useCheckLogin()
-const { createDialog } = useCreateDialog(workspace.value.id)
+const { createDialog } = useCreateDialog(props.workspaceId)
 const dialogsStore = useDialogsStore()
-const dialogs = computed(() => Object.values(dialogsStore.dialogs))
+const dialogs = computed(() => Object.values(dialogsStore.dialogs).filter(item => item.workspace_id === props.workspaceId))
+const workspaceStore = useWorkspacesStore()
+const workspace = workspaceStore.workspaces.find(item => item.id === props.workspaceId)
 
 async function addItem() {
   ensureLogin()
@@ -138,9 +144,9 @@ function deleteItem({ id, name }) {
   })
 }
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = storeToRefs(useUserPerfsStore())
 
-if (isPlatformEnabled(perfs.enableShortcutKey)) {
-  useListenKey(toRef(perfs, 'createDialogKey'), addItem)
+if (isPlatformEnabled(perfs.value.enableShortcutKey)) {
+  useListenKey(toRef(perfs.value, 'createDialogKey'), addItem)
 }
 </script>

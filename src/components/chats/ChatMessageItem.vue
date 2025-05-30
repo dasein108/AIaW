@@ -121,7 +121,7 @@ const emit = defineEmits<{
   stream: [string]
 }>()
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 
 const denseMode = computed(() => $q.screen.lt.md)
 const colMode = computed(() => denseMode.value && !isMine.value)

@@ -4,6 +4,7 @@ import type { Workspace, WorkspaceMapped } from 'src/services/supabase/types'
 import { Avatar } from '@/utils/types'
 import { useUserStore } from 'src/stores/user'
 import { useUserLoginCallback } from '../auth/useUserLoginCallback'
+import { until } from '@vueuse/core'
 
 export function mapWorkspaceTypes(item: Workspace): WorkspaceMapped {
   const { avatar, ...rest } = item
@@ -30,6 +31,7 @@ async function fetchWorkspaces() {
   }
   workspaces.value = data.map((w) => mapWorkspaceTypes(w as Workspace))
   isLoaded.value = true
+  console.log("---fetchWorkspaces", data)
 }
 
 function subscribeToWorkspaces() {

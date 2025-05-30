@@ -5,11 +5,7 @@
       @update:model-value="goTo($event)"
       accept="workspace"
     />
-    <div
-      mt-2
-      class=" bg-sur-c"
-      style="position: sticky; bottom: 0; z-index: 1;"
-    >
+    <div mt-2>
       <q-btn
         ml-2
         color="secondary"
@@ -46,6 +42,7 @@ const userDataStore = useUserDataStore()
 const workspaceStore = useWorkspacesStore()
 const router = useRouter()
 const route = useRoute()
+
 async function goTo(id: string) {
   const workspace = workspaceStore.workspaces.find(w => w.id === id) as WorkspaceMapped
   let path = `/workspaces/${workspace.id}`

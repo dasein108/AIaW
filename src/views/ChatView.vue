@@ -135,7 +135,7 @@ const props = defineProps<{
 }>()
 
 const scrollContainer = ref<HTMLElement>()
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 const lockingBottom = ref(false)
 let lastScrollTop
 function scrollListener() {

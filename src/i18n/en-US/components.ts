@@ -77,7 +77,8 @@ export default {
     deleteConfirmTitle: 'Delete Assistant',
     deleteConfirmMessage: 'Are you sure you want to delete the assistant "{name}"?',
     createAssistant: 'Create Assistant',
-    assistants: 'Assistants'
+    assistants: 'Assistants',
+    settings: 'Settings'
   },
   customProviders: {
     delete: 'Delete',

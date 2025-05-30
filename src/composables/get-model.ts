@@ -20,7 +20,7 @@ export function useGetModel() {
   //   type: 'openai',
   //   settings: { apiKey: user.value.data.apiKey, baseURL: LitellmBaseURL, compatibility: 'strict' }
   // } : null)
-  const { perfs } = useUserPerfsStore()
+  const { data: perfs } = useUserPerfsStore()
   const providersStore = useProvidersStore()
   function getProvider(provider?: Provider) {
     return provider || perfs.provider // TODO: || defaultProvider.value

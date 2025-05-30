@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHr LpR lFf">
+  <q-layout view="LHh Lpr lff">
     <q-drawer
       v-model="uiStore.mainDrawerOpen"
       show-if-above
@@ -27,19 +27,37 @@
         </svg>
       </div>
       <q-separator spaced />
-      <div
+      <q-item
         px-4
         py-2
         text-sec
       >
-        {{ t('mainLayout.workspace', 4) }}
-      </div>
-      <workspace-nav mt-2 />
+        <q-item-section>
+          {{ t('mainLayout.workspace', 1) }}
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
+            icon="sym_o_add_comment"
+            dense
+            flat
+            round
+            color="primary"
+            @click.stop
+          />
+        </q-item-section>
+      </q-item>
+      <workspaces-item />
+      <assistants-item />
+      <!-- before -->
+      <!-- <workspace-nav mt-2 /> -->
+      <!-- end before -->
+      <tabs-item />
       <q-list
         mt-a
         mb-2
       >
-        <q-item
+        <!-- before -->
+        <!-- <q-item
           clickable
           to="/assistants"
           active-class="route-active"
@@ -77,7 +95,8 @@
           <q-item-section>
             {{ t('mainLayout.settings') }}
           </q-item-section>
-        </q-item>
+        </q-item> -->
+        <!-- end before -->
         <q-separator spaced />
         <div
           px-2
@@ -108,8 +127,60 @@
             round
             icon="sym_o_more_vert"
           >
-            <q-menu>
+            <q-menu max-height="50vh">
               <q-list>
+                <q-item
+                  clickable
+                  to="/assistants"
+                  active-class="route-active"
+                  v-close-popup
+                  min-h-0
+                >
+                  <q-item-section
+                    avatar
+                    min-w-0
+                  >
+                    <q-icon name="sym_o_robot_2" />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ t('mainLayout.assistants') }}
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  clickable
+                  to="/plugins"
+                  active-class="route-active"
+                  v-close-popup
+                  min-h-0
+                >
+                  <q-item-section
+                    avatar
+                    min-w-0
+                  >
+                    <q-icon name="sym_o_extension" />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ t('mainLayout.plugins') }}
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  clickable
+                  to="/settings"
+                  active-class="route-active"
+                  v-close-popup
+                  min-h-0
+                >
+                  <q-item-section
+                    avatar
+                    min-w-0
+                  >
+                    <q-icon name="sym_o_settings" />
+                  </q-item-section>
+                  <q-item-section>
+                    {{ t('mainLayout.settings') }}
+                  </q-item-section>
+                </q-item>
+                <q-separator spaced />
                 <menu-item
                   icon="sym_o_book_2"
                   :label="t('mainLayout.usageGuide')"
@@ -174,7 +245,9 @@ import { useI18n } from 'vue-i18n'
 import { useOpenLastWorkspace } from 'src/composables/open-last-workspace'
 import { IsWeb } from 'src/utils/platform-api'
 import { VueDraggable } from 'vue-draggable-plus'
-
+import WorkspacesItem from './WorkspacesItem.vue'
+import AssistantsItem from './AssistantsItem.vue'
+import TabsItem from './TabsItem.vue'
 defineOptions({
   name: 'MainLayout'
 })

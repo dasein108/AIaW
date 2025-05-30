@@ -3,6 +3,32 @@
     @toggle-drawer="$emit('toggle-drawer')"
     @contextmenu="createDialog"
   >
+    <q-badge
+      bg-pri-c
+      text-on-pri-c
+      ml-2
+      py-1
+    >
+      <a-avatar
+        v-if="workspace"
+        size="sm"
+        :avatar="workspace.avatar"
+      />
+      <q-icon
+        v-else
+        name="sym_o_error"
+        text-warn
+      />
+      <div
+        ml-2
+      >
+        {{ workspace?.name || 'undefined' }}
+      </div>
+    </q-badge>
+    <q-icon
+      name="sym_o_chevron_right"
+      ml-2
+    />
     <div>
       <assistant-item
         clickable
@@ -435,9 +461,10 @@ import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
 import { useGetModel } from 'src/composables/get-model'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useDialogsStore } from 'src/stores/dialogs'
-import { Workspace, DialogMessageMapped, StoredItem, MessageContentMapped, StoredItemMapped, ArtifactMapped } from '@/services/supabase/types'
+import { Workspace, DialogMessageMapped, StoredItem, MessageContentMapped, StoredItemMapped, ArtifactMapped, WorkspaceMapped } from '@/services/supabase/types'
 import { useStorage } from 'src/composables/storage/useStorage'
 import { FILES_BUCKET, getFileUrl } from 'src/composables/storage/utils'
+import AAvatar from 'src/components/AAvatar.vue'
 
 const { t, locale } = useI18n()
 
@@ -451,7 +478,7 @@ const dialogsStore = useDialogsStore()
 const dialogs = computed(() => Object.values(dialogsStore.dialogs))
 
 const assistantsStore = useAssistantsStore()
-const workspace: Ref<Workspace> = inject('workspace')
+const workspace: Ref<WorkspaceMapped> = inject('workspace')
 const assistants = computed(() => assistantsStore.assistants.filter(
   a => [workspace.value.id, null].includes(a.workspace_id)
 ))
@@ -461,6 +488,8 @@ onMounted(() => {
   // dialogsStore.fetchDialogs()
   dialogsStore.fetchDialogMessages(props.id)
 })
+
+console.log("---workspace", workspace.value)
 
 const assistant = computed(() => ({ ...assistantsStore.assistants.find(a => a.id === dialog.value?.assistant_id) })) // force trigger updates
 provide('dialog', dialog)
@@ -1266,7 +1295,7 @@ function editCurr() {
   if (index === -1) return
   edit(index + 1)
 }
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'scrollUpKeyV2'), () => scroll('up'))
   useListenKey(toRef(perfs, 'scrollDownKeyV2'), () => scroll('down'))

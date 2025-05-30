@@ -51,7 +51,7 @@ async function addItem() {
   })
 }
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'createSocialKey'), addItem)

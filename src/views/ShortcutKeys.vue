@@ -221,7 +221,7 @@ import ShortcutKeyInput from 'src/components/ShortcutKeyInput.vue'
 import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 
 defineEmits(['toggle-drawer'])
 
