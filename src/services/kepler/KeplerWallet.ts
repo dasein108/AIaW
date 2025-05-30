@@ -1,8 +1,9 @@
-import { ref, watch } from 'vue'
-import { SigningCosmWasmClient, CosmWasmClient } from '@cosmjs/cosmwasm-stargate'
-import { GasPrice } from '@cosmjs/stargate'
 import type { OfflineAminoSigner, StdSignDoc } from '@cosmjs/amino'
-import type { TxStatusResponse, KeplerWalletState, ChainConfig } from './types'
+import { CosmWasmClient, SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate'
+import { GasPrice } from '@cosmjs/stargate'
+import { ref, watch } from 'vue'
+import { config } from '../constants'
+import type { KeplerWalletState, TxStatusResponse } from './types'
 import { parseTxStatus } from './utils'
 
 declare global {
@@ -22,17 +23,6 @@ export const getLocalStorageWalletState = () => {
   return typeof window !== 'undefined'
     ? JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"isConnected": false, "address": null}')
     : { isConnected: false, address: null }
-}
-
-// Configure Kepler wallet
-const config: ChainConfig = {
-  CHAIN_ID: 'cyber42-1',
-  FEE_DENOM: 'ustake',
-  DENOM: 'STAKE',
-  NODE_RPC_URL: 'https://rpc.cyber-rollup.chatcyber.ai',
-  LCD_URL: 'https://api.cyber-rollup.chatcyber.ai',
-  RPC_TIMEOUT: 60000,
-  GAS_PRICE_AMOUNT: '0.15'
 }
 
 // Chain suggestion configuration for Keplr
@@ -140,7 +130,6 @@ export function createKeplerWallet() {
       if (!window.keplr) {
         throw new Error('Keplr extension not installed')
       }
-
       const offlineSigner = window.keplr.getOfflineSigner(config.CHAIN_ID)
       const accounts = await offlineSigner.getAccounts()
 
@@ -233,13 +222,21 @@ export function createKeplerWallet() {
     throw new Error(`Transaction confirmation timed out after ${timeoutMs}ms`)
   }
 
+  const getOfflineSigner = () => {
+    if (!window.keplr) {
+      throw new Error('Keplr extension not installed')
+    }
+    return window.keplr.getOfflineSigner(config.CHAIN_ID)
+  }
+
   return {
     state,
     connect,
     disconnect,
     signTransaction,
     executeTransaction,
-    getTx: waitForTransaction
+    getTx: waitForTransaction,
+    getOfflineSigner
   }
 }
 

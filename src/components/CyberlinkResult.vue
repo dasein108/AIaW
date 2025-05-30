@@ -22,16 +22,19 @@
 </template>
 
 <script setup lang="ts">
+import { CosmosWallet } from '@/services/cosmos/CosmosWallet'
+import { KeplerWallet } from 'src/services/kepler/KeplerWallet'
+import { parseEvents } from 'src/services/kepler/utils'
+import { IsTauri } from 'src/utils/platform-api'
 import { computed, ComputedRef, inject } from 'vue'
-import { KeplerWallet } from '@/services/kepler/KeplerWallet'
 
-import { parseEvents } from '../services/kepler/utils'
 import { DialogMessageMapped, MessageContentMapped } from '@/services/supabase/types'
 import { useDialogsStore } from 'src/stores/dialogs'
 
 const props = defineProps<{ result: any, message: DialogMessageMapped }>()
 const itemMap = inject<ComputedRef>('itemMap')
-const wallet = inject<KeplerWallet>('kepler')
+const keplrWallet = inject<KeplerWallet>('kepler')
+const cosmosWallet = inject<CosmosWallet>('cosmos')
 const transactionBody = computed(() => JSON.parse(itemMap.value[props.result[0]].contentText))
 const dialogsStore = useDialogsStore()
 const handleAccept = async () => {
@@ -39,6 +42,7 @@ const handleAccept = async () => {
   const updatedContents = message_contents.filter(content => content.type !== 'assistant-tool')
 
   try {
+    const wallet = IsTauri ? cosmosWallet : keplrWallet
     const tx = await wallet.executeTransaction(transactionBody.value)
     const data = parseEvents(tx.events)
     console.log('Transaction executed', tx, data)

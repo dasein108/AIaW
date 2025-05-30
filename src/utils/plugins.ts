@@ -43,7 +43,7 @@ const timePlugin: Plugin = {
 }
 
 const calculatorPrompt =
-`Use this tool to evaluate mathetical expressions. The calculator is based on the \`expr-eval\` js library.
+  `Use this tool to evaluate mathetical expressions. The calculator is based on the \`expr-eval\` js library.
 
 Examples:
 
@@ -71,7 +71,7 @@ Examples:
 `
 
 const calculatorExpressionPrompt =
-`### Expression Syntax ###
+  `### Expression Syntax ###
 
 The parser accepts a pretty basic grammar. It's similar to normal JavaScript
 expressions, but is more math-oriented. For example, the \`^\` operator is
@@ -711,7 +711,7 @@ const fluxPlugin: Plugin = buildGradioPlugin(fluxPluginManifest, true)
 fluxPlugin.type = 'builtin'
 
 const emotionsPrompt =
-`在回答中，你可以使用 html img 标签插入表情包，使回答更可爱、富有情感。
+  `在回答中，你可以使用 html img 标签插入表情包，使回答更可爱、富有情感。
 设置 width="{{ displayWidth }}"，以避免显示得太大。
 
 可用的表情：
@@ -860,6 +860,11 @@ const defaultData: PluginsData = {
   'kepler-plugin': {
     settings: {},
     avatar: { type: 'icon', icon: 'sym_o_mood', hue: 270 },
+    fileparsers: {}
+  },
+  'cosmos-authz': {
+    settings: {},
+    avatar: { type: 'icon', icon: 'sym_o_key', hue: 270 },
     fileparsers: {}
   },
   [webSearchPlugin.pluginId]: webSearchPlugin.defaultData,
