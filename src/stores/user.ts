@@ -1,21 +1,21 @@
-import { onMounted, ref, computed } from 'vue'
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 import { supabase } from 'src/services/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
-export function createUserProvider() {
+export const useUserStore = defineStore('user', () => {
   const currentUser = ref<User | null>(null)
-  onMounted(async () => {
+  const isInitialized = ref(false)
+
+  // Initialize user on store creation
+  async function init() {
     const { data: { session } } = await supabase.auth.getSession()
     currentUser.value = session?.user ?? null
-
-    const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('----onAuthStateChange', event, session)
+    supabase.auth.onAuthStateChange((event, session) => {
       currentUser.value = session?.user ?? null
     })
-    return () => {
-      data.subscription.unsubscribe()
-    }
-  })
+    isInitialized.value = true
+  }
 
   const currentUserId = computed(() => currentUser.value?.id ?? null)
   const isLoggedIn = computed(() => !!currentUser.value?.id)
@@ -23,8 +23,8 @@ export function createUserProvider() {
   return {
     currentUser,
     currentUserId,
-    isLoggedIn
+    isLoggedIn,
+    init,
+    isInitialized
   }
-}
-
-export type UserProvider = ReturnType<typeof createUserProvider>
+})

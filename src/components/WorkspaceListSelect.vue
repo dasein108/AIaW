@@ -2,11 +2,11 @@
   <q-list>
     <q-item
       v-if="accept === 'folder'"
-      :class="{ 'route-active': selected === '$root'}"
+      :class="{ 'route-active': !selected}"
       clickable
       item-rd
       dense
-      @click="selected = '$root'"
+      @click="selected = null"
     >
       <q-item-section>[{{ $t('workspaceListSelect.root') }}]</q-item-section>
     </q-item>
@@ -21,17 +21,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useWorkspacesStore } from 'src/stores/workspaces'
 import WorkspaceListItem from './WorkspaceListItem.vue'
+import { useRootWorkspace } from '../composables/workspaces/useRootWorkspaces'
 
 defineProps<{
   accept: 'workspace' | 'folder'
 }>()
 
-const workspacesStore = useWorkspacesStore()
-
-const rootItems = computed(() => workspacesStore.workspaces.filter(item => item.parentId === '$root'))
-
 const selected = defineModel<string>()
+const rootItems = useRootWorkspace(null)
+
 </script>

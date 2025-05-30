@@ -70,7 +70,7 @@
           caption
           p="x-4 y-2"
           text-on-sur-var
-          v-if="!perfs.provider && user?.isLoggedIn && LitellmBaseURL"
+          v-if="!perfs.provider && LitellmBaseURL"
         >
           {{ $t('settingsView.noProviderConfigured') }}
           <router-link
@@ -469,35 +469,6 @@
         >
           {{ $t('settingsView.dataHeader') }}
         </q-item-label>
-        <q-item>
-          <q-item-section avatar>
-            <q-icon name="sym_o_database" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>{{ $t('settingsView.userData') }}</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <div
-              flex
-              gap-2
-            >
-              <q-btn
-                :label="$t('settingsView.export')"
-                @click="exportData"
-                unelevated
-                bg-sec-c
-                text-on-sec-c
-              />
-              <q-btn
-                :label="$t('settingsView.import')"
-                unelevated
-                bg-sec-c
-                text-on-sec-c
-                @click="importData"
-              />
-            </div>
-          </q-item-section>
-        </q-item>
         <q-item
           clickable
           v-ripple
@@ -517,16 +488,13 @@
 </template>
 
 <script setup lang="ts">
-import CosmosWallet from 'src/components/CosmosWallet.vue'
-import { useObservable } from '@vueuse/rxjs'
-import { exportDB } from 'dexie-export-import'
 import { useQuasar } from 'quasar'
 import AAvatar from 'src/components/AAvatar.vue'
 import CopyBtn from 'src/components/CopyBtn.vue'
+import CosmosWallet from 'src/components/CosmosWallet.vue'
 import GetModelList from 'src/components/GetModelList.vue'
 import HctPreviewCircle from 'src/components/HctPreviewCircle.vue'
 import HueSliderDialog from 'src/components/HueSliderDialog.vue'
-import ImportDataDialog from 'src/components/ImportDataDialog.vue'
 import KeplerWallet from 'src/components/KeplerWallet.vue'
 import ModelDragSortDialog from 'src/components/ModelDragSortDialog.vue'
 import ModelInputItems from 'src/components/ModelInputItems.vue'
@@ -538,17 +506,15 @@ import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import { useGetModel } from 'src/composables/get-model'
 import { useLocateId } from 'src/composables/locate-id'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
-import { db } from 'src/utils/db'
+import { LitellmBaseURL } from 'src/utils/config'
 import { pageFhStyle } from 'src/utils/functions'
 import { localData } from 'src/utils/local-data'
-import { exportFile, IsTauri, IsWeb } from 'src/utils/platform-api'
+import { IsTauri } from 'src/utils/platform-api'
 import { dialogOptions, mdCodeThemes, mdPreviewThemes } from 'src/utils/values'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import PinModal from '../components/PinModal.vue'
-import { useAuthStore } from '../stores/auth'
 import GranteeWallet from '../components/GranteeWallet.vue'
+import { useAuthStore } from '../stores/auth'
 
 defineEmits(['toggle-drawer'])
 
@@ -588,27 +554,10 @@ const providerLink = computed(() => {
   if (!perfs.provider) return ''
   return `${window.location.origin}/#/provider/${perfs.provider.settings.id}`
 })
-const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
 
 const { getProvider } = useGetModel()
 const provider = computed(() => getProvider())
 
-function exportData() {
-  exportDB(db).then(blob => {
-    exportFile('aiaw_user_db.json', blob)
-  }).catch(err => {
-    console.error(err)
-    $q.notify({
-      message: t('settingsView.exportFailed'),
-      color: 'negative'
-    })
-  })
-}
-function importData() {
-  $q.dialog({
-    component: ImportDataDialog
-  })
-}
 const langOptions = [
   { label: t('settingsView.auto'), value: null },
   { label: 'English', value: 'en-US' },

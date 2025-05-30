@@ -12,7 +12,6 @@
       :label="$t('assistantsPage.globalAssistant')"
       header-class="text-lg"
       default-opened
-      workspace-id="$root"
     />
   </q-drawer>
 </template>

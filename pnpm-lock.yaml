@@ -173,6 +173,9 @@ importers:
       expr-eval:
         specifier: ^2.0.2
         version: 2.0.2
+      file-type:
+        specifier: ^20.5.0
+        version: 20.5.0
       html-to-image:
         specifier: ^1.11.13
         version: 1.11.13
@@ -182,6 +185,9 @@ importers:
       liquidjs:
         specifier: ^10.16.7
         version: 10.16.7
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       markdown-it-footnote:
         specifier: ^4.0.0
         version: 4.0.0
@@ -240,6 +246,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
+      '@types/lodash':
+        specifier: ^4.17.16
+        version: 4.17.17
       '@types/node':
         specifier: ^20.16.1
         version: 20.16.1
@@ -2872,6 +2881,13 @@ packages:
   '@tauri-apps/plugin-window-state@2.2.1':
     resolution: {integrity: sha512-L7FhG/ocQNt8t+TMBkvl8eLhCU6I19t848unKMUgNHuvwHPaurzZr4knulNyKzqz7zVYSz9AdvgWy4915eq+AA==}
 
+  '@tokenizer/inflate@0.2.7':
+    resolution: {integrity: sha512-MADQgmZT1eKjp06jpI2yozxaU9uVs4GzzgSL+uEq7bVcJ9V1ZXQkeGNql1fsSI0gMy1vhvNTNbUqrx+pZfJVmg==}
+    engines: {node: '>=18'}
+
+  '@tokenizer/token@0.3.0':
+    resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
+
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
 
@@ -2967,6 +2983,9 @@ packages:
 
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
+
+  '@types/lodash@4.17.17':
+    resolution: {integrity: sha512-RRVJ+J3J+WmyOTqnz3PiBLA501eKwXl2noseKOrNo/6+XEHjTAxO4xHvxQB6QuNm+s4WRbn6rSiap8+EA+ykFQ==}
 
   '@types/markdown-it@14.1.2':
     resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
@@ -4636,9 +4655,16 @@ packages:
   fetch-event-stream@0.1.5:
     resolution: {integrity: sha512-V1PWovkspxQfssq/NnxoEyQo1DV+MRK/laPuPblIZmSjMN8P5u46OhlFQznSr9p/t0Sp8Uc6SbM3yCMfr0KU8g==}
 
+  fflate@0.8.2:
+    resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
+
   file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
     engines: {node: ^10.12.0 || >=12.0.0}
+
+  file-type@20.5.0:
+    resolution: {integrity: sha512-BfHZtG/l9iMm4Ecianu7P8HRD2tBHLtjXinm4X62XBOYzi7CYA7jyqfJzOvXHqzVrVPYqBo2/GvbARMaaJkKVg==}
+    engines: {node: '>=18'}
 
   filelist@1.0.4:
     resolution: {integrity: sha512-w1cEuf3S+DrLCQL7ET6kz+gmlJdbq9J7yXCSjK/OZCPA+qEN1WyF4ZAf0YYJa4/shHJra2t/d/r8SV4Ji+x+8Q==}
@@ -6073,6 +6099,10 @@ packages:
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
+  peek-readable@7.0.0:
+    resolution: {integrity: sha512-nri2TO5JE3/mRryik9LlHFT53cgHfRK0Lt0BAZQXku/AW3E6XLt2GaY8siWi7dvW/m1z0ecn+J+bpDa9ZN3IsQ==}
+    engines: {node: '>=18'}
+
   pend@1.2.0:
     resolution: {integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==}
 
@@ -6905,6 +6935,10 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
+  strtok3@10.2.2:
+    resolution: {integrity: sha512-Xt18+h4s7Z8xyZ0tmBoRmzxcop97R4BAh+dXouUDCYn+Em+1P3qpkUfI5ueWLT8ynC5hZ+q4iPEmGG1urvQGBg==}
+    engines: {node: '>=18'}
+
   style-mod@4.1.2:
     resolution: {integrity: sha512-wnD1HyVqpJUI2+eKZ+eo1UwghftP6yuFheBqqe+bWCotBjC2K1YnteJILRMs3SM4V/0dLEW1SC27MWP5y+mwmw==}
 
@@ -7039,6 +7073,10 @@ packages:
   toidentifier@1.0.1:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
+
+  token-types@6.0.0:
+    resolution: {integrity: sha512-lbDrTLVsHhOMljPscd0yitpozq7Ga2M5Cvez5AjGg8GASBjtt6iERCAJ93yommPmz62fb45oFIXHEZ3u9bfJEA==}
+    engines: {node: '>=14.16'}
 
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
@@ -7200,6 +7238,10 @@ packages:
 
   ufo@1.5.4:
     resolution: {integrity: sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==}
+
+  uint8array-extras@1.4.0:
+    resolution: {integrity: sha512-ZPtzy0hu4cZjv3z5NW9gfKnNLjoz4y6uv4HlelAjDK7sY/xOkKZv9xK/WQpcsBB3jEybChz9DPC2U/+cusjJVQ==}
+    engines: {node: '>=18'}
 
   unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
@@ -9013,7 +9055,7 @@ snapshots:
       '@babel/parser': 7.25.4
       '@babel/template': 7.25.0
       '@babel/types': 7.25.4
-      debug: 4.3.6
+      debug: 4.4.0
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -9025,7 +9067,7 @@ snapshots:
       '@babel/parser': 7.25.8
       '@babel/template': 7.25.7
       '@babel/types': 7.25.8
-      debug: 4.3.6
+      debug: 4.4.0
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -11079,6 +11121,16 @@ snapshots:
     dependencies:
       '@tauri-apps/api': 2.2.0
 
+  '@tokenizer/inflate@0.2.7':
+    dependencies:
+      debug: 4.4.0
+      fflate: 0.8.2
+      token-types: 6.0.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@tokenizer/token@0.3.0': {}
+
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.26.2
@@ -11190,6 +11242,8 @@ snapshots:
   '@types/json5@0.0.29': {}
 
   '@types/linkify-it@5.0.0': {}
+
+  '@types/lodash@4.17.17': {}
 
   '@types/markdown-it@14.1.2':
     dependencies:
@@ -13235,9 +13289,20 @@ snapshots:
 
   fetch-event-stream@0.1.5: {}
 
+  fflate@0.8.2: {}
+
   file-entry-cache@6.0.1:
     dependencies:
       flat-cache: 3.2.0
+
+  file-type@20.5.0:
+    dependencies:
+      '@tokenizer/inflate': 0.2.7
+      strtok3: 10.2.2
+      token-types: 6.0.0
+      uint8array-extras: 1.4.0
+    transitivePeerDependencies:
+      - supports-color
 
   filelist@1.0.4:
     dependencies:
@@ -13598,7 +13663,7 @@ snapshots:
   importx@0.4.3:
     dependencies:
       bundle-require: 5.0.0(esbuild@0.23.1)
-      debug: 4.3.6
+      debug: 4.4.0
       esbuild: 0.23.1
       jiti: 2.0.0-beta.2
       jiti-v1: jiti@1.21.7
@@ -14844,6 +14909,8 @@ snapshots:
 
   pathe@2.0.3: {}
 
+  peek-readable@7.0.0: {}
+
   pend@1.2.0: {}
 
   perfect-debounce@1.0.0: {}
@@ -15751,6 +15818,11 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
+  strtok3@10.2.2:
+    dependencies:
+      '@tokenizer/token': 0.3.0
+      peek-readable: 7.0.0
+
   style-mod@4.1.2: {}
 
   supabase@2.22.12:
@@ -15923,6 +15995,11 @@ snapshots:
 
   toidentifier@1.0.1: {}
 
+  token-types@6.0.0:
+    dependencies:
+      '@tokenizer/token': 0.3.0
+      ieee754: 1.2.1
+
   totalist@3.0.1: {}
 
   tough-cookie@4.1.4:
@@ -16084,6 +16161,8 @@ snapshots:
   uc.micro@2.1.0: {}
 
   ufo@1.5.4: {}
+
+  uint8array-extras@1.4.0: {}
 
   unbox-primitive@1.0.2:
     dependencies:

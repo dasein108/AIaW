@@ -1,9 +1,5 @@
-import { computed } from 'vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { Model, Provider } from 'src/utils/types'
-import { useObservable } from '@vueuse/rxjs'
-import { db } from 'src/utils/db'
-import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import { LanguageModel, wrapLanguageModel } from 'ai'
 import { AuthropicCors, FormattingReenabled } from 'src/utils/middlewares'
 import { fetch } from 'src/utils/platform-api'
@@ -18,15 +14,16 @@ function wrapMiddlewares(model: LanguageModel) {
   return middlewares.length ? wrapLanguageModel({ model, middleware: middlewares }) : model
 }
 export function useGetModel() {
-  const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
-  const defaultProvider = computed(() => user?.value.isLoggedIn ? {
-    type: 'openai',
-    settings: { apiKey: user.value.data.apiKey, baseURL: LitellmBaseURL, compatibility: 'strict' }
-  } : null)
+  // TODO: add user secrets to supabase
+  // const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
+  // const defaultProvider = computed(() => user?.value.isLoggedIn ? {
+  //   type: 'openai',
+  //   settings: { apiKey: user.value.data.apiKey, baseURL: LitellmBaseURL, compatibility: 'strict' }
+  // } : null)
   const { perfs } = useUserPerfsStore()
   const providersStore = useProvidersStore()
   function getProvider(provider?: Provider) {
-    return provider || perfs.provider || defaultProvider.value
+    return provider || perfs.provider // TODO: || defaultProvider.value
   }
   function getModel(model?: Model) {
     return model || perfs.model
@@ -44,7 +41,7 @@ export function useGetModel() {
     if (!sdkProvider) return null
     model = getModel(model)
     if (!model) return null
-    const m = sdkProvider(model.name, options) || getSdkProvider(defaultProvider.value)(model.name, options)
+    const m = sdkProvider(model.name, options) // TODO: || getSdkProvider(defaultProvider.value)(model.name, options)
     return m && wrapMiddlewares(m)
   }
   return { getProvider, getModel, getSdkProvider, getSdkModel }

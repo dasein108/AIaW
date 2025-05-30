@@ -64,7 +64,7 @@ import { useProvidersStore } from 'src/stores/providers'
 import { useI18n } from 'vue-i18n'
 import MenuItem from './MenuItem.vue'
 import { useRouter } from 'vue-router'
-import { CustomProvider } from 'src/utils/types'
+import { CustomProviderMapped } from 'src/services/supabase/types'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 
 const { t } = useI18n()
@@ -75,15 +75,15 @@ const $q = useQuasar()
 
 const router = useRouter()
 async function addItem() {
-  const id = await providersStore.add()
-  router.push(`/settings/providers/${id}`)
+  const customProvider = await providersStore.add()
+  router.push(`/settings/providers/${customProvider.id}`)
 }
 
 const { perfs } = useUserPerfsStore()
-function setAsDefault({ id }: CustomProvider) {
+function setAsDefault({ id }: CustomProviderMapped) {
   perfs.provider = { type: `custom:${id}`, settings: {} }
 }
-function deleteItem({ id, name }: CustomProvider) {
+function deleteItem({ id, name }: CustomProviderMapped) {
   $q.dialog({
     title: t('customProviders.deleteProvider'),
     message: t('customProviders.deleteConfirm', { name }),

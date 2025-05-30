@@ -3,25 +3,25 @@
     icon="sym_o_account_circle"
     @click="onClick"
     :class="{ 'route-active': route.path === '/account' }"
-    :label="isLoggedIn ? $t('accountBtn.account') : $t('accountBtn.login')"
+    :label="uersStore.isLoggedIn ? $t('accountBtn.account') : $t('accountBtn.login')"
   />
 </template>
 
 <script setup lang="ts">
-import { UserProvider } from '@/services/supabase/userProvider'
 import { useQuasar } from 'quasar'
-import { inject } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AuthDialog from './auth/AuthDialog.vue'
+import { useUserStore } from 'src/stores/user'
 const $q = useQuasar()
 
 const router = useRouter()
 const route = useRoute()
 
-const { isLoggedIn } = inject<UserProvider>('user')
-console.log('isLoggedIn', isLoggedIn.value)
+const uersStore = useUserStore()
+
+console.log('isLoggedIn', uersStore.isLoggedIn)
 function onClick() {
-  if (isLoggedIn.value) {
+  if (uersStore.isLoggedIn) {
     router.push('/account')
   } else {
     $q.dialog({

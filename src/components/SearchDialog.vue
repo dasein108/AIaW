@@ -80,11 +80,10 @@
 
 <script setup lang="ts">
 import { QList, useDialogPluginComponent } from 'quasar'
-import { db } from 'src/utils/db'
-import { caselessIncludes, escapeRegex } from 'src/utils/functions'
-import { Dialog } from 'src/utils/types'
+import { escapeRegex } from 'src/utils/functions'
 import { nextTick, watch, ref, watchEffect } from 'vue'
 import Mark from 'mark.js'
+import { useDialogsStore } from 'src/stores/dialogs'
 
 const props = defineProps<{
   workspaceId: string
@@ -96,34 +95,13 @@ defineEmits([
 
 const open = defineModel<boolean>({ required: true })
 
-interface Doc {
-  id: string
-  dialogId: string
-  content: string
-}
-
 const global = ref(false)
-const dialogs = ref<Dialog[]>(null)
-const docs = ref<Doc[]>(null)
+const dialogsStore = useDialogsStore()
+const q = ref('')
 watchEffect(async () => {
-  dialogs.value = global.value
-    ? await db.dialogs.toArray()
-    : await db.dialogs.where('workspaceId').equals(props.workspaceId).toArray()
-  const messages = global.value
-    ? await db.messages.toArray()
-    : await db.messages.where('dialogId').anyOf(dialogs.value.map(d => d.id)).toArray()
-  docs.value = messages.map(m => ({
-    id: m.id,
-    dialogId: m.dialogId,
-    content: m.contents
-      .filter(c => c.type === 'assistant-message' || c.type === 'user-message')
-      .map(c => c.text)
-      .join('\n')
-  }))
-  search()
+  await search()
 })
 
-const q = ref('')
 interface Result {
   workspaceId: string
   dialogId: string
@@ -133,28 +111,21 @@ interface Result {
 }
 const results = ref<Result[]>(null)
 const listRef = ref<QList>()
-function search() {
+async function search() {
   if (!q.value) return
-  const hits = docs.value.filter(d => caselessIncludes(d.content, q.value)).slice(0, 100)
+  // const hits = docs.value.filter(d => caselessIncludes(d.content, q.value)).slice(0, 100)
   unmark()
-  results.value = [
-    ...hits.map(h => {
-      const dialog = dialogs.value.find(d => d.id === h.dialogId)
-      return dialog && {
-        workspaceId: dialog.workspaceId,
-        dialogId: dialog.id,
-        title: dialog.name,
-        preview: h.content.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))[0],
-        route: getRoute(dialog.msgTree, h.id)
-      }
-    }).filter(Boolean),
-    ...dialogs.value.filter(d => caselessIncludes(d.name, q.value)).map(d => ({
-      workspaceId: d.workspaceId,
-      dialogId: d.id,
-      title: d.name,
-      route: []
-    }))
-  ].reverse()
+  const dialogs = await dialogsStore.searchDialogs(q.value, global.value ? null : props.workspaceId)
+  console.log("---search dialogs: ", dialogs)
+  // debugger
+  results.value = (await dialogsStore.searchDialogs(q.value, props.workspaceId)).map(d => ({
+    workspaceId: d.dialog_message.dialog.workspace_id,
+    dialogId: d.dialog_message.dialog_id,
+    title: d.dialog_message.dialog.name,
+    route: getRoute(d.dialog_message.dialog.msg_tree as Record<string, string[]>, d.message_id),
+    preview: d.text.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))?.[0]
+  }))
+
   nextTick(() => {
     highlight()
   })
@@ -179,7 +150,7 @@ watch(open, val => {
   })
 })
 
-function getRoute(tree: Record<string, string[]>, target: string, curr = '$root') {
+function getRoute(tree: Record<string, string[]>, target: string, curr = null) {
   for (const [i, v] of tree[curr].entries()) {
     if (v === target) return [i]
     const route = getRoute(tree, target, v)

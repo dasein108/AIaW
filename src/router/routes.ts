@@ -23,6 +23,8 @@ import ShortcutKeys from 'src/views/ShortcutKeys.vue'
 import { i18n } from 'src/boot/i18n'
 import SettingsView from 'src/views/SettingsView.vue'
 import CustomProvider from 'src/views/CustomProvider.vue'
+import ChatsPage from 'src/pages/ChatsPage.vue'
+import ChatSettings from 'src/views/ChatSettings.vue'
 
 const { t } = i18n.global
 
@@ -77,6 +79,15 @@ const routes: RouteRecordRaw[] = [
             component: PluginAdjust,
             props: route => ({ id: route.params.pluginId, assistantId: route.params.assistantId })
           }
+        ]
+      },
+      {
+        path: '/chats/',
+        component: ChatsPage,
+        children: [
+          // { path: '', component: ChatView, meta: { title: t('routes.chatsMarket') } }
+          { path: ':chatId/settings', component: ChatSettings, props: route => ({ id: route.params.chatId }) },
+          { path: ':chatId', component: ChatView, props: route => ({ id: route.params.chatId }) },
         ]
       },
       { path: '/set-provider', component: SetProvider },

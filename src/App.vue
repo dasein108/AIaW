@@ -7,31 +7,35 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, provide } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFirstVisit } from './composables/first-visit'
-import { useLoginDialogs } from './composables/login-dialogs'
 import { useSetTheme } from './composables/set-theme'
-import { useSubscriptionNotify } from './composables/subscription-notify'
-import { onMounted, provide, ref, inject } from 'vue'
-import { checkUpdate, ready } from './utils/update'
-import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { createCosmosSigner } from './services/cosmos/CosmosWallet'
+import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { IsTauri, IsWeb } from './utils/platform-api'
-import { WalletService } from './services/authz/wallet-service'
+import { checkUpdate, ready } from './utils/update'
 // import { createDbService } from './services/database/Db'
 
-import { createUserProvider } from './services/supabase/userProvider'
 import { useQuasar } from 'quasar'
-import { usePinModal } from './composables/use-pin-modal'
+import { useUserStore } from 'src/stores/user'
+import { useI18n } from 'vue-i18n'
 import PinModal from './components/PinModal.vue'
-import { getMnemonic } from './stores/tauri-store'
-import { EncryptionService } from './services/encryption/EncryptionService'
+import { usePinModal } from './composables/use-pin-modal'
 import type { CosmosWallet } from './services/cosmos/CosmosWallet'
+import { EncryptionService } from './services/encryption/EncryptionService'
 import { useAuthStore } from './stores/auth'
+import { useChatMessagesStore } from './stores/chat-messages'
+import { getMnemonic } from './stores/tauri-store'
 
 defineOptions({
   name: 'App'
 })
+
+const userStore = useUserStore()
+const { t } = useI18n()
+// Subscribes to chat messages
+useChatMessagesStore()
 
 const $q = useQuasar()
 const router = useRouter()
@@ -48,15 +52,8 @@ if (IsTauri) {
 }
 // provide('db', createDbService())
 
-// Provide user provider
-const userProvider = createUserProvider()
-
-provide('user', userProvider)
-
 useSetTheme()
-useLoginDialogs()
 useFirstVisit()
-useSubscriptionNotify()
 
 router.afterEach(to => {
   if (to.meta.title) {
@@ -66,12 +63,25 @@ router.afterEach(to => {
 
 // Check if user is authenticated
 router.beforeEach(async (to, from, next) => {
-  if (to.meta.requiresAuth && !userProvider.isLoggedIn.value) {
-    $q.notify({
-      message: 'Please login to access this page',
-      color: 'negative'
-    })
-    return next('/')
+  if (to.meta.requiresAuth) {
+    const waitUntilInit = () =>
+      new Promise(resolve => {
+        const check = () => {
+          if (userStore.isInitialized) resolve(void 0)
+          else setTimeout(check, 50)
+        }
+        check()
+      })
+
+    await waitUntilInit()
+
+    if (!userStore.isInitialized) {
+      $q.notify({
+        message: t('common.pleaseLogin'),
+        color: 'negative'
+      })
+      return next('/')
+    }
   }
 
   return next()
@@ -216,6 +226,7 @@ onMounted(async () => {
   console.log('[App MOUNT] Initial authStore state:', authStore)
   // WalletService instance is stateless, no need to log it here for connection status.
   // console.log('[MOUNT] WALLET SERVICE', WalletService.getInstance())
+  await userStore.init()
 })
 
 </script>

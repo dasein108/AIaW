@@ -42,26 +42,25 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { useFileURL } from 'src/composables/file-url'
-import { StoredItem } from 'src/utils/types'
-import { toRef } from 'vue'
+import { StoredItemMapped } from 'src/services/supabase/types'
 import ViewImageDialog from './ViewImageDialog.vue'
+import { getFileUrl } from 'src/composables/storage/utils'
 
 const props = defineProps<{
-  image: StoredItem,
+  image: StoredItemMapped,
   removable?: boolean
 }>()
 
 defineEmits(['remove'])
 
-const url = useFileURL(toRef(props, 'image'))
+const url = getFileUrl(props.image.file_url)
 
 const $q = useQuasar()
 function viewImage() {
   $q.dialog({
     component: ViewImageDialog,
     componentProps: {
-      url: url.value
+      url
     }
   })
 }

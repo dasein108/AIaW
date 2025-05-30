@@ -3,12 +3,12 @@
 </template>
 
 <script setup lang="ts">
-import { Artifact } from 'src/utils/types'
+import { ArtifactMapped } from '@/services/supabase/types'
 import { codeExtensions } from 'src/utils/values'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  artifact: Artifact
+  artifact: ArtifactMapped
 }>()
 
 const icon = computed(() =>

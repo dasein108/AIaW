@@ -1,5 +1,6 @@
 import { Hct, hexFromArgb } from '@material/material-color-utilities'
-import { Artifact, Avatar, PlatformEnabled } from './types'
+import { Avatar, PlatformEnabled } from './types'
+import { ArtifactMapped } from '@/services/supabase/types'
 import { Platform } from 'quasar'
 import { i18n } from 'src/boot/i18n'
 import { UsdToCnyRate } from './config'
@@ -21,6 +22,14 @@ function defaultAvatar(text: string): Avatar {
   return {
     type: 'text',
     text,
+    hue: Math.floor(Math.random() * 360)
+  }
+}
+
+function defaultTextAvatar(text: string): Avatar {
+  return {
+    type: 'text',
+    text: text.split(' ').map(word => word[0]).join('').toUpperCase(),
     hue: Math.floor(Math.random() * 360)
   }
 }
@@ -140,21 +149,21 @@ function getFileExt(filename: string) {
   return filename.match(/\.(\w+)$/)?.[1]
 }
 
-function saveArtifactChanges(artifact: Artifact): Partial<Artifact> {
+function saveArtifactChanges(artifact: ArtifactMapped): Partial<ArtifactMapped> {
   return {
     versions: [
-      ...artifact.versions.slice(0, artifact.currIndex + 1),
+      ...artifact.versions.slice(0, artifact.curr_index + 1),
       {
-        date: new Date(),
+        date: new Date().toISOString(),
         text: artifact.tmp
       }
     ],
-    currIndex: artifact.currIndex + 1
+    curr_index: artifact.curr_index + 1
   }
 }
-function restoreArtifactChanges(artifact: Artifact): Partial<Artifact> {
+function restoreArtifactChanges(artifact: ArtifactMapped): Partial<ArtifactMapped> {
   return {
-    tmp: artifact.versions[artifact.currIndex].text
+    tmp: artifact.versions[artifact.curr_index].text
   }
 }
 
@@ -167,8 +176,8 @@ function blobToBase64(blob: Blob) {
   })
 }
 
-function artifactUnsaved(artifact: Artifact) {
-  return artifact.tmp !== artifact.versions[artifact.currIndex].text
+function artifactUnsaved(artifact: ArtifactMapped) {
+  return artifact.tmp !== artifact.versions[artifact.curr_index].text
 }
 
 function base64ToArrayBuffer(base64: string): ArrayBuffer {
@@ -261,5 +270,6 @@ export {
   cyrb53,
   hash53,
   removeDuplicates,
-  localePrice
+  localePrice,
+  defaultTextAvatar
 }

@@ -121,7 +121,7 @@ import { caselessIncludes, pageFhStyle } from 'src/utils/functions'
 import AAvatar from 'src/components/AAvatar.vue'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { AssistantDefaultPrompt } from 'src/utils/templates'
-import { defaultModelSettings } from 'src/utils/db'
+import { defaultModelSettings } from 'src/common/consts'
 import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
 import { clipboardReadText } from 'src/utils/platform-api'
 
@@ -167,7 +167,7 @@ load()
 const store = useAssistantsStore()
 
 function addToGlobal(item) {
-  add(item, '$root')
+  add(item, null)
 }
 function addToWorkspace(item) {
   $q.dialog({
@@ -192,11 +192,11 @@ function add(item, workspaceId) {
     name,
     avatar,
     prompt,
-    promptVars: promptVars ?? [],
-    promptTemplate: promptTemplate ?? AssistantDefaultPrompt,
-    workspaceId,
+    prompt_vars: promptVars ?? [],
+    prompt_template: promptTemplate ?? AssistantDefaultPrompt,
+    workspace_id: workspaceId,
     model,
-    modelSettings: modelSettings ?? { ...defaultModelSettings },
+    model_settings: modelSettings ?? { ...defaultModelSettings },
     author,
     homepage,
     description

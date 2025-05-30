@@ -35,12 +35,12 @@
               {{ length }}
             </q-item-section>
           </q-item>
-          <q-item v-if="message.modelName">
+          <q-item v-if="message.model_name">
             <q-item-section>
               {{ $t('messageInfoDialog.model') }}
             </q-item-section>
             <q-item-section side>
-              {{ message.modelName }}
+              {{ message.model_name }}
             </q-item-section>
           </q-item>
           <q-item v-if="message.usage">
@@ -68,14 +68,14 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { idDateString } from 'src/utils/functions'
-import { Message } from 'src/utils/types'
+import type { DialogMessageMapped } from '@/services/supabase/types'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  message: Message
+  message: DialogMessageMapped
 }>()
 
-const length = computed(() => props.message.contents.filter(
+const length = computed(() => props.message.message_contents.filter(
   c => c.type === 'assistant-message' || c.type === 'user-message'
 ).reduce((prev, cur) => prev + cur.text.length, 0))
 const createdAt = computed(() => idDateString(props.message.id))

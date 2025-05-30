@@ -7,6 +7,7 @@
     :header-class="[{ 'route-active': item.id === selected }, 'py-1.5 min-h-0']"
     @update:model-value="accept === 'folder' && (selected = item.id)"
     v-model="expanded"
+    switch-toggle-side
   >
     <template #header>
       <q-item-section
@@ -21,18 +22,14 @@
       <q-item-section>
         {{ item.name }}
       </q-item-section>
-      <q-menu context-menu>
+      <menu-button
+        :menu-ref="toRef(menuFolderRef)"
+      />
+      <q-menu
+        ref="menuFolderRef"
+        context-menu
+      >
         <q-list style="min-width: 100px">
-          <menu-item
-            icon="sym_o_edit"
-            :label="$t('workspaceListItem.rename')"
-            @click="renameItem(item)"
-          />
-          <menu-item
-            icon="sym_o_interests"
-            :label="$t('workspaceListItem.changeIcon')"
-            @click="changeAvatar(item)"
-          />
           <menu-item
             icon="sym_o_add"
             :label="$t('workspaceListItem.newWorkspace')"
@@ -54,12 +51,18 @@
             @click="deleteItem(item)"
             hover:text-err
           />
+          <menu-item
+            icon="sym_o_settings"
+            :label="$t('workspaceListItem.settings')"
+            :to="`/workspaces/${item.id}/settings`"
+            hover:text-err
+          />
         </q-list>
       </q-menu>
     </template>
     <template #default>
       <workspace-list-item
-        v-for="child in children"
+        v-for="child in workspaces"
         :key="child.id"
         :item="child"
         :accept
@@ -88,18 +91,14 @@
       />
     </q-item-section>
     <q-item-section>{{ item.name }}</q-item-section>
-    <q-menu context-menu>
+    <menu-button
+      :menu-ref="toRef(menuWorkspaceRef)"
+    />
+    <q-menu
+      ref="menuWorkspaceRef"
+      context-menu
+    >
       <q-list style="min-width: 100px">
-        <menu-item
-          icon="sym_o_edit"
-          :label="$t('workspaceListItem.rename')"
-          @click="renameItem(item)"
-        />
-        <menu-item
-          icon="sym_o_interests"
-          :label="$t('workspaceListItem.changeIcon')"
-          @click="changeAvatar(item)"
-        />
         <menu-item
           icon="sym_o_move_item"
           :label="$t('workspaceListItem.moveTo')"
@@ -111,35 +110,44 @@
           @click="deleteItem(item)"
           hover:text-err
         />
+        <menu-item
+          icon="sym_o_settings"
+          :label="$t('workspaceListItem.settings')"
+          :to="`/workspaces/${item.id}/settings`"
+          hover:text-err
+        />
       </q-list>
     </q-menu>
   </q-item>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useWorkspacesStore } from 'src/stores/workspaces'
-import { Folder, Workspace } from 'src/utils/types'
+import { computed, ref, watch, onMounted, toRef } from 'vue'
+import type { WorkspaceMapped } from '@/services/supabase/types'
 import AAvatar from './AAvatar.vue'
-import { useWorkspaceActions } from 'src/composables/workspace-actions'
+import { useWorkspaceActions } from 'src/composables/workspaces/workspace-actions'
 import MenuItem from './MenuItem.vue'
+import { useRootWorkspace } from '../composables/workspaces/useRootWorkspaces'
+import { QMenu } from 'quasar'
+import MenuButton from './ExpansionItem/MenuButton.vue'
+// import { Folder, Workspace } from 'src/utils/types'
 
 const props = defineProps<{
-  item: Workspace | Folder
+  item: WorkspaceMapped
   accept: 'workspace' | 'folder'
 }>()
-const workspacesStore = useWorkspacesStore()
 
-const { addWorkspace, addFolder, renameItem, moveItem, deleteItem, changeAvatar } = useWorkspaceActions()
-
-const children = computed(() => {
-  return workspacesStore.workspaces.filter(item => item.parentId === props.item.id)
-})
+const { addWorkspace, addFolder, moveItem, deleteItem } = useWorkspaceActions()
+const workspaces = useRootWorkspace(props.item.id)
 
 const selected = defineModel<string>('selected')
 const expanded = ref(false)
+
+const menuFolderRef = ref<QMenu | null>(null)
+const menuWorkspaceRef = ref<QMenu | null>(null)
+
 watch(selected, () => {
-  if (children.value.some(c => c.id === selected.value)) {
+  if (workspaces.value.some(c => c.id === selected.value)) {
     expanded.value = true
   }
 }, { immediate: true })

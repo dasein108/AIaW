@@ -48,16 +48,16 @@
           >
             <q-list style="min-width: 100px">
               <menu-item
-                v-if="workspaceId !== '$root'"
+                v-if="!workspaceId"
                 icon="sym_o_add_comment"
                 :label="$t('assistantsExpansion.createDialog')"
-                @click="createDialog({ assistantId: assistant.id })"
+                @click="createDialog({ assistant_id: assistant.id })"
               />
               <menu-item
-                v-if="workspaceId !== '$root'"
+                v-if="!workspaceId "
                 icon="sym_o_move_item"
                 :label="$t('assistantsExpansion.moveToGlobal')"
-                @click="move(assistant.id, '$root')"
+                @click="move(assistant.id, null)"
               />
               <menu-item
                 icon="sym_o_move_item"
@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { computed, inject, ref } from 'vue'
+import { computed } from 'vue'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { useRouter } from 'vue-router'
 import AAvatar from './AAvatar.vue'
@@ -107,26 +107,36 @@ import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
 import { dialogOptions } from 'src/utils/values'
 import { useI18n } from 'vue-i18n'
+import { defaultAvatar } from 'src/utils/functions'
+import { useUserPerfsStore } from 'src/stores/user-perfs'
 
 const { t } = useI18n()
 
-const props = defineProps<{
-  workspaceId: string,
+const props = withDefaults(defineProps<{
+  workspaceId?: string | null,
   dense?: boolean,
   label?: string
-}>()
+}>(), {
+  workspaceId: null,
+  label: ''
+})
 
 const assistantsStore = useAssistantsStore()
-
-const assistants = computed(() => assistantsStore.assistants.filter(a => a.workspaceId === props.workspaceId))
-
+const userPerfsStore = useUserPerfsStore()
+const assistants = computed(() => assistantsStore.assistants.filter(a => a.workspace_id === props.workspaceId || a.workspace_id == null))
 function getLink(id) {
-  return props.workspaceId === '$root' ? `/assistants/${id}` : `/workspaces/${props.workspaceId}/assistants/${id}`
+  return !props.workspaceId ? `/assistants/${id}` : `/workspaces/${props.workspaceId}/assistants/${id}`
 }
 const router = useRouter()
 async function addItem() {
-  const id = await assistantsStore.add({ workspaceId: props.workspaceId })
-  router.push(getLink(id))
+  const assistant = await assistantsStore.add({
+    name: 'New Assistant',
+    workspace_id: props.workspaceId,
+    avatar: defaultAvatar("AI"),
+    provider: userPerfsStore.perfs.provider,
+    model: userPerfsStore.perfs.model,
+  })
+  router.push(getLink(assistant.id))
 }
 
 function move(id, workspaceId) {
@@ -159,5 +169,5 @@ function deleteItem({ id, name }) {
   })
 }
 
-const { createDialog } = useCreateDialog(inject('workspace', ref()))
+const { createDialog } = useCreateDialog(props.workspaceId)
 </script>

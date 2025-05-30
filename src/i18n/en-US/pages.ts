@@ -36,7 +36,10 @@ export default {
     syncServiceType: 'Cloud Sync Service',
     apiBudgetType: 'Model Quota (CNY)',
     apiBudgetUsdType: 'Model Quota (USD)',
-    amount: 'Amount'
+    amount: 'Amount',
+    name: 'Name',
+    description: 'Description',
+    avatar: 'Avatar'
   },
   modelPricing: {
     modelPrice: 'Model Price',
@@ -81,10 +84,24 @@ export default {
     globalAssistant: 'Global Assistant'
   },
   workspacePage: {
+    name: 'Name',
     closeArtifact: 'Close',
     closeAllArtifacts: 'Close All Artifacts',
     workspaceHome: 'Workspace Home',
-    workspaceSettings: 'Workspace Settings'
+    workspaceSettings: 'Workspace Settings',
+    isPublic: 'Public',
+    description: 'Description',
+    members: 'Members'
+  },
+  chatsPage: {
+    chats: 'Chats',
+    chatSettings: 'Chat Settings',
+    isPublic: 'Public',
+    name: 'Name',
+    description: 'Description',
+    avatar: 'Avatar',
+    workspace: 'Chat workspace',
+    privateChat: 'Private Chat Settings (not implemented)'
   },
   mainLayout: {
     workspace: 'Workspace | Workspaces',

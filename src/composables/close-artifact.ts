@@ -1,13 +1,15 @@
 import { useQuasar } from 'quasar'
 import SaveDialog from 'src/components/SaveDialog.vue'
-import { db } from 'src/utils/db'
 import { restoreArtifactChanges, saveArtifactChanges } from 'src/utils/functions'
-import { Artifact } from 'src/utils/types'
-
+import { ArtifactMapped } from '@/services/supabase/types'
+import { useArtifactsStore } from 'src/stores/artifacts'
+import { useUserDataStore } from 'src/stores/user-data'
 export function useCloseArtifact() {
   const $q = useQuasar()
-  function closeArtifact(artifact: Artifact) {
-    if (artifact.tmp !== artifact.versions[artifact.currIndex].text) {
+  const artifactsStore = useArtifactsStore()
+  const userDataStore = useUserDataStore()
+  function closeArtifact(artifact: ArtifactMapped) {
+    if (artifact.tmp !== artifact.versions[artifact.curr_index].text) {
       $q.dialog({
         component: SaveDialog,
         componentProps: {
@@ -15,10 +17,14 @@ export function useCloseArtifact() {
         }
       }).onOk((save: boolean) => {
         const changes = save ? saveArtifactChanges(artifact) : restoreArtifactChanges(artifact)
-        db.artifacts.update(artifact.id, { open: false, ...changes })
+        artifactsStore.update({
+          id: artifact.id,
+          ...changes
+        })
+        userDataStore.data.openedArtifacts = userDataStore.data.openedArtifacts.filter(id => id !== artifact.id)
       })
     } else {
-      db.artifacts.update(artifact.id, { open: false })
+      userDataStore.data.openedArtifacts = userDataStore.data.openedArtifacts.filter(id => id !== artifact.id)
     }
   }
   return { closeArtifact }

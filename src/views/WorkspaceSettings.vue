@@ -4,9 +4,54 @@
       {{ $t('workspaceSettings.title') }}
     </q-toolbar-title>
   </view-common-header>
+
   <q-page-container>
     <q-page bg-sur>
-      <q-list>
+      <loading-panel v-if="!isLoaded" />
+      <notification-panel
+        v-else-if="!isAdmin"
+        :title="$t('common.noAdmin')"
+        :warning="true"
+      />
+      <q-list v-else>
+        <q-item>
+          <q-item-section>
+            {{ $t('workspacePage.isPublic') }}
+          </q-item-section>
+          <q-item-section side>
+            <q-toggle v-model="workspace.is_public" />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            {{ $t('workspacePage.name') }}
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              v-model="workspace.name"
+              autogrow
+              filled
+              clearable
+              placeholder="Name of workspace..."
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            {{ $t('workspacePage.description') }}
+          </q-item-section>
+          <q-item-section>
+            <q-input
+              v-model="workspace.description"
+              autogrow
+              filled
+              clearable
+              placeholder="Description of workspace..."
+            />
+          </q-item-section>
+        </q-item>
+        <q-separator spaced />
+
         <q-item>
           <q-item-section>
             {{ $t('workspaceSettings.defaultAssistant') }}
@@ -16,7 +61,7 @@
               class="min-w-150px"
               filled
               dense
-              v-model="workspace.defaultAssistantId"
+              v-model="userDataStore.data.defaultAssistantIds[workspace.id]"
               :options="assistantOptions"
               emit-value
               map-options
@@ -49,7 +94,7 @@
           <q-item-section pl-4>
             <a-input
               filled
-              v-model="workspace.indexContent"
+              v-model="workspace.index_content"
               autogrow
               clearable
             />
@@ -69,13 +114,17 @@
           placeholder: $t('workspaceSettings.inputPlaceholder')
         }"
       />
+      <workspace-members
+        v-if="!workspace.is_public"
+        :workspace-id="workspace.id"
+      />
     </q-page>
   </q-page-container>
 </template>
 
 <script setup lang="ts">
-import { computed, Ref, inject, toRaw } from 'vue'
-import { Workspace } from 'src/utils/types'
+import { computed, Ref, inject, toRaw, toRef, toRefs, watch } from 'vue'
+import { WorkspaceMapped } from '@/services/supabase/types'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { syncRef } from 'src/composables/sync-ref'
 import { useWorkspacesStore } from 'src/stores/workspaces'
@@ -87,20 +136,31 @@ import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import VarsInput from 'src/components/VarsInput.vue'
 import { useSetTitle } from 'src/composables/set-title'
 import { useI18n } from 'vue-i18n'
-
+import { useUserDataStore } from 'src/stores/user-data'
+import WorkspaceMembers from 'src/components/workspace/WorkspaceMembers.vue'
+import { useIsWorkspaceAdmin } from 'src/composables/workspaces/useIsWorkspaceAdmin'
+import LoadingPanel from 'src/components/common/LoadingPanel.vue'
+import NotificationPanel from 'src/components/common/NotificationPanel.vue'
 const { t } = useI18n()
 
 defineEmits(['toggle-drawer'])
-
+const userDataStore = useUserDataStore()
 const store = useWorkspacesStore()
 const workspace = syncRef(
-  inject('workspace') as Ref<Workspace>,
+  inject('workspace') as Ref<WorkspaceMapped>,
   val => { store.putItem(toRaw(val)) },
   { valueDeep: true }
 )
+
+const workspaceId = computed(() => workspace.value.id)
+const { isAdmin, isLoaded } = useIsWorkspaceAdmin(workspaceId)
+
+watch(isAdmin, (newVal) => {
+  console.log('----isAdmin', newVal)
+})
 const assistantsStore = useAssistantsStore()
 const assistantOptions = computed(() => assistantsStore.assistants.filter(
-  a => [workspace.value.id, '$root'].includes(a.workspaceId)
+  a => [workspace.value.id, null].includes(a.workspace_id)
 ).map(a => ({
   label: a.name,
   value: a.id,

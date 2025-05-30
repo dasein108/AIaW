@@ -86,7 +86,7 @@ module.exports = {
 
     'prefer-promise-reject-errors': 'off',
 
-    quotes: ['warn', 'single', { avoidEscape: true }],
+    quotes: 'off',
 
     // this rule, if on, would require explicit return type on the `render` function
     '@typescript-eslint/explicit-function-return-type': 'off',
@@ -106,6 +106,9 @@ module.exports = {
 
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'comma-dangle': 'warn',
+    'comma-dangle': 'off',
+    '@typescript-eslint/comma-dangle': 'off',
+    'camelcase': 'off',
+    '@typescript-eslint/camelcase': 'off',
   }
 }

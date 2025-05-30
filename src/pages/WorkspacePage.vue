@@ -102,7 +102,8 @@
             :class="{'route-active': route.path === `/workspaces/${id}`}"
             :title="$t('workspacePage.workspaceHome')"
           />
-          <q-btn
+          <!-- TODO: remove -->
+          <!-- <q-btn
             flat
             dense
             round
@@ -110,10 +111,10 @@
             :to="`/workspaces/${id}/settings`"
             :class="{'route-active': route.path === `/workspaces/${id}/settings`}"
             :title="$t('workspacePage.workspaceSettings')"
-          />
+          /> -->
         </div>
         <assistants-expansion
-          :model-value="workspace.listOpen.assistants"
+          :model-value="listOpen.assistants"
           @update:model-value="setListOpen('assistants', $event)"
           :workspace-id="workspace.id"
           dense
@@ -121,7 +122,7 @@
         <template v-if="isPlatformEnabled(perfs.artifactsEnabled)">
           <q-separator />
           <artifacts-expansion
-            :model-value="workspace.listOpen.artifacts"
+            :model-value="listOpen.artifacts"
             @update:model-value="setListOpen('artifacts', $event)"
             max-h="40vh"
             of-y-auto
@@ -130,7 +131,7 @@
         <q-separator />
         <chats-expansion
           :workspace-id="workspace.id"
-          :model-value="workspace.listOpen.chats"
+          :model-value="listOpen.chats"
           @update:model-value="setListOpen('chats', $event)"
           max-h="40vh"
           of-y-auto
@@ -138,7 +139,7 @@
         <q-separator />
         <dialogs-expansion
           :workspace-id="workspace.id"
-          :model-value="workspace.listOpen.dialogs"
+          :model-value="listOpen.dialogs"
           @update:model-value="setListOpen('dialogs', $event)"
           flex-1
           of-y-auto
@@ -153,14 +154,12 @@
 </template>
 
 <script setup lang="ts">
+
 import { computed, provide, ref, watch } from 'vue'
 import AssistantsExpansion from 'src/components/AssistantsExpansion.vue'
 import ArtifactsExpansion from 'src/components/ArtifactsExpansion.vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
-import { useLiveQueryWithDeps } from 'src/composables/live-query'
-import { db } from 'src/utils/db'
-import { Workspace, Dialog, Artifact } from 'src/utils/types'
-import { useUserDataStore } from 'src/stores/user-data'
+import { ListOpen, useUserDataStore } from 'src/stores/user-data'
 import { useQuasar } from 'quasar'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import { artifactUnsaved, isPlatformEnabled } from 'src/utils/functions'
@@ -172,25 +171,36 @@ import DragableSeparator from 'src/components/DragableSeparator.vue'
 import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import DialogsExpansion from 'src/components/DialogsExpansion.vue'
-import ChatsExpansion from 'src/components/social/ChatsExpansion.vue'
+import ChatsExpansion from 'src/components/chats/ChatsExpansion.vue'
+import { ArtifactMapped, Workspace } from '@/services/supabase/types'
+import { useArtifactsStore } from 'src/stores/artifacts'
+
 const props = defineProps<{
   id: string
 }>()
 
 const workspacesStore = useWorkspacesStore()
+const userStore = useUserDataStore()
+const artifactsStore = useArtifactsStore()
+const listOpen = computed(() => userStore.data.listOpen[props.id] || {
+  assistants: true,
+  artifacts: false,
+  dialogs: true,
+  chats: true
+})
 
-const workspace = computed(() => workspacesStore.workspaces.find(item => item.id === props.id) as Workspace)
-const dialogs = useLiveQueryWithDeps(() => props.id, () => db.dialogs.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Dialog[] })
-const artifacts = useLiveQueryWithDeps(() => props.id, () => db.artifacts.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Artifact[] })
+const workspace = computed<Workspace | undefined>(() => workspacesStore.workspaces.find(item => item.id === props.id) as Workspace)
 
+const artifacts = computed(() => Object.values(artifactsStore.workspaceArtifacts[props.id] || {}).map(a => a as ArtifactMapped))
 provide('workspace', workspace)
-provide('dialogs', dialogs)
 provide('artifacts', artifacts)
 
 const $q = useQuasar()
 
 const drawerBreakpoint = 960
-const openedArtifacts = computed(() => artifacts.value.filter(a => a.open))
+// TODO: opened artifacts should be USER settings
+const userDataStore = useUserDataStore()
+const openedArtifacts = computed(() => artifacts.value.filter(a => userDataStore.data.openedArtifacts.includes(a.id)))
 const showArtifacts = computed(() => $q.screen.width > drawerBreakpoint && openedArtifacts.value.length)
 provide('showArtifacts', showArtifacts)
 const route = useRoute()
@@ -198,6 +208,9 @@ const focusedArtifact = computed(() =>
   openedArtifacts.value.find(a => a.id === route.query.artifactId) || openedArtifacts.value.at(-1)
 )
 const router = useRouter()
+
+console.log('ws page opened artifacts', openedArtifacts.value, focusedArtifact)
+
 watch(focusedArtifact, val => {
   if (val) {
     val.id !== route.query.artifactId && router.replace({ query: { artifactId: val.id } })
@@ -209,8 +222,10 @@ watch(() => route.query.openArtifact, val => {
   if (!val) return
   const artifact = artifacts.value.find(a => a.id === val)
   if (artifact) {
-    !artifact.open && db.artifacts.update(artifact.id, { open: true })
-    router.replace({ query: { artifactId: artifact.id } })
+    if (!userDataStore.data.openedArtifacts.includes(artifact.id)) {
+      userDataStore.data.openedArtifacts.push(artifact.id)
+      router.replace({ query: { artifactId: artifact.id } })
+    }
   } else {
     router.replace({ query: { artifactId: focusedArtifact.value?.id } })
   }
@@ -235,13 +250,18 @@ const drawerOpen = ref(false)
 
 const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
 provide('rightDrawerAbove', rightDrawerAbove)
-provide('workspace', workspace)
 
 const { perfs } = useUserPerfsStore()
 
-function setListOpen(key: keyof Workspace['listOpen'], value: boolean) {
-  db.workspaces.update(workspace.value.id, {
-    listOpen: { ...workspace.value.listOpen, [key]: value }
-  } as Partial<Workspace>)
+function setListOpen(key: keyof ListOpen, value: boolean) {
+  if (!userStore.data.listOpen[workspace.value.id]) {
+    userStore.data.listOpen[workspace.value.id] = {
+      assistants: true,
+      artifacts: false,
+      dialogs: true,
+      chats: true
+    }
+  }
+  userStore.data.listOpen[workspace.value.id][key] = value
 }
 </script>

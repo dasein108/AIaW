@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { computed, ref } from 'vue'
-import { useAuth } from './composable/auth'
+import { useAuth } from '../../composables/auth/useAuth'
 
 const authType = ref<'sign-in' | 'sign-up'>('sign-in')
 const authTypeOptions = [

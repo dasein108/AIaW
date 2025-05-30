@@ -8,12 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { useAvatarImage } from 'src/composables/avatar-image'
-import { toRef } from 'vue'
+import { getAvatarUrl } from 'src/composables/storage/utils'
 
 const props = defineProps<{
   id: string
 }>()
 
-const url = useAvatarImage(toRef(props, 'id'))
+const url = getAvatarUrl(props.id)
 </script>
