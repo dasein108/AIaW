@@ -276,7 +276,7 @@
             >
           </q-btn>
           <q-btn
-            v-if="assistant?.prompt_vars.length"
+            v-if="assistant?.prompt_vars?.length"
             flat
             icon="sym_o_tune"
             :title="showVars ? $t('dialogView.hideVars') : $t('dialogView.showVars')"
@@ -463,6 +463,8 @@ onMounted(() => {
 })
 
 const assistant = computed(() => ({ ...assistantsStore.assistants.find(a => a.id === dialog.value?.assistant_id) })) // force trigger updates
+console.log('[DEBUG] Assistent', { assistants: [...assistantsStore.assistants], dialog: dialog.value, dialogs: { ...dialogsStore.dialogs } })
+
 provide('dialog', dialog)
 
 const chain = computed<string[]>(() => dialog.value ? getChain(null, dialog.value.msg_route)[0] : [])
@@ -1066,7 +1068,7 @@ watch(lockingBottom, val => {
     scrollContainer.value.removeEventListener('scroll', scrollListener)
   }
 })
-const activePlugins = computed<Plugin[]>(() => pluginsStore.plugins.filter(p => p.available && assistant.value.plugins[p.id]?.enabled))
+const activePlugins = computed<Plugin[]>(() => pluginsStore.plugins.filter(p => p.available && assistant?.value?.plugins?.[p.id]?.enabled))
 const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
 
 const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))

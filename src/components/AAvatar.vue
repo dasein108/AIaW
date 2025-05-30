@@ -1,29 +1,29 @@
 <template>
   <q-avatar
-    v-if="avatar.type === 'text'"
+    v-if="avatar?.type === 'text'"
     :style
   >
     {{ avatar.text }}
   </q-avatar>
   <image-avatar
-    v-else-if="avatar.type === 'image'"
+    v-else-if="avatar?.type === 'image'"
     :id="avatar.imageId"
     :style
   />
   <q-avatar
-    v-else-if="avatar.type === 'icon'"
+    v-else-if="avatar?.type === 'icon'"
     :icon="avatar.icon"
     :style
     :font-size
   />
   <q-avatar
-    v-else-if="avatar.type === 'url'"
+    v-else-if="avatar?.type === 'url'"
     :style
   >
     <img :src="avatar.url">
   </q-avatar>
   <q-avatar
-    v-else-if="avatar.type === 'svg'"
+    v-else-if="avatar?.type === 'svg'"
     :icon="`svguse:/svg/${avatar.name}.svg#icon`"
     :style
     :font-size
