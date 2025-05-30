@@ -2,11 +2,13 @@ import { Plugin } from 'src/utils/types'
 import { coins } from '@cosmjs/proto-signing'
 import { GasPrice, SigningStargateClient } from '@cosmjs/stargate'
 import { MsgExec } from 'cosmjs-types/cosmos/authz/v1beta1/tx'
-import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx'
+import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx'
+import { toUtf8 } from '@cosmjs/encoding'
 import { useAuthStore } from 'src/stores/auth'
 import { WalletService } from 'src/services/authz/wallet-service'
 import { config } from 'src/services/constants'
 import { Decimal } from '@cosmjs/math'
+import { CYBER_CONTRACT_ADDRESS } from 'src/services/kepler/KeplerWallet'
 
 const authzPlugin: Plugin = {
   id: 'cosmos-authz',
@@ -43,17 +45,21 @@ const authzPlugin: Plugin = {
         const { granteeAddress, spendLimit, expirationHours = 24 } = args
         const authStore = useAuthStore()
 
-        if (!authStore.isConnected) {
-          throw new Error('Wallet not connected. Please connect your wallet first.')
+        if (!authStore.isGranterActuallyConnected || !authStore.granterSigner) {
+          throw new Error('Granter wallet not connected or signer not available. Please connect your wallet first.')
         }
 
-        if (!authStore.walletInfo) {
-          throw new Error('Wallet info not found. Please reconnect your wallet.')
+        // Get granter address from the granterSigner
+        const granterAccounts = await authStore.granterSigner.getAccounts()
+        if (granterAccounts.length === 0) {
+          throw new Error('No accounts found for granter signer.')
         }
+        const granterAddress = granterAccounts[0].address
 
         const expiration = new Date(Date.now() + expirationHours * 3600 * 1000)
+        // authStore.grantAgentAuthorization now uses its internally stored granterSigner
         await authStore.grantAgentAuthorization(
-          authStore.walletInfo.address,
+          granterAddress, // Pass the resolved granter address
           granteeAddress,
           '/cosmos.bank.v1beta1.MsgSend',
           expiration
@@ -68,7 +74,7 @@ const authzPlugin: Plugin = {
     {
       type: 'tool',
       name: 'execute-send',
-      description: 'Execute send transaction using authorization',
+      description: 'Execute smart contract call using authorization',
       parameters: {
         type: 'object',
         properties: {
@@ -93,17 +99,13 @@ const authzPlugin: Plugin = {
         const authStore = useAuthStore()
         const walletService = WalletService.getInstance()
 
-        if (!authStore.isConnected) {
-          throw new Error('Wallet not connected. Please connect your wallet first.')
+        if (!authStore.isConnected || !authStore.granteeSigner) {
+          console.log({ isConnected: authStore.isConnected, granteeSigner: authStore.granteeSigner })
+          throw new Error('Grantee wallet not connected or signer not available. Please ensure grantee wallet is set up and connected.')
         }
 
-        if (!authStore.walletInfo) {
-          throw new Error('Wallet info not found. Please reconnect your wallet.')
-        }
-
-        if (!walletService.isConnected()) {
-          throw new Error('Wallet service not connected. Please reconnect your wallet.')
-        }
+        // isConnected implies granter is also connected, but execute-send uses granteeSigner
+        // Granter address is passed as an argument, but the transaction is signed by grantee.
 
         try {
           // Validate and sanitize amount
@@ -125,15 +127,22 @@ const authzPlugin: Plugin = {
             throw new Error('Amount cannot have more than 6 decimal places')
           }
 
-          const [granteeAccount] = await walletService.getAccounts()
+          // const [granteeAccount] = await walletService.getAccounts() // Old way
+          const granteeAccounts = await authStore.granteeSigner.getAccounts()
+          if (granteeAccounts.length === 0) {
+            throw new Error('No accounts found for grantee signer.')
+          }
+          const granteeAccount = granteeAccounts[0]
 
-          // Create a new client instance for this transaction
-          const granteeClient = await walletService.getGranteeClient()
+          // Create a new client instance for this transaction, using the granteeSigner
+          // const granteeClient = await walletService.getGranteeClient() // Old way
+          const granteeClient = await walletService.getClient(authStore.granteeSigner) // Pass grantee signer
 
           // Convert amount to proper format
           // const amountDecimal = Decimal.fromUserInput(sanitizedAmount, 6)
           const amountDecimal = Decimal.fromUserInput(sanitizedAmount, 0)
           const amountString = amountDecimal.atomics.toString()
+          console.log('[PLUGIN] Amount decimal:', { amountDecimal, amountString })
 
           console.log('Transaction details:', {
             granterAddress,
@@ -143,18 +152,21 @@ const authzPlugin: Plugin = {
             amountString
           })
 
-          const sendMsg: MsgSend = {
-            fromAddress: granterAddress,
-            toAddress,
-            amount: coins(amountString, config.FEE_DENOM)
+          console.log('[PLUGIN] Grantee client:', { granteeClient, amount: coins(amountString, config.FEE_DENOM) })
+
+          const execContractMsg: MsgExecuteContract = {
+            sender: granterAddress,
+            contract: CYBER_CONTRACT_ADDRESS,
+            msg: toUtf8(JSON.stringify({ transfer: { recipient: toAddress, amount: amountString } })),
+            funds: coins(amountString, config.FEE_DENOM)
           }
 
           const execMsg: MsgExec = {
             grantee: granteeAccount.address,
             msgs: [
               {
-                typeUrl: '/cosmos.bank.v1beta1.MsgSend',
-                value: MsgSend.encode(sendMsg).finish()
+                typeUrl: '/cosmwasm.wasm.v1.MsgExecuteContract',
+                value: MsgExecuteContract.encode(execContractMsg).finish()
               }
             ]
           }
@@ -165,8 +177,8 @@ const authzPlugin: Plugin = {
               value: execMsg
             }
           ], {
-            amount: coins('100000', config.FEE_DENOM),
-            gas: '100000'
+            amount: coins('150000', config.FEE_DENOM),
+            gas: '150000'
           })
 
           if (tx.code !== 0) {

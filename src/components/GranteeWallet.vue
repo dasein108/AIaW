@@ -78,9 +78,11 @@ const handlePinSubmit = async (pin: string) => {
     const newWalletInfo = await authStore.createGranteeWallet(pin)
     walletInfo.value = newWalletInfo
 
-    if (newWalletInfo?.address) {
-      await WalletService.getInstance().sendTokensToGrantee(newWalletInfo.address)
+    if (newWalletInfo?.address && authStore.granterSigner) {
+      await WalletService.getInstance().sendTokensToGrantee(authStore.granterSigner, newWalletInfo.address)
       $q.notify({ message: 'Grantee wallet created and activated. Please grant authorization.', color: 'positive' })
+    } else if (!authStore.granterSigner) {
+      throw new Error('Granter wallet is not connected. Cannot send activation tokens.')
     } else {
       throw new Error('Failed to create grantee wallet or get its address.')
     }
@@ -94,11 +96,13 @@ const handlePinSubmit = async (pin: string) => {
 }
 
 const handleGrantAuthorizationClick = async () => {
-  if (!walletInfo.value?.address || !isGranterConnected.value) return
+  if (!walletInfo.value?.address || !isGranterConnected.value || !authStore.granterSigner) {
+    $q.notify({ message: 'Granter not connected or grantee address missing.', color: 'warning' })
+    return
+  }
   actionLoading.value = true
   try {
-    const walletService = WalletService.getInstance()
-    const granterAccounts = await walletService.getAccounts()
+    const granterAccounts = await authStore.granterSigner.getAccounts()
     if (granterAccounts.length === 0) {
       throw new Error('Granter account not found for authorization')
     }
@@ -114,11 +118,13 @@ const handleGrantAuthorizationClick = async () => {
 }
 
 const handleRevokeClick = async () => {
-  if (!walletInfo.value?.address || !isGranterConnected.value) return
+  if (!walletInfo.value?.address || !isGranterConnected.value || !authStore.granterSigner) {
+    $q.notify({ message: 'Granter not connected or grantee address missing.', color: 'warning' })
+    return
+  }
   actionLoading.value = true
   try {
-    const walletService = WalletService.getInstance()
-    const granterAccounts = await walletService.getAccounts()
+    const granterAccounts = await authStore.granterSigner.getAccounts()
     if (granterAccounts.length === 0) {
       throw new Error('Granter account not found for authorization')
     }
