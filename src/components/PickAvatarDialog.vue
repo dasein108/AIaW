@@ -179,7 +179,7 @@ defineEmits([
 
 const tab = ref(props.defaultTab)
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 const storage = useStorage()
 const selected = ref<Avatar>({ ...props.model })
 const initialAvatar = toRaw(selected.value)

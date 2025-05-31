@@ -13,6 +13,7 @@ import { useUserStore } from 'src/stores/user'
 import { useQuasar } from 'quasar'
 import { useChatMessagesStore } from './stores/chat-messages'
 import { useI18n } from 'vue-i18n'
+import { until } from '@vueuse/core'
 
 defineOptions({
   name: 'App'
@@ -41,16 +42,7 @@ router.afterEach(to => {
 // Check if user is authenticated, if not, redirect to main page
 router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
-    const waitUntilInit = () =>
-      new Promise(resolve => {
-        const check = () => {
-          if (userStore.isInitialized) resolve(void 0)
-          else setTimeout(check, 50)
-        }
-        check()
-      })
-
-    await waitUntilInit()
+    await until(() => userStore.isInitialized).toBeTruthy()
 
     if (!userStore.isInitialized) {
       $q.notify({

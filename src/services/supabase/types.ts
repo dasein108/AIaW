@@ -47,7 +47,7 @@ type StoredItemMapped =Omit<Database['public']['Tables']['stored_items']['Insert
 type WorkspaceMemberRole = 'admin' | 'member' | 'readonly'
 type WorkspaceRole = 'owner' | 'admin' | 'member' | 'readonly' | 'none'
 
-type ProfileMapped = Database['public']['Tables']['profiles']['Insert'] & {
+type ProfileMapped = Omit<Database['public']['Tables']['profiles']['Row'], 'avatar'> & {
   avatar?: Avatar;
 }
 

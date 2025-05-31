@@ -1,26 +1,29 @@
 <template>
   <q-list>
     <q-item
-      clickable
-      @click="addItem"
-      text-sec
-      item-rd
+      m-0
+      p-0
     >
-      <q-item-section
-        avatar
-        min-w-0
+      <q-btn
+        flat
+        dense
+        no-caps
+        no-padding
+        no-margin
+        icon="sym_o_search"
+        @click.prevent.stop="showSearchDialog = true"
       >
-        <q-icon name="sym_o_add_comment" />
-      </q-item-section>
-      <q-item-section>
-        {{ $t('dialogList.createDialog') }}
-      </q-item-section>
+        <q-tooltip>
+          {{ $t('dialogList.searchDialogs') }}
+        </q-tooltip>
+      </q-btn>
+      <add-dialog-item :workspace-id="props.workspaceId" />
     </q-item>
     <q-item
       v-for="dialog in [...dialogs].reverse()"
       :key="dialog.id"
       clickable
-      :to="{ path: `/workspaces/${workspace.id}/dialogs/${dialog.id}`, query: route.query }"
+      :to="{ path: `/workspaces/${props.workspaceId}/dialogs/${dialog.id}`, query: route.query }"
       active-class="bg-sec-c text-on-sec-c"
       item-rd
       min-h="40px"
@@ -40,12 +43,12 @@
           <menu-item
             icon="sym_o_auto_fix"
             :label="$t('dialogList.summarizeDialog')"
-            @click="router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#genTitle`)"
+            @click="router.push(`/workspaces/${props.workspaceId}/dialogs/${dialog.id}#genTitle`)"
           />
           <menu-item
             icon="sym_o_content_copy"
             :label="$t('dialogList.copyContent')"
-            @click="router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#copyContent`)"
+            @click="router.push(`/workspaces/${props.workspaceId}/dialogs/${dialog.id}#copyContent`)"
           />
           <menu-item
             icon="sym_o_move_item"
@@ -62,40 +65,40 @@
       </q-menu>
     </q-item>
   </q-list>
+  <search-dialog
+    v-model="showSearchDialog"
+    :workspace-id
+  />
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
 import { isPlatformEnabled } from 'src/utils/functions'
 import { dialogOptions } from 'src/utils/values'
-import { computed, inject, Ref, toRef } from 'vue'
+import { computed, inject, ref, Ref, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
-import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { useListenKey } from 'src/composables/listen-key'
 import { useRouter, useRoute } from 'vue-router'
 import { useDialogsStore } from 'src/stores/dialogs'
 import { Workspace } from '@/services/supabase/types'
-import { useCheckLogin } from 'src/composables/auth/useCheckLogin'
+import { useWorkspacesStore } from 'src/stores/workspaces'
+import { storeToRefs } from 'pinia'
+import AddDialogItem from './AddDialogItem.vue'
+import SearchDialog from './SearchDialog.vue'
 
 const { t } = useI18n()
-const workspace: Ref<Workspace> = inject('workspace')
+const props = defineProps<{
+  workspaceId: string
+}>()
 
 const $q = useQuasar()
 const router = useRouter()
 const route = useRoute()
-const { ensureLogin } = useCheckLogin()
-const { createDialog } = useCreateDialog(workspace.value.id)
 const dialogsStore = useDialogsStore()
-const dialogs = computed(() => Object.values(dialogsStore.dialogs))
-
-async function addItem() {
-  ensureLogin()
-
-  await createDialog()
-}
+const { dialogs: workspaceDialogs } = storeToRefs(dialogsStore)
+const dialogs = computed(() => Object.values(workspaceDialogs.value).filter(item => item.workspace_id === props.workspaceId))
+const showSearchDialog = ref(false)
 
 function renameItem({ id, name }) {
   $q.dialog({
@@ -136,11 +139,5 @@ function deleteItem({ id, name }) {
   }).onOk(() => {
     dialogsStore.removeDialog(id)
   })
-}
-
-const { perfs } = useUserPerfsStore()
-
-if (isPlatformEnabled(perfs.enableShortcutKey)) {
-  useListenKey(toRef(perfs, 'createDialogKey'), addItem)
 }
 </script>

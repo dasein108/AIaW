@@ -105,6 +105,8 @@ export default {
   },
   mainLayout: {
     workspace: 'Workspace | Workspaces',
+    chats: 'Human Chats',
+    dialogs: 'AI Chats',
     assistants: 'Assistants',
     plugins: 'Plugins',
     settings: 'Settings',

@@ -76,7 +76,7 @@ customElements.define('router-link', RouterLink)
 
 export function useMdPreviewProps() {
   const $q = useQuasar()
-  const { perfs } = useUserPerfsStore()
+  const { data: perfs } = useUserPerfsStore()
   return computed<Partial<MdPreviewProps>>(() => ({
     theme: $q.dark.isActive ? 'dark' : 'light',
     previewTheme: perfs.mdPreviewTheme,

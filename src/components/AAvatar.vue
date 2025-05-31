@@ -32,13 +32,14 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { defaultAvatar, hctToHex } from 'src/utils/functions'
-import { Avatar, TextAvatar } from 'src/utils/types'
+import { hctToHex } from 'src/utils/functions'
+import { Avatar } from 'src/utils/types'
 import { computed } from 'vue'
 import ImageAvatar from './ImageAvatar.vue'
 const props = defineProps<{
   avatar: Avatar
 }>()
+
 const $q = useQuasar()
 const style = computed(() => {
   if (!props.avatar.hue) return {}

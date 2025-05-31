@@ -79,7 +79,7 @@ async function addItem() {
   router.push(`/settings/providers/${customProvider.id}`)
 }
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 function setAsDefault({ id }: CustomProviderMapped) {
   perfs.provider = { type: `custom:${id}`, settings: {} }
 }

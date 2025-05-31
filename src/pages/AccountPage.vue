@@ -137,7 +137,6 @@ function pickAvatar() {
     profile!.value.avatar = avatar
   })
 }
-console.log('----profile', profile)
 
 const uiStateStore = useUiStateStore()
 

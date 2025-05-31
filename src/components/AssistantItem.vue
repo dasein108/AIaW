@@ -6,7 +6,7 @@
     >
       <a-avatar
         v-if="assistant"
-        size="30px"
+        size="sm"
         :avatar="assistant.avatar"
       />
       <q-icon
@@ -27,6 +27,11 @@
         >
           {{ $t('assistantItem.global') }}
         </q-badge>
+        <!-- <q-icon
+          name="sym_o_expand_more"
+          size="sm"
+          v-if="main"
+        /> -->
       </q-item-label>
     </q-item-section>
   </q-item>
@@ -38,5 +43,6 @@ import AAvatar from './AAvatar.vue'
 
 defineProps<{
   assistant?: AssistantMapped
+  main?: boolean
 }>()
 </script>

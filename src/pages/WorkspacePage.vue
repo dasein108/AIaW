@@ -86,24 +86,16 @@
         h-full
         flex="~ col"
       >
-        <div
+        <!-- <div
           h="48px"
           p-2
           flex
           items-center
         >
-          <q-space />
-          <q-btn
-            flat
-            dense
-            round
-            icon="sym_o_home"
-            :to="`/workspaces/${id}`"
-            :class="{'route-active': route.path === `/workspaces/${id}`}"
-            :title="$t('workspacePage.workspaceHome')"
-          />
-          <!-- TODO: remove -->
-          <!-- <q-btn
+          <q-space /> -->
+
+        <!-- TODO: remove -->
+        <!-- <q-btn
             flat
             dense
             round
@@ -112,13 +104,13 @@
             :class="{'route-active': route.path === `/workspaces/${id}/settings`}"
             :title="$t('workspacePage.workspaceSettings')"
           /> -->
-        </div>
-        <assistants-expansion
+        <!-- </div> -->
+        <!-- <assistants-expansion
           :model-value="listOpen.assistants"
           @update:model-value="setListOpen('assistants', $event)"
           :workspace-id="workspace.id"
           dense
-        />
+        /> -->
         <template v-if="isPlatformEnabled(perfs.artifactsEnabled)">
           <q-separator />
           <artifacts-expansion
@@ -129,21 +121,21 @@
           />
         </template>
         <q-separator />
-        <chats-expansion
+        <!-- <chats-expansion
           :workspace-id="workspace.id"
           :model-value="listOpen.chats"
           @update:model-value="setListOpen('chats', $event)"
           max-h="40vh"
           of-y-auto
         />
-        <q-separator />
-        <dialogs-expansion
+        <q-separator /> -->
+        <!-- <dialogs-expansion
           :workspace-id="workspace.id"
           :model-value="listOpen.dialogs"
           @update:model-value="setListOpen('dialogs', $event)"
           flex-1
           of-y-auto
-        />
+        /> -->
       </div>
     </q-drawer>
   </template>
@@ -172,7 +164,7 @@ import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import DialogsExpansion from 'src/components/DialogsExpansion.vue'
 import ChatsExpansion from 'src/components/chats/ChatsExpansion.vue'
-import { ArtifactMapped, Workspace } from '@/services/supabase/types'
+import { ArtifactMapped, Workspace, WorkspaceMapped } from '@/services/supabase/types'
 import { useArtifactsStore } from 'src/stores/artifacts'
 
 const props = defineProps<{
@@ -189,7 +181,7 @@ const listOpen = computed(() => userStore.data.listOpen[props.id] || {
   chats: true
 })
 
-const workspace = computed<Workspace | undefined>(() => workspacesStore.workspaces.find(item => item.id === props.id) as Workspace)
+const workspace = computed<WorkspaceMapped | undefined>(() => workspacesStore.workspaces.find(item => item.id === props.id) as WorkspaceMapped)
 
 const artifacts = computed(() => Object.values(artifactsStore.workspaceArtifacts[props.id] || {}).map(a => a as ArtifactMapped))
 provide('workspace', workspace)
@@ -251,7 +243,7 @@ const drawerOpen = ref(false)
 const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
 provide('rightDrawerAbove', rightDrawerAbove)
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 
 function setListOpen(key: keyof ListOpen, value: boolean) {
   if (!userStore.data.listOpen[workspace.value.id]) {

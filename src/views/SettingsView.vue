@@ -512,7 +512,7 @@ defineEmits(['toggle-drawer'])
 
 const { t } = useI18n()
 
-const { perfs, restore } = useUserPerfsStore()
+const { data: perfs, restore } = useUserPerfsStore()
 const darkModeOptions = [
   { label: t('settingsView.followSystem'), value: 'auto' },
   { label: t('settingsView.light'), value: false },

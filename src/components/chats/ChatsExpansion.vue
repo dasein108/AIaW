@@ -90,7 +90,7 @@ const onSelectUser = async (user: ProfileMapped) => {
 
 const showSearchDialog = ref(false)
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'searchDialogKey'), () => {
     showSearchDialog.value = true

@@ -75,7 +75,7 @@ const props = defineProps<{
   lang: string
 }>()
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 const options = ref<ConvertArtifactOptions>({
   lang: props.lang,
   reserveOriginal: perfs.artifactsReserveOriginal
