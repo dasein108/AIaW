@@ -19,10 +19,10 @@
       </q-item-section>
     </template>
     <template #default>
-      <dialog-list :workspace-id />
+      <dialog-list :workspace-id="workspaceId" />
       <search-dialog
         v-model="showSearchDialog"
-        :workspace-id
+        :workspace-id="workspaceId"
       />
     </template>
   </q-expansion-item>
