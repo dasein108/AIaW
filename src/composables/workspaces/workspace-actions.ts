@@ -1,10 +1,8 @@
-import { toRaw } from 'vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import { useQuasar } from 'quasar'
 import { dialogOptions } from 'src/utils/values'
-import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
-import { defaultAvatar, genId } from 'src/utils/functions'
+import { defaultAvatar } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { useI18n } from 'vue-i18n'
 import { useUserDataStore } from 'src/stores/user-data'
@@ -39,8 +37,8 @@ export function useWorkspaceActions() {
         name: t('workspace.defaultAssistant'),
         workspace_id: workspace.id,
         avatar: defaultAvatar('AI'),
-        provider: userPerfsStore.perfs.provider,
-        model: userPerfsStore.perfs.model,
+        provider: userPerfsStore.data.provider,
+        model: userPerfsStore.data.model,
       })
       userDataStore.data.defaultAssistantIds[workspace.id] = assistant.id
     })

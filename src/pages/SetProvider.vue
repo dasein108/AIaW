@@ -23,16 +23,16 @@ until(() => userPerfsStore.ready).toBeTruthy().then(() => {
     if (!new Validator(ProviderSchema).validate(provider)) {
       throw new Error('Invalid provider schema')
     }
-    const bak = userPerfsStore.perfs.provider
-    userPerfsStore.perfs.provider = provider
-    console.log('----perfs1 form', userPerfsStore.perfs)
+    const bak = userPerfsStore.data.provider
+    userPerfsStore.data.provider = provider
+    console.log('----perfs1 form', userPerfsStore.data)
     $q.notify({
       message: t('setProviderPage.providerSet', { baseURL: provider.settings.baseURL }),
       color: 'positive',
       actions: [{
         label: t('setProviderPage.restore'),
         handler: () => {
-          userPerfsStore.perfs.provider = bak
+          userPerfsStore.data.provider = bak
         },
         color: 'white'
       }],
