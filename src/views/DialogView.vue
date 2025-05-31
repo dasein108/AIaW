@@ -3,7 +3,7 @@
     @toggle-drawer="$emit('toggle-drawer')"
     @contextmenu="createDialog"
   >
-    <q-badge
+    <!-- <q-badge
       bg-pri-c
       text-on-pri-c
       ml-2
@@ -28,8 +28,9 @@
     <q-icon
       name="sym_o_chevron_right"
       ml-2
-    />
-    <div>
+    /> -->
+    <!-- TODO: remove / before -->
+    <!-- <div>
       <assistant-item
         clickable
         :assistant
@@ -38,6 +39,7 @@
         item-rd
         py-1
         min-h-0
+        main
       />
       <q-menu>
         <q-list>
@@ -53,9 +55,9 @@
           />
         </q-list>
       </q-menu>
-    </div>
+    </div> -->
     <div
-      v-if="model"
+      v-if="model && assistant && dialog"
       text-on-sur-var
       my-2
       of-hidden
@@ -73,6 +75,10 @@
         py="3px"
         text="xs"
       >{{ model.name }}</code>
+      <!-- <q-icon
+        name="sym_o_expand_more"
+        size="sm"
+      /> -->
       <q-menu important:max-w="300px">
         <q-list>
           <template v-if="assistant.model">
@@ -464,7 +470,7 @@ import { useDialogsStore } from 'src/stores/dialogs'
 import { Workspace, DialogMessageMapped, StoredItem, MessageContentMapped, StoredItemMapped, ArtifactMapped, WorkspaceMapped } from '@/services/supabase/types'
 import { useStorage } from 'src/composables/storage/useStorage'
 import { FILES_BUCKET, getFileUrl } from 'src/composables/storage/utils'
-import AAvatar from 'src/components/AAvatar.vue'
+import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
 
 const { t, locale } = useI18n()
 
@@ -477,11 +483,14 @@ const rightDrawerAbove = inject('rightDrawerAbove')
 const dialogsStore = useDialogsStore()
 const dialogs = computed(() => Object.values(dialogsStore.dialogs))
 
-const assistantsStore = useAssistantsStore()
-const workspace: Ref<WorkspaceMapped> = inject('workspace')
-const assistants = computed(() => assistantsStore.assistants.filter(
-  a => [workspace.value.id, null].includes(a.workspace_id)
-))
+const { assistant, workspace } = useActiveWorkspace()
+
+// const workspace: Ref<WorkspaceMapped> = inject('workspace')
+// const assistants = computed(() => allAssistants.value ? allAssistants.value.filter(
+//   a => [workspace.value.id, null].includes(a.workspace_id)
+// ) : [])
+// const assistant = computed(() => (allAssistants.value ? { ...allAssistants.value.find(a => a.id === dialog.value?.assistant_id) } : null)) // force trigger updates
+
 const dialog = computed(() => dialogsStore.dialogs[props.id])
 const dialogMessages = computed(() => dialogsStore.dialogMessages[props.id] || [])
 onMounted(() => {
@@ -489,9 +498,6 @@ onMounted(() => {
   dialogsStore.fetchDialogMessages(props.id)
 })
 
-console.log("---workspace", workspace.value)
-
-const assistant = computed(() => ({ ...assistantsStore.assistants.find(a => a.id === dialog.value?.assistant_id) })) // force trigger updates
 provide('dialog', dialog)
 
 const chain = computed<string[]>(() => dialog.value ? getChain(null, dialog.value.msg_route)[0] : [])
@@ -1095,7 +1101,7 @@ watch(lockingBottom, val => {
     scrollContainer.value.removeEventListener('scroll', scrollListener)
   }
 })
-const activePlugins = computed<Plugin[]>(() => pluginsStore.plugins.filter(p => p.available && assistant.value.plugins[p.id]?.enabled))
+const activePlugins = computed<Plugin[]>(() => assistant.value ? pluginsStore.plugins.filter(p => p.available && assistant.value.plugins[p.id]?.enabled) : [])
 const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
 
 const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))

@@ -1,20 +1,23 @@
 <template>
   <q-list>
     <q-item
-      clickable
-      @click="addItem"
-      text-sec
-      item-rd
+      m-0
+      p-0
     >
-      <q-item-section
-        avatar
-        min-w-0
+      <q-btn
+        flat
+        dense
+        no-caps
+        no-padding
+        no-margin
+        icon="sym_o_search"
+        @click.prevent.stop="showSearchDialog = true"
       >
-        <q-icon name="sym_o_add_comment" />
-      </q-item-section>
-      <q-item-section>
-        {{ $t('dialogList.createDialog') }}
-      </q-item-section>
+        <q-tooltip>
+          {{ $t('dialogList.searchDialogs') }}
+        </q-tooltip>
+      </q-btn>
+      <add-dialog-item :workspace-id="props.workspaceId" />
     </q-item>
     <q-item
       v-for="dialog in [...dialogs].reverse()"
@@ -62,25 +65,27 @@
       </q-menu>
     </q-item>
   </q-list>
+  <search-dialog
+    v-model="showSearchDialog"
+    :workspace-id
+  />
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
 import { isPlatformEnabled } from 'src/utils/functions'
 import { dialogOptions } from 'src/utils/values'
-import { computed, inject, Ref, toRef } from 'vue'
+import { computed, inject, ref, Ref, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
-import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { useListenKey } from 'src/composables/listen-key'
 import { useRouter, useRoute } from 'vue-router'
 import { useDialogsStore } from 'src/stores/dialogs'
 import { Workspace } from '@/services/supabase/types'
-import { useCheckLogin } from 'src/composables/auth/useCheckLogin'
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import { storeToRefs } from 'pinia'
+import AddDialogItem from './AddDialogItem.vue'
+import SearchDialog from './SearchDialog.vue'
 
 const { t } = useI18n()
 const props = defineProps<{
@@ -90,18 +95,10 @@ const props = defineProps<{
 const $q = useQuasar()
 const router = useRouter()
 const route = useRoute()
-const { ensureLogin } = useCheckLogin()
-const { createDialog } = useCreateDialog(props.workspaceId)
 const dialogsStore = useDialogsStore()
-const dialogs = computed(() => Object.values(dialogsStore.dialogs).filter(item => item.workspace_id === props.workspaceId))
-const workspaceStore = useWorkspacesStore()
-const workspace = workspaceStore.workspaces.find(item => item.id === props.workspaceId)
-
-async function addItem() {
-  ensureLogin()
-
-  await createDialog()
-}
+const { dialogs: workspaceDialogs } = storeToRefs(dialogsStore)
+const dialogs = computed(() => Object.values(workspaceDialogs.value).filter(item => item.workspace_id === props.workspaceId))
+const showSearchDialog = ref(false)
 
 function renameItem({ id, name }) {
   $q.dialog({
@@ -142,11 +139,5 @@ function deleteItem({ id, name }) {
   }).onOk(() => {
     dialogsStore.removeDialog(id)
   })
-}
-
-const { data: perfs } = storeToRefs(useUserPerfsStore())
-
-if (isPlatformEnabled(perfs.value.enableShortcutKey)) {
-  useListenKey(toRef(perfs.value, 'createDialogKey'), addItem)
 }
 </script>

@@ -11,9 +11,8 @@
 
 <script setup lang="ts">
 import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
 
 const { t } = useI18n()
 const { data: perfs } = useUserPerfsStore()
@@ -24,10 +23,6 @@ options.set(true, { title: t('darkSwitchBtn.switchToLight'), icon: 'sym_o_light_
 options.set(false, { title: t('darkSwitchBtn.switchToAuto'), icon: 'sym_o_brightness_auto', next: 'auto' })
 
 const curr = computed(() => options.get(perfs.darkMode))
-
-watch(perfs, (newVal, oldVal) => {
-  console.log('perfs changed', newVal)
-}, { deep: true })
 
 function switchDark() {
   perfs.darkMode = curr.value.next

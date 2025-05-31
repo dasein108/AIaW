@@ -1,5 +1,4 @@
 import { useQuasar } from 'quasar'
-import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import { db } from 'src/utils/db'
 import { defaultModelSettings } from 'src/common/consts'
 import { localData } from 'src/utils/local-data'
@@ -12,6 +11,8 @@ import { useWorkspacesStore } from 'src/stores/workspaces'
 import { defaultAvatar } from 'src/utils/functions'
 import { AssistantDefaultPrompt } from 'src/utils/templates'
 import AuthDialog from 'src/components/auth/AuthDialog.vue'
+import { useUserStore } from 'src/stores/user'
+import { storeToRefs } from 'pinia'
 
 export function useFirstVisit() {
   const $q = useQuasar()
@@ -19,9 +20,11 @@ export function useFirstVisit() {
   const { t } = useI18n()
   const assistantsStore = useAssistantsStore()
   const workspaceStore = useWorkspacesStore()
+  const { isLoggedIn } = storeToRefs(useUserStore())
 
   // onboarding: if no assistants, add default assistant
-  watch(() => assistantsStore.isLoaded && workspaceStore.isLoaded, async (val) => {
+  watch(() => isLoggedIn && assistantsStore.isLoaded && workspaceStore.isLoaded, async (val) => {
+    // TODO: refactor, add default workspace&assistant in db layer
     if (val) {
       if (assistantsStore.assistants.length === 0) {
         const workspace = workspaceStore.workspaces[0]

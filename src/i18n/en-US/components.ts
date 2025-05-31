@@ -70,7 +70,7 @@ export default {
     dismiss: 'Dismiss'
   },
   assistantsExpansion: {
-    createDialog: 'Create Dialog',
+    createDialog: 'Create AI Chat',
     moveToGlobal: 'Move to Global',
     moveToWorkspace: 'Move to Workspace',
     delete: 'Delete',
@@ -114,15 +114,15 @@ export default {
     ok: 'OK'
   },
   dialogList: {
-    createDialog: 'Create Dialog',
-    searchPlaceholder: 'Search Dialogs...',
+    createDialog: 'Create AI Chat',
+    searchPlaceholder: 'Search AI Chats...',
     renameTitle: 'Rename Title',
     summarizeDialog: 'Summarize Title',
     title: 'Title',
     moveTo: 'Move To',
     copyContent: 'Copy Content',
     delete: 'Delete',
-    deleteConfirmTitle: 'Delete Dialog',
+    deleteConfirmTitle: 'Delete AI Chat',
     deleteConfirmMessage: 'Are you sure you want to delete the dialog "{name}"?',
     deleteConfirmOk: 'Delete'
   },

@@ -3,6 +3,7 @@
     @toggle-drawer="$emit('toggle-drawer')"
   >
     <div>{{ chat?.name }}</div>
+    <q-space />
   </view-common-header>
   <q-page-container bg-sur-c-low>
     <q-page

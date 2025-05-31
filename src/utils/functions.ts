@@ -34,6 +34,16 @@ function defaultTextAvatar(text: string): Avatar {
   }
 }
 
+function avatarKey(avatar: Avatar) {
+  switch (avatar.type) {
+    case 'image': return avatar.imageId
+    case 'text': return avatar.text
+    case 'icon': return avatar.icon
+    case 'url': return avatar.url
+    case 'svg': return avatar.name
+  }
+}
+
 function hctToHex(h: number, c: number, t: number): string {
   return hexFromArgb(Hct.from(h, c, t).toInt())
 }
@@ -271,5 +281,6 @@ export {
   hash53,
   removeDuplicates,
   localePrice,
-  defaultTextAvatar
+  defaultTextAvatar,
+  avatarKey
 }

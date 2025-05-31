@@ -20,6 +20,7 @@ let subscription: ReturnType<typeof supabase.channel> | null = null
 const isLoaded = ref(false)
 
 async function fetchWorkspaces() {
+  if (isLoaded.value) return
   const { data, error } = await supabase
     .from('workspaces')
     .select('*')
@@ -96,9 +97,10 @@ export function useWorkspacesWithSubscription() {
 
   // Watch for currentUser changes
   useUserLoginCallback(async() => {
+    isLoaded.value = false
     unsubscribeFromWorkspaces()
     workspaces.value = []
-    fetchWorkspaces()
+    await fetchWorkspaces()
     subscribeToWorkspaces()
   })
 

@@ -22,7 +22,6 @@
       />
       <slot />
       <q-btn
-        v-if="!rightDrawerAbove"
         flat
         dense
         round
@@ -30,6 +29,7 @@
         @click="$emit('toggle-drawer')"
         @contextmenu.prevent="$emit('contextmenu')"
       />
+      <settings-area />
     </q-toolbar>
   </q-header>
 </template>
@@ -38,6 +38,7 @@
 import { useBack } from 'src/composables/back'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { inject } from 'vue'
+import SettingsArea from 'src/layouts/SettingsArea.vue'
 
 const uiStore = useUiStateStore()
 const rightDrawerAbove = inject('rightDrawerAbove')

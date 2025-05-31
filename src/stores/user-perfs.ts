@@ -1,15 +1,8 @@
 import { MdPreviewProps } from 'md-editor-v3'
-import { defineStore } from 'pinia'
 import { Dark } from 'quasar'
 import { Avatar, Model, PlatformEnabled, Provider, ShortcutKey } from 'src/utils/types'
 import { models } from 'src/utils/values'
-import { reactive, ref, watch, watchEffect } from 'vue'
-import { UserDataMapped } from '@/services/supabase/types'
-import { supabase } from 'src/services/supabase/client'
-import { CODE_NO_RECORD_FOUND } from 'src/services/supabase/consts'
-import { useUserStore } from './user'
-import { isEqual, throttle, cloneDeep } from 'lodash'
-import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
+import { watchEffect } from 'vue'
 import { createUserDataStore } from './createUserDataStore'
 
 interface Perfs {
@@ -122,7 +115,6 @@ export const useUserPerfsStore = () => {
   const store = createUserDataStore<Perfs>('user-perfs', defaultPerfs)()
 
   watchEffect(() => {
-    console.log('darkMode', store.data.darkMode)
     Dark.set(store.data.darkMode)
   })
   return store

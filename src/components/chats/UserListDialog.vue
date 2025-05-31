@@ -64,7 +64,7 @@ const profileStore = useProfileStore()
 const users = ref<ProfileMapped[]>([])
 
 const onSelectUser = async (user: ProfileMapped) => {
-  onDialogOK(user)
+  onDialogOK(user.id)
 }
 
 onMounted(async () => {

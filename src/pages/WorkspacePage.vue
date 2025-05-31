@@ -86,24 +86,16 @@
         h-full
         flex="~ col"
       >
-        <div
+        <!-- <div
           h="48px"
           p-2
           flex
           items-center
         >
-          <q-space />
-          <q-btn
-            flat
-            dense
-            round
-            icon="sym_o_home"
-            :to="`/workspaces/${id}`"
-            :class="{'route-active': route.path === `/workspaces/${id}`}"
-            :title="$t('workspacePage.workspaceHome')"
-          />
-          <!-- TODO: remove -->
-          <!-- <q-btn
+          <q-space /> -->
+
+        <!-- TODO: remove -->
+        <!-- <q-btn
             flat
             dense
             round
@@ -112,7 +104,7 @@
             :class="{'route-active': route.path === `/workspaces/${id}/settings`}"
             :title="$t('workspacePage.workspaceSettings')"
           /> -->
-        </div>
+        <!-- </div> -->
         <!-- <assistants-expansion
           :model-value="listOpen.assistants"
           @update:model-value="setListOpen('assistants', $event)"
