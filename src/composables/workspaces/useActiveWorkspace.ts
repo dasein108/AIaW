@@ -1,4 +1,4 @@
-import { computed, watchEffect } from "vue"
+import { computed } from "vue"
 import { useWorkspacesStore } from "src/stores/workspaces"
 import { useRoute } from "vue-router"
 import { storeToRefs } from "pinia"
@@ -17,7 +17,7 @@ export function useActiveWorkspace() {
   const workspacesStore = useWorkspacesStore()
   const { assistants } = storeToRefs(useAssistantsStore())
   const routeWorkspaceId = computed(() => route.params.workspaceId as string)
-  const workspaceId = computed(() => routeWorkspaceId.value || userData.value.lastWorkspaceId || workspacesStore.workspaces?.[0]?.id)
+  const workspaceId = computed(() => workspacesStore.isLoaded ? routeWorkspaceId.value || userData.value.lastWorkspaceId || workspacesStore.workspaces?.[0]?.id : null)
   const workspace = computed(() => workspacesStore.workspaces ? workspacesStore.workspaces.find(workspace => workspace.id === workspaceId.value) : null)
   const workspaceAssistantId = computed(() => userData.value.defaultAssistantIds[workspaceId.value])
   const defaultAssistant = computed(() => assistants.value.find(assistant => !assistant.workspace_id))
