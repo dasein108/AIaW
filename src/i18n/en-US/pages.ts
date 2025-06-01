@@ -114,6 +114,7 @@ export default {
     currentVersion: 'Current Version',
     changeLog: 'Change Log',
     webVersion: 'Web Version',
-    localClient: 'Local Client'
+    localClient: 'Local Client',
+    lastDialogs: 'Last AI Chats'
   }
 }

@@ -25,7 +25,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
   const dialogs = reactive<Record<string, DialogMapped>>({})
   const dialogMessages = reactive<Record<string, DialogMessageMapped[]>>({})
   async function fetchDialogs() {
-    const { data, error } = await supabase.from('dialogs').select('*')// .eq('workspace_id', workspaceId)
+    const { data, error } = await supabase.from('dialogs').select('*').order('created_at', { ascending: false })// .eq('workspace_id', workspaceId)
     if (error) {
       console.error(error)
     }

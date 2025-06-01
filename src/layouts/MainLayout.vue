@@ -59,16 +59,21 @@
       <!-- before -->
       <!-- <workspace-nav mt-2 /> -->
       <!-- end before -->
-      <tabs-item />
-      <!-- <q-list
-        mt-a
-        mb-2
+      <div class="drawer-tabs-item">
+        <tabs-item />
+      </div>
+      <q-item
+        pt-5
+        px-4
+        text-sec
       >
-        <q-separator
-          spaced
-        />
-        <settings-area />
-      </q-list> -->
+        <q-item-section>
+          {{ t('mainLayout.lastDialogs') }}
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <last-dialogs />
+      </q-item>
       <vue-draggable />
     </q-drawer>
     <router-view />
@@ -88,6 +93,8 @@ import AssistantSelector from './AssistantSelector.vue'
 import TabsItem from './TabsItem.vue'
 import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
 import AddDialogItem from 'src/components/AddDialogItem.vue'
+import LastDialogs from './LastDialogs.vue'
+
 defineOptions({
   name: 'MainLayout'
 })
@@ -116,3 +123,14 @@ function notifyVersion() {
   })
 }
 </script>
+
+<style scoped>
+.drawer-tabs-item {
+  flex: 0 0 40%;
+  max-height: 40%;
+  min-height: 0;
+  /* Ensures it doesn't overflow and works with flex column */
+  display: flex;
+  flex-direction: column;
+}
+</style>

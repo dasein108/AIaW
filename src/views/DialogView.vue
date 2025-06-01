@@ -426,10 +426,8 @@
 <script setup lang="ts">
 import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick, onMounted } from 'vue'
 import { almostEqual, displayLength, genId, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
-import { useAssistantsStore } from 'src/stores/assistants'
 import { streamText, CoreMessage, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult } from 'ai'
 import { throttle, useQuasar } from 'quasar'
-import AssistantItem from 'src/components/AssistantItem.vue'
 import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
@@ -481,22 +479,21 @@ const props = defineProps<{
 const rightDrawerAbove = inject('rightDrawerAbove')
 
 const dialogsStore = useDialogsStore()
-const dialogs = computed(() => Object.values(dialogsStore.dialogs))
-
 const { assistant, workspace } = useActiveWorkspace()
 
-// const workspace: Ref<WorkspaceMapped> = inject('workspace')
-// const assistants = computed(() => allAssistants.value ? allAssistants.value.filter(
-//   a => [workspace.value.id, null].includes(a.workspace_id)
-// ) : [])
-// const assistant = computed(() => (allAssistants.value ? { ...allAssistants.value.find(a => a.id === dialog.value?.assistant_id) } : null)) // force trigger updates
+const dialogs = computed(() => Object.values(dialogsStore.dialogs))
 
 const dialog = computed(() => dialogsStore.dialogs[props.id])
 const dialogMessages = computed(() => dialogsStore.dialogMessages[props.id] || [])
-onMounted(() => {
-  // dialogsStore.fetchDialogs()
+
+watch(dialog, () => {
   dialogsStore.fetchDialogMessages(props.id)
 })
+
+// onMounted(() => {
+//   // dialogsStore.fetchDialogs()
+//   dialogsStore.fetchDialogMessages(props.id)
+// })
 
 provide('dialog', dialog)
 
