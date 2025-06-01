@@ -115,6 +115,7 @@ export default {
     changeLog: 'Change Log',
     webVersion: 'Web Version',
     localClient: 'Local Client',
-    lastDialogs: 'Last AI Chats'
+    lastDialogs: 'Last AI Chats',
+    pinnedChats: 'Pinned Human Chats'
   }
 }

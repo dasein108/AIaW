@@ -1,14 +1,12 @@
 <template>
   <q-list
     class="q-pa-none"
-    pt-0
-    pb-0
   >
     <q-item
-      v-for="dialog in lastDialogsWithWorkspace"
-      :key="dialog.id"
+      v-for="chat in lastChatsWithWorkspace"
+      :key="chat.id"
       clickable
-      @click="goToDialog(dialog.workspace_id, dialog.id)"
+      @click="goToChat(chat.workspace_id, chat.id)"
       dense
       class="q-pa-xs q-mb-xs"
     >
@@ -17,8 +15,8 @@
         class="q-mr-xs q-pa-none"
       >
         <AAvatar
-          :avatar="dialog.workspace?.avatar"
-          :label="dialog.workspace?.name"
+          :avatar="chat.workspace?.avatar"
+          :label="chat.workspace?.name"
           :flat="true"
           size="xs"
         />
@@ -27,7 +25,7 @@
         class="q-pa-none q-pt-xs q-pl-xs"
       >
         <div class="text-body2 ellipsis">
-          {{ dialog.name }}
+          {{ chat.name }}
         </div>
       </q-item-section>
     </q-item>
@@ -35,27 +33,28 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogsStore } from 'src/stores/dialogs'
 import { useWorkspacesStore } from 'src/stores/workspaces'
-import { computed } from 'vue'
-import { DialogMapped } from 'src/services/supabase/types'
+import { computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import AAvatar from 'src/components/AAvatar.vue'
+import { useChatsStore } from 'src/stores/chats'
 
-const MAX_LAST_DIALOGS = 3
+const MAX_LAST_CHATS = 3
 const router = useRouter()
 const workspacesStore = useWorkspacesStore()
-const { dialogs } = storeToRefs(useDialogsStore())
-const dialogsMapped = computed(() => Object.values<DialogMapped>(dialogs.value))
+const { chats } = storeToRefs(useChatsStore())
 
-const lastDialogs = computed(() => {
-  return [...dialogsMapped.value]
+watch(chats, (newVal) => {
+  console.log('lastChats', newVal)
+})
+const lastChats = computed(() => {
+  return [...chats.value]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, MAX_LAST_DIALOGS)
+    .slice(0, MAX_LAST_CHATS)
 })
 
-const lastDialogsWithWorkspace = computed(() => workspacesStore.workspaces.length > 0 ? lastDialogs.value.map(d => {
+const lastChatsWithWorkspace = computed(() => workspacesStore.workspaces.length > 0 ? lastChats.value.map(d => {
   const workspace = workspacesStore.workspaces?.find(w => w.id === d.workspace_id)
   return {
     ...d,
@@ -63,7 +62,7 @@ const lastDialogsWithWorkspace = computed(() => workspacesStore.workspaces.lengt
   }
 }) : [])
 
-function goToDialog(workspaceId: string, dialogId: string) {
-  router.push(`/workspaces/${workspaceId}/dialogs/${dialogId}`)
+function goToChat(workspaceId: string, chatId: string) {
+  router.push(workspaceId ? `/workspaces/${workspaceId}/chats/${chatId}` : `/chats/${chatId}`)
 }
 </script>

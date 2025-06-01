@@ -38,7 +38,7 @@
       </div>
       <q-separator spaced />
       <q-item
-        px-4
+        px-3
         py-2
         text-sec
       >
@@ -65,10 +65,12 @@
       <div class="drawer-tabs-item">
         <tabs-item />
       </div>
+      <q-separator spaced />
       <q-item
-        pt-5
+        pt-3
         px-4
         text-sec
+        pb-0
       >
         <q-item-section>
           {{ t('mainLayout.lastDialogs') }}
@@ -77,7 +79,19 @@
       <q-item>
         <last-dialogs />
       </q-item>
-      <vue-draggable />
+      <q-item
+        pt-3
+        px-4
+        pb-0
+        text-sec
+      >
+        <q-item-section>
+          {{ t('mainLayout.pinnedChats') }}
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <pinned-chats />
+      </q-item>
     </q-drawer>
     <router-view />
   </q-layout>
@@ -97,6 +111,7 @@ import TabsItem from './TabsItem.vue'
 import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
 import AddDialogItem from 'src/components/AddDialogItem.vue'
 import LastDialogs from './LastDialogs.vue'
+import PinnedChats from './PinnedChats.vue'
 
 defineOptions({
   name: 'MainLayout'
@@ -151,8 +166,8 @@ function notifyVersion() {
   text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
 }
 .drawer-tabs-item {
-  flex: 0 0 40%;
-  max-height: 40%;
+  flex: 0 0 30%;
+  max-height: 30%;
   min-height: 0;
   /* Ensures it doesn't overflow and works with flex column */
   display: flex;
