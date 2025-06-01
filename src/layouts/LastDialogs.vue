@@ -36,7 +36,6 @@
 </template>
 
 <script setup lang="ts">
-import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
 import { useDialogsStore } from 'src/stores/dialogs'
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import { computed } from 'vue'
@@ -46,7 +45,6 @@ import { useRouter } from 'vue-router'
 import AAvatar from 'src/components/AAvatar.vue'
 
 const MAX_LAST_DIALOGS = 5
-const { workspace, assistant, lastDialogId } = useActiveWorkspace()
 const router = useRouter()
 const workspacesStore = useWorkspacesStore()
 const { dialogs } = storeToRefs(useDialogsStore())

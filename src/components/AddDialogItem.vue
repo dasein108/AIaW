@@ -24,7 +24,7 @@
       min-w-0
     >
       <q-icon
-        name="sym_o_add_comment"
+        name="sym_o_rate_review"
       />
     </q-item-section>
     <q-item-section>

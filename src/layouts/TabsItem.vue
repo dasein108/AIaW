@@ -39,7 +39,6 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import DialogList from 'src/components/DialogList.vue'
 import ChatList from 'src/components/chats/ChatList.vue'
-import AddDialogItem from 'src/components/AddDialogItem.vue'
 
 const route = useRoute()
 const workspaceId = computed(() => route.params.workspaceId as string)

@@ -116,11 +116,9 @@
           <artifacts-expansion
             :model-value="listOpen.artifacts"
             @update:model-value="setListOpen('artifacts', $event)"
-            max-h="40vh"
             of-y-auto
           />
         </template>
-        <q-separator />
         <!-- <chats-expansion
           :workspace-id="workspace.id"
           :model-value="listOpen.chats"
@@ -184,6 +182,7 @@ const listOpen = computed(() => userStore.data.listOpen[props.id] || {
 const workspace = computed<WorkspaceMapped | undefined>(() => workspacesStore.workspaces.find(item => item.id === props.id) as WorkspaceMapped)
 
 const artifacts = computed(() => Object.values(artifactsStore.workspaceArtifacts[props.id] || {}).map(a => a as ArtifactMapped))
+
 provide('workspace', workspace)
 provide('artifacts', artifacts)
 

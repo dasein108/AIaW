@@ -1,7 +1,3 @@
-import { until } from '@vueuse/core'
-import { defineStore } from 'pinia'
-import { persistentReactive } from 'src/composables/persistent-reactive'
-import { ref } from 'vue'
 import { createUserDataStore } from './createUserDataStore'
 
 export type ListOpen = {
@@ -31,7 +27,7 @@ const defaultUserData: UserData = {
   defaultAssistantIds: {},
   prodExpiredNotifiedTimestamp: null,
   evalExpiredNotified: false,
-  listOpen: {},
+  listOpen: { },
   openedArtifacts: []
 }
 
