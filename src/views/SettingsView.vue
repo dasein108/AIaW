@@ -25,7 +25,44 @@
             <cosmos-wallet v-else />
           </q-item-section>
         </q-item>
-        <grantee-wallet />
+        <q-item class="q-mt-md q-mb-md">
+          <q-item-section>
+            <q-item-label>Authz Grant Setup</q-item-label>
+            <div
+              v-if="authStore.walletInfo && authStore.walletInfo.address"
+              class="text-caption q-mt-xs"
+            >
+              Grantee: {{ authStore.walletInfo.address }}
+            </div>
+            <div
+              v-else
+              class="text-caption q-mt-xs text-grey-6"
+            >
+              No grantee wallet configured
+            </div>
+          </q-item-section>
+          <q-item-section
+            side
+            class="items-end"
+          >
+            <q-btn
+              v-if="authStore.walletInfo && authStore.walletInfo.address"
+              flat
+              color="negative"
+              label="Reconfigure"
+              class="q-mt-xs"
+              @click="showAuthzModal = true"
+              :disable="!authStore.isGranterActuallyConnected"
+            />
+            <q-btn
+              v-else
+              color="primary"
+              label="Setup Authz Grant"
+              @click="showAuthzModal = true"
+              :disable="!authStore.isGranterActuallyConnected"
+            />
+          </q-item-section>
+        </q-item>
         <q-item-label
           header
           id="default-provider"
@@ -485,11 +522,17 @@
       </q-list>
     </q-page>
   </q-page-container>
+
+  <authz-grant-modal
+    v-model="showAuthzModal"
+    @success="handleAuthzSuccess"
+  />
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
 import AAvatar from 'src/components/AAvatar.vue'
+import AuthzGrantModal from 'src/components/AuthzGrantModal.vue'
 import CopyBtn from 'src/components/CopyBtn.vue'
 import CosmosWallet from 'src/components/CosmosWallet.vue'
 import GetModelList from 'src/components/GetModelList.vue'
@@ -513,7 +556,6 @@ import { IsTauri } from 'src/utils/platform-api'
 import { dialogOptions, mdCodeThemes, mdPreviewThemes } from 'src/utils/values'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import GranteeWallet from '../components/GranteeWallet.vue'
 import { useAuthStore } from '../stores/auth'
 
 defineEmits(['toggle-drawer'])
@@ -585,5 +627,14 @@ const walletInfo = ref(authStore.walletInfo)
 const handlePinSubmit = async (pin: string) => {
   walletInfo.value = await authStore.createGranteeWallet(pin)
   showPinModal.value = false
+}
+
+const showAuthzModal = ref(false)
+
+const handleAuthzSuccess = () => {
+  $q.notify({
+    message: 'Authz grant setup completed successfully!',
+    color: 'positive'
+  })
 }
 </script>

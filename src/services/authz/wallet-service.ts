@@ -173,6 +173,33 @@ export class WalletService {
     }
   }
 
+  async checkExistingGrants(granterAddress: string, granteeAddress: string): Promise<{ hasMsgExecGrant: boolean, hasMsgSendGrant: boolean }> {
+    try {
+      const response = await fetch(`${config.LCD_URL}/cosmos/authz/v1beta1/grants?granter=${granterAddress}&grantee=${granteeAddress}`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      const grants = data.grants || []
+
+      const hasMsgExecGrant = grants.some((grant: any) =>
+        grant.authorization?.msg === '/cosmwasm.wasm.v1.MsgExecuteContract'
+      )
+
+      const hasMsgSendGrant = grants.some((grant: any) =>
+        grant.authorization?.msg === '/cosmos.bank.v1beta1.MsgSend'
+      )
+
+      return { hasMsgExecGrant, hasMsgSendGrant }
+    } catch (error) {
+      console.error('Error checking existing grants:', error)
+      // Return false for both if we can't check
+      return { hasMsgExecGrant: false, hasMsgSendGrant: false }
+    }
+  }
+
   async sendTokensToGrantee(
     granterSigner: OfflineDirectSigner,
     granteeAddress: string,

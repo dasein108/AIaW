@@ -465,7 +465,7 @@ import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
 import { useGetModel } from 'src/composables/get-model'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useDialogsStore } from 'src/stores/dialogs'
-import { DialogMessageMapped, StoredItem, MessageContentMapped, StoredItemMapped, ArtifactMapped, WorkspaceMapped } from '@/services/supabase/types'
+import { Workspace, DialogMessageMapped, StoredItem, MessageContentMapped, StoredItemMapped, ArtifactMapped, WorkspaceMapped } from '@/services/supabase/types'
 import { useStorage } from 'src/composables/storage/useStorage'
 import { FILES_BUCKET, getFileUrl } from 'src/composables/storage/utils'
 import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
@@ -486,9 +486,9 @@ const dialogs = computed(() => Object.values(dialogsStore.dialogs))
 const dialog = computed(() => dialogsStore.dialogs[props.id])
 const dialogMessages = computed(() => dialogsStore.dialogMessages[props.id] || [])
 
-// watch(dialog, () => {
-//   dialogsStore.fetchDialogMessages(props.id)
-// })
+watch(dialog, () => {
+  dialogsStore.fetchDialogMessages(props.id)
+})
 
 onMounted(() => {
   // dialogsStore.fetchDialogs()
@@ -504,13 +504,11 @@ function switchChain(index: number, value: number) {
   const route = [...dialog.value.msg_route.slice(0, index), value]
   updateChain(route)
 }
-
 function updateChain(route) {
   const res = getChain(null, route)
   historyChain.value = res[0]
   dialogsStore.updateDialog({ id: dialog.value.id, msg_route: res[1] })
 }
-
 watch([() => dialogMessages.value.length, () => dialog.value?.id], () => {
   dialog.value && updateChain(dialog.value.msg_route)
 })
@@ -534,11 +532,11 @@ async function edit(index: number) {
   const { type, message_contents } = messageMap.value[chain.value[index]]
   switchChain(index - 1, dialog.value.msg_tree[target].length)
 
-  await appendMessage(target, {
+  await dialogsStore.addDialogMessage(props.id, target, {
     type,
     message_contents,
     status: 'inputing'
-  } as Partial<DialogMessageMapped>)
+  })
   await nextTick()
   focusInput()
 }
@@ -599,23 +597,6 @@ async function updateInputText(text) {
     status: 'inputing'
   })
 }
-
-async function appendMessage(target, info: Partial<DialogMessageMapped>, insert = false) {
-  const { id } = await dialogsStore.addDialogMessage(props.id, target, { ...info, workspace_id: workspace.value.id } as DialogMessageMapped)
-
-  const children = dialog.value.msg_tree[target]
-  const changes = insert ? {
-    [target]: [id],
-    [id]: children
-  } : {
-    [target]: [...children, id],
-    [id]: []
-  }
-  await dialogsStore.updateDialog({ id: props.id, msg_tree: { ...dialog.value.msg_tree, ...changes } })
-
-  return id
-}
-
 const inputMessageContent = computed(() => messageMap.value[chain.value.at(-1)]?.message_contents[0] as UserMessageContent)
 const inputContentItems = computed(() => inputMessageContent.value.stored_items.map(item => itemMap.value[item.id]).filter(x => x))
 const messageMap = computed<Record<string, DialogMessageMapped>>(() => {
@@ -736,6 +717,7 @@ function quote(item: ApiResultItem) {
 }
 async function addInputItems(items: ApiResultItem[]) {
   const storedItems: StoredItemMapped[] = await Promise.all(items.map(r => storage.apiResultItemToStoredItem(r, props.id)))
+  debugger
   await dialogsStore.updateDialogMessage(props.id, chain.value.at(-1), {
     message_contents: [{
       ...inputMessageContent.value,
@@ -861,7 +843,6 @@ const $q = useQuasar()
 const { data } = useUserDataStore()
 const openedArtifacts = computed(() => artifacts.value.filter(a => userDataStore.data.openedArtifacts.includes(a.id)))
 async function send() {
-  const activeMessages = historyChain.value.filter(id => id && messageMap.value[id].status !== 'inputing').map(id => messageMap.value[id])
   if (!assistant.value) {
     $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
     return
@@ -917,15 +898,15 @@ async function stream(target, insert = false) {
   }
   const contents: MessageContentMapped[] = [messageContent]
 
-  const messageId = await appendMessage(target, {
+  const { id } = await dialogsStore.addDialogMessage(props.id, target, {
     type: 'assistant',
     assistant_id: assistant.value.id,
     message_contents: contents,
     status: 'pending',
     generating_session: sessions.id,
     model_name: model.value.name
-  } as Partial<DialogMessageMapped>, insert)
-  !insert && await appendMessage(messageId, {
+  }, insert)
+  !insert && await dialogsStore.addDialogMessage(props.id, id, {
     type: 'user',
     message_contents: [{
       type: 'user-message',
@@ -933,12 +914,12 @@ async function stream(target, insert = false) {
       stored_items: []
     }],
     status: 'inputing'
-  } as Partial<DialogMessageMapped>)
+  })
 
   // const update = throttle(() => dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents }), 50)
-  const update = async () => await dialogsStore.updateDialogMessage(props.id, messageId, { message_contents: contents })
+  const update = async () => await dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents })
 
-  async function callTool(plugin: Plugin, api: PluginApi, args): Promise<{ result: ApiResultItem[], error: string }> {
+  async function callTool(plugin: Plugin, api: PluginApi, args) {
     const content: MessageContentMapped = {
       type: 'assistant-tool',
       plugin_id: plugin.id,
@@ -948,23 +929,23 @@ async function stream(target, insert = false) {
     }
 
     contents.push(content)
+
     await update()
 
     const { result: apiResult, error } = await callApi(plugin, api, args)
     const result: StoredItemMapped[] = await Promise.all(apiResult.map(r => storage.apiResultItemToStoredItem(r, props.id)))
     // saveItems(result)
-    content.stored_items = result
+    content.stored_items = result.filter(i => i)
     if (error) {
       content.status = 'failed'
       content.error = error
     } else {
       content.status = 'completed'
-      content.result = result
+      content.result = result.map(i => i)
     }
-    contents.splice(contents.length - 1, 1, content)
     await update()
 
-    return { result: apiResult, error }
+    return { result, error }
   }
   const { plugins } = assistant.value
   const tools = {}
@@ -1048,7 +1029,7 @@ async function stream(target, insert = false) {
     let result: StreamTextResult<any, any> | GenerateTextResult<any, any>
     if (assistant.value.stream) {
       result = streamText(params)
-      await dialogsStore.updateDialogMessage(props.id, messageId, { status: 'streaming' })
+      await dialogsStore.updateDialogMessage(props.id, id, { status: 'streaming' })
       lockingBottom.value = perfs.streamingLockBottom
       for await (const part of result.fullStream) {
         if (part.type === 'text-delta') {
@@ -1069,7 +1050,7 @@ async function stream(target, insert = false) {
 
     const usage = await result.usage
     const warnings = (await result.warnings).map(w => (w.type === 'unsupported-setting' || w.type === 'unsupported-tool') ? w.details : w.message)
-    await dialogsStore.updateDialogMessage(props.id, messageId, { message_contents: contents, status: 'default', generating_session: null, warnings, usage })
+    await dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents, status: 'default', generating_session: null, warnings, usage })
   } catch (e) {
     console.error(e)
     if (e.data?.error?.type === 'budget_exceeded') {
@@ -1080,7 +1061,7 @@ async function stream(target, insert = false) {
         actions: [{ label: t('dialogView.recharge'), color: 'on-sur', handler() { router.push('/account') } }]
       })
     }
-    await dialogsStore.updateDialogMessage(props.id, messageId, { message_contents: contents, error: e.message || e.toString(), status: 'failed', generating_session: null })
+    await dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents, error: e.message || e.toString(), status: 'failed', generating_session: null })
   }
   perfs.artifactsAutoExtract && autoExtractArtifact()
   lockingBottom.value = false
