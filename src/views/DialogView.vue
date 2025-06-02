@@ -3,7 +3,34 @@
     @toggle-drawer="$emit('toggle-drawer')"
     @contextmenu="createDialog"
   >
-    <div>
+    <!-- <q-badge
+      bg-pri-c
+      text-on-pri-c
+      ml-2
+      py-1
+    >
+      <a-avatar
+        v-if="workspace"
+        size="sm"
+        :avatar="workspace.avatar"
+      />
+      <q-icon
+        v-else
+        name="sym_o_error"
+        text-warn
+      />
+      <div
+        ml-2
+      >
+        {{ workspace?.name || 'undefined' }}
+      </div>
+    </q-badge>
+    <q-icon
+      name="sym_o_chevron_right"
+      ml-2
+    /> -->
+    <!-- TODO: remove / before -->
+    <!-- <div>
       <assistant-item
         clickable
         :assistant
@@ -12,6 +39,7 @@
         item-rd
         py-1
         min-h-0
+        main
       />
       <q-menu>
         <q-list>
@@ -27,9 +55,9 @@
           />
         </q-list>
       </q-menu>
-    </div>
+    </div> -->
     <div
-      v-if="model"
+      v-if="model && assistant && dialog"
       text-on-sur-var
       my-2
       of-hidden
@@ -47,6 +75,10 @@
         py="3px"
         text="xs"
       >{{ model.name }}</code>
+      <!-- <q-icon
+        name="sym_o_expand_more"
+        size="sm"
+      /> -->
       <q-menu important:max-w="300px">
         <q-list>
           <template v-if="assistant.model">
@@ -394,10 +426,8 @@
 <script setup lang="ts">
 import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick, onMounted } from 'vue'
 import { almostEqual, displayLength, genId, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
-import { useAssistantsStore } from 'src/stores/assistants'
 import { streamText, CoreMessage, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult } from 'ai'
 import { throttle, useQuasar } from 'quasar'
-import AssistantItem from 'src/components/AssistantItem.vue'
 import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
@@ -435,9 +465,10 @@ import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
 import { useGetModel } from 'src/composables/get-model'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useDialogsStore } from 'src/stores/dialogs'
-import { Workspace, DialogMessageMapped, StoredItem, MessageContentMapped, StoredItemMapped, ArtifactMapped } from '@/services/supabase/types'
+import { Workspace, DialogMessageMapped, StoredItem, MessageContentMapped, StoredItemMapped, ArtifactMapped, WorkspaceMapped } from '@/services/supabase/types'
 import { useStorage } from 'src/composables/storage/useStorage'
 import { FILES_BUCKET, getFileUrl } from 'src/composables/storage/utils'
+import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
 
 const { t, locale } = useI18n()
 
@@ -448,28 +479,21 @@ const props = defineProps<{
 const rightDrawerAbove = inject('rightDrawerAbove')
 
 const dialogsStore = useDialogsStore()
+const { assistant, workspace } = useActiveWorkspace()
+
 const dialogs = computed(() => Object.values(dialogsStore.dialogs))
 
-const assistantsStore = useAssistantsStore()
-const workspace: Ref<Workspace> = inject('workspace')
-const assistants = computed(() => assistantsStore.assistants.filter(
-  a => [workspace.value.id, null].includes(a.workspace_id)
-))
-const dialog = computed(() => {
-  if (!assistantsStore.isLoaded || !dialogsStore.isLoaded) return null
-  return dialogsStore.dialogs[props.id] || null
-})
+const dialog = computed(() => dialogsStore.dialogs[props.id])
 const dialogMessages = computed(() => dialogsStore.dialogMessages[props.id] || [])
-onMounted(() => {
-  // dialogsStore.fetchDialogs()
+
+watch(dialog, () => {
   dialogsStore.fetchDialogMessages(props.id)
 })
 
-const assistant = computed(() => {
-  if (!assistantsStore.isLoaded || !dialogsStore.isLoaded) return null
-  return assistantsStore.assistants.find(a => a.id === dialog.value?.assistant_id) || null
-})
-console.log('[DEBUG] Assistent', { assistant: assistant.value, assistants: [...assistantsStore.assistants], dialog: dialog.value, dialogs: { ...dialogsStore.dialogs } })
+// onMounted(() => {
+//   // dialogsStore.fetchDialogs()
+//   dialogsStore.fetchDialogMessages(props.id)
+// })
 
 provide('dialog', dialog)
 
@@ -1074,7 +1098,7 @@ watch(lockingBottom, val => {
     scrollContainer.value.removeEventListener('scroll', scrollListener)
   }
 })
-const activePlugins = computed<Plugin[]>(() => pluginsStore.plugins.filter(p => p.available && assistant?.value?.plugins?.[p.id]?.enabled))
+const activePlugins = computed<Plugin[]>(() => assistant.value ? pluginsStore.plugins.filter(p => p.available && assistant.value.plugins[p.id]?.enabled) : [])
 const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
 
 const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))
@@ -1274,7 +1298,7 @@ function editCurr() {
   if (index === -1) return
   edit(index + 1)
 }
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'scrollUpKeyV2'), () => scroll('up'))
   useListenKey(toRef(perfs, 'scrollDownKeyV2'), () => scroll('down'))

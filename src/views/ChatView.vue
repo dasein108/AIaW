@@ -3,6 +3,7 @@
     @toggle-drawer="$emit('toggle-drawer')"
   >
     <div>{{ chat?.name }}</div>
+    <q-space />
   </view-common-header>
   <q-page-container bg-sur-c-low>
     <q-page
@@ -135,7 +136,7 @@ const props = defineProps<{
 }>()
 
 const scrollContainer = ref<HTMLElement>()
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 const lockingBottom = ref(false)
 let lastScrollTop
 function scrollListener() {

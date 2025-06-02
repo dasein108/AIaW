@@ -522,7 +522,7 @@ const { t } = useI18n()
 
 const isTauri = computed(() => IsTauri)
 
-const { perfs, restore } = useUserPerfsStore()
+const { data: perfs, restore } = useUserPerfsStore()
 const darkModeOptions = [
   { label: t('settingsView.followSystem'), value: 'auto' },
   { label: t('settingsView.light'), value: false },

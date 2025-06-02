@@ -1,5 +1,4 @@
-import { defineStore } from 'pinia'
-import { persistentReactive } from 'src/composables/persistent-reactive'
+import { createUserDataStore } from './createUserDataStore'
 
 export type ListOpen = {
   assistants: boolean,
@@ -20,19 +19,18 @@ interface UserData {
   evalExpiredNotified: boolean
 }
 
-export const useUserDataStore = defineStore('user-data', () => {
-  const [data, ready] = persistentReactive<UserData>('#user-data', {
-    lastWorkspaceId: null,
-    noobAlertDismissed: false,
-    tipDismissed: {},
-    lastDialogIds: {},
-    defaultAssistantIds: {},
-    prodExpiredNotifiedTimestamp: null,
-    evalExpiredNotified: false,
-    listOpen: {},
-    openedArtifacts: []
-  })
-  console.log('----user-data', data)
+const defaultUserData: UserData = {
+  lastWorkspaceId: null,
+  noobAlertDismissed: false,
+  tipDismissed: {},
+  lastDialogIds: {},
+  defaultAssistantIds: {},
+  prodExpiredNotifiedTimestamp: null,
+  evalExpiredNotified: false,
+  listOpen: { },
+  openedArtifacts: []
+}
 
-  return { data, ready }
-})
+export const useUserDataStore = () => {
+  return createUserDataStore<UserData>('user-data', defaultUserData)()
+}

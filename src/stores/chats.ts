@@ -3,9 +3,11 @@ import { ChatMapped } from '@/services/supabase/types'
 import { defineStore } from 'pinia'
 import { supabase } from 'src/services/supabase/client'
 import { throttle } from 'lodash'
+import { useUserStore } from './user'
 
 export const useChatsStore = defineStore('chats', () => {
   const chats = useChatsWithSubscription()
+  const userStore = useUserStore()
 
   const add = async (chat: Omit<ChatMapped, 'id' | 'created_at' | 'updated_at' | 'owner_id'>) => {
     console.log('addChat', chat)
@@ -61,12 +63,25 @@ export const useChatsStore = defineStore('chats', () => {
     }
   }
 
+  const startPrivateChatWith = async (targetUserId: string) => {
+    const { data: chatId, error } = await supabase.rpc('start_private_chat_with', {
+      target_user_id: targetUserId,
+      current_user_id: userStore.currentUserId
+    })
+    if (error) {
+      console.error('error', error)
+      throw error
+    }
+    return chatId
+  }
+
   return {
     chats,
     add,
     update,
     remove,
     search,
-    putItem
+    putItem,
+    startPrivateChatWith
   }
 })

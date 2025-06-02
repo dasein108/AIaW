@@ -4,7 +4,6 @@
       v-if="accept === 'folder'"
       :class="{ 'route-active': !selected}"
       clickable
-      item-rd
       dense
       @click="selected = null"
     >
@@ -30,5 +29,4 @@ defineProps<{
 
 const selected = defineModel<string>()
 const rootItems = useRootWorkspace(null)
-
 </script>

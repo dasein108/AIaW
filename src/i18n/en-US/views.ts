@@ -254,8 +254,8 @@ export default {
     editUserMessage: 'Edit User Message',
     focusInputBox: 'Focus Input Box',
     dialogList: 'Dialog List',
-    createDialog: 'Create Dialog',
-    searchDialog: 'Search Dialogs',
+    createDialog: 'Create AI Chat',
+    searchDialog: 'Search AI Chats',
     searchChats: 'Search Chats',
     editArtifacts: 'Edit Artifacts',
     saveArtifact: 'Save Artifact'

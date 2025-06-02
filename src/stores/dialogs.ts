@@ -26,7 +26,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
   const dialogMessages = reactive<Record<string, DialogMessageMapped[]>>({})
   const isLoaded = ref(false)
   async function fetchDialogs() {
-    const { data, error } = await supabase.from('dialogs').select('*')// .eq('workspace_id', workspaceId)
+    const { data, error } = await supabase.from('dialogs').select('*').order('created_at', { ascending: false })// .eq('workspace_id', workspaceId)
     if (error) {
       console.error(error)
     }
@@ -129,7 +129,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
 
     // 4. update dialog msg_tree
     const { msg_tree } = dialogs[dialogId]
-    const children = msg_tree[rootMessageId]
+    const children = msg_tree[rootMessageId] || []
     const changes = insert ? {
       [rootMessageId]: [dialogMessage.id],
       [dialogMessage.id]: children

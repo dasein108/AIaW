@@ -57,7 +57,7 @@ export const usePluginsStore = defineStore('plugins', () => {
 
   const availableKeys = computed(() => installedPlugins.value.filter(i => i.available).map(i => i.key))
   const [data, ready] = persistentReactive<PluginsData>('#plugins-data', defaultData)
-
+  console.log("---pluginsdata", data)
   const plugins = computed(() => [
     webSearchPlugin.plugin,
     calculatorPlugin,

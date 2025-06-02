@@ -406,7 +406,7 @@ watchEffect(async () => {
 const textIndex = computed(() => props.message.message_contents.findIndex(c => ['user-message', 'assistant-message'].includes(c.type)))
 const textContent = computed(() => (props.message.message_contents[textIndex.value] as UserMessageContent | AssistantMessageContent))
 
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 const assistantsStore = useAssistantsStore()
 const avatar = computed(() =>
   props.message.type === 'user'

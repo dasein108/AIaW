@@ -15,7 +15,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const { perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPerfsStore()
 
 const options = new Map()
 options.set('auto', { title: t('darkSwitchBtn.switchToDark'), icon: 'sym_o_dark_mode', next: true })

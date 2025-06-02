@@ -4,6 +4,7 @@ import type { Workspace, WorkspaceMapped } from 'src/services/supabase/types'
 import { Avatar } from '@/utils/types'
 import { useUserStore } from 'src/stores/user'
 import { useUserLoginCallback } from '../auth/useUserLoginCallback'
+import { until } from '@vueuse/core'
 
 export function mapWorkspaceTypes(item: Workspace): WorkspaceMapped {
   const { avatar, ...rest } = item
@@ -19,6 +20,7 @@ let subscription: ReturnType<typeof supabase.channel> | null = null
 const isLoaded = ref(false)
 
 async function fetchWorkspaces() {
+  if (isLoaded.value) return
   const { data, error } = await supabase
     .from('workspaces')
     .select('*')
@@ -30,6 +32,7 @@ async function fetchWorkspaces() {
   }
   workspaces.value = data.map((w) => mapWorkspaceTypes(w as Workspace))
   isLoaded.value = true
+  console.log("---fetchWorkspaces", data)
 }
 
 function subscribeToWorkspaces() {
@@ -94,9 +97,10 @@ export function useWorkspacesWithSubscription() {
 
   // Watch for currentUser changes
   useUserLoginCallback(async() => {
+    isLoaded.value = false
     unsubscribeFromWorkspaces()
     workspaces.value = []
-    fetchWorkspaces()
+    await fetchWorkspaces()
     subscribeToWorkspaces()
   })
 

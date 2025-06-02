@@ -105,6 +105,8 @@ export default {
   },
   mainLayout: {
     workspace: 'Workspace | Workspaces',
+    chats: 'Human Chats',
+    dialogs: 'AI Chats',
     assistants: 'Assistants',
     plugins: 'Plugins',
     settings: 'Settings',
@@ -113,6 +115,7 @@ export default {
     changeLog: 'Change Log',
     webVersion: 'Web Version',
     localClient: 'Local Client',
-    agentAuthorization: 'Agent Authorization'
+    lastDialogs: 'Last AI Chats',
+    pinnedChats: 'Pinned Human Chats'
   }
 }

@@ -7,11 +7,12 @@ import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 import { throttle } from 'lodash'
 import { defaultTextAvatar } from 'src/utils/functions'
 import { useUserStore } from './user'
+import { Avatar } from 'src/utils/types'
 
 function mapProfileTypes(item: any): ProfileMapped {
   const { avatar, ...rest } = item
   return {
-    avatar: (avatar ?? defaultTextAvatar(item.name)),
+    avatar: (avatar ?? defaultTextAvatar(item.name)) as Avatar,
     ...rest
   } as ProfileMapped
 }

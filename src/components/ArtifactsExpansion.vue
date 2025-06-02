@@ -96,7 +96,7 @@
 
 <script setup lang="ts">
 import { caselessIncludes, getFileExt, isTextFile } from 'src/utils/functions'
-import { computed, inject, ref, Ref, toRef } from 'vue'
+import { computed, inject, ref, Ref, toRef, watch } from 'vue'
 import { useCloseArtifact } from 'src/composables/close-artifact'
 import ArtifactItemMenu from './ArtifactItemMenu.vue'
 import ArtifactItemIcon from './ArtifactItemIcon.vue'
@@ -111,6 +111,7 @@ import { ArtifactMapped, Workspace } from '@/services/supabase/types'
 import { useUserDataStore } from 'src/stores/user-data'
 
 const artifacts: Ref<ArtifactMapped[]> = inject('artifacts')
+
 const filter = ref(null)
 const filteredArtifacts = computed(() => {
   return artifacts.value.filter(d => !filter.value || caselessIncludes(d.name, filter.value)).reverse()

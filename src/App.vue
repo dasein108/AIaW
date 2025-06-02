@@ -17,6 +17,7 @@ import { IsTauri, IsWeb } from './utils/platform-api'
 import { checkUpdate, ready } from './utils/update'
 // import { createDbService } from './services/database/Db'
 
+import { until } from '@vueuse/core'
 import { useQuasar } from 'quasar'
 import { useUserStore } from 'src/stores/user'
 import { useI18n } from 'vue-i18n'
@@ -64,16 +65,7 @@ router.afterEach(to => {
 // Check if user is authenticated
 router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
-    const waitUntilInit = () =>
-      new Promise(resolve => {
-        const check = () => {
-          if (userStore.isInitialized) resolve(void 0)
-          else setTimeout(check, 50)
-        }
-        check()
-      })
-
-    await waitUntilInit()
+    await until(() => userStore.isInitialized).toBeTruthy()
 
     if (!userStore.isInitialized) {
       $q.notify({

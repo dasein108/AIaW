@@ -133,8 +133,8 @@ async function addItem() {
     name: 'New Assistant',
     workspace_id: props.workspaceId,
     avatar: defaultAvatar("AI"),
-    provider: userPerfsStore.perfs.provider,
-    model: userPerfsStore.perfs.model,
+    provider: userPerfsStore.data.provider,
+    model: userPerfsStore.data.model,
   })
   router.push(getLink(assistant.id))
 }
