@@ -21,7 +21,8 @@ import { useChatsStore } from './stores/chats'
 import { useDialogsStore } from './stores/dialogs'
 import { usePluginsStore } from './stores/plugins'
 import { storeToRefs } from 'pinia'
-
+import { useUserPerfsStore } from './stores/user-perfs'
+import { useUserDataStore } from './stores/user-data'
 defineOptions({
   name: 'App'
 })
@@ -37,13 +38,17 @@ const { isLoaded: assistantsLoaded } = storeToRefs(useAssistantsStore())
 const { isLoaded: chatsLoaded } = storeToRefs(useChatsStore())
 const { isLoaded: dialogsLoaded } = storeToRefs(useDialogsStore())
 const { isLoaded: pluginsLoaded } = storeToRefs(usePluginsStore())
+const { ready: perfsLoaded } = storeToRefs(useUserPerfsStore())
+const { ready: userDataLoaded } = storeToRefs(useUserDataStore())
 
 const isAppReady = computed(() =>
   userInitialized.value &&
   assistantsLoaded.value &&
   chatsLoaded.value &&
   dialogsLoaded.value &&
-  pluginsLoaded.value
+  pluginsLoaded.value &&
+  perfsLoaded.value &&
+  userDataLoaded.value
 )
 
 watch(isAppReady, (isReady) => {

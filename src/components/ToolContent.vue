@@ -4,7 +4,6 @@
       bg-sur-c-low
       of-hidden
       rd-md
-      v-if="pluginsStore.ready"
     >
       <template #header>
         <q-item-section avatar>
