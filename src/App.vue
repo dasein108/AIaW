@@ -1,5 +1,7 @@
 <template>
-  <router-view />
+  <div v-if="isAppReady">
+    <router-view />
+  </div>
   <pin-modal
     v-model="showPinModal"
     @submit="handlePinSubmit"
@@ -7,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, provide } from 'vue'
+import { computed, onMounted, provide, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFirstVisit } from './composables/first-visit'
 import { useSetTheme } from './composables/set-theme'
@@ -18,6 +20,7 @@ import { checkUpdate, ready } from './utils/update'
 // import { createDbService } from './services/database/Db'
 
 import { until } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import { useQuasar } from 'quasar'
 import { useUserStore } from 'src/stores/user'
 import { useI18n } from 'vue-i18n'
@@ -25,20 +28,47 @@ import PinModal from './components/PinModal.vue'
 import { usePinModal } from './composables/use-pin-modal'
 import type { CosmosWallet } from './services/cosmos/CosmosWallet'
 import { EncryptionService } from './services/encryption/EncryptionService'
+import { useAssistantsStore } from './stores/assistants'
 import { useAuthStore } from './stores/auth'
 import { useChatMessagesStore } from './stores/chat-messages'
+import { useChatsStore } from './stores/chats'
+import { useDialogsStore } from './stores/dialogs'
+import { usePluginsStore } from './stores/plugins'
 import { getMnemonic } from './stores/tauri-store'
 
 defineOptions({
   name: 'App'
 })
+const { t } = useI18n()
+const $q = useQuasar()
 
 const userStore = useUserStore()
-const { t } = useI18n()
+
+$q.loading.show()
+
+const { isInitialized: userInitialized } = storeToRefs(userStore)
+const { isLoaded: assistantsLoaded } = storeToRefs(useAssistantsStore())
+const { isLoaded: chatsLoaded } = storeToRefs(useChatsStore())
+const { isLoaded: dialogsLoaded } = storeToRefs(useDialogsStore())
+const { isLoaded: pluginsLoaded } = storeToRefs(usePluginsStore())
+
+const isAppReady = computed(() =>
+  userInitialized.value &&
+  assistantsLoaded.value &&
+  chatsLoaded.value &&
+  dialogsLoaded.value &&
+  pluginsLoaded.value
+)
+
+watch(isAppReady, (isReady) => {
+  if (isReady) {
+    $q.loading.hide()
+  }
+}, { immediate: true })
+
 // Subscribes to chat messages
 useChatMessagesStore()
 
-const $q = useQuasar()
 const router = useRouter()
 const { showPinModal, checkEncryptedMnemonic } = usePinModal()
 
@@ -52,6 +82,8 @@ if (IsTauri) {
   provide('cosmos', cosmosWallet)
 }
 // provide('db', createDbService())
+// Provide Kepler wallet
+provide('kepler', createKeplerWallet())
 
 useSetTheme()
 useFirstVisit()
@@ -147,18 +179,18 @@ const handlePinSubmit = async (pin: string) => {
   }
 }
 
-declare global {
-  interface Window {
-    authStore: ReturnType<typeof useAuthStore>
-  }
-}
+// declare global {
+//   interface Window {
+//     authStore: ReturnType<typeof useAuthStore>
+//   }
+// }
 
 onMounted(async () => {
   ready()
   checkUpdate()
   const authStore = useAuthStore()
 
-  window.authStore = authStore
+  // window.authStore = authStore
 
   // Attempt to connect Kepler as granter on load for Web
   if (IsWeb) {

@@ -490,10 +490,10 @@ watch(dialog, () => {
   dialogsStore.fetchDialogMessages(props.id)
 })
 
-// onMounted(() => {
-//   // dialogsStore.fetchDialogs()
-//   dialogsStore.fetchDialogMessages(props.id)
-// })
+onMounted(() => {
+  // dialogsStore.fetchDialogs()
+  dialogsStore.fetchDialogMessages(props.id)
+})
 
 provide('dialog', dialog)
 
@@ -717,7 +717,7 @@ function quote(item: ApiResultItem) {
 }
 async function addInputItems(items: ApiResultItem[]) {
   const storedItems: StoredItemMapped[] = await Promise.all(items.map(r => storage.apiResultItemToStoredItem(r, props.id)))
-
+  debugger
   await dialogsStore.updateDialogMessage(props.id, chain.value.at(-1), {
     message_contents: [{
       ...inputMessageContent.value,
@@ -917,7 +917,7 @@ async function stream(target, insert = false) {
   })
 
   // const update = throttle(() => dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents }), 50)
-  const update = () => dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents })
+  const update = async () => await dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents })
 
   async function callTool(plugin: Plugin, api: PluginApi, args) {
     const content: MessageContentMapped = {
@@ -930,7 +930,7 @@ async function stream(target, insert = false) {
 
     contents.push(content)
 
-    update()
+    await update()
 
     const { result: apiResult, error } = await callApi(plugin, api, args)
     const result: StoredItemMapped[] = await Promise.all(apiResult.map(r => storage.apiResultItemToStoredItem(r, props.id)))
@@ -943,7 +943,7 @@ async function stream(target, insert = false) {
       content.status = 'completed'
       content.result = result.map(i => i)
     }
-    update()
+    await update()
 
     return { result, error }
   }
@@ -1034,10 +1034,10 @@ async function stream(target, insert = false) {
       for await (const part of result.fullStream) {
         if (part.type === 'text-delta') {
           messageContent.text += part.textDelta
-          update()
+          await update()
         } else if (part.type === 'reasoning') {
           messageContent.reasoning = (messageContent.reasoning ?? '') + part.textDelta
-          update()
+          await update()
         } else if (part.type === 'error') {
           throw part.error
         }

@@ -4,9 +4,10 @@ import { defineStore } from 'pinia'
 import { supabase } from 'src/services/supabase/client'
 import { throttle } from 'lodash'
 import { useUserStore } from './user'
+import { readonly } from 'vue'
 
 export const useChatsStore = defineStore('chats', () => {
-  const chats = useChatsWithSubscription()
+  const { chats, isLoaded } = useChatsWithSubscription()
   const userStore = useUserStore()
 
   const add = async (chat: Omit<ChatMapped, 'id' | 'created_at' | 'updated_at' | 'owner_id'>) => {
@@ -76,7 +77,8 @@ export const useChatsStore = defineStore('chats', () => {
   }
 
   return {
-    chats,
+    chats: readonly(chats),
+    isLoaded,
     add,
     update,
     remove,

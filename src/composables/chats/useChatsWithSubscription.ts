@@ -102,11 +102,18 @@ function unsubscribeFromChats() {
 
 export function useChatsWithSubscription() {
   const userStore = useUserStore()
+  const isLoaded = ref(false)
+  const init = async () => {
+    chats.value = []
+    isLoaded.value = false
+    await fetchChats(userStore.currentUserId)
+    subscribeToChats(userStore.currentUserId)
+    isLoaded.value = true
+  }
 
   // Initial fetch and subscribe
   if (!isSubscribed) {
-    fetchChats(userStore.currentUserId)
-    subscribeToChats(userStore.currentUserId)
+    init()
   }
 
   // Watch for currentUser changes
@@ -115,12 +122,13 @@ export function useChatsWithSubscription() {
     (newId, oldId) => {
       if (newId !== oldId) {
         unsubscribeFromChats()
-        chats.value = []
-        fetchChats(newId)
-        subscribeToChats(newId)
+        init()
       }
     }
   )
 
-  return readonly(chats)
+  return {
+    chats: readonly(chats),
+    isLoaded
+  }
 }

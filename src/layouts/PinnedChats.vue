@@ -45,9 +45,6 @@ const router = useRouter()
 const workspacesStore = useWorkspacesStore()
 const { chats } = storeToRefs(useChatsStore())
 
-watch(chats, (newVal) => {
-  console.log('lastChats', newVal)
-})
 const lastChats = computed(() => {
   return [...chats.value]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
