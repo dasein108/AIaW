@@ -8,7 +8,7 @@ import { useAuthStore } from 'src/stores/auth'
 import { WalletService } from 'src/services/authz/wallet-service'
 import { config } from 'src/services/constants'
 import { Decimal } from '@cosmjs/math'
-import { CYBER_CONTRACT_ADDRESS } from 'src/services/kepler/KeplerWallet'
+import { CYBER_CONTRACT_ADDRESS, getLocalStorageWalletState } from 'src/services/kepler/KeplerWallet'
 
 const authzPlugin: Plugin = {
   id: 'cosmos-authz',
@@ -19,69 +19,11 @@ const authzPlugin: Plugin = {
   apis: [
     {
       type: 'tool',
-      name: 'grant-send-auth',
-      description: 'Grant send authorization to an address',
-      parameters: {
-        type: 'object',
-        properties: {
-          granteeAddress: {
-            type: 'string',
-            description: 'Address of the grantee'
-          },
-          spendLimit: {
-            type: 'string',
-            description: 'Spend limit amount'
-          },
-          expirationHours: {
-            type: 'number',
-            description: 'Authorization expiration in hours',
-            default: 24
-          }
-        },
-        required: ['granteeAddress', 'spendLimit']
-      },
-      async execute(args) {
-        console.log('[PLUGIN] Executing grant-send-auth')
-        const { granteeAddress, spendLimit, expirationHours = 24 } = args
-        const authStore = useAuthStore()
-
-        if (!authStore.isGranterActuallyConnected || !authStore.granterSigner) {
-          throw new Error('Granter wallet not connected or signer not available. Please connect your wallet first.')
-        }
-
-        // Get granter address from the granterSigner
-        const granterAccounts = await authStore.granterSigner.getAccounts()
-        if (granterAccounts.length === 0) {
-          throw new Error('No accounts found for granter signer.')
-        }
-        const granterAddress = granterAccounts[0].address
-
-        const expiration = new Date(Date.now() + expirationHours * 3600 * 1000)
-        // authStore.grantAgentAuthorization now uses its internally stored granterSigner
-        await authStore.grantAgentAuthorization(
-          granterAddress, // Pass the resolved granter address
-          granteeAddress,
-          '/cosmos.bank.v1beta1.MsgSend',
-          expiration
-        )
-
-        return [{
-          type: 'text',
-          contentText: `Authorization granted successfully to ${granteeAddress} with spend limit ${spendLimit}${config.FEE_DENOM}`
-        }]
-      }
-    },
-    {
-      type: 'tool',
       name: 'execute-send',
       description: 'Execute smart contract call using authorization',
       parameters: {
         type: 'object',
         properties: {
-          granterAddress: {
-            type: 'string',
-            description: 'Address of the granter'
-          },
           toAddress: {
             type: 'string',
             description: 'Recipient address'
@@ -91,21 +33,25 @@ const authzPlugin: Plugin = {
             description: 'Amount to send'
           }
         },
-        required: ['granterAddress', 'toAddress', 'amount']
+        required: ['toAddress', 'amount']
       },
       async execute(args) {
         console.log('[PLUGIN] Executing execute-send')
-        const { granterAddress, toAddress, amount } = args
+        const { toAddress, amount } = args
         const authStore = useAuthStore()
         const walletService = WalletService.getInstance()
+        const walletState = getLocalStorageWalletState()
+
+        if (!walletState.isConnected || !walletState.address) {
+          throw new Error('Kepler wallet not connected. Please connect Kepler wallet first.')
+        }
 
         if (!authStore.isConnected || !authStore.granteeSigner) {
           console.log({ isConnected: authStore.isConnected, granteeSigner: authStore.granteeSigner })
           throw new Error('Grantee wallet not connected or signer not available. Please ensure grantee wallet is set up and connected.')
         }
 
-        // isConnected implies granter is also connected, but execute-send uses granteeSigner
-        // Granter address is passed as an argument, but the transaction is signed by grantee.
+        const granterAddress = walletState.address
 
         try {
           // Validate and sanitize amount
@@ -177,8 +123,8 @@ const authzPlugin: Plugin = {
               value: execMsg
             }
           ], {
-            amount: coins('150000', config.FEE_DENOM),
-            gas: '150000'
+            amount: coins('160000', config.FEE_DENOM),
+            gas: '160000'
           })
 
           if (tx.code !== 0) {

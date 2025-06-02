@@ -177,7 +177,7 @@ export class WalletService {
     granterSigner: OfflineDirectSigner,
     granteeAddress: string,
     amountDenom: string = config.FEE_DENOM,
-    amountValue: string = '105000'
+    amountValue: string = '1000000'
   ): Promise<void> {
     if (!granterSigner) {
       throw new Error('Granter signer not connected. Cannot send tokens.')
