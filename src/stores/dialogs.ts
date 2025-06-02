@@ -147,7 +147,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
 
   async function updateDialogMessage(dialogId: string, messageId: string, message: Partial<DialogMessageInput>) {
     let dialogMessage = merge(dialogMessages[dialogId].find(m => m.id === messageId) || {}, message) as DialogMessageMapped
-    const shouldSave = dialogMessage.status && dialogMessage.status !== 'streaming' && dialogMessage.status !== 'inputing'
+    const shouldSave = dialogMessage.status && !['streaming', 'inputing', 'pending'].includes(dialogMessage.status)
 
     if (!shouldSave) {
       dialogMessages[dialogId] = dialogMessages[dialogId].map(m => m.id === messageId ? dialogMessage : m)
