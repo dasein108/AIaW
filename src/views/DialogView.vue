@@ -1069,9 +1069,9 @@ async function stream(target, insert = false) {
 function toToolResultContent(items: ApiResultItem[]) {
   const val = []
   for (const item of items) {
-    if (item.type === 'text') {
+    if (item?.type === 'text') {
       val.push({ type: 'text', text: item.contentText })
-    } else if (mimeTypeMatch(item.mimeType, model.value.inputTypes.tool)) {
+    } else if (mimeTypeMatch(item?.mimeType, model.value.inputTypes.tool)) {
       val.push({ type: item.mimeType.startsWith('image/') ? 'image' : 'file', mimeType: item.mimeType, data: item.contentBuffer })
     }
   }
