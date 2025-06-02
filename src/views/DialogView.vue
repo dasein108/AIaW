@@ -490,10 +490,10 @@ watch(dialog, () => {
   dialogsStore.fetchDialogMessages(props.id)
 })
 
-// onMounted(() => {
-//   // dialogsStore.fetchDialogs()
-//   dialogsStore.fetchDialogMessages(props.id)
-// })
+onMounted(() => {
+  // dialogsStore.fetchDialogs()
+  dialogsStore.fetchDialogMessages(props.id)
+})
 
 provide('dialog', dialog)
 

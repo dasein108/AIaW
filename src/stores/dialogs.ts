@@ -24,6 +24,7 @@ const mapDialogMessage = (message): DialogMessageMapped => {
 export const useDialogsStore = defineStore('dialogs', () => {
   const dialogs = reactive<Record<string, DialogMapped>>({})
   const dialogMessages = reactive<Record<string, DialogMessageMapped[]>>({})
+  const isLoaded = ref(false)
   async function fetchDialogs() {
     const { data, error } = await supabase.from('dialogs').select('*').order('created_at', { ascending: false })// .eq('workspace_id', workspaceId)
     if (error) {
@@ -208,9 +209,11 @@ export const useDialogsStore = defineStore('dialogs', () => {
   }
 
   const init = async () => {
+    isLoaded.value = false
     Object.assign(dialogs, {})
     Object.assign(dialogMessages, {})
     await fetchDialogs()
+    isLoaded.value = true
   }
 
   useUserLoginCallback(init)
@@ -264,6 +267,8 @@ export const useDialogsStore = defineStore('dialogs', () => {
   }
 
   return {
+    init,
+    isLoaded,
     dialogs,
     dialogMessages,
     addDialog,

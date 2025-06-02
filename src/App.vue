@@ -1,12 +1,14 @@
 <template>
-  <router-view />
+  <div v-if="isAppReady">
+    <router-view />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useFirstVisit } from './composables/first-visit'
 import { useSetTheme } from './composables/set-theme'
-import { onMounted, provide } from 'vue'
+import { onMounted, provide, watch, computed } from 'vue'
 import { checkUpdate, ready } from './utils/update'
 import { createKeplerWallet } from './services/kepler/KeplerWallet'
 import { useUserStore } from 'src/stores/user'
@@ -14,17 +16,44 @@ import { useQuasar } from 'quasar'
 import { useChatMessagesStore } from './stores/chat-messages'
 import { useI18n } from 'vue-i18n'
 import { until } from '@vueuse/core'
+import { useAssistantsStore } from './stores/assistants'
+import { useChatsStore } from './stores/chats'
+import { useDialogsStore } from './stores/dialogs'
+import { usePluginsStore } from './stores/plugins'
+import { storeToRefs } from 'pinia'
 
 defineOptions({
   name: 'App'
 })
+const { t } = useI18n()
+const $q = useQuasar()
 
 const userStore = useUserStore()
-const { t } = useI18n()
+
+$q.loading.show()
+
+const { isInitialized: userInitialized } = storeToRefs(userStore)
+const { isLoaded: assistantsLoaded } = storeToRefs(useAssistantsStore())
+const { isLoaded: chatsLoaded } = storeToRefs(useChatsStore())
+const { isLoaded: dialogsLoaded } = storeToRefs(useDialogsStore())
+const { isLoaded: pluginsLoaded } = storeToRefs(usePluginsStore())
+
+const isAppReady = computed(() =>
+  userInitialized.value &&
+  assistantsLoaded.value &&
+  chatsLoaded.value &&
+  dialogsLoaded.value &&
+  pluginsLoaded.value
+)
+
+watch(isAppReady, (isReady) => {
+  if (isReady) {
+    $q.loading.hide()
+  }
+}, { immediate: true })
+
 // Subscribes to chat messages
 useChatMessagesStore()
-
-const $q = useQuasar()
 
 // Provide Kepler wallet
 provide('kepler', createKeplerWallet())
