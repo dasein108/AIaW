@@ -36,6 +36,8 @@ import { useDialogsStore } from './stores/dialogs'
 import { usePluginsStore } from './stores/plugins'
 import { getMnemonic } from './stores/tauri-store'
 
+import { useUserDataStore } from './stores/user-data'
+import { useUserPerfsStore } from './stores/user-perfs'
 defineOptions({
   name: 'App'
 })
@@ -51,13 +53,17 @@ const { isLoaded: assistantsLoaded } = storeToRefs(useAssistantsStore())
 const { isLoaded: chatsLoaded } = storeToRefs(useChatsStore())
 const { isLoaded: dialogsLoaded } = storeToRefs(useDialogsStore())
 const { isLoaded: pluginsLoaded } = storeToRefs(usePluginsStore())
+const { ready: perfsLoaded } = storeToRefs(useUserPerfsStore())
+const { ready: userDataLoaded } = storeToRefs(useUserDataStore())
 
 const isAppReady = computed(() =>
   userInitialized.value &&
   assistantsLoaded.value &&
   chatsLoaded.value &&
   dialogsLoaded.value &&
-  pluginsLoaded.value
+  pluginsLoaded.value &&
+  perfsLoaded.value &&
+  userDataLoaded.value
 )
 
 watch(isAppReady, (isReady) => {
