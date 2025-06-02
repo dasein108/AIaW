@@ -298,7 +298,7 @@
           />
           <add-info-btn
             :plugins="activePlugins"
-            :assistant-plugins="assistant.plugins"
+            :assistant-plugins="assistant?.plugins || {}"
             @add="addInputItems"
             flat
             round
@@ -455,15 +455,21 @@ const workspace: Ref<Workspace> = inject('workspace')
 const assistants = computed(() => assistantsStore.assistants.filter(
   a => [workspace.value.id, null].includes(a.workspace_id)
 ))
-const dialog = computed(() => dialogsStore.dialogs[props.id])
+const dialog = computed(() => {
+  if (!assistantsStore.isLoaded || !dialogsStore.isLoaded) return null
+  return dialogsStore.dialogs[props.id] || null
+})
 const dialogMessages = computed(() => dialogsStore.dialogMessages[props.id] || [])
 onMounted(() => {
   // dialogsStore.fetchDialogs()
   dialogsStore.fetchDialogMessages(props.id)
 })
 
-const assistant = computed(() => ({ ...assistantsStore.assistants.find(a => a.id === dialog.value?.assistant_id) })) // force trigger updates
-console.log('[DEBUG] Assistent', { assistants: [...assistantsStore.assistants], dialog: dialog.value, dialogs: { ...dialogsStore.dialogs } })
+const assistant = computed(() => {
+  if (!assistantsStore.isLoaded || !dialogsStore.isLoaded) return null
+  return assistantsStore.assistants.find(a => a.id === dialog.value?.assistant_id) || null
+})
+console.log('[DEBUG] Assistent', { assistant: assistant.value, assistants: [...assistantsStore.assistants], dialog: dialog.value, dialogs: { ...dialogsStore.dialogs } })
 
 provide('dialog', dialog)
 

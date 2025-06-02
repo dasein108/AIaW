@@ -24,6 +24,7 @@ const mapDialogMessage = (message): DialogMessageMapped => {
 export const useDialogsStore = defineStore('dialogs', () => {
   const dialogs = reactive<Record<string, DialogMapped>>({})
   const dialogMessages = reactive<Record<string, DialogMessageMapped[]>>({})
+  const isLoaded = ref(false)
   async function fetchDialogs() {
     const { data, error } = await supabase.from('dialogs').select('*')// .eq('workspace_id', workspaceId)
     if (error) {
@@ -35,6 +36,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
       acc[dialog.id] = dialog
       return acc
     }, {}))
+    isLoaded.value = true
   }
 
   async function fetchDialogMessages(dialogId: string) {
@@ -277,6 +279,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
     updateDialogMessage,
     removeDialogMessages,
     removeStoreItem,
-    searchDialogs
+    searchDialogs,
+    isLoaded
   }
 })

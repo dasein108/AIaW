@@ -8,7 +8,9 @@
     >
       <template #header>
         <q-item-section avatar>
-          <a-avatar :avatar="pluginData.avatar" />
+          <a-avatar
+            :avatar="pluginData?.avatar || {type: 'text',text: 'DF'}"
+          />
         </q-item-section>
         <q-item-section>
           <q-item-label>
