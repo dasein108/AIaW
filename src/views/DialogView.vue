@@ -1088,6 +1088,7 @@ async function stream(target, insert = false) {
 function toToolResultContent(items: ApiResultItem[]) {
   const val = []
   for (const item of items) {
+    if (!item) continue // TODO: in case if tool failed ignore it
     if (item.type === 'text') {
       val.push({ type: 'text', text: item.contentText })
     } else if (mimeTypeMatch(item.mimeType, model.value.inputTypes.tool)) {
