@@ -3,6 +3,7 @@ import { DirectSecp256k1HdWallet, OfflineDirectSigner, OfflineSigner } from '@co
 import { SigningStargateClient, coins } from '@cosmjs/stargate'
 import { GenericAuthorization } from 'cosmjs-types/cosmos/authz/v1beta1/authz'
 import { MsgGrant, MsgRevoke } from 'cosmjs-types/cosmos/authz/v1beta1/tx'
+import { SendAuthorization } from 'cosmjs-types/cosmos/bank/v1beta1/authz'
 import { Any } from 'cosmjs-types/google/protobuf/any'
 import { EncryptionService } from 'src/services/encryption/EncryptionService'
 import { config } from '../constants'
@@ -189,7 +190,8 @@ export class WalletService {
       )
 
       const hasMsgSendGrant = grants.some((grant: any) =>
-        grant.authorization?.msg === '/cosmos.bank.v1beta1.MsgSend'
+        grant.authorization?.msg === '/cosmos.bank.v1beta1.MsgSend' ||
+        grant.authorization?.['@type'] === '/cosmos.bank.v1beta1.SendAuthorization'
       )
 
       return { hasMsgExecGrant, hasMsgSendGrant }
@@ -228,6 +230,64 @@ export class WalletService {
     } catch (error) {
       console.error('Error sending tokens to grantee:', error)
       throw new Error(`Failed to send tokens to grantee: ${error.message}`)
+    }
+  }
+
+  async grantSendAuthorization(
+    granterSigner: OfflineDirectSigner,
+    granterAddress: string,
+    granteeAddress: string,
+    spendLimit: string = '10000000000', // 10 billion ustake by default
+    expiration?: Date
+  ): Promise<void> {
+    if (!granterSigner) {
+      throw new Error('Granter signer not provided')
+    }
+
+    try {
+      console.log('Granting send authorization:', {
+        granter: granterAddress,
+        grantee: granteeAddress,
+        spendLimit
+      })
+
+      const sendAuth = SendAuthorization.fromPartial({
+        spendLimit: coins(spendLimit, config.FEE_DENOM)
+      })
+
+      const grantMsg: MsgGrant = {
+        granter: granterAddress,
+        grantee: granteeAddress,
+        grant: {
+          authorization: Any.fromPartial({
+            typeUrl: '/cosmos.bank.v1beta1.SendAuthorization',
+            value: SendAuthorization.encode(sendAuth).finish()
+          }),
+          expiration: expiration ? {
+            seconds: BigInt(Math.floor(expiration.getTime() / 1000)),
+            nanos: 0
+          } : undefined
+        }
+      }
+
+      const client = await this.getClient(granterSigner)
+
+      const result = await client.signAndBroadcast(granterAddress, [{
+        typeUrl: '/cosmos.authz.v1beta1.MsgGrant',
+        value: grantMsg
+      }], {
+        amount: coins('100000', config.FEE_DENOM),
+        gas: '100000'
+      })
+
+      if (result.code !== 0) {
+        throw new Error(`Failed to grant send authorization: ${result.rawLog}`)
+      }
+
+      console.log('Send authorization granted:', result)
+    } catch (error) {
+      console.error('Error granting send authorization:', error)
+      throw new Error(`Failed to grant send authorization: ${error.message}`)
     }
   }
 

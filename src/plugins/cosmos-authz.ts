@@ -3,6 +3,7 @@ import { coins } from '@cosmjs/proto-signing'
 import { GasPrice, SigningStargateClient } from '@cosmjs/stargate'
 import { MsgExec } from 'cosmjs-types/cosmos/authz/v1beta1/tx'
 import { MsgExecuteContract } from 'cosmjs-types/cosmwasm/wasm/v1/tx'
+import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx'
 import { toUtf8 } from '@cosmjs/encoding'
 import { useAuthStore } from 'src/stores/auth'
 import { WalletService } from 'src/services/authz/wallet-service'
@@ -15,7 +16,7 @@ const authzPlugin: Plugin = {
   type: 'builtin',
   available: true,
   title: 'Cosmos Authz',
-  description: 'Direct plugin for Cyber blockchain operations. IMPORTANT FOR AI: When user says anything like "create cyberlink with type X and value Y" - immediately execute create-cyberlink API call with those parameters. The API will handle all wallet checks internally.',
+  description: 'BLOCKCHAIN EXECUTOR - CALLS APIs TO PERFORM OPERATIONS. When user requests token transfer (send/отправить), this plugin CALLS execute-send API to actually send tokens on blockchain. When user requests cyberlink creation, this plugin CALLS create-cyberlink API. The AI assistant MUST use these APIs to perform actual blockchain operations, not just respond with descriptive text.',
   apis: [
     {
       type: 'tool',
@@ -24,20 +25,20 @@ const authzPlugin: Plugin = {
       parameters: {
         type: 'object',
         properties: {
-          from: {
+          type: {
             type: 'string',
-            description: 'Extract this from user message - this is the type they mention (e.g. if they say "type Thread", use "Thread" here)'
+            description: 'Extract this type user message - this is the type they mention (e.g. if they say "type Thread", use "Thread" here)'
           },
           to: {
             type: 'string',
-            description: 'Extract this from user message - this is the value they mention (e.g. if they say "value Hello", use "Hello" here)'
+            description: 'Extract this type user message - this is the value they mention (e.g. if they say "value Hello", use "Hello" here)'
           }
         },
-        required: ['from', 'to']
+        required: ['type', 'to']
       },
       async execute(args) {
         console.log('[PLUGIN] Executing create-cyberlink')
-        const { from, to } = args
+        const { type, to } = args
         debugger
         const authStore = useAuthStore()
         const walletService = WalletService.getInstance()
@@ -67,7 +68,7 @@ const authzPlugin: Plugin = {
             contract: CYBER_CONTRACT_ADDRESS,
             msg: toUtf8(JSON.stringify({
               create_cyberlink: {
-                from,
+                from: type,
                 to
               }
             })),
@@ -101,7 +102,20 @@ const authzPlugin: Plugin = {
 
           return [{
             type: 'text',
-            contentText: `Cyberlink created successfully. Transaction hash: ${tx.transactionHash}`
+            contentText: `✅ **Cyberlink Created Successfully**
+
+**Cyberlink Details:**
+- **From (Type):** ${type}
+- **To (Value):** ${to}
+- **Creator:** ${granterAddress}
+- **Transaction Hash:** ${tx.transactionHash}
+- **Gas Used:** ${tx.gasUsed}
+- **Gas Wanted:** ${tx.gasWanted}
+- **Block Height:** ${tx.height}
+
+**Explorer Link:** https://cybernode.ai/network/cyber/tx/${tx.transactionHash}
+
+The cyberlink was created using MsgExecuteContract authorization through the grantee wallet.`
           }]
         } catch (error) {
           console.error('Error creating cyberlink:', error)
@@ -197,7 +211,21 @@ const authzPlugin: Plugin = {
 
           return [{
             type: 'text',
-            contentText: `Cyberlink updated successfully. Transaction hash: ${tx.transactionHash}`
+            contentText: `✅ **Cyberlink Updated Successfully**
+
+**Update Details:**
+- **From (Type):** ${from}
+- **Old Value:** ${to}
+- **New Value:** ${newTo}
+- **Updater:** ${granterAddress}
+- **Transaction Hash:** ${tx.transactionHash}
+- **Gas Used:** ${tx.gasUsed}
+- **Gas Wanted:** ${tx.gasWanted}
+- **Block Height:** ${tx.height}
+
+**Explorer Link:** https://cybernode.ai/network/cyber/tx/${tx.transactionHash}
+
+The cyberlink was updated using MsgExecuteContract authorization through the grantee wallet.`
           }]
         } catch (error) {
           console.error('Error updating cyberlink:', error)
@@ -288,7 +316,20 @@ const authzPlugin: Plugin = {
 
           return [{
             type: 'text',
-            contentText: `Cyberlink deleted successfully. Transaction hash: ${tx.transactionHash}`
+            contentText: `✅ **Cyberlink Deleted Successfully**
+
+**Deletion Details:**
+- **From (Type):** ${from}
+- **To (Value):** ${to}
+- **Deleter:** ${granterAddress}
+- **Transaction Hash:** ${tx.transactionHash}
+- **Gas Used:** ${tx.gasUsed}
+- **Gas Wanted:** ${tx.gasWanted}
+- **Block Height:** ${tx.height}
+
+**Explorer Link:** https://cybernode.ai/network/cyber/tx/${tx.transactionHash}
+
+The cyberlink was deleted using MsgExecuteContract authorization through the grantee wallet.`
           }]
         } catch (error) {
           console.error('Error deleting cyberlink:', error)
@@ -299,17 +340,17 @@ const authzPlugin: Plugin = {
     {
       type: 'tool',
       name: 'execute-send',
-      description: 'TOKENS ONLY: Execute token transfer transaction. Only use this when user specifically wants to send/transfer tokens. For cyberlinks use create-cyberlink API instead.',
+      description: 'REQUIRED ACTION: Execute blockchain token transfer. When user says ANY of these phrases: "send tokens", "transfer tokens", "отправить токены", "перевести токены", "послать токены", "send X to address", "transfer X to address" - you MUST call this API immediately. DO NOT respond with text like "tokens sent" - CALL THIS API TO ACTUALLY SEND THEM. Example user input: "send 100 ustake to cyber1abc" -> REQUIRED ACTION: call execute-send with {toAddress: "cyber1abc", amount: "100"}',
       parameters: {
         type: 'object',
         properties: {
           toAddress: {
             type: 'string',
-            description: 'Recipient wallet address for token transfer (NOT for cyberlinks)'
+            description: 'Recipient wallet address (must start with cyber1...)'
           },
           amount: {
             type: 'string',
-            description: 'Amount of tokens to transfer (NOT for cyberlinks)'
+            description: 'Amount to send as string (e.g. "100", "50.5")'
           }
         },
         required: ['toAddress', 'amount']
@@ -352,19 +393,14 @@ const authzPlugin: Plugin = {
             throw new Error('Amount cannot have more than 6 decimal places')
           }
 
-          // const [granteeAccount] = await walletService.getAccounts() // Old way
           const granteeAccounts = await authStore.granteeSigner.getAccounts()
           if (granteeAccounts.length === 0) {
             throw new Error('No accounts found for grantee signer.')
           }
           const granteeAccount = granteeAccounts[0]
-
-          // Create a new client instance for this transaction, using the granteeSigner
-          // const granteeClient = await walletService.getGranteeClient() // Old way
-          const granteeClient = await walletService.getClient(authStore.granteeSigner) // Pass grantee signer
+          const granteeClient = await walletService.getClient(authStore.granteeSigner)
 
           // Convert amount to proper format
-          // const amountDecimal = Decimal.fromUserInput(sanitizedAmount, 6)
           const amountDecimal = Decimal.fromUserInput(sanitizedAmount, 0)
           const amountString = amountDecimal.atomics.toString()
           console.log('[PLUGIN] Amount decimal:', { amountDecimal, amountString })
@@ -377,21 +413,20 @@ const authzPlugin: Plugin = {
             amountString
           })
 
-          console.log('[PLUGIN] Grantee client:', { granteeClient, amount: coins(amountString, config.FEE_DENOM) })
+          // Create MsgSend directly instead of MsgExecuteContract
+          const sendMsg = MsgSend.fromPartial({
+            fromAddress: granterAddress,
+            toAddress,
+            amount: coins(amountString, config.FEE_DENOM)
+          })
 
-          const execContractMsg: MsgExecuteContract = {
-            sender: granterAddress,
-            contract: CYBER_CONTRACT_ADDRESS,
-            msg: toUtf8(JSON.stringify({ transfer: { recipient: toAddress, amount: amountString } })),
-            funds: coins(amountString, config.FEE_DENOM)
-          }
-
+          // Use MsgExec to execute the MsgSend with authorization
           const execMsg: MsgExec = {
             grantee: granteeAccount.address,
             msgs: [
               {
-                typeUrl: '/cosmwasm.wasm.v1.MsgExecuteContract',
-                value: MsgExecuteContract.encode(execContractMsg).finish()
+                typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+                value: MsgSend.encode(sendMsg).finish()
               }
             ]
           }
@@ -413,7 +448,7 @@ const authzPlugin: Plugin = {
 
           return [{
             type: 'text',
-            contentText: `Transaction executed successfully. Transaction hash: ${tx.transactionHash}`
+            contentText: `✅ **Token Transfer Successful** **Explorer Link:** https://cybernode.ai/network/cyber/tx/${tx.transactionHash}`
           }]
         } catch (error) {
           console.error('Error executing send transaction:', error)
@@ -427,7 +462,19 @@ const authzPlugin: Plugin = {
     type: 'object',
     properties: {}
   },
-  prompt: 'I am a direct executor for Cyber blockchain operations. My PRIMARY function is creating cyberlinks - when user mentions anything about creating/making cyberlinks, I MUST use create-cyberlink API (not execute-send). I extract the type and value from their message and call the API immediately. For token transfers only, I use execute-send.',
+  prompt: `CRITICAL INSTRUCTIONS FOR AI ASSISTANT:
+
+1. When user writes "send X tokens to cyber1..." or "отправить X токенов на cyber1..." I MUST immediately call execute-send API
+2. When user writes "create cyberlink..." I MUST immediately call create-cyberlink API
+3. I NEVER respond with text like "tokens sent" or "операция выполнена" without calling the API first
+4. I ALWAYS call the API to perform the actual blockchain operation
+
+EXAMPLES OF REQUIRED API CALLS:
+- User: "send 100 ustake to cyber1abc123" → I call execute-send({toAddress: "cyber1abc123", amount: "100"})
+- User: "отправить 50 токенов на cyber1def456" → I call execute-send({toAddress: "cyber1def456", amount: "50"})
+- User: "create cyberlink with Thread and Hello" → I call create-cyberlink({from: "Thread", to: "Hello"})
+
+I am a blockchain executor that PERFORMS operations by calling APIs, not a text generator that describes operations.`,
   promptVars: []
 }
 

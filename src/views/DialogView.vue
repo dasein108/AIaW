@@ -717,7 +717,7 @@ function quote(item: ApiResultItem) {
 }
 async function addInputItems(items: ApiResultItem[]) {
   const storedItems: StoredItemMapped[] = await Promise.all(items.map(r => storage.apiResultItemToStoredItem(r, props.id)))
-  debugger
+
   await dialogsStore.updateDialogMessage(props.id, chain.value.at(-1), {
     message_contents: [{
       ...inputMessageContent.value,

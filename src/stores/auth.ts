@@ -135,7 +135,7 @@ export const useAuthStore = defineStore({
       if (!this.isGranterActuallyConnected) {
         throw new Error('Granter wallet not connected')
       }
-      await walletService.grantAuthorization(this.granterSigner, granterAddress, agentAddress, '/cosmos.bank.v1beta1.MsgSend', expiration)
+      await walletService.grantSendAuthorization(this.granterSigner, granterAddress, agentAddress, '10000000000', expiration)
     },
 
     async revokeAgentAuthorization(granterAddress: string, agentAddress: string, msgType?: string) {

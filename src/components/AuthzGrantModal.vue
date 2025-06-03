@@ -222,7 +222,7 @@
                     class="q-mb-sm"
                   />
                   <div class="text-caption text-grey-6">
-                    The grantee wallet needs tokens to pay for transaction fees.
+                    The grantee wallet needs tokens to pay for transaction fees. Tokens will be transferred during the final setup step.
                   </div>
                 </q-card-section>
               </q-card>
@@ -407,34 +407,41 @@ onMounted(async () => {
   if (authStore.walletInfo) {
     granteeWallet.value = authStore.walletInfo
     step.value = 2
-
-    // Check existing grants status
-    if (authStore.granterSigner && granteeWallet.value.address) {
-      try {
-        const granterAccounts = await authStore.granterSigner.getAccounts()
-        if (granterAccounts.length > 0) {
-          const granterAddress = granterAccounts[0].address
-          const grants = await WalletService.getInstance().checkExistingGrants(granterAddress, granteeWallet.value.address)
-          hasExistingMsgExecGrant.value = grants.hasMsgExecGrant
-          hasExistingMsgSendGrant.value = grants.hasMsgSendGrant
-        }
-      } catch (error) {
-        console.error('Error checking existing grants:', error)
-        // Fallback to auth store values
-        hasExistingMsgExecGrant.value = authStore.isGranteeActuallyAuthorized
-        hasExistingMsgSendGrant.value = false
-      }
-    } else {
-      // Fallback to auth store values
-      hasExistingMsgExecGrant.value = authStore.isGranteeActuallyAuthorized
-      hasExistingMsgSendGrant.value = false
-    }
+    // Refresh grants status using the new function
+    await refreshGrantsStatus()
   }
 })
 
 // Methods
-const regenerateWallet = () => {
+const refreshGrantsStatus = async () => {
+  if (!authStore.granterSigner || !granteeWallet.value?.address) {
+    // Reset to default values if no wallet or granter
+    hasExistingMsgExecGrant.value = false
+    hasExistingMsgSendGrant.value = false
+    return
+  }
+
+  try {
+    const granterAccounts = await authStore.granterSigner.getAccounts()
+    if (granterAccounts.length > 0) {
+      const granterAddress = granterAccounts[0].address
+      const grants = await WalletService.getInstance().checkExistingGrants(granterAddress, granteeWallet.value.address)
+      hasExistingMsgExecGrant.value = grants.hasMsgExecGrant
+      hasExistingMsgSendGrant.value = grants.hasMsgSendGrant
+      console.log('Grants status refreshed:', grants)
+    }
+  } catch (error) {
+    console.error('Error refreshing grants status:', error)
+    // Reset on error
+    hasExistingMsgExecGrant.value = false
+    hasExistingMsgSendGrant.value = false
+  }
+}
+
+const regenerateWallet = async () => {
   granteeWallet.value = null
+  hasExistingMsgExecGrant.value = false
+  hasExistingMsgSendGrant.value = false
   step.value = 1
 }
 
@@ -444,14 +451,16 @@ const handlePinSubmit = async (pin: string) => {
     const newWalletInfo = await authStore.createGranteeWallet(pin)
     granteeWallet.value = newWalletInfo
 
+    // Reset grants status for new wallet
+    hasExistingMsgExecGrant.value = false
+    hasExistingMsgSendGrant.value = false
+
     if (newWalletInfo?.address && authStore.granterSigner) {
-      // Transfer initial tokens
-      await WalletService.getInstance().sendTokensToGrantee(
-        authStore.granterSigner,
-        newWalletInfo.address,
-        'ustake', // amountDenom
-        tokenAmount.value // amountValue
-      )
+      // Note: Token transfer will happen in executeSetup step
+      // This allows user to configure the amount before sending
+
+      // Refresh grants status after wallet creation
+      await refreshGrantsStatus()
 
       $q.notify({
         message: 'Grantee wallet created successfully!',
@@ -483,7 +492,9 @@ const revokeMsgExecGrant = async () => {
     const granterAddress = granterAccounts[0].address
 
     await authStore.revokeAgentAuthorization(granterAddress, granteeWallet.value.address)
-    hasExistingMsgExecGrant.value = false
+
+    // Refresh grants status after revoking
+    await refreshGrantsStatus()
 
     $q.notify({
       message: 'MsgExecuteContract authorization revoked successfully!',
@@ -509,7 +520,9 @@ const revokeMsgSendGrant = async () => {
     const granterAddress = granterAccounts[0].address
 
     await authStore.revokeAgentAuthorization(granterAddress, granteeWallet.value.address, '/cosmos.bank.v1beta1.MsgSend')
-    hasExistingMsgSendGrant.value = false
+
+    // Refresh grants status after revoking
+    await refreshGrantsStatus()
 
     $q.notify({
       message: 'MsgSend authorization revoked successfully!',
@@ -540,17 +553,26 @@ const executeSetup = async () => {
     }
     const granterAddress = granterAccounts[0].address
 
-    // Grant MsgExecuteContract permission (only if not already granted)
+    // Step 1: Transfer initial tokens to grantee (now done here so user can configure amount)
+    await WalletService.getInstance().sendTokensToGrantee(
+      authStore.granterSigner,
+      granteeWallet.value.address,
+      'ustake', // amountDenom
+      tokenAmount.value // amountValue configured by user
+    )
+
+    // Step 2: Grant MsgExecuteContract permission (only if not already granted)
     if (grantMsgExecContract.value && !hasExistingMsgExecGrant.value) {
       await authStore.grantAgentAuthorization(granterAddress, granteeWallet.value.address)
-      hasExistingMsgExecGrant.value = true
     }
 
-    // Grant MsgSend permission (only if not already granted)
+    // Step 3: Grant MsgSend permission (only if not already granted)
     if (grantMsgSend.value && !hasExistingMsgSendGrant.value) {
       await authStore.grantMsgSendAuthorization(granterAddress, granteeWallet.value.address)
-      hasExistingMsgSendGrant.value = true
     }
+
+    // Refresh grants status after granting
+    await refreshGrantsStatus()
 
     $q.notify({
       message: 'Authz grant setup completed successfully!',
