@@ -21,24 +21,24 @@ const authzPlugin: Plugin = {
     {
       type: 'tool',
       name: 'create-cyberlink',
-      description: 'PRIMARY API FOR CYBERLINKS: This is the main API to use when user wants to create a cyberlink. If user message contains phrases like "create cyberlink", "make cyberlink", "new cyberlink" - THIS is the API to use, not execute-send. Example: "create cyberlink with type Thread and value Hello" -> use this API with {from: "Thread", to: "Hello"}.',
+      description: 'PRIMARY API FOR CYBERLINKS: This is the main API to use when user wants to create a cyberlink. If user message contains phrases like "create cyberlink", "make cyberlink", "new cyberlink" - THIS is the API to use, not execute-send. Example: "create cyberlink with type Thread and value Hello" -> use this API with {type: "Thread", value: "Hello"}.',
       parameters: {
         type: 'object',
         properties: {
           type: {
             type: 'string',
-            description: 'Extract this type user message - this is the type they mention (e.g. if they say "type Thread", use "Thread" here)'
+            description: 'The type of cyberlink (e.g. "Thread", "Post", "Comment")'
           },
-          to: {
+          value: {
             type: 'string',
-            description: 'Extract this type user message - this is the value they mention (e.g. if they say "value Hello", use "Hello" here)'
+            description: 'The content/value for the cyberlink'
           }
         },
-        required: ['type', 'to']
+        required: ['type', 'value']
       },
       async execute(args) {
         console.log('[PLUGIN] Executing create-cyberlink')
-        const { type, to } = args
+        const { type, value } = args
         const authStore = useAuthStore()
         const walletService = WalletService.getInstance()
         const walletState = getLocalStorageWalletState()
@@ -66,9 +66,9 @@ const authzPlugin: Plugin = {
             sender: granterAddress,
             contract: CYBER_CONTRACT_ADDRESS,
             msg: toUtf8(JSON.stringify({
-              create_cyberlink: {
-                from: type,
-                to
+              cyberlink: {
+                type,
+                value
               }
             })),
             funds: []
@@ -104,8 +104,8 @@ const authzPlugin: Plugin = {
             contentText: `✅ **Cyberlink Created Successfully**
 
 **Cyberlink Details:**
-- **From (Type):** ${type}
-- **To (Value):** ${to}
+- **Type:** ${type}
+- **Value:** ${value}
 - **Creator:** ${granterAddress}
 - **Transaction Hash:** ${tx.transactionHash}
 - **Gas Used:** ${tx.gasUsed}
@@ -471,7 +471,8 @@ The cyberlink was deleted using MsgExecuteContract authorization through the gra
 EXAMPLES OF REQUIRED API CALLS:
 - User: "send 100 ustake to cyber1abc123" → I call execute-send({toAddress: "cyber1abc123", amount: "100"})
 - User: "отправить 50 токенов на cyber1def456" → I call execute-send({toAddress: "cyber1def456", amount: "50"})
-- User: "create cyberlink with Thread and Hello" → I call create-cyberlink({from: "Thread", to: "Hello"})
+- User: "create cyberlink with type Thread and value Hello" → I call create-cyberlink({type: "Thread", value: "Hello"})
+- User: "make Thread cyberlink with Hello content" → I call create-cyberlink({type: "Thread", value: "Hello"})
 
 I am a blockchain executor that PERFORMS operations by calling APIs, not a text generator that describes operations.`,
   promptVars: []
