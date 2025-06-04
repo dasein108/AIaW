@@ -4,7 +4,7 @@ import { persistentReactive } from 'src/composables/persistent-reactive'
 import { db } from 'src/utils/db'
 import { GradioPluginManifest, HuggingPluginManifest, InstalledPlugin, McpPluginDump, McpPluginManifest, PluginsData } from 'src/utils/types'
 import { buildLobePlugin, timePlugin, defaultData, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, docParsePlugin, mermaidPlugin, mcpDefaultData, dumpMcpPlugin, buildMcpPlugin } from 'src/utils/plugins'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import artifacts from 'src/utils/artifacts-plugin'
 import { IsTauri } from 'src/utils/platform-api'
 import { useI18n } from 'vue-i18n'
@@ -147,7 +147,10 @@ export const usePluginsStore = defineStore('plugins', () => {
   }
 
   useUserLoginCallback(init)
-
+  console.log('data at setup:', data)
+  watch(data, () => {
+    console.log('-----data', data, plugins.value)
+  }, { deep: true, immediate: true })
   return {
     data,
     isLoaded: ready,

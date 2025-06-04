@@ -1,138 +1,77 @@
-![](docs/public/combine.webp)
+# AIaW Collaborative (AI as Workspace)
 
-# AI as Workspace
-Based on  [AIaW](https://github.com/NitroRCr/AIaW/)
+> **Forked from [AIaW by NitroRCr](https://github.com/NitroRCr/AIaW)**
 
-![](https://badge.mcpx.dev?type=client 'MCP Client') ![](https://badge.mcpx.dev?type=client&features=resources,prompts,tools 'MCP client with features')
+---
 
-A better AI client
+## About
 
-[Website](https://app.chatcyber.ai/) - [Download](https://github.com/dasein108/AIaW/releases/latest)
+AIaW Collaborative is a next-generation, multi-user AI workspace platform. This project is a fork of AIaW, reimagined for real-time collaboration, team chat, and extensibility. The database layer has been rewritten to use [Supabase](https://supabase.com/), enabling robust user management, roles, and live chat features. **A Web3 layer has also been added for decentralized features and future integrations.**
 
-## Features Overview
+---
 
-### Consistent Experience Across All Platforms
+## Key Features
 
-- Supported platforms: Windows, Linux, Mac OS, Android, Web (PWA)
-- Multiple AI providers: OpenAI, Anthropic, Google, DeepSeek, xAI, Azure, etc.
+- **Multi-user collaboration:** Real-time chat and workspace sharing
+- **Supabase backend:** Modern, scalable DB layer for authentication, roles, and data
+- **User roles:** Fine-grained access control for teams and organizations
+- **Real-time chat:** Synchronized conversations for all workspace members
+- **Web3 layer:** Decentralized features and integrations
+- **Extensible:** (TODO) Collaborative agents (LiteLLM/Plugin-based)
 
-### Conversation Interface
+---
 
-- User input preview
-- Modifications and regenerations presented as branches
-- Customizable keyboard shortcuts
-- Quick scrolling to the beginning/end of a message
+## Quick Start
 
-<img src="https://fs.krytro.com/aiaw/dialog.webp" width="600">
+### 1. Install dependencies
 
-### Multiple Workspaces
-
-- Create multiple workspaces to separate conversations by themes
-- Group workspaces into folders; supports nesting
-- Create multiple assistants within a workspace or global assistants
-
-<img src="docs/usage/res/workspace-list.png" width="378">
-
-### Data Storage
-
-- Data is stored locally first, accessible offline and loads instantly
-- Cloud synchronization available after login for cross-device syncing
-- Multi-window collaboration: open multiple tabs in the same browser with responsive data synchronization
-
-### Design Details
-
-- Support for text files (code, csv, etc.) as attachments; AI can see file contents and names without occupying display space
-- For large text blocks, use Ctrl + V **outside the input box** to paste as an attachment; prevents large content from cluttering the display
-
-<img src="https://fs.krytro.com/aiaw/text-item.webp" width="600">
-
-- Quote content from previous messages to user inputs for targeted follow-up questions
-- Select multiple lines of message text to copy the original Markdown
-
-<img src="https://fs.krytro.com/aiaw/text-selection.webp" width="600">
-
-- Automatically wrap code pasted from VSCode in code blocks with language specification
-
-<img src="https://fs.krytro.com/aiaw/paste-code.webp" width="600">
-
-### [MCP Protocol](https://docs.aiaw.app/usage/mcp.html)
-
-- Support for MCP Tools, Prompts, Resources
-- STDIO and SSE connection methods
-- Install MCP-type plugins from the plugin marketplace or manually add MCP servers
-
-### Web Search
-
-- Web search based on SearXNG, ready to use out of the box.
-- Also provides the functionality to crawl web content via URL.
-- Supports concurrent search and concurrent crawling.
-
-### [Artifacts](https://docs.aiaw.app/usage/artifacts.html)
-
-- Convert any part of assistant responses into Artifacts
-- User-editable with version control and code highlighting
-- Control assistant read/write permissions for Artifacts
-- Open multiple Artifacts simultaneously
-
-<img src="https://fs.krytro.com/aiaw/convert-artifact.webp" width="600">
-
-### [Plugin System](https://docs.aiaw.app/usage/plugins.html)
-
-- Built-in calculator, [document parsing, video parsing](https://docs.aiaw.app/usage/file-parse.html), image generation plugins
-- Install additional plugins from the marketplace
-- Configure Gradio applications as plugins; compatible with some LobeChat plugins
-- Plugins are more than just tool calling
-
-![](docs/public/plugin-market.png)
-
-### Lightweight and High Performance
-
-- Quick startup with no waiting
-- Smooth conversation switching
-
-<img src="https://fs.krytro.com/aiaw/switch-dialog.webp" width="600">
-
-### [Dynamic Prompts](https://docs.aiaw.app/usage/prompt-vars.html)
-
-- Create prompt variables using template syntax for dynamic, reusable prompts
-- Extract repetitive parts into workspace variables for prompt reusability
-
-<img src="docs/usage/res/assistant-prompt-vars.png" width="378">
-
-### Additional Features
-
-Assistant marketplace, dark mode, customizable theme colors, and more
-
-## LightHouse
-
-| Desktop | Mobile |
-| :-----: | :----: |
-| ![](docs/public/lighthouse_score_desktop.png) | ![](docs/public/lighthouse_score_mobile.png) |
-
-## Related Projects
-
-- [New API](https://github.com/Calcium-Ion/new-api): AI model interface management and distribution system, supporting various large models with OpenAI-compatible format
-
-## Install the dependencies
 ```bash
-pnpm i
+pnpm install
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+### 2. Setup Supabase
+
+You can use either a local Supabase instance (recommended for development) or connect to a cloud Supabase project.
+
+#### Local Supabase (via Docker Compose)
+
+1. Copy `.env.docker-compose` and fill in your secrets:
+   ```bash
+   cp .env.docker-compose.example .env.docker-compose
+   # Edit .env.docker-compose with your values
+   ```
+2. Start Supabase services:
+   ```bash
+   docker-compose up -d
+   ```
+   This will launch Postgres, Auth, REST, and Studio on local ports (see `docker-compose.yml`).
+
+#### Cloud Supabase
+
+- [Sign up for Supabase](https://supabase.com/) and create a new project.
+- Update your environment variables to point to your cloud instance.
+
+### 3. Start the app
+
 ```bash
 quasar dev
 ```
 
-### Lint the files
-```bash
-pnpm lint
-```
+---
 
-### Build the app for production
-```bash
-# SPA
-quasar build
+## Roadmap
 
-# PWA
-quasar build -m pwa
-```
+- [ ] Collaborative agents (LiteLLM/Plugin-based)
+- [ ] Use Celestia-hosted graph as agent collaboration layer
+- [ ] More granular permissions and workspace management
+- [ ] Enhanced plugin system
+
+---
+
+## License
+
+BSD 3-Clause License
+
+Copyright (c) 2025, dasein108
+
+See [LICENSE](LICENSE) for details.
