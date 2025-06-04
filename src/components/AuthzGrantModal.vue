@@ -341,6 +341,12 @@
                             class="q-mr-sm"
                           />
                           Step 1: Transfer {{ tokenAmount }} ustake to grantee
+                          <div
+                            v-if="granteeWallet?.address"
+                            class="text-caption text-grey-6 q-mt-xs"
+                          >
+                            Current balance: {{ Math.floor(parseInt(granteeBalance) / 1000000) }} STAKE ({{ granteeBalance }} ustake)
+                          </div>
                         </div>
                       </div>
                       <div class="col-auto">
@@ -362,63 +368,40 @@
                       </div>
                     </div>
 
-                    <!-- Step 2: Grant MsgExec (if needed) -->
+                    <!-- Step 2: Grant Authorizations -->
                     <div
-                      v-if="grantMsgExecContract && !hasExistingMsgExecGrant"
+                      v-if="(grantMsgExecContract && !hasExistingMsgExecGrant) || (grantMsgSend && !hasExistingMsgSendGrant)"
                       class="row items-center justify-between"
                     >
                       <div class="col">
                         <div class="text-body2">
                           <q-icon
-                            :name="setupProgress.msgExecGranted ? 'sym_o_check_circle' : 'sym_o_smart_toy'"
-                            :color="setupProgress.msgExecGranted ? 'positive' : (setupProgress.tokensTransferred ? 'primary' : 'grey')"
+                            :name="(setupProgress.msgExecGranted || hasExistingMsgExecGrant || !grantMsgExecContract) &&
+                              (setupProgress.msgSendGranted || hasExistingMsgSendGrant || !grantMsgSend) ? 'sym_o_check_circle' : 'sym_o_security'"
+                            :color="(setupProgress.msgExecGranted || hasExistingMsgExecGrant || !grantMsgExecContract) &&
+                              (setupProgress.msgSendGranted || hasExistingMsgSendGrant || !grantMsgSend) ? 'positive' : (setupProgress.tokensTransferred ? 'primary' : 'grey')"
                             class="q-mr-sm"
                           />
-                          Step 2: Grant MsgExecuteContract permission
+                          Step 2: Grant permissions
+                          <span v-if="grantMsgExecContract && !hasExistingMsgExecGrant && grantMsgSend && !hasExistingMsgSendGrant">
+                            (MsgExecuteContract + MsgSend)
+                          </span>
+                          <span v-else-if="grantMsgExecContract && !hasExistingMsgExecGrant">
+                            (MsgExecuteContract)
+                          </span>
+                          <span v-else-if="grantMsgSend && !hasExistingMsgSendGrant">
+                            (MsgSend)
+                          </span>
                         </div>
                       </div>
                       <div class="col-auto">
                         <q-btn
-                          v-if="!setupProgress.msgExecGranted"
+                          v-if="!((setupProgress.msgExecGranted || hasExistingMsgExecGrant || !grantMsgExecContract) &&
+                            (setupProgress.msgSendGranted || hasExistingMsgSendGrant || !grantMsgSend))"
                           color="primary"
-                          label="Grant MsgExec"
-                          @click="grantMsgExecAuthorization"
-                          :loading="setupLoading.msgExec"
-                          :disable="!setupProgress.tokensTransferred"
-                          size="sm"
-                        />
-                        <q-chip
-                          v-else
-                          color="positive"
-                          text-color="white"
-                          icon="sym_o_check"
-                          label="Completed"
-                        />
-                      </div>
-                    </div>
-
-                    <!-- Step 3: Grant MsgSend (if needed) -->
-                    <div
-                      v-if="grantMsgSend && !hasExistingMsgSendGrant"
-                      class="row items-center justify-between"
-                    >
-                      <div class="col">
-                        <div class="text-body2">
-                          <q-icon
-                            :name="setupProgress.msgSendGranted ? 'sym_o_check_circle' : 'sym_o_send'"
-                            :color="setupProgress.msgSendGranted ? 'positive' : (setupProgress.tokensTransferred ? 'primary' : 'grey')"
-                            class="q-mr-sm"
-                          />
-                          Step 3: Grant MsgSend permission
-                        </div>
-                      </div>
-                      <div class="col-auto">
-                        <q-btn
-                          v-if="!setupProgress.msgSendGranted"
-                          color="primary"
-                          label="Grant MsgSend"
-                          @click="grantMsgSendAuthorization"
-                          :loading="setupLoading.msgSend"
+                          label="GRANT"
+                          @click="grantAuthorizations"
+                          :loading="setupLoading.msgExec || setupLoading.msgSend"
                           :disable="!setupProgress.tokensTransferred"
                           size="sm"
                         />
@@ -532,6 +515,9 @@ const setupLoading = ref({
   msgSend: false
 })
 
+// Grantee balance tracking
+const granteeBalance = ref('0')
+
 // Grant configuration
 const grantMsgExecContract = ref(true)
 const grantMsgSend = ref(true)
@@ -560,6 +546,9 @@ const refreshGrantsStatus = async () => {
     // Reset to default values if no wallet or granter
     hasExistingMsgExecGrant.value = false
     hasExistingMsgSendGrant.value = false
+    setupProgress.value.msgExecGranted = false
+    setupProgress.value.msgSendGranted = false
+    setupProgress.value.tokensTransferred = false
     return
   }
 
@@ -567,16 +556,37 @@ const refreshGrantsStatus = async () => {
     const granterAccounts = await authStore.granterSigner.getAccounts()
     if (granterAccounts.length > 0) {
       const granterAddress = granterAccounts[0].address
-      const grants = await WalletService.getInstance().checkExistingGrants(granterAddress, granteeWallet.value.address)
+      const walletService = WalletService.getInstance()
+
+      // Check grants status
+      const grants = await walletService.checkExistingGrants(granterAddress, granteeWallet.value.address)
       hasExistingMsgExecGrant.value = grants.hasMsgExecGrant
       hasExistingMsgSendGrant.value = grants.hasMsgSendGrant
+
+      // Check grantee balance to see if tokens were already transferred
+      const balanceCheck = await walletService.checkGranteeBalance(granteeWallet.value.address)
+      setupProgress.value.tokensTransferred = balanceCheck.hasTokens
+      granteeBalance.value = balanceCheck.balance
+
+      // If grants don't exist in blockchain, reset setup progress
+      if (!grants.hasMsgExecGrant) {
+        setupProgress.value.msgExecGranted = false
+      }
+      if (!grants.hasMsgSendGrant) {
+        setupProgress.value.msgSendGranted = false
+      }
+
       console.log('Grants status refreshed:', grants)
+      console.log('Balance status refreshed:', balanceCheck)
     }
   } catch (error) {
     console.error('Error refreshing grants status:', error)
     // Reset on error
     hasExistingMsgExecGrant.value = false
     hasExistingMsgSendGrant.value = false
+    setupProgress.value.msgExecGranted = false
+    setupProgress.value.msgSendGranted = false
+    setupProgress.value.tokensTransferred = false
   }
 }
 
@@ -590,6 +600,7 @@ const regenerateWallet = async () => {
     msgExecGranted: false,
     msgSendGranted: false
   }
+  granteeBalance.value = '0'
   step.value = 1
 }
 
@@ -609,6 +620,7 @@ const handlePinSubmit = async (pin: string) => {
       msgExecGranted: false,
       msgSendGranted: false
     }
+    granteeBalance.value = '0'
 
     if (newWalletInfo?.address && authStore.granterSigner) {
       // Note: Token transfer will happen in executeSetup step
@@ -651,6 +663,9 @@ const revokeMsgExecGrant = async () => {
     // Refresh grants status after revoking
     await refreshGrantsStatus()
 
+    // Reset setup progress since grant was revoked
+    setupProgress.value.msgExecGranted = false
+
     $q.notify({
       message: 'MsgExecuteContract authorization revoked successfully!',
       color: 'positive'
@@ -678,6 +693,9 @@ const revokeMsgSendGrant = async () => {
 
     // Refresh grants status after revoking
     await refreshGrantsStatus()
+
+    // Reset setup progress since grant was revoked
+    setupProgress.value.msgSendGranted = false
 
     $q.notify({
       message: 'MsgSend authorization revoked successfully!',
@@ -726,64 +744,56 @@ const transferTokens = async () => {
   }
 }
 
-const grantMsgExecAuthorization = async () => {
+const grantAuthorizations = async () => {
   if (!granteeWallet.value?.address || !isGranterConnected.value || !authStore.granterSigner) {
     $q.notify({ message: 'Setup incomplete or granter not connected.', color: 'warning' })
+    return
+  }
+
+  // Check which grants are actually needed
+  const needsMsgExec = grantMsgExecContract.value && !hasExistingMsgExecGrant.value
+  const needsMsgSend = grantMsgSend.value && !hasExistingMsgSendGrant.value
+
+  if (!needsMsgExec && !needsMsgSend) {
+    $q.notify({ message: 'No new grants needed.', color: 'info' })
     return
   }
 
   setupLoading.value.msgExec = true
+  setupLoading.value.msgSend = true
+
   try {
     const granterAccounts = await authStore.granterSigner.getAccounts()
     const granterAddress = granterAccounts[0].address
 
-    await authStore.grantAgentAuthorization(granterAddress, granteeWallet.value.address)
+    await authStore.grantMultipleAuthorizations(granterAddress, granteeWallet.value.address, {
+      grantMsgExec: needsMsgExec,
+      grantMsgSend: needsMsgSend,
+      msgSendSpendLimit: '10000000000'
+    })
 
-    setupProgress.value.msgExecGranted = true
+    // Update progress for completed grants
+    if (needsMsgExec) setupProgress.value.msgExecGranted = true
+    if (needsMsgSend) setupProgress.value.msgSendGranted = true
+
     await refreshGrantsStatus()
 
+    const grantedTypes = []
+    if (needsMsgExec) grantedTypes.push('MsgExecuteContract')
+    if (needsMsgSend) grantedTypes.push('MsgSend')
+
     $q.notify({
-      message: 'MsgExecuteContract authorization granted successfully!',
+      message: `Successfully granted ${grantedTypes.join(' and ')} authorization${grantedTypes.length > 1 ? 's' : ''}!`,
       color: 'positive'
     })
   } catch (error) {
-    console.error('Error granting MsgExec authorization:', error)
+    console.error('Error granting authorizations:', error)
     $q.notify({
-      message: `Error granting MsgExec authorization: ${error.message || error}`,
+      message: `Error granting authorizations: ${error.message || error}`,
       color: 'negative'
     })
   } finally {
     setupLoading.value.msgExec = false
-  }
-}
-
-const grantMsgSendAuthorization = async () => {
-  if (!granteeWallet.value?.address || !isGranterConnected.value || !authStore.granterSigner) {
-    $q.notify({ message: 'Setup incomplete or granter not connected.', color: 'warning' })
-    return
-  }
-
-  setupLoading.value.msgSend = true
-  try {
-    const granterAccounts = await authStore.granterSigner.getAccounts()
-    const granterAddress = granterAccounts[0].address
-
-    await authStore.grantMsgSendAuthorization(granterAddress, granteeWallet.value.address)
-
-    setupProgress.value.msgSendGranted = true
-    await refreshGrantsStatus()
-
-    $q.notify({
-      message: 'MsgSend authorization granted successfully!',
-      color: 'positive'
-    })
-  } catch (error) {
-    console.error('Error granting MsgSend authorization:', error)
-    $q.notify({
-      message: `Error granting MsgSend authorization: ${error.message || error}`,
-      color: 'negative'
-    })
-  } finally {
     setupLoading.value.msgSend = false
   }
 }

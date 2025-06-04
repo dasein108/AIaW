@@ -291,6 +291,138 @@ export class WalletService {
     }
   }
 
+  async grantMultipleAuthorizations(
+    granterSigner: OfflineDirectSigner,
+    granterAddress: string,
+    granteeAddress: string,
+    grants: {
+      grantMsgExec?: boolean
+      grantMsgSend?: boolean
+      msgSendSpendLimit?: string
+      expiration?: Date
+    }
+  ): Promise<void> {
+    if (!granterSigner) {
+      throw new Error('Granter signer not provided')
+    }
+
+    if (!grants.grantMsgExec && !grants.grantMsgSend) {
+      throw new Error('At least one grant type must be specified')
+    }
+
+    try {
+      console.log('Granting multiple authorizations:', {
+        granter: granterAddress,
+        grantee: granteeAddress,
+        grants
+      })
+
+      const messages: any[] = []
+
+      // Add MsgExecuteContract grant if requested
+      if (grants.grantMsgExec) {
+        const genericAuth = GenericAuthorization.fromPartial({
+          msg: '/cosmwasm.wasm.v1.MsgExecuteContract'
+        })
+
+        const msgExecGrant: MsgGrant = {
+          granter: granterAddress,
+          grantee: granteeAddress,
+          grant: {
+            authorization: Any.fromPartial({
+              typeUrl: '/cosmos.authz.v1beta1.GenericAuthorization',
+              value: GenericAuthorization.encode(genericAuth).finish()
+            }),
+            expiration: grants.expiration ? {
+              seconds: BigInt(Math.floor(grants.expiration.getTime() / 1000)),
+              nanos: 0
+            } : undefined
+          }
+        }
+
+        messages.push({
+          typeUrl: '/cosmos.authz.v1beta1.MsgGrant',
+          value: msgExecGrant
+        })
+      }
+
+      // Add MsgSend grant if requested
+      if (grants.grantMsgSend) {
+        const sendAuth = SendAuthorization.fromPartial({
+          spendLimit: coins(grants.msgSendSpendLimit || '10000000000', config.FEE_DENOM)
+        })
+
+        const msgSendGrant: MsgGrant = {
+          granter: granterAddress,
+          grantee: granteeAddress,
+          grant: {
+            authorization: Any.fromPartial({
+              typeUrl: '/cosmos.bank.v1beta1.SendAuthorization',
+              value: SendAuthorization.encode(sendAuth).finish()
+            }),
+            expiration: grants.expiration ? {
+              seconds: BigInt(Math.floor(grants.expiration.getTime() / 1000)),
+              nanos: 0
+            } : undefined
+          }
+        }
+
+        messages.push({
+          typeUrl: '/cosmos.authz.v1beta1.MsgGrant',
+          value: msgSendGrant
+        })
+      }
+
+      const client = await this.getClient(granterSigner)
+
+      // Calculate gas based on number of grants (roughly 50k per grant + base)
+      const gasLimit = (50000 * messages.length + 50000).toString()
+      const gasAmount = Math.floor(parseInt(gasLimit) * 0.1).toString() // 10% of gas limit for fee
+
+      const result = await client.signAndBroadcast(granterAddress, messages, {
+        amount: coins(gasAmount, config.FEE_DENOM),
+        gas: gasLimit
+      })
+
+      if (result.code !== 0) {
+        throw new Error(`Failed to grant authorizations: ${result.rawLog}`)
+      }
+
+      console.log('Multiple authorizations granted:', result)
+    } catch (error) {
+      console.error('Error granting multiple authorizations:', error)
+      throw new Error(`Failed to grant multiple authorizations: ${error.message}`)
+    }
+  }
+
+  async checkGranteeBalance(granteeAddress: string): Promise<{ hasTokens: boolean, balance: string }> {
+    try {
+      const response = await fetch(`${config.LCD_URL}/cosmos/bank/v1beta1/balances/${granteeAddress}`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      const balances = data.balances || []
+
+      // Find balance for our fee denomination (ustake)
+      const tokenBalance = balances.find((balance: any) => balance.denom === config.FEE_DENOM)
+      const balanceAmount = tokenBalance ? tokenBalance.amount : '0'
+
+      // Consider wallet funded if it has more than 100000 ustake (0.1 token)
+      const hasTokens = parseInt(balanceAmount) > 100000
+
+      console.log('Grantee balance check:', { granteeAddress, balanceAmount, hasTokens })
+
+      return { hasTokens, balance: balanceAmount }
+    } catch (error) {
+      console.error('Error checking grantee balance:', error)
+      // Return false if we can't check (conservative approach)
+      return { hasTokens: false, balance: '0' }
+    }
+  }
+
   async getClient(signer: OfflineDirectSigner): Promise<SigningStargateClient> {
     if (!signer) {
       throw new Error('Signer must be provided to create a client.')

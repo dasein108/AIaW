@@ -138,6 +138,29 @@ export const useAuthStore = defineStore({
       await walletService.grantSendAuthorization(this.granterSigner, granterAddress, agentAddress, '10000000000', expiration)
     },
 
+    async grantMultipleAuthorizations(
+      granterAddress: string,
+      agentAddress: string,
+      options: {
+        grantMsgExec?: boolean
+        grantMsgSend?: boolean
+        msgSendSpendLimit?: string
+        expiration?: Date
+      }
+    ) {
+      const walletService = WalletService.getInstance()
+      if (!this.granterSigner) {
+        throw new Error('Granter signer not available')
+      }
+      if (!this.isGranterActuallyConnected) {
+        throw new Error('Granter wallet not connected')
+      }
+      await walletService.grantMultipleAuthorizations(this.granterSigner, granterAddress, agentAddress, options)
+      if (options.grantMsgExec || options.grantMsgSend) {
+        this.isGranteeActuallyAuthorized = true
+      }
+    },
+
     async revokeAgentAuthorization(granterAddress: string, agentAddress: string, msgType?: string) {
       const walletService = WalletService.getInstance()
       if (!this.granterSigner) {
