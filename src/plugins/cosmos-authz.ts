@@ -39,7 +39,6 @@ const authzPlugin: Plugin = {
       async execute(args) {
         console.log('[PLUGIN] Executing create-cyberlink')
         const { type, to } = args
-        debugger
         const authStore = useAuthStore()
         const walletService = WalletService.getInstance()
         const walletState = getLocalStorageWalletState()
