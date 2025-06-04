@@ -10,6 +10,40 @@ import { WalletService } from 'src/services/authz/wallet-service'
 import { config } from 'src/services/constants'
 import { Decimal } from '@cosmjs/math'
 import { CYBER_CONTRACT_ADDRESS, getLocalStorageWalletState } from 'src/services/kepler/KeplerWallet'
+import { IsTauri } from 'src/utils/platform-api'
+
+// Function to get wallet state depending on platform
+const getWalletState = () => {
+  if (IsTauri) {
+    // For Tauri, we use CosmosWallet through inject, but since we can't use inject here,
+    // we'll rely on authStore which should be connected
+    const authStore = useAuthStore()
+    return {
+      isConnected: authStore.isGranterActuallyConnected && !!authStore.granterSigner,
+      address: authStore.granterSigner ? null : null // We'll get address from signer when needed
+    }
+  } else {
+    // For Web, use Kepler wallet state
+    return getLocalStorageWalletState()
+  }
+}
+
+// Function to get granter address
+const getGranterAddress = async () => {
+  const authStore = useAuthStore()
+  if (authStore.granterSigner) {
+    const accounts = await authStore.granterSigner.getAccounts()
+    return accounts[0]?.address
+  }
+
+  if (!IsTauri) {
+    // Fallback to localStorage for Web
+    const walletState = getLocalStorageWalletState()
+    return walletState.address
+  }
+
+  throw new Error('No granter address available')
+}
 
 const authzPlugin: Plugin = {
   id: 'cosmos-authz',
@@ -32,19 +66,28 @@ const authzPlugin: Plugin = {
           value: {
             type: 'string',
             description: 'The content/value for the cyberlink'
+          },
+          fid: {
+            type: 'string',
+            description: 'From particle ID (optional, can be auto-generated if not provided)',
+            default: 'auto'
           }
         },
         required: ['type', 'value']
       },
       async execute(args) {
         console.log('[PLUGIN] Executing create-cyberlink')
-        const { type, value } = args
+        const { type, value, fid } = args
         const authStore = useAuthStore()
         const walletService = WalletService.getInstance()
-        const walletState = getLocalStorageWalletState()
+        const walletState = getWalletState()
 
-        if (!walletState.isConnected || !walletState.address) {
-          throw new Error('Kepler wallet not connected. Please connect Kepler wallet first.')
+        if (!walletState.isConnected) {
+          if (IsTauri) {
+            throw new Error('Cosmos wallet not connected. Please connect your wallet first.')
+          } else {
+            throw new Error('Kepler wallet not connected. Please connect Kepler wallet first.')
+          }
         }
 
         if (!authStore.isConnected || !authStore.granteeSigner) {
@@ -52,9 +95,8 @@ const authzPlugin: Plugin = {
           throw new Error('Grantee wallet not connected or signer not available. Please ensure grantee wallet is set up and connected.')
         }
 
-        const granterAddress = walletState.address
-
         try {
+          const granterAddress = await getGranterAddress()
           const granteeAccounts = await authStore.granteeSigner.getAccounts()
           if (granteeAccounts.length === 0) {
             throw new Error('No accounts found for grantee signer.')
@@ -62,14 +104,18 @@ const authzPlugin: Plugin = {
           const granteeAccount = granteeAccounts[0]
           const granteeClient = await walletService.getClient(authStore.granteeSigner)
 
+          // Create cyberlink message - only include fid if provided
+          const cyberlinkMsg = { type, value }
+          const createMsg: any = { cyberlink: cyberlinkMsg }
+          if (fid && fid !== 'auto') {
+            createMsg.fid = fid
+          }
+
           const execContractMsg = {
             sender: granterAddress,
             contract: CYBER_CONTRACT_ADDRESS,
             msg: toUtf8(JSON.stringify({
-              cyberlink: {
-                type,
-                value
-              }
+              create_cyberlink: createMsg
             })),
             funds: []
           }
@@ -90,8 +136,8 @@ const authzPlugin: Plugin = {
               value: execMsg
             }
           ], {
-            amount: coins('160000', config.FEE_DENOM),
-            gas: '160000'
+            amount: coins('210000', config.FEE_DENOM),
+            gas: '210000'
           })
 
           if (tx.code !== 0) {
@@ -125,34 +171,42 @@ The cyberlink was created using MsgExecuteContract authorization through the gra
     {
       type: 'tool',
       name: 'update-cyberlink',
-      description: 'Update an existing cyberlink\'s target value while keeping the same source type.',
+      description: 'Update an existing cyberlink by setting a new value.',
       parameters: {
         type: 'object',
         properties: {
+          value: {
+            type: 'string',
+            description: 'New value/content for the cyberlink'
+          },
+          fid: {
+            type: 'string',
+            description: 'From particle ID (required, e.g. "Thread:12")'
+          },
           from: {
             type: 'string',
-            description: 'Original source particle type (e.g. "Thread", "Post", "Comment")'
+            description: 'Source particle (optional, only include if user explicitly mentions "from something")'
           },
           to: {
             type: 'string',
-            description: 'Current target particle value or content'
-          },
-          newTo: {
-            type: 'string',
-            description: 'New target particle value or content to replace the current one'
+            description: 'Target particle (optional, only include if user explicitly mentions "to something")'
           }
         },
-        required: ['from', 'to', 'newTo']
+        required: ['value', 'fid']
       },
       async execute(args) {
         console.log('[PLUGIN] Executing update-cyberlink')
-        const { from, to, newTo } = args
+        const { value, fid, from, to } = args
         const authStore = useAuthStore()
         const walletService = WalletService.getInstance()
-        const walletState = getLocalStorageWalletState()
+        const walletState = getWalletState()
 
-        if (!walletState.isConnected || !walletState.address) {
-          throw new Error('Kepler wallet not connected. Please connect Kepler wallet first.')
+        if (!walletState.isConnected) {
+          if (IsTauri) {
+            throw new Error('Cosmos wallet not connected. Please connect your wallet first.')
+          } else {
+            throw new Error('Kepler wallet not connected. Please connect Kepler wallet first.')
+          }
         }
 
         if (!authStore.isConnected || !authStore.granteeSigner) {
@@ -160,9 +214,8 @@ The cyberlink was created using MsgExecuteContract authorization through the gra
           throw new Error('Grantee wallet not connected or signer not available. Please ensure grantee wallet is set up and connected.')
         }
 
-        const granterAddress = walletState.address
-
         try {
+          const granterAddress = await getGranterAddress()
           const granteeAccounts = await authStore.granteeSigner.getAccounts()
           if (granteeAccounts.length === 0) {
             throw new Error('No accounts found for grantee signer.')
@@ -170,15 +223,25 @@ The cyberlink was created using MsgExecuteContract authorization through the gra
           const granteeAccount = granteeAccounts[0]
           const granteeClient = await walletService.getClient(authStore.granteeSigner)
 
+          // Create update message - fid and value are required, from/to only if specified
+          const updateMsg: any = {
+            fid,
+            value
+          }
+
+          // Only include from/to if user explicitly provided them
+          if (from) {
+            updateMsg.from = from
+          }
+          if (to) {
+            updateMsg.to = to
+          }
+
           const execContractMsg = {
             sender: granterAddress,
             contract: CYBER_CONTRACT_ADDRESS,
             msg: toUtf8(JSON.stringify({
-              update_cyberlink: {
-                from,
-                to,
-                new_to: newTo
-              }
+              update_cyberlink: updateMsg
             })),
             funds: []
           }
@@ -199,8 +262,8 @@ The cyberlink was created using MsgExecuteContract authorization through the gra
               value: execMsg
             }
           ], {
-            amount: coins('160000', config.FEE_DENOM),
-            gas: '160000'
+            amount: coins('210000', config.FEE_DENOM),
+            gas: '210000'
           })
 
           if (tx.code !== 0) {
@@ -213,9 +276,8 @@ The cyberlink was created using MsgExecuteContract authorization through the gra
             contentText: `✅ **Cyberlink Updated Successfully**
 
 **Update Details:**
-- **From (Type):** ${from}
-- **Old Value:** ${to}
-- **New Value:** ${newTo}
+- **FID:** ${fid}
+- **New Value:** ${value}${from ? `\n- **From:** ${from}` : ''}${to ? `\n- **To:** ${to}` : ''}
 - **Updater:** ${granterAddress}
 - **Transaction Hash:** ${tx.transactionHash}
 - **Gas Used:** ${tx.gasUsed}
@@ -246,19 +308,28 @@ The cyberlink was updated using MsgExecuteContract authorization through the gra
           to: {
             type: 'string',
             description: 'Target particle value or content to unlink'
+          },
+          fid: {
+            type: 'string',
+            description: 'From particle ID (optional, can be auto-generated if not provided)',
+            default: 'auto'
           }
         },
         required: ['from', 'to']
       },
       async execute(args) {
         console.log('[PLUGIN] Executing delete-cyberlink')
-        const { from, to } = args
+        const { from, to, fid } = args
         const authStore = useAuthStore()
         const walletService = WalletService.getInstance()
-        const walletState = getLocalStorageWalletState()
+        const walletState = getWalletState()
 
-        if (!walletState.isConnected || !walletState.address) {
-          throw new Error('Kepler wallet not connected. Please connect Kepler wallet first.')
+        if (!walletState.isConnected) {
+          if (IsTauri) {
+            throw new Error('Cosmos wallet not connected. Please connect your wallet first.')
+          } else {
+            throw new Error('Kepler wallet not connected. Please connect Kepler wallet first.')
+          }
         }
 
         if (!authStore.isConnected || !authStore.granteeSigner) {
@@ -266,9 +337,8 @@ The cyberlink was updated using MsgExecuteContract authorization through the gra
           throw new Error('Grantee wallet not connected or signer not available. Please ensure grantee wallet is set up and connected.')
         }
 
-        const granterAddress = walletState.address
-
         try {
+          const granterAddress = await getGranterAddress()
           const granteeAccounts = await authStore.granteeSigner.getAccounts()
           if (granteeAccounts.length === 0) {
             throw new Error('No accounts found for grantee signer.')
@@ -276,14 +346,17 @@ The cyberlink was updated using MsgExecuteContract authorization through the gra
           const granteeAccount = granteeAccounts[0]
           const granteeClient = await walletService.getClient(authStore.granteeSigner)
 
+          // Create delete message - only include fid if provided
+          const deleteMsg: any = { from, to }
+          if (fid && fid !== 'auto') {
+            deleteMsg.fid = fid
+          }
+
           const execContractMsg = {
             sender: granterAddress,
             contract: CYBER_CONTRACT_ADDRESS,
             msg: toUtf8(JSON.stringify({
-              delete_cyberlink: {
-                from,
-                to
-              }
+              delete_cyberlink: deleteMsg
             })),
             funds: []
           }
@@ -304,8 +377,8 @@ The cyberlink was updated using MsgExecuteContract authorization through the gra
               value: execMsg
             }
           ], {
-            amount: coins('160000', config.FEE_DENOM),
-            gas: '160000'
+            amount: coins('210000', config.FEE_DENOM),
+            gas: '210000'
           })
 
           if (tx.code !== 0) {
@@ -359,18 +432,20 @@ The cyberlink was deleted using MsgExecuteContract authorization through the gra
         const { toAddress, amount } = args
         const authStore = useAuthStore()
         const walletService = WalletService.getInstance()
-        const walletState = getLocalStorageWalletState()
+        const walletState = getWalletState()
 
-        if (!walletState.isConnected || !walletState.address) {
-          throw new Error('Kepler wallet not connected. Please connect Kepler wallet first.')
+        if (!walletState.isConnected) {
+          if (IsTauri) {
+            throw new Error('Cosmos wallet not connected. Please connect your wallet first.')
+          } else {
+            throw new Error('Kepler wallet not connected. Please connect Kepler wallet first.')
+          }
         }
 
         if (!authStore.isConnected || !authStore.granteeSigner) {
           console.log({ isConnected: authStore.isConnected, granteeSigner: authStore.granteeSigner })
           throw new Error('Grantee wallet not connected or signer not available. Please ensure grantee wallet is set up and connected.')
         }
-
-        const granterAddress = walletState.address
 
         try {
           // Validate and sanitize amount
@@ -392,6 +467,7 @@ The cyberlink was deleted using MsgExecuteContract authorization through the gra
             throw new Error('Amount cannot have more than 6 decimal places')
           }
 
+          const granterAddress = await getGranterAddress()
           const granteeAccounts = await authStore.granteeSigner.getAccounts()
           if (granteeAccounts.length === 0) {
             throw new Error('No accounts found for grantee signer.')
@@ -436,8 +512,8 @@ The cyberlink was deleted using MsgExecuteContract authorization through the gra
               value: execMsg
             }
           ], {
-            amount: coins('160000', config.FEE_DENOM),
-            gas: '160000'
+            amount: coins('210000', config.FEE_DENOM),
+            gas: '210000'
           })
 
           if (tx.code !== 0) {
