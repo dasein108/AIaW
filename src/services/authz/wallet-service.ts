@@ -115,8 +115,8 @@ export class WalletService {
         typeUrl: '/cosmos.authz.v1beta1.MsgGrant',
         value: grantMsg
       }], {
-        amount: coins('100000', config.FEE_DENOM),
-        gas: '100000'
+        amount: coins('150000', config.FEE_DENOM),
+        gas: '150000'
       })
 
       if (result.code !== 0) {
@@ -159,8 +159,8 @@ export class WalletService {
         typeUrl: '/cosmos.authz.v1beta1.MsgRevoke',
         value: msg
       }], {
-        amount: coins('100000', config.FEE_DENOM),
-        gas: '100000'
+        amount: coins('120000', config.FEE_DENOM),
+        gas: '120000'
       })
 
       if (result.code !== 0) {
@@ -276,8 +276,8 @@ export class WalletService {
         typeUrl: '/cosmos.authz.v1beta1.MsgGrant',
         value: grantMsg
       }], {
-        amount: coins('100000', config.FEE_DENOM),
-        gas: '100000'
+        amount: coins('150000', config.FEE_DENOM),
+        gas: '150000'
       })
 
       if (result.code !== 0) {
@@ -375,9 +375,16 @@ export class WalletService {
 
       const client = await this.getClient(granterSigner)
 
-      // Calculate gas based on number of grants (roughly 50k per grant + base)
-      const gasLimit = (50000 * messages.length + 50000).toString()
-      const gasAmount = Math.floor(parseInt(gasLimit) * 0.1).toString() // 10% of gas limit for fee
+      // Calculate gas based on number of grants (roughly 80k per grant + base)
+      const gasLimit = (80000 * messages.length + 70000).toString()
+      const gasAmount = Math.floor(parseInt(gasLimit) * 0.15).toString() // 15% of gas limit for fee
+
+      console.log('Gas calculation:', {
+        messagesCount: messages.length,
+        gasLimit,
+        gasAmount,
+        feeCoins: `${gasAmount}${config.FEE_DENOM}`
+      })
 
       const result = await client.signAndBroadcast(granterAddress, messages, {
         amount: coins(gasAmount, config.FEE_DENOM),
@@ -410,8 +417,8 @@ export class WalletService {
       const tokenBalance = balances.find((balance: any) => balance.denom === config.FEE_DENOM)
       const balanceAmount = tokenBalance ? tokenBalance.amount : '0'
 
-      // Consider wallet funded if it has more than 100000 ustake (0.1 token)
-      const hasTokens = parseInt(balanceAmount) > 100000
+      // Consider wallet funded if it has more than 500000 ustake (0.5 token)
+      const hasTokens = parseInt(balanceAmount) > 500000
 
       console.log('Grantee balance check:', { granteeAddress, balanceAmount, hasTokens })
 

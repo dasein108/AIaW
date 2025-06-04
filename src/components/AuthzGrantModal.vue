@@ -258,6 +258,13 @@
                   label="Back"
                   @click="step = 1"
                 />
+                <q-btn
+                  flat
+                  label="Refresh Status"
+                  @click="refreshGrantsStatus"
+                  color="info"
+                  size="sm"
+                />
               </div>
             </div>
           </q-step>
@@ -466,7 +473,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import PinModal from './PinModal.vue'
 import { useAuthStore } from '../stores/auth'
 import { WalletService, WalletInfo } from 'src/services/authz/wallet-service'
@@ -521,7 +528,7 @@ const granteeBalance = ref('0')
 // Grant configuration
 const grantMsgExecContract = ref(true)
 const grantMsgSend = ref(true)
-const tokenAmount = ref('1000000') // 1 token in ustake
+const tokenAmount = ref('2000000') // 2 tokens in ustake
 const gasAmount = ref('200000')
 const gasPrice = ref('0.025')
 
@@ -532,6 +539,12 @@ const hasExistingMsgSendGrant = ref(false)
 
 // Load existing wallet info on mount
 onMounted(async () => {
+  console.log('AuthzGrantModal onMounted:', {
+    hasWalletInfo: !!authStore.walletInfo,
+    hasGranterSigner: !!authStore.granterSigner,
+    isGranterConnected: authStore.isGranterActuallyConnected
+  })
+
   if (authStore.walletInfo) {
     granteeWallet.value = authStore.walletInfo
     step.value = 2
@@ -540,9 +553,27 @@ onMounted(async () => {
   }
 })
 
+// Watch for granter connection and refresh status
+watch(
+  () => authStore.isGranterActuallyConnected,
+  async (isConnected) => {
+    console.log('Granter connection changed:', isConnected)
+    if (isConnected && granteeWallet.value?.address) {
+      await refreshGrantsStatus()
+    }
+  }
+)
+
 // Methods
 const refreshGrantsStatus = async () => {
+  console.log('refreshGrantsStatus called:', {
+    hasGranterSigner: !!authStore.granterSigner,
+    hasGranteeAddress: !!granteeWallet.value?.address,
+    granteeAddress: granteeWallet.value?.address
+  })
+
   if (!authStore.granterSigner || !granteeWallet.value?.address) {
+    console.log('refreshGrantsStatus: early exit, resetting values')
     // Reset to default values if no wallet or granter
     hasExistingMsgExecGrant.value = false
     hasExistingMsgSendGrant.value = false
