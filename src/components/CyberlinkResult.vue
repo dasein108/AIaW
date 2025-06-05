@@ -5,10 +5,16 @@
       transactionBody
     }}</pre>
     <div class="button-group">
-      <button @click="handleAccept" class="accept-button">
+      <button
+        @click="handleAccept"
+        class="accept-button"
+      >
         Accept
       </button>
-      <button @click="handleDecline" class="decline-button">
+      <button
+        @click="handleDecline"
+        class="decline-button"
+      >
         Decline
       </button>
     </div>
