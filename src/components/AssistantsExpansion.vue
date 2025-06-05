@@ -8,7 +8,8 @@
         {{ label || $t('assistantsExpansion.assistants') }}
       </q-item-section>
       <q-item-section side>
-        <q-btn
+        <import-assistant-button />
+        <!-- <q-btn
           flat
           dense
           round
@@ -16,7 +17,7 @@
           icon="sym_o_add"
           :title="$t('assistantsExpansion.createAssistant')"
           @click.prevent.stop="addItem"
-        />
+        /> -->
       </q-item-section>
     </template>
     <template #default>
@@ -109,6 +110,7 @@ import { dialogOptions } from 'src/utils/values'
 import { useI18n } from 'vue-i18n'
 import { defaultAvatar } from 'src/utils/functions'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
+import ImportAssistantButton from './ImportAssistantButton.vue'
 
 const { t } = useI18n()
 
