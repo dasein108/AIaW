@@ -3,52 +3,6 @@
     <q-toolbar-title>
       {{ $t('pluginsMarket.title') }}
     </q-toolbar-title>
-    <q-btn
-      flat
-      dense
-      round
-      icon="sym_o_add"
-      :title="$t('pluginsMarket.manualInstall')"
-    >
-      <q-menu>
-        <q-list>
-          <q-item
-            clickable
-            v-close-popup
-            @click="fileInput.click()"
-          >
-            <q-item-section>
-              {{ $t('pluginsMarket.selectConfig') }}
-            </q-item-section>
-          </q-item>
-          <q-item
-            clickable
-            v-close-popup
-            @click="clipboardImport"
-          >
-            <q-item-section>
-              {{ $t('pluginsMarket.importFromClipboard') }}
-            </q-item-section>
-          </q-item>
-          <q-item
-            clickable
-            v-close-popup
-            @click="addMcpPlugin"
-          >
-            <q-item-section>
-              {{ $t('pluginsMarket.addMcpPlugin') }}
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-menu>
-      <input
-        ref="fileInput"
-        type="file"
-        accept=".json"
-        un-hidden
-        @change="onFileInput"
-      >
-    </q-btn>
   </view-common-header>
   <q-page-container>
     <q-page
@@ -127,11 +81,9 @@ import { caselessIncludes, pageFhStyle } from 'src/utils/functions'
 import AAvatar from 'src/components/AAvatar.vue'
 import ATip from 'src/components/ATip.vue'
 import PluginTypeBadge from 'src/components/PluginTypeBadge.vue'
-import AddMcpPluginDialog from 'src/components/AddMcpPluginDialog.vue'
-import { useInstallPlugin } from 'src/composables/install-plugin'
 import InstallPluginBtn from 'src/components/InstallPluginBtn.vue'
 import { useI18n } from 'vue-i18n'
-import { clipboardReadText, IsTauri } from 'src/utils/platform-api'
+import { IsTauri } from 'src/utils/platform-api'
 
 defineEmits(['toggle-drawer'])
 
@@ -176,20 +128,4 @@ function load() {
 }
 load()
 
-const { install } = useInstallPlugin()
-
-const fileInput = ref<HTMLInputElement>()
-async function onFileInput() {
-  const file = fileInput.value.files[0]
-  await install(await file.text())
-}
-async function clipboardImport() {
-  await install(await clipboardReadText())
-}
-
-function addMcpPlugin() {
-  $q.dialog({
-    component: AddMcpPluginDialog
-  })
-}
 </script>

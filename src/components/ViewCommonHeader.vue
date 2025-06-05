@@ -22,6 +22,7 @@
       />
       <slot />
       <q-btn
+        v-if="!noDrawer"
         flat
         dense
         round
@@ -46,7 +47,8 @@ const rightDrawerAbove = inject('rightDrawerAbove')
 defineEmits(['toggle-drawer', 'contextmenu'])
 
 const props = defineProps<{
-  backTo?: string
+  backTo?: string,
+  noDrawer?: boolean
 }>()
 const back = useBack(props.backTo)
 </script>

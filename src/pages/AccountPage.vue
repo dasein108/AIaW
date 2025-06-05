@@ -1,5 +1,10 @@
 <template>
-  <q-header
+  <view-common-header no-drawer>
+    <q-toolbar-title>
+      {{ $t('accountPage.accountTitle') }}
+    </q-toolbar-title>
+  </view-common-header>
+  <!-- <q-header
     bg-sur-c-low
     text-on-sur
   >
@@ -15,7 +20,7 @@
         {{ $t('accountPage.accountTitle') }}
       </q-toolbar-title>
     </q-toolbar>
-  </q-header>
+  </q-header> -->
   <q-page-container>
     <q-page
       :style-fn="pageFhStyle"
@@ -110,6 +115,7 @@ import { syncRef } from 'src/composables/sync-ref'
 import { ProfileMapped } from '@/services/supabase/types'
 import { useUserStore } from 'src/stores/user'
 import AAvatar from 'src/components/AAvatar.vue'
+import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 
 // const { profiles, put, isInitialized: profileIsInitialized } = toRefs(useProfileStore())
 const profileStore = useProfileStore()

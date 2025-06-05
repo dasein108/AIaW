@@ -9,11 +9,20 @@
     v-model="drawerOpen"
   >
     <q-expansion-item
-      :label="$t('pluginsPage.installedPlugins')"
       header-class="text-lg"
       default-opened
     >
-      <installed-plugins />
+      <template #header>
+        <q-item-section>
+          {{ $t('pluginsPage.installedPlugins') }}
+        </q-item-section>
+        <q-item-section side>
+          <install-plugins-button />
+        </q-item-section>
+      </template>
+      <template #default>
+        <installed-plugins />
+      </template>
     </q-expansion-item>
   </q-drawer>
 </template>
@@ -22,6 +31,7 @@
 import { computed, provide, ref } from 'vue'
 import InstalledPlugins from 'src/components/InstalledPlugins.vue'
 import { useQuasar } from 'quasar'
+import InstallPluginsButton from 'src/components/InstallPluginsButton.vue'
 
 const drawerOpen = ref(false)
 const drawerBreakpoint = 960
