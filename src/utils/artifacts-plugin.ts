@@ -1,5 +1,5 @@
 import { Array as TArray, Object, Optional, String } from '@sinclair/typebox'
-import { Plugin, PluginApi, PluginData } from './types'
+import { Avatar, Plugin, PluginApi, PluginData } from './types'
 import { ArtifactMapped } from '@/services/supabase/types'
 import { engine } from './template-engine'
 import { db } from './db'
@@ -59,6 +59,12 @@ const api: PluginApi = {
   }
 }
 
+const defaultData: PluginData = {
+  settings: {},
+  avatar: { type: 'icon', icon: 'sym_o_convert_to_text', hue: 45 } as Avatar,
+  fileparsers: {}
+}
+
 const plugin: Plugin = {
   id: pluginId,
   type: 'builtin',
@@ -66,7 +72,8 @@ const plugin: Plugin = {
   apis: [api],
   fileparsers: [],
   title: 'Artifacts',
-  settings: Object({})
+  settings: Object({}),
+  data: defaultData
 }
 
 const promptTemplate =
@@ -87,16 +94,9 @@ function getPrompt(artifacts: ArtifactMapped[]) {
   return engine.parseAndRenderSync(promptTemplate, { artifacts: artifacts.filter(a => a.readable) })
 }
 
-const defaultData: PluginData = {
-  settings: {},
-  avatar: { type: 'icon', icon: 'sym_o_convert_to_text', hue: 45 },
-  fileparsers: {}
-}
-
 export default {
   pluginId,
   plugin,
-  defaultData,
   getPrompt,
   api
 }

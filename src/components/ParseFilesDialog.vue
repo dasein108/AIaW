@@ -118,7 +118,7 @@ const pluginsStore = usePluginsStore()
 const fileparsers = computed(() => {
   const val = []
   pluginsStore.plugins.filter(p => p.available).forEach(p => {
-    const data = pluginsStore.data[p.id]
+    const data = p.data
     p.fileparsers.forEach(fp => {
       data.fileparsers[fp.name].enabled && val.push({
         id: `${p.id}-${fp.name}`,

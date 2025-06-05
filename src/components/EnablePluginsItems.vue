@@ -7,11 +7,11 @@
   >
     <q-item-section
       avatar
-      v-if="pluginsStore.data[plugin.id]"
+      v-if="plugin.data.avatar"
       min-w-0
     >
       <a-avatar
-        :avatar="pluginsStore.data[plugin.id].avatar"
+        :avatar="plugin.data.avatar"
         :size="dense ? '32px' : '40px'"
       />
     </q-item-section>

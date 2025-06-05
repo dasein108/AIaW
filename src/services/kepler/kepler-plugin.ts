@@ -1,4 +1,4 @@
-import { Plugin } from '@/utils/types'
+import { Avatar, Plugin, PluginData } from '@/utils/types'
 import { Object as TObject } from '@sinclair/typebox'
 import { getLocalStorageWalletState } from './KeplerWallet'
 
@@ -23,5 +23,8 @@ export const keplerPlugin: Plugin = {
   fileparsers: [],
   settings: TObject({}),
   title: 'Kepler Plugin',
-  description: 'Kepler helper utilities'
+  description: 'Kepler helper utilities',
+  data: {
+    avatar: { type: 'icon', icon: 'sym_o_mood', hue: 270 } as Avatar,
+  } as PluginData
 }

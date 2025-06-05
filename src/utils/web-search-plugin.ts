@@ -1,5 +1,5 @@
 import { Array as TArray, Object, String, Unsafe, Optional, Number } from '@sinclair/typebox'
-import { Plugin, PluginData } from './types'
+import { Avatar, Plugin, PluginData } from './types'
 import { i18n } from 'src/boot/i18n'
 import { fetch } from './platform-api'
 import { SearxngBaseURL } from './config'
@@ -120,6 +120,14 @@ async function crawl(url, settings) {
 
 const pluginId = 'aiaw-web'
 
+const defaultData: PluginData = {
+  settings: {
+    resultsLimit: 15
+  },
+  avatar: { type: 'icon', icon: 'sym_o_travel_explore', hue: 225 } as Avatar,
+  fileparsers: {}
+}
+
 const plugin: Plugin = {
   id: pluginId,
   type: 'builtin',
@@ -187,19 +195,11 @@ const plugin: Plugin = {
       title: t('webSearchPlugin.resultsLimit'),
       description: t('webSearchPlugin.resultsLimitCaption')
     })
-  })
-}
-
-const defaultData: PluginData = {
-  settings: {
-    resultsLimit: 15
-  },
-  avatar: { type: 'icon', icon: 'sym_o_travel_explore', hue: 225 },
-  fileparsers: {}
+  }),
+  data: defaultData
 }
 
 export default {
   pluginId,
   plugin,
-  defaultData
 }

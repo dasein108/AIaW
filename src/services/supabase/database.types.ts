@@ -574,6 +574,7 @@ export type Database = {
         Row: {
           available: boolean
           created_at: string
+          data: Json | null
           id: string
           key: string
           manifest: Json
@@ -584,6 +585,7 @@ export type Database = {
         Insert: {
           available?: boolean
           created_at?: string
+          data?: Json | null
           id?: string
           key: string
           manifest: Json
@@ -594,6 +596,7 @@ export type Database = {
         Update: {
           available?: boolean
           created_at?: string
+          data?: Json | null
           id?: string
           key?: string
           manifest?: Json

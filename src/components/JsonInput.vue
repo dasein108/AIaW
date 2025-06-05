@@ -50,4 +50,5 @@ interface Model {
 
 const model = defineModel<Model>()
 model.value ??= {}
+console.log('model', model.value)
 </script>

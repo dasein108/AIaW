@@ -10,7 +10,7 @@ export function useCallApi({ workspace, dialog }) {
   const { t } = useI18n()
 
   function getPluginSettings(plugin: Plugin) {
-    const settings = toRaw(pluginsStore.data[plugin.id].settings)
+    const settings = toRaw(plugin.data.settings)
     if (plugin.settings.properties._workspaceId) {
       settings._workspaceId = workspace.value.id
     }

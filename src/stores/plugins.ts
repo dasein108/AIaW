@@ -1,8 +1,8 @@
 import { LobeChatPluginManifest } from '@lobehub/chat-plugin-sdk'
 import { defineStore } from 'pinia'
-import { persistentReactive } from 'src/composables/persistent-reactive'
+// import { persistentReactive } from 'src/composables/persistent-reactive'
 import { db } from 'src/utils/db'
-import { GradioPluginManifest, HuggingPluginManifest, InstalledPlugin, McpPluginDump, McpPluginManifest, PluginsData } from 'src/utils/types'
+import { GradioPluginManifest, HuggingPluginManifest, InstalledPlugin, McpPluginDump, McpPluginManifest, PluginData, Plugin } from 'src/utils/types'
 import { buildLobePlugin, timePlugin, defaultData, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, docParsePlugin, mermaidPlugin, mcpDefaultData, dumpMcpPlugin, buildMcpPlugin } from 'src/utils/plugins'
 import { computed, ref, watch } from 'vue'
 import artifacts from 'src/utils/artifacts-plugin'
@@ -11,13 +11,16 @@ import { useI18n } from 'vue-i18n'
 import webSearchPlugin from 'src/utils/web-search-plugin'
 import { keplerPlugin } from 'src/services/kepler/kepler-plugin'
 import { supabase } from 'src/services/supabase/client'
-import { UserPlugin } from '@/services/supabase/types'
+import { UserPluginMapped } from '@/services/supabase/types'
 import { useAssistantsStore } from './assistants'
 import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
+import { defaultAvatar } from 'src/utils/functions'
 
 export const usePluginsStore = defineStore('plugins', () => {
   const assistantsStore = useAssistantsStore()
-  const installedPlugins = ref<UserPlugin[]>([])
+  const installedPlugins = ref<UserPluginMapped[]>([])
+  const isLoaded = ref(false)
+  const plugins = ref<Plugin[]>([])
   async function fetchPlugins() {
     const { data, error } = await supabase
       .from('user_plugins')
@@ -28,19 +31,19 @@ export const usePluginsStore = defineStore('plugins', () => {
       console.error('❌ Failed to fetch chats:', error.message)
       return
     }
-    installedPlugins.value = data// .map(i => ({ ...i, manifest: i.manifest as PluginManifest }))
+    installedPlugins.value = data as UserPluginMapped[]// .map(i => ({ ...i, manifest: i.manifest as PluginManifest }))
   }
 
-  async function upsertPlugin(plugin: Omit<UserPlugin, 'user_id'>) {
+  async function upsertPlugin(plugin: Omit<UserPluginMapped, 'user_id'>) {
     const { data, error } = await supabase.from('user_plugins').upsert(plugin).select().single()
     if (error) {
       console.error('❌ Failed to put plugin:', error.message)
       return
     }
     if (installedPlugins.value.find(i => i.id === plugin.id)) {
-      installedPlugins.value = installedPlugins.value.map(i => i.id === plugin.id ? data : i)
+      installedPlugins.value = installedPlugins.value.map(i => i.id === plugin.id ? data as UserPluginMapped : i)
     } else {
-      installedPlugins.value.push(data)
+      installedPlugins.value.push(data as UserPluginMapped)
     }
     return data.id
   }
@@ -55,25 +58,27 @@ export const usePluginsStore = defineStore('plugins', () => {
   }
 
   const availableKeys = computed(() => installedPlugins.value.filter(i => i.available).map(i => i.key))
-  const [data, ready] = persistentReactive<PluginsData>('#plugins-data', defaultData)
-  const plugins = computed(() => [
-    webSearchPlugin.plugin,
-    calculatorPlugin,
-    videoTranscriptPlugin,
-    whisperPlugin,
-    fluxPlugin,
-    emotionsPlugin,
-    mermaidPlugin,
-    docParsePlugin,
-    timePlugin,
-    keplerPlugin,
-    artifacts.plugin,
-    ...installedPlugins.value.map(i => {
-      if (i.type === 'lobechat') return buildLobePlugin(i.manifest as LobeChatPluginManifest, i.available)
-      else if (i.type === 'gradio') return buildGradioPlugin(i.manifest as GradioPluginManifest, i.available)
-      else return buildMcpPlugin(i.manifest as McpPluginDump, i.available)
-    })
-  ])
+  // const [data, ready] = persistentReactive<PluginsData>('#plugins-data', defaultData)
+  const mapPluginData = (plugin: Plugin) => {
+    let data = plugin.data
+    if (!data) {
+      data = { } as PluginData
+    }
+    if (!data.avatar) {
+      data.avatar = defaultAvatar(plugin.title[0])
+    }
+    if (!data.settings) {
+      data.settings = {}
+    }
+    if (!data.fileparsers) {
+      data.fileparsers = {}
+    }
+    if (plugin.id === 'aiaw-whisper') {
+      console.log('data', data, plugin)
+    }
+    return { ...plugin, data }
+  }
+
   async function installLobePlugin(manifest: LobeChatPluginManifest) {
     const id = await upsertPlugin({
       key: `lobe-${manifest.identifier}`,
@@ -82,11 +87,12 @@ export const usePluginsStore = defineStore('plugins', () => {
       manifest,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      data: { avatar: defaultAvatar(manifest.identifier) } as PluginData
     })
 
-    await db.reactives.update('#plugins-data', {
-      [`value.${id}`]: lobeDefaultData(manifest)
-    })
+    // await db.reactives.update('#plugins-data', {
+    //   [`value.${id}`]: lobeDefaultData(manifest)
+    // })
   }
 
   async function installGradioPlugin(manifest: GradioPluginManifest) {
@@ -97,10 +103,11 @@ export const usePluginsStore = defineStore('plugins', () => {
       manifest,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      data: { avatar: defaultAvatar(manifest.id) } as PluginData
     })
-    await db.reactives.update('#plugins-data', {
-      [`value.${manifest.id}`]: gradioDefaultData(manifest)
-    })
+    // await db.reactives.update('#plugins-data', {
+    //   [`value.${manifest.id}`]: gradioDefaultData(manifest)
+    // })
   }
 
   async function installHuggingPlugin(manifest: HuggingPluginManifest) {
@@ -116,10 +123,11 @@ export const usePluginsStore = defineStore('plugins', () => {
       type: 'mcp',
       available: true,
       manifest: dump,
+      data: { avatar: defaultAvatar(manifest.id) } as PluginData
     })
-    await db.reactives.update('#plugins-data', {
-      [`value.${manifest.id}`]: mcpDefaultData(manifest)
-    })
+    // await db.reactives.update('#plugins-data', {
+    //   [`value.${manifest.id}`]: mcpDefaultData(manifest)
+    // })
   }
 
   async function uninstall(key: string) {
@@ -142,18 +150,37 @@ export const usePluginsStore = defineStore('plugins', () => {
   }
 
   async function init() {
+    isLoaded.value = false
     installedPlugins.value = []
     await fetchPlugins()
+
+    plugins.value = [
+      webSearchPlugin.plugin,
+      calculatorPlugin,
+      videoTranscriptPlugin,
+      whisperPlugin,
+      fluxPlugin,
+      emotionsPlugin,
+      mermaidPlugin,
+      docParsePlugin,
+      timePlugin,
+      keplerPlugin,
+      artifacts.plugin,
+      ...installedPlugins.value.map(i => {
+        if (i.type === 'lobechat') return buildLobePlugin(i.manifest as LobeChatPluginManifest, i.available)
+        else if (i.type === 'gradio') return buildGradioPlugin(i.manifest as GradioPluginManifest, i.available)
+        else return buildMcpPlugin(i.manifest as McpPluginDump, i.available)
+      })
+    ].map(mapPluginData)
+
+    isLoaded.value = true
   }
 
   useUserLoginCallback(init)
-  console.log('data at setup:', data)
-  watch(data, () => {
-    console.log('-----data', data, plugins.value)
-  }, { deep: true, immediate: true })
+
   return {
-    data,
-    isLoaded: ready,
+    // data,
+    isLoaded,
     plugins,
     availableKeys,
     installLobePlugin,

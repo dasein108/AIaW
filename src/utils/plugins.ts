@@ -1,4 +1,4 @@
-import { GradioFixedInput, GradioManifestEndpoint, GradioPluginManifest, GradioApiInput, HuggingPluginManifest, Plugin, PluginApi, PluginData, PluginsData, McpPluginDump, McpPluginManifest, Avatar } from './types'
+import { GradioFixedInput, GradioManifestEndpoint, GradioPluginManifest, GradioApiInput, HuggingPluginManifest, Plugin, PluginApi, PluginData, PluginsData, McpPluginDump, McpPluginManifest, Avatar, FileparserData } from './types'
 import { base64ToArrayBuffer, defaultAvatar, defaultTextAvatar, parsePageRange, parseSeconds } from './functions'
 import { createHeadersWithPluginSettings, LobeChatPluginManifest, PluginSchema } from '@lobehub/chat-plugin-sdk'
 import { Boolean as TBoolean, Number as TNumber, Object as TObject, Optional as TOptional, String as TString } from '@sinclair/typebox'
@@ -39,7 +39,10 @@ const timePlugin: Plugin = {
   fileparsers: [],
   settings: TObject({}),
   title: t('plugins.time.title'),
-  description: t('plugins.time.description')
+  description: t('plugins.time.description'),
+  data: {
+    avatar: { type: 'icon', icon: 'sym_o_alarm', hue: 220 } as Avatar,
+  }
 }
 
 const calculatorPrompt =
@@ -174,7 +177,11 @@ const calculatorPlugin: Plugin = {
   fileparsers: [],
   settings: TObject({}),
   title: t('plugins.calculator.title'),
-  description: t('plugins.calculator.description')
+  description: t('plugins.calculator.description'),
+  data: {
+    avatar: { type: 'icon', icon: 'sym_o_calculate', hue: 270 } as Avatar,
+  } as PluginData
+
 }
 
 function buildLobePlugin(manifest: LobeChatPluginManifest, available: boolean): Plugin {
@@ -334,11 +341,15 @@ function buildGradioPlugin(manifest: GradioPluginManifest, available: boolean): 
     prompt,
     promptVars,
     noRoundtrip,
+    fileparsers,
     settings: TObject(settings),
     apis: [...infos, ...tools],
-    fileparsers,
     author: manifest.author,
-    homepage: manifest.homepage
+    homepage: manifest.homepage,
+    data: {
+      avatar: { type: 'icon', icon: 'sym_o_palette', hue: 120 } as Avatar,
+    } as PluginData
+
   }
 }
 
@@ -621,7 +632,15 @@ const whisperPluginManifest: GradioPluginManifest = {
     outputIdxs: [0]
   }]
 }
-const whisperPlugin = buildGradioPlugin(whisperPluginManifest, true)
+const whisperPlugin = {
+  ...buildGradioPlugin(whisperPluginManifest, true),
+  data: {
+    avatar: { type: 'icon', icon: 'sym_o_mic', hue: 100 } as Avatar,
+    fileparsers: {
+      transcribe: { enabled: true, mimeTypes: ['audio/*'] }
+    }
+  } as PluginData
+}
 whisperPlugin.type = 'builtin'
 
 const videoTranscriptPlugin: Plugin = {
@@ -645,7 +664,14 @@ const videoTranscriptPlugin: Plugin = {
   }],
   settings: TObject({}),
   title: t('plugins.videoTranscript.title'),
-  description: t('plugins.videoTranscript.description')
+  description: t('plugins.videoTranscript.description'),
+  data: {
+    avatar: { type: 'icon', icon: 'sym_o_smart_display', hue: 160 } as Avatar,
+    fileparsers: {
+      transcribe: { enabled: true, mimeTypes: ['video/*'] }
+    }
+  } as PluginData
+
 }
 
 const fluxPluginManifest: GradioPluginManifest = {
@@ -704,10 +730,10 @@ const fluxPluginManifest: GradioPluginManifest = {
   }),
   noRoundtrip: true,
   title: t('plugins.flux.title'),
-  description: t('plugins.flux.description')
+  description: t('plugins.flux.description'),
 }
 
-const fluxPlugin: Plugin = buildGradioPlugin(fluxPluginManifest, true)
+const fluxPlugin: Plugin = { ...buildGradioPlugin(fluxPluginManifest, true), data: { avatar: { type: 'icon', icon: 'sym_o_palette', hue: 120 } as Avatar } as PluginData }
 fluxPlugin.type = 'builtin'
 
 const emotionsPrompt =
@@ -772,7 +798,10 @@ const emotionsPlugin: Plugin = {
       type: 'number',
       default: 100
     }
-  ]
+  ],
+  data: {
+    avatar: { type: 'icon', icon: 'sym_o_mood', hue: 80 } as Avatar,
+  } as PluginData
 }
 
 const mermaidPlugin: Plugin = {
@@ -784,7 +813,8 @@ const mermaidPlugin: Plugin = {
   settings: TObject({}),
   title: t('plugins.mermaid.title'),
   description: t('plugins.mermaid.description'),
-  prompt: t('plugins.mermaid.prompt')
+  prompt: t('plugins.mermaid.prompt'),
+  data: { avatar: { type: 'icon', icon: 'sym_o_account_tree', hue: 15 } as Avatar } as PluginData
 }
 
 const docParsePlugin: Plugin = {
@@ -814,56 +844,62 @@ const docParsePlugin: Plugin = {
     ocrLanguage: TString({ title: t('plugins.docParse.ocrLanguage') })
   }),
   title: t('plugins.docParse.title'),
-  description: t('plugins.docParse.description')
-}
-
-const defaultData: PluginsData = {
-  'aiaw-time': {
-    settings: {},
-    avatar: { type: 'icon', icon: 'sym_o_alarm', hue: 220 },
-    fileparsers: {}
-  },
-  'aiaw-video-transcript': {
-    settings: {},
-    avatar: { type: 'icon', icon: 'sym_o_smart_display', hue: 160 },
-    fileparsers: {
-      transcribe: { enabled: true, mimeTypes: ['video/*'] }
-    }
-  },
-  'aiaw-calculator': {
-    settings: {},
-    avatar: { type: 'icon', icon: 'sym_o_calculate', hue: 270 },
-    fileparsers: {}
-  },
-  'aiaw-whisper': gradioDefaultData(whisperPluginManifest),
-  [fluxPluginManifest.id]: {
-    ...gradioDefaultData(fluxPluginManifest),
-    avatar: { type: 'icon', icon: 'sym_o_palette', hue: 120 }
-  },
-  'aiaw-emotions': {
-    settings: {},
-    avatar: { type: 'icon', icon: 'sym_o_mood', hue: 80 },
-    fileparsers: {}
-  },
-  'aiaw-mermaid': {
-    settings: {},
-    avatar: { type: 'icon', icon: 'sym_o_account_tree', hue: 15 },
-    fileparsers: {}
-  },
-  'aiaw-doc-parse': {
-    settings: { ocrLanguage: 'en' },
-    avatar: { type: 'icon', icon: 'sym_o_description', hue: 190 },
+  description: t('plugins.docParse.description'),
+  data: {
+    avatar: { type: 'icon', icon: 'sym_o_description', hue: 190 } as Avatar,
     fileparsers: {
       parse: { enabled: true, mimeTypes: ['application/*'] }
     }
-  },
-  'kepler-plugin': {
-    settings: {},
-    avatar: { type: 'icon', icon: 'sym_o_mood', hue: 270 },
-    fileparsers: {}
-  },
-  [webSearchPlugin.pluginId]: webSearchPlugin.defaultData,
-  [artifacts.pluginId]: artifacts.defaultData
+  } as PluginData
+}
+
+const defaultData: PluginsData = {
+  // 'aiaw-time': {
+  //   settings: {},
+  //   avatar: { type: 'icon', icon: 'sym_o_alarm', hue: 220 },
+  //   fileparsers: {}
+  // },
+  // 'aiaw-video-transcript': {
+  //   settings: {},
+  //   avatar: { type: 'icon', icon: 'sym_o_smart_display', hue: 160 },
+  //   fileparsers: {
+  //     transcribe: { enabled: true, mimeTypes: ['video/*'] }
+  //   }
+  // },
+  // 'aiaw-calculator': {
+  //   settings: {},
+  //   avatar: { type: 'icon', icon: 'sym_o_calculate', hue: 270 },
+  //   fileparsers: {}
+  // },
+  // 'aiaw-whisper': gradioDefaultData(whisperPluginManifest),
+  // [fluxPluginManifest.id]: {
+  //   ...gradioDefaultData(fluxPluginManifest),
+  //   avatar: { type: 'icon', icon: 'sym_o_palette', hue: 120 }
+  // },
+  // 'aiaw-emotions': {
+  //   settings: {},
+  //   avatar: { type: 'icon', icon: 'sym_o_mood', hue: 80 },
+  //   fileparsers: {}
+  // },
+  // 'aiaw-mermaid': {
+  //   settings: {},
+  //   avatar: { type: 'icon', icon: 'sym_o_account_tree', hue: 15 },
+  //   fileparsers: {}
+  // },
+  // 'aiaw-doc-parse': {
+  //   settings: { ocrLanguage: 'en' },
+  //   avatar: { type: 'icon', icon: 'sym_o_description', hue: 190 },
+  //   fileparsers: {
+  //     parse: { enabled: true, mimeTypes: ['application/*'] }
+  //   }
+  // },
+  // 'kepler-plugin': {
+  //   settings: {},
+  //   avatar: { type: 'icon', icon: 'sym_o_mood', hue: 270 },
+  //   fileparsers: {}
+  // },
+  // [webSearchPlugin.pluginId]: webSearchPlugin.defaultData,
+  // [artifacts.pluginId]: artifacts.defaultData
 }
 
 export {

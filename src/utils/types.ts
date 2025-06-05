@@ -98,6 +98,7 @@ interface AssistantPluginTool {
 interface FileparserData {
   enabled: boolean
   mimeTypes: string[]
+
 }
 
 interface AssistantPluginAction {
@@ -140,6 +141,12 @@ interface PluginFileparser {
   execute(args: { file: Blob, range?: string }, settings): Promise<ApiResultItem[]>
 }
 
+interface PluginData {
+  settings?: any
+  avatar: Avatar
+  fileparsers?: Record<string, FileparserData>
+}
+
 interface Plugin {
   id: string
   type: 'builtin' | 'lobechat' | 'gradio' | 'mcp'
@@ -154,6 +161,7 @@ interface Plugin {
   noRoundtrip?: boolean
   author?: string
   homepage?: string
+  data?: PluginData
 }
 
 interface InstalledLobePlugin {
@@ -332,11 +340,6 @@ interface InstalledMcpPlugin {
   manifest: McpPluginDump
 }
 type InstalledPlugin = InstalledLobePlugin | InstalledGradioPlugin | InstalledMcpPlugin
-interface PluginData {
-  settings
-  avatar: Avatar
-  fileparsers: Record<string, FileparserData>
-}
 
 type PluginsData = Record<string, PluginData>
 
@@ -453,5 +456,6 @@ export type {
   McpPluginDump,
   McpPluginManifest,
   TransportConf,
-  ArtifactVersion
+  ArtifactVersion,
+  FileparserData
 }

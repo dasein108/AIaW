@@ -1,4 +1,4 @@
-import { ArtifactVersion, AssistantPlugins, Avatar, Model, ModelSettings, PromptVar, Provider } from '@/utils/types'
+import { ArtifactVersion, AssistantPlugins, Avatar, Model, ModelSettings, PluginData, PromptVar, Provider } from '@/utils/types'
 import { Database, Json } from './database.types'
 import { LanguageModelUsage } from 'ai'
 
@@ -34,6 +34,8 @@ type CustomProviderMapped = CustomProvider & {
 type UserDataMapped = UserData & {
   value: Record<string, any>
 }
+
+type UserPluginMapped = UserPlugin & {data: PluginData}
 
 type ChatType = Database['public']['Enums']['chat_type']
 
@@ -104,7 +106,7 @@ type WorkspaceMemberMapped = WorkspaceMember & {
 
 export type {
   ChatMessageWithProfile, Chat, ChatMember, WorkspaceMapped, ArtifactMapped, ArtifactVersion,
-  Workspace, UserPlugin, Assistant, AssistantMapped, ChatMessage, Dialog, DialogMessage,
+  Workspace, UserPluginMapped, Assistant, AssistantMapped, ChatMessage, Dialog, DialogMessage,
   MessageContent, WorkspaceMember, StoredItem, DialogMessageMapped, MessageContentMapped, DialogMapped,
   StoredItemMapped, CustomProviderMapped, SubproviderMapped, UserDataMapped,
   WorkspaceMemberRole,

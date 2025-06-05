@@ -7,7 +7,7 @@
     >
       <template #header>
         <q-item-section avatar>
-          <a-avatar :avatar="pluginData.avatar" />
+          <a-avatar :avatar="plugin?.data?.avatar ?? defaultAvatar(plugin?.title[0])" />
         </q-item-section>
         <q-item-section>
           <q-item-label>
@@ -82,7 +82,7 @@ import { computed, ComputedRef, inject } from 'vue'
 import AAvatar from './AAvatar.vue'
 import { engine } from 'src/utils/template-engine'
 import { MdPreview } from 'md-editor-v3'
-import { wrapCode } from 'src/utils/functions'
+import { wrapCode, defaultAvatar } from 'src/utils/functions'
 import MessageImage from './MessageImage.vue'
 import MessageAudio from './MessageAudio.vue'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
@@ -98,8 +98,8 @@ const props = defineProps<{
 const pluginsStore = usePluginsStore()
 const plugin = computed(() => pluginsStore.plugins.find(p => p.id === props.content.plugin_id))
 const api = computed(() => plugin.value?.apis.find(a => a.name === props.content.name))
-const pluginData = computed(() => pluginsStore.data[props.content.plugin_id])
-
+// const pluginData = computed(() => pluginsStore.data[props.content.plugin_id])
+console.log(plugin.value)
 const contentTemplate =
 `### ${t('toolContent.callParams')}
 

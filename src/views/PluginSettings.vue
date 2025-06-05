@@ -59,7 +59,7 @@
             side
             text-on-sur
           >
-            <a-avatar :avatar="data[id].avatar" />
+            <a-avatar :avatar="plugin.data.avatar" />
           </q-item-section>
         </q-item>
         <template v-if="plugin.fileparsers.length">
@@ -86,16 +86,20 @@
             </q-item-section>
             <q-item-section items-end>
               <list-input
+                v-if="plugin.data.fileparsers?.[fp.name]?.mimeTypes"
                 :label="$t('pluginSettings.mimeType')"
                 class="xs:w-200px sm:w-250px"
                 filled
                 dense
-                v-model="data[id].fileparsers[fp.name].mimeTypes"
+                v-model="plugin.data.fileparsers[fp.name].mimeTypes"
                 new-value-mode="add-unique"
               />
             </q-item-section>
-            <q-item-section side>
-              <q-checkbox v-model="data[id].fileparsers[fp.name].enabled" />
+            <q-item-section
+              side
+              v-if="plugin.data.fileparsers?.[fp.name]?.enabled"
+            >
+              <q-checkbox v-model="plugin.data.fileparsers[fp.name].enabled" />
             </q-item-section>
           </q-item>
         </template>
@@ -105,7 +109,7 @@
         </q-item-label>
         <json-input
           :schema="plugin.settings"
-          v-model="data[id].settings"
+          v-model="plugin.data.settings"
           component="item"
           lazy
         />
@@ -134,20 +138,20 @@ const props = defineProps<{
 defineEmits(['toggle-drawer'])
 
 const pluginsStore = usePluginsStore()
-const { data } = pluginsStore
+// const { data } = pluginsStore
 
 const plugin = computed(() => pluginsStore.plugins.find(p => p.id === props.id))
-
+console.log('plugin', props.id, plugin.value)
 const $q = useQuasar()
 function pickAvatar() {
   $q.dialog({
     component: PickAvatarDialog,
     componentProps: {
-      model: data[props.id].avatar,
+      model: plugin.value?.data.avatar,
       defaultTab: 'icon'
     }
   }).onOk(avatar => {
-    data[props.id].avatar = avatar
+    plugin.value.data.avatar = avatar
   })
 }
 

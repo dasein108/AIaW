@@ -51,3 +51,5 @@ dexie-cloud.json
 dexie-cloud.key
 .env
 /supabase/.temp
+.env.docker-compose
+.env.local

@@ -10,9 +10,9 @@
     >
       <q-item-section avatar>
         <a-avatar
-          v-if="data[plugin.id]"
+          v-if="plugin.data.avatar"
           size="md"
-          :avatar="data[plugin.id].avatar"
+          :avatar="plugin.data.avatar"
         />
       </q-item-section>
       <q-item-section>
@@ -52,7 +52,6 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const pluginsStore = usePluginsStore()
-const { data } = pluginsStore
 
 const $q = useQuasar()
 
