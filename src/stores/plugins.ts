@@ -1,9 +1,7 @@
 import { LobeChatPluginManifest } from '@lobehub/chat-plugin-sdk'
-import { defineStore } from 'pinia'
-import { persistentReactive } from 'src/composables/persistent-reactive'
-import { db } from 'src/utils/db'
-import { GradioPluginManifest, HuggingPluginManifest, InstalledPlugin, McpPluginDump, McpPluginManifest, PluginsData } from 'src/utils/types'
-import { buildLobePlugin, timePlugin, defaultData, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, docParsePlugin, mermaidPlugin, mcpDefaultData, dumpMcpPlugin, buildMcpPlugin } from 'src/utils/plugins'
+import { defineStore, storeToRefs } from 'pinia'
+import { GradioPluginManifest, HuggingPluginManifest, McpPluginDump, McpPluginManifest } from 'src/utils/types'
+import { buildLobePlugin, timePlugin, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, docParsePlugin, mermaidPlugin, mcpDefaultData, dumpMcpPlugin, buildMcpPlugin } from 'src/utils/plugins'
 import { computed, ref, watch } from 'vue'
 import artifacts from 'src/utils/artifacts-plugin'
 import { IsTauri } from 'src/utils/platform-api'
@@ -14,10 +12,12 @@ import { supabase } from 'src/services/supabase/client'
 import { UserPlugin } from '@/services/supabase/types'
 import { useAssistantsStore } from './assistants'
 import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
+import { useUserPluginsStore } from './user-plugins'
 
 export const usePluginsStore = defineStore('plugins', () => {
   const assistantsStore = useAssistantsStore()
   const installedPlugins = ref<UserPlugin[]>([])
+  const isLoaded = ref(false)
   async function fetchPlugins() {
     const { data, error } = await supabase
       .from('user_plugins')
@@ -55,7 +55,7 @@ export const usePluginsStore = defineStore('plugins', () => {
   }
 
   const availableKeys = computed(() => installedPlugins.value.filter(i => i.available).map(i => i.key))
-  const [data, ready] = persistentReactive<PluginsData>('#plugins-data', defaultData)
+  const { data, ready } = storeToRefs(useUserPluginsStore())
   const plugins = computed(() => [
     webSearchPlugin.plugin,
     calculatorPlugin,
@@ -84,9 +84,11 @@ export const usePluginsStore = defineStore('plugins', () => {
       updated_at: new Date().toISOString(),
     })
 
-    await db.reactives.update('#plugins-data', {
-      [`value.${id}`]: lobeDefaultData(manifest)
-    })
+    data.value[id] = lobeDefaultData(manifest)
+
+    // await db.reactives.update('#plugins-data', {
+    //   [`value.${id}`]: lobeDefaultData(manifest)
+    // })
   }
 
   async function installGradioPlugin(manifest: GradioPluginManifest) {
@@ -98,9 +100,10 @@ export const usePluginsStore = defineStore('plugins', () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
-    await db.reactives.update('#plugins-data', {
-      [`value.${manifest.id}`]: gradioDefaultData(manifest)
-    })
+    data.value[manifest.id] = gradioDefaultData(manifest)
+    // await db.reactives.update('#plugins-data', {
+    //   [`value.${manifest.id}`]: gradioDefaultData(manifest)
+    // })
   }
 
   async function installHuggingPlugin(manifest: HuggingPluginManifest) {
@@ -117,9 +120,10 @@ export const usePluginsStore = defineStore('plugins', () => {
       available: true,
       manifest: dump,
     })
-    await db.reactives.update('#plugins-data', {
-      [`value.${manifest.id}`]: mcpDefaultData(manifest)
-    })
+    data.value[manifest.id] = mcpDefaultData(manifest)
+    // await db.reactives.update('#plugins-data', {
+    //   [`value.${manifest.id}`]: mcpDefaultData(manifest)
+    // })
   }
 
   async function uninstall(key: string) {
@@ -142,18 +146,17 @@ export const usePluginsStore = defineStore('plugins', () => {
   }
 
   async function init() {
+    isLoaded.value = false
     installedPlugins.value = []
     await fetchPlugins()
+    isLoaded.value = true
   }
 
   useUserLoginCallback(init)
-  console.log('data at setup:', data)
-  watch(data, () => {
-    console.log('-----data', data, plugins.value)
-  }, { deep: true, immediate: true })
+
   return {
     data,
-    isLoaded: ready,
+    isLoaded: computed(() => ready.value && isLoaded.value),
     plugins,
     availableKeys,
     installLobePlugin,
