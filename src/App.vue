@@ -103,9 +103,8 @@ router.afterEach(to => {
 // Check if user is authenticated
 router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
-    await until(() => userStore.isInitialized).toBeTruthy()
-
-    if (!userStore.isInitialized) {
+    await until(() => userInitialized.value).toBeTruthy()
+    if (!userInitialized.value) {
       $q.notify({
         message: t('common.pleaseLogin'),
         color: 'negative'

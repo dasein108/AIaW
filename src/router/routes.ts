@@ -91,9 +91,7 @@ const routes: RouteRecordRaw[] = [
         ]
       },
       { path: '/set-provider', component: SetProvider },
-      ...(DexieDBURL ? [
-        { path: '/account', component: AccountPage, meta: { title: t('routes.account'), requiresAuth: true } }
-      ] : []),
+      { path: '/account', component: AccountPage, meta: { title: t('routes.account'), requiresAuth: true } },
       ...(DexieDBURL && LitellmBaseURL ? [
         { path: '/model-pricing', component: ModelPricing, meta: { title: t('routes.modelPricing') } }
       ] : []),

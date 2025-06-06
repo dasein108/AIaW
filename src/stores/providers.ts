@@ -33,7 +33,6 @@ const mapCustomProvider = (provider: any) => {
 }
 
 export const useProvidersStore = defineStore('providers', () => {
-  // const providers: Ref<CustomProvider[]> = useLiveQuery(() => db.providers.toArray(), { initialValue: [] })
   const providersMap = reactive<Record<string, CustomProviderMapped>>({})
   const providers = computed(() => Object.values(providersMap))
 

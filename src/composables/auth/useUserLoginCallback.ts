@@ -1,16 +1,20 @@
+import { storeToRefs } from "pinia"
 import { useUserStore } from "src/stores/user"
 import { watch } from "vue"
 
 export function useUserLoginCallback(onLogin: () => Promise<void>) {
-  const userStore = useUserStore()
+  const { isInitialized, currentUserId } = storeToRefs(useUserStore())
 
   watch(
-    () => userStore.currentUserId,
-    (newId, oldId) => {
+    () => [currentUserId.value, isInitialized.value],
+    ([newId, newInit], old) => {
+      const [oldId, oldInit] = old ?? []
+
       if (newId !== oldId || !oldId) {
-        onLogin()
+        if (newInit) {
+          onLogin()
+        }
       }
     },
-    { immediate: true }
   )
 }

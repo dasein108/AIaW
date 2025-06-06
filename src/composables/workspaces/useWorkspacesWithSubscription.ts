@@ -90,10 +90,6 @@ function unsubscribeFromWorkspaces() {
 export function useWorkspacesWithSubscription() {
   const userStore = useUserStore()
   // Initial fetch and subscribe
-  if (!isSubscribed) {
-    fetchWorkspaces()
-    subscribeToWorkspaces()
-  }
 
   // Watch for currentUser changes
   useUserLoginCallback(async() => {

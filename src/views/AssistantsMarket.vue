@@ -3,43 +3,6 @@
     <q-toolbar-title>
       {{ $t('assistantsMarket.title') }}
     </q-toolbar-title>
-    <q-btn
-      flat
-      dense
-      round
-      icon="sym_o_add"
-      :title="$t('assistantsMarket.import')"
-    >
-      <q-menu>
-        <q-list>
-          <q-item
-            clickable
-            v-close-popup
-            @click="fileInput.click()"
-          >
-            <q-item-section>
-              {{ $t('assistantsMarket.selectFile') }}
-            </q-item-section>
-          </q-item>
-          <q-item
-            clickable
-            v-close-popup
-            @click="clipboardImport"
-          >
-            <q-item-section>
-              {{ $t('assistantsMarket.importFromClipboard') }}
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-menu>
-      <input
-        ref="fileInput"
-        type="file"
-        accept=".json"
-        un-hidden
-        @change="onFileInput"
-      >
-    </q-btn>
   </view-common-header>
   <q-page-container>
     <q-page
@@ -115,15 +78,12 @@ import { computed, reactive, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import { useQuasar } from 'quasar'
-import { MarketAssistantSchema } from 'src/utils/types'
-import { Validator } from '@cfworker/json-schema'
+
 import { caselessIncludes, pageFhStyle } from 'src/utils/functions'
 import AAvatar from 'src/components/AAvatar.vue'
-import { useAssistantsStore } from 'src/stores/assistants'
-import { AssistantDefaultPrompt } from 'src/utils/templates'
-import { defaultModelSettings } from 'src/common/consts'
+
 import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
-import { clipboardReadText } from 'src/utils/platform-api'
+import { useAssistantActions } from 'src/composables/workspaces/assistant-actions'
 
 const { t } = useI18n()
 defineEmits(['toggle-drawer'])
@@ -164,7 +124,7 @@ function load() {
 }
 load()
 
-const store = useAssistantsStore()
+const { add } = useAssistantActions()
 
 function addToGlobal(item) {
   add(item, null)
@@ -179,55 +139,5 @@ function addToWorkspace(item) {
     add(item, selected)
   })
 }
-function add(item, workspaceId) {
-  if (!new Validator(MarketAssistantSchema).validate(item).valid) {
-    $q.notify({
-      message: t('assistantsMarket.formatError'),
-      color: 'negative'
-    })
-    return
-  }
-  const { name, avatar, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description } = toRaw(item)
-  store.add({
-    name,
-    avatar,
-    prompt,
-    prompt_vars: promptVars ?? [],
-    prompt_template: promptTemplate ?? AssistantDefaultPrompt,
-    workspace_id: workspaceId,
-    model,
-    model_settings: modelSettings ?? { ...defaultModelSettings },
-    author,
-    homepage,
-    description
-  }).then(() => {
-    $q.notify({
-      message: t('assistantsMarket.added')
-    })
-  }).catch(err => {
-    console.error(err)
-    $q.notify({
-      message: t('assistantsMarket.addError'),
-      color: 'negative'
-    })
-  })
-}
 
-const fileInput = ref<HTMLInputElement>()
-async function onFileInput() {
-  const file = fileInput.value.files[0]
-  addToGlobal(JSON.parse(await file.text()))
-}
-
-async function clipboardImport() {
-  try {
-    const text = await clipboardReadText()
-    addToGlobal(JSON.parse(text))
-  } catch (err) {
-    $q.notify({
-      message: t('assistantsMarket.importError'),
-      color: 'negative'
-    })
-  }
-}
 </script>
