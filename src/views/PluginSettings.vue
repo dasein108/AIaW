@@ -12,7 +12,7 @@
       bg-sur
       pb-2
     >
-      <q-list>
+      <q-list v-if="pluginsStore.isLoaded">
         <q-item-label header>
           {{ $t('pluginSettings.info') }}
         </q-item-label>

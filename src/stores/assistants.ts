@@ -26,6 +26,8 @@ export const useAssistantsStore = defineStore('assistants', () => {
     if (error) {
       console.error('Error fetching assistants:', error)
     }
+    console.log('[DEBUG] Fetch assistants', data)
+
     assistants.value = data.map(mapAssistantTypes)
     isLoaded.value = true
   }
@@ -73,7 +75,7 @@ export const useAssistantsStore = defineStore('assistants', () => {
     return data
   }
 
-  const throttledUpdate = throttle(async(assistant: Assistant) => {
+  const throttledUpdate = throttle(async (assistant: Assistant) => {
     await update(assistant.id, assistant)
   }, 2000)
 

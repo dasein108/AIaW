@@ -46,6 +46,7 @@
     "@chenfengyuan/vue-qrcode": "^2.0.0",
     "@cosmjs/amino": "^0.33.1",
     "@cosmjs/cosmwasm-stargate": "^0.33.1",
+    "@cosmjs/proto-signing": "^0.33.1",
     "@cosmjs/stargate": "^0.33.1",
     "@gradio/client": "^1.7.1",
     "@lobehub/chat-plugin-sdk": "^1.32.4",
@@ -60,7 +61,7 @@
     "@tauri-apps/plugin-os": "~2.2.0",
     "@tauri-apps/plugin-process": "~2.2.0",
     "@tauri-apps/plugin-shell": "~2.2.1",
-    "@tauri-apps/plugin-updater": "~2.5.0",
+    "@tauri-apps/plugin-store": "^2.2.0",
     "@tauri-apps/plugin-window-state": "~2.2.1",
     "@vueuse/core": "^11.0.3",
     "@vueuse/rxjs": "^11.0.3",
@@ -81,6 +82,7 @@
     "md-editor-v3": "^5.4.5",
     "ollama-ai-provider": "^1.2.0",
     "pinia": "^2.2.2",
+    "pinia-plugin-persistedstate": "^3.2.1",
     "quasar": "^2.18.1",
     "register-service-worker": "^1.7.2",
     "vue": "^3.5.12",
@@ -128,8 +130,7 @@
   },
   "engines": {
     "node": "^24 || ^22 || ^20 || ^18",
-    "npm": ">= 6.13.4",
-    "yarn": ">= 1.21.1"
+    "npm": ">= 6.13.4"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

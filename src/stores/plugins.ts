@@ -1,17 +1,18 @@
+import { UserPlugin } from '@/services/supabase/types'
 import { LobeChatPluginManifest } from '@lobehub/chat-plugin-sdk'
 import { defineStore, storeToRefs } from 'pinia'
-import { GradioPluginManifest, HuggingPluginManifest, McpPluginDump, McpPluginManifest } from 'src/utils/types'
-import { buildLobePlugin, timePlugin, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, docParsePlugin, mermaidPlugin, mcpDefaultData, dumpMcpPlugin, buildMcpPlugin } from 'src/utils/plugins'
-import { computed, ref, watch } from 'vue'
-import artifacts from 'src/utils/artifacts-plugin'
-import { IsTauri } from 'src/utils/platform-api'
-import { useI18n } from 'vue-i18n'
-import webSearchPlugin from 'src/utils/web-search-plugin'
+import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
+import authzPlugin from 'src/plugins/cosmos-authz'
 import { keplerPlugin } from 'src/services/kepler/kepler-plugin'
 import { supabase } from 'src/services/supabase/client'
-import { UserPlugin } from '@/services/supabase/types'
+import artifacts from 'src/utils/artifacts-plugin'
+import { IsTauri } from 'src/utils/platform-api'
+import { buildGradioPlugin, buildLobePlugin, buildMcpPlugin, calculatorPlugin, docParsePlugin, dumpMcpPlugin, emotionsPlugin, fluxPlugin, gradioDefaultData, huggingToGradio, lobeDefaultData, mcpDefaultData, mermaidPlugin, timePlugin, videoTranscriptPlugin, whisperPlugin } from 'src/utils/plugins'
+import { GradioPluginManifest, HuggingPluginManifest, McpPluginDump, McpPluginManifest } from 'src/utils/types'
+import webSearchPlugin from 'src/utils/web-search-plugin'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAssistantsStore } from './assistants'
-import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 import { useUserPluginsStore } from './user-plugins'
 
 export const usePluginsStore = defineStore('plugins', () => {
@@ -68,6 +69,7 @@ export const usePluginsStore = defineStore('plugins', () => {
     timePlugin,
     keplerPlugin,
     artifacts.plugin,
+    authzPlugin,
     ...installedPlugins.value.map(i => {
       if (i.type === 'lobechat') return buildLobePlugin(i.manifest as LobeChatPluginManifest, i.available)
       else if (i.type === 'gradio') return buildGradioPlugin(i.manifest as GradioPluginManifest, i.available)

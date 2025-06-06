@@ -1,23 +1,29 @@
 <template>
-  <div class="kepler-wallet">
+  <div
+    class="cosmos-wallet"
+  >
     <div
       v-if="!walletState.isConnected"
       class="not-connected"
     >
       <q-btn
         color="primary"
-        @click="connectWallet"
+        @click="handleConnect"
         label="Connect Wallet"
-        :disable="!hasKeplr"
       />
     </div>
     <div
       v-else
       class="connected"
     >
-      <span class="address">
-        {{ walletState.address }}
-      </span>
+      <div class="address">
+        <div class="label">
+          Address:
+        </div>
+        <div class="value">
+          {{ walletState.address }}
+        </div>
+      </div>
       <q-btn
         color="grey"
         outline
@@ -25,36 +31,39 @@
         label="Disconnect"
       />
     </div>
+
+    <mnemonic-dialog
+      v-model="showMnemonicDialog"
+      @connect="connectWithMnemonic"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue'
-import { KeplerWallet } from '@/services/kepler/KeplerWallet'
-import { useAuthStore } from 'src/stores/auth'
+import { CosmosWallet } from '@/services/cosmos/CosmosWallet'
+import { computed, inject, ref } from 'vue'
+import MnemonicDialog from './MnemonicDialog.vue'
 
-const hasKeplr = computed(() => typeof window !== 'undefined' && window.keplr)
-
-const wallet = inject<KeplerWallet>('kepler')
+const wallet = inject<CosmosWallet>('cosmos')
+const showMnemonicDialog = ref(false)
 
 const walletState = computed(() => wallet.state.value)
 
-const connectWallet = async () => {
+const handleConnect = async () => {
+  showMnemonicDialog.value = true
+}
+
+const connectWithMnemonic = async (mnemonic: string, pin: string) => {
   try {
-    await wallet.connect()
-    const authStore = useAuthStore()
-    authStore.connectWithExternalSigner(wallet.getOfflineSigner())
+    await wallet.connectWithMnemonic(mnemonic, pin)
   } catch (error) {
-    console.error('Failed to connect wallet:', error)
-    // You might want to show an error message to the user here
+    console.error('Failed to connect with mnemonic:', error)
   }
 }
 
 const disconnectWallet = async () => {
   try {
     await wallet.disconnect()
-    const authStore = useAuthStore()
-    authStore.disconnect()
   } catch (error) {
     console.error('Failed to disconnect wallet:', error)
   }
@@ -62,7 +71,7 @@ const disconnectWallet = async () => {
 </script>
 
 <style scoped>
-.kepler-wallet {
+.cosmos-wallet {
   padding: 1rem;
   border-radius: 8px;
   background-color: var(--q-background-soft);
@@ -76,12 +85,20 @@ const disconnectWallet = async () => {
   gap: 1rem;
 }
 
-.address {
+.address,
+.type {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  color: var(--q-text-secondary);
+}
+
+.value {
   font-family: monospace;
   word-break: break-all;
 }
-
 </style>

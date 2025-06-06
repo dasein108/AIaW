@@ -13,12 +13,54 @@
       >
         <q-item>
           <q-item-section>
-            <q-item-label>
+            <q-item-label v-if="!isTauri">
               Link Kepler Wallet
+            </q-item-label>
+            <q-item-label v-else>
+              Link Cosmos Wallet
             </q-item-label>
           </q-item-section>
           <q-item-section>
-            <KeplerWallet />
+            <kepler-wallet v-if="!isTauri" />
+            <cosmos-wallet v-else />
+          </q-item-section>
+        </q-item>
+        <q-item class="q-mt-md q-mb-md">
+          <q-item-section>
+            <q-item-label>Authz Grant Setup</q-item-label>
+            <div
+              v-if="authStore.walletInfo && authStore.walletInfo.address"
+              class="text-caption q-mt-xs"
+            >
+              Grantee: {{ authStore.walletInfo.address }}
+            </div>
+            <div
+              v-else
+              class="text-caption q-mt-xs text-grey-6"
+            >
+              No grantee wallet configured
+            </div>
+          </q-item-section>
+          <q-item-section
+            side
+            class="items-end"
+          >
+            <q-btn
+              v-if="authStore.walletInfo && authStore.walletInfo.address"
+              flat
+              color="negative"
+              label="Reconfigure"
+              class="q-mt-xs"
+              @click="showAuthzModal = true"
+              :disable="!authStore.isGranterActuallyConnected"
+            />
+            <q-btn
+              v-else
+              color="primary"
+              label="Setup Authz Grant"
+              @click="showAuthzModal = true"
+              :disable="!authStore.isGranterActuallyConnected"
+            />
           </q-item-section>
         </q-item>
         <q-item-label
@@ -480,36 +522,46 @@
       </q-list>
     </q-page>
   </q-page-container>
+
+  <authz-grant-modal
+    v-model="showAuthzModal"
+    @success="handleAuthzSuccess"
+  />
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
+import AAvatar from 'src/components/AAvatar.vue'
+import AuthzGrantModal from 'src/components/AuthzGrantModal.vue'
+import CopyBtn from 'src/components/CopyBtn.vue'
+import CosmosWallet from 'src/components/CosmosWallet.vue'
+import GetModelList from 'src/components/GetModelList.vue'
 import HctPreviewCircle from 'src/components/HctPreviewCircle.vue'
 import HueSliderDialog from 'src/components/HueSliderDialog.vue'
-import { computed, ref } from 'vue'
-import { dialogOptions, mdCodeThemes, mdPreviewThemes } from 'src/utils/values'
-import CopyBtn from 'src/components/CopyBtn.vue'
-import AAvatar from 'src/components/AAvatar.vue'
-import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
-import ModelInputItems from 'src/components/ModelInputItems.vue'
-import ProviderInputItems from 'src/components/ProviderInputItems.vue'
-import { useLocateId } from 'src/composables/locate-id'
-import { pageFhStyle } from 'src/utils/functions'
-import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
-import { useI18n } from 'vue-i18n'
-import { localData } from 'src/utils/local-data'
-import { PublicOrigin } from 'src/utils/platform-api'
-import ModelsInput from 'src/components/ModelsInput.vue'
-import GetModelList from 'src/components/GetModelList.vue'
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
-import ModelDragSortDialog from 'src/components/ModelDragSortDialog.vue'
-import { useGetModel } from 'src/composables/get-model'
 import KeplerWallet from 'src/components/KeplerWallet.vue'
+import ModelDragSortDialog from 'src/components/ModelDragSortDialog.vue'
+import ModelInputItems from 'src/components/ModelInputItems.vue'
+import ModelsInput from 'src/components/ModelsInput.vue'
+import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
+import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
+import ProviderInputItems from 'src/components/ProviderInputItems.vue'
+import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
+import { useGetModel } from 'src/composables/get-model'
+import { useLocateId } from 'src/composables/locate-id'
+import { useUserPerfsStore } from 'src/stores/user-perfs'
+import { pageFhStyle } from 'src/utils/functions'
+import { localData } from 'src/utils/local-data'
+import { IsTauri } from 'src/utils/platform-api'
+import { dialogOptions, mdCodeThemes, mdPreviewThemes } from 'src/utils/values'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '../stores/auth'
 
 defineEmits(['toggle-drawer'])
 
 const { t } = useI18n()
+
+const isTauri = computed(() => IsTauri)
 
 const { data: perfs, restore } = useUserPerfsStore()
 const darkModeOptions = [
@@ -540,8 +592,8 @@ function restoreSettings() {
   }).onOk(() => { restore() })
 }
 const providerLink = computed(() => {
-  const provider = encodeURIComponent(JSON.stringify(perfs.provider))
-  return `${PublicOrigin}/set-provider?provider=${provider}`
+  if (!perfs.provider) return ''
+  return `${window.location.origin}/#/provider/${perfs.provider.settings.id}`
 })
 
 const { getProvider } = useGetModel()
@@ -567,4 +619,21 @@ function sortModels() {
 }
 
 useLocateId(ref(true))
+
+const showPinModal = ref(false)
+const authStore = useAuthStore()
+const walletInfo = ref(authStore.walletInfo)
+const handlePinSubmit = async (pin: string) => {
+  walletInfo.value = await authStore.createGranteeWallet(pin)
+  showPinModal.value = false
+}
+
+const showAuthzModal = ref(false)
+
+const handleAuthzSuccess = () => {
+  $q.notify({
+    message: 'Authz grant setup completed successfully!',
+    color: 'positive'
+  })
+}
 </script>

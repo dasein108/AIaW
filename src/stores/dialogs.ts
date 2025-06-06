@@ -30,10 +30,13 @@ export const useDialogsStore = defineStore('dialogs', () => {
     if (error) {
       console.error(error)
     }
+    console.log('[DEBUG] Fetch dialogs', data)
+
     Object.assign(dialogs, data.reduce((acc, dialog) => {
       acc[dialog.id] = dialog
       return acc
     }, {}))
+    isLoaded.value = true
   }
 
   async function fetchDialogMessages(dialogId: string) {
