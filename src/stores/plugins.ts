@@ -87,10 +87,6 @@ export const usePluginsStore = defineStore('plugins', () => {
     })
 
     data.value[id] = lobeDefaultData(manifest)
-
-    // await db.reactives.update('#plugins-data', {
-    //   [`value.${id}`]: lobeDefaultData(manifest)
-    // })
   }
 
   async function installGradioPlugin(manifest: GradioPluginManifest) {
@@ -103,9 +99,6 @@ export const usePluginsStore = defineStore('plugins', () => {
       updated_at: new Date().toISOString(),
     })
     data.value[manifest.id] = gradioDefaultData(manifest)
-    // await db.reactives.update('#plugins-data', {
-    //   [`value.${manifest.id}`]: gradioDefaultData(manifest)
-    // })
   }
 
   async function installHuggingPlugin(manifest: HuggingPluginManifest) {
@@ -123,9 +116,6 @@ export const usePluginsStore = defineStore('plugins', () => {
       manifest: dump,
     })
     data.value[manifest.id] = mcpDefaultData(manifest)
-    // await db.reactives.update('#plugins-data', {
-    //   [`value.${manifest.id}`]: mcpDefaultData(manifest)
-    // })
   }
 
   async function uninstall(key: string) {

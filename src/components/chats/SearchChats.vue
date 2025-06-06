@@ -100,20 +100,6 @@ const q = ref('')
 
 const global = ref(false)
 watchEffect(async () => {
-  // dialogs.value = global.value
-  //   ? await db.dialogs.toArray()
-  //   : await db.dialogs.where('workspaceId').equals(props.workspaceId).toArray()
-  // const messages = global.value
-  //   ? await db.messages.toArray()
-  //   : await db.messages.where('dialogId').anyOf(dialogs.value.map(d => d.id)).toArray()
-  // docs.value = messages.map(m => ({
-  //   id: m.id,
-  //   dialogId: m.dialogId,
-  //   content: m.contents
-  //     .filter(c => c.type === 'assistant-message' || c.type === 'user-message')
-  //     .map(c => c.text)
-  //     .join('\n')
-  // }))
   search()
 })
 

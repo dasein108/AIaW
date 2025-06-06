@@ -36,7 +36,6 @@ defineEmits(['toggle-drawer'])
 
 const store = useWorkspacesStore()
 
-// TODO: ??? sync workspace updates from everywhere to DB
 const workspace = syncRef(
   inject('workspace') as Ref<WorkspaceMapped>,
   val => { store.putItem(toRaw(val)) },

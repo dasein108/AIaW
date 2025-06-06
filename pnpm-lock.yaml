@@ -158,15 +158,6 @@ importers:
       codejar-linenumbers:
         specifier: ^1.0.1
         version: 1.0.1(codejar@4.2.0)
-      dexie:
-        specifier: ^4.0.11
-        version: 4.0.11
-      dexie-cloud-addon:
-        specifier: ^4.0.11
-        version: 4.0.11(dexie@4.0.11)
-      dexie-export-import:
-        specifier: ^4.1.4
-        version: 4.1.4(dexie@4.0.11)
       eventsource:
         specifier: ^3.0.6
         version: 3.0.6
@@ -4216,23 +4207,6 @@ packages:
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
 
-  dexie-cloud-addon@4.0.11:
-    resolution: {integrity: sha512-CkszT8Eg8Nk2GV6rDRpoimH/Kb8an8LY9eU2QA20m8CVlmtuKjetIrxoBlA0lNRaUXP5r+6O69AUwne4NldhrA==}
-    engines: {node: '>=14'}
-    peerDependencies:
-      dexie: ^4.0.11
-
-  dexie-cloud-common@1.0.47:
-    resolution: {integrity: sha512-/8KexyBjnps7ixY4NtkA2AwKVEHrWnPWjkCrA5khB1DkIWSARJD0lR313dZC/O5Y78/FnqcaqnVqyOJkRytyuw==}
-
-  dexie-export-import@4.1.4:
-    resolution: {integrity: sha512-3bw171qUuOTWSYLXI7C/0M6p1X65Rho3tu1IvD9By8jn0+3t3dLSkDlZ1BC6MbABl3kRlhtGigzC+SF+qcS5Og==}
-    peerDependencies:
-      dexie: ^2.0.4 || ^3.0.0 || ^4.0.1
-
-  dexie@4.0.11:
-    resolution: {integrity: sha512-SOKO002EqlvBYYKQSew3iymBoN2EQ4BDw/3yprjh7kAfFzjBYkaMNa/pZvcA7HSWlcKSQb9XhPe3wKyQ0x4A8A==}
-
   diff-match-patch@1.0.5:
     resolution: {integrity: sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw==}
 
@@ -5193,9 +5167,6 @@ packages:
     peerDependencies:
       ws: '*'
 
-  isomorphic.js@0.2.5:
-    resolution: {integrity: sha512-PIeMbHqMt4DnUP3MA/Flc0HElYjMXArsw1qwJZcm9sqR8mq3l8NYizFMty0pWwE/tzIGH3EKK5+jes5mAr85yw==}
-
   istanbul-lib-coverage@3.2.2:
     resolution: {integrity: sha512-O8dpsF+r0WV/8MNRKfnmrtCWhuKjxrq2w+jpzBL5UZKTi2LeVWnWOmWRxFlesJONmc+wLAGvKQZEOanko0LFTg==}
     engines: {node: '>=8'}
@@ -5462,11 +5433,6 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
-
-  lib0@0.2.98:
-    resolution: {integrity: sha512-XteTiNO0qEXqqweWx+b21p/fBnNHUA1NwAtJNJek1oPrewEZs2uiT4gWivHKr9GqCjDPAhchz0UQO8NwU3bBNA==}
-    engines: {node: '>=16'}
-    hasBin: true
 
   libsodium-sumo@0.7.15:
     resolution: {integrity: sha512-5tPmqPmq8T8Nikpm1Nqj0hBHvsLFCXvdhBFV7SGOitQPZAA6jso8XoL0r4L7vmfKXr486fiQInvErHtEvizFMw==}
@@ -12662,22 +12628,6 @@ snapshots:
     dependencies:
       dequal: 2.0.3
 
-  dexie-cloud-addon@4.0.11(dexie@4.0.11):
-    dependencies:
-      dexie: 4.0.11
-      dexie-cloud-common: 1.0.47
-      rxjs: 7.8.1
-
-  dexie-cloud-common@1.0.47:
-    dependencies:
-      lib0: 0.2.98
-
-  dexie-export-import@4.1.4(dexie@4.0.11):
-    dependencies:
-      dexie: 4.0.11
-
-  dexie@4.0.11: {}
-
   diff-match-patch@1.0.5: {}
 
   diff-sequences@29.6.3: {}
@@ -13842,8 +13792,6 @@ snapshots:
     dependencies:
       ws: 7.5.10(bufferutil@4.0.8)
 
-  isomorphic.js@0.2.5: {}
-
   istanbul-lib-coverage@3.2.2: {}
 
   istanbul-lib-instrument@5.2.1:
@@ -14290,10 +14238,6 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
-
-  lib0@0.2.98:
-    dependencies:
-      isomorphic.js: 0.2.5
 
   libsodium-sumo@0.7.15: {}
 

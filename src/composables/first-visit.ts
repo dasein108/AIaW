@@ -1,5 +1,4 @@
 import { useQuasar } from 'quasar'
-import { db } from 'src/utils/db'
 import { defaultModelSettings } from 'src/common/consts'
 import { localData } from 'src/utils/local-data'
 import { dialogOptions } from 'src/utils/values'
@@ -41,12 +40,6 @@ export function useFirstVisit() {
           prompt_role: 'system',
           stream: true,
           workspace_id: workspace.id
-        })
-        db.reactives.add({
-          key: '#user-data',
-          value: {
-            lastWorkspaceId: workspace.id
-          }
         })
       }
     }

@@ -1,5 +1,5 @@
-# AIaW Collaborative (AI as Workspace)
-
+# Cyber Collaborative (AI as Workspace)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/dasein108/AIaW)
 > **Forked from [AIaW by NitroRCr](https://github.com/NitroRCr/AIaW)**
 
 ---

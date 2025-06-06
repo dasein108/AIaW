@@ -14,9 +14,11 @@
         pt-1
         px-4
         class="logo-container pt-2"
-        @click="notifyVersion"
       >
-        <div class="text-xl logo">
+        <div
+          class="text-xl logo"
+          @click="notifyVersion"
+        >
           <span class="mr-1">🟢</span><span>CYBER</span>
         </div>
         <add-dialog-item

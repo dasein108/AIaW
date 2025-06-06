@@ -1,6 +1,4 @@
 import { useQuasar } from 'quasar'
-import { BudgetBaseURL } from 'src/utils/config'
-import { db } from 'src/utils/db'
 import { OrderItem } from 'src/utils/types'
 import { Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -12,21 +10,21 @@ export function useOrder(loading: Ref<boolean>, onDialogOK: (res) => void) {
     try {
       loading.value = true
       const path = payMethod === 'wxpay' ? '/wxpay-order' : '/stripe-checkout'
-      const res = await fetch(`${BudgetBaseURL}${path}`, {
-        method: 'POST',
-        body: JSON.stringify({
-          item
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${db.cloud.currentUser.value.accessToken}`
-        }
-      })
-      if (!res.ok) throw new Error('Failed to order')
-      const body = await res.json()
+      // const res = await fetch(`${BudgetBaseURL}${path}`, {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     item
+      //   }),
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     Authorization: `Bearer ${db.cloud.currentUser.value.accessToken}`
+      //   }
+      // })
+      // if (!res.ok) throw new Error('Failed to order')
+      // const body = await res.json()
       onDialogOK({
-        orderId: body.order_id,
-        payUrl: body.pay_url
+        orderId: "body.order_id",
+        payUrl: "body.pay_url"
       })
     } catch (error) {
       console.error(error)

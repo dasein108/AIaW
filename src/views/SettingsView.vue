@@ -107,7 +107,7 @@
           caption
           p="x-4 y-2"
           text-on-sur-var
-          v-if="!perfs.provider && LitellmBaseURL"
+          v-if="!perfs.provider"
         >
           {{ $t('settingsView.noProviderConfigured') }}
           <router-link
@@ -549,7 +549,6 @@ import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import { useGetModel } from 'src/composables/get-model'
 import { useLocateId } from 'src/composables/locate-id'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { LitellmBaseURL } from 'src/utils/config'
 import { pageFhStyle } from 'src/utils/functions'
 import { localData } from 'src/utils/local-data'
 import { IsTauri } from 'src/utils/platform-api'
