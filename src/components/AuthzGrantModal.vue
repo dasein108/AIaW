@@ -258,13 +258,6 @@
                   label="Back"
                   @click="step = 1"
                 />
-                <q-btn
-                  flat
-                  label="Refresh Status"
-                  @click="refreshGrantsStatus"
-                  color="info"
-                  size="sm"
-                />
               </div>
             </div>
           </q-step>
@@ -559,6 +552,17 @@ watch(
   async (isConnected) => {
     console.log('Granter connection changed:', isConnected)
     if (isConnected && granteeWallet.value?.address) {
+      await refreshGrantsStatus()
+    }
+  }
+)
+
+// Watch for modal opening and refresh status
+watch(
+  () => props.modelValue,
+  async (isOpen) => {
+    if (isOpen && granteeWallet.value?.address && authStore.isGranterActuallyConnected) {
+      console.log('Modal opened, refreshing grants status')
       await refreshGrantsStatus()
     }
   }
