@@ -1066,14 +1066,24 @@ async function stream(target, insert = false) {
   perfs.artifactsAutoExtract && autoExtractArtifact()
   lockingBottom.value = false
 }
-function toToolResultContent(items: ApiResultItem[]) {
+function toToolResultContent(items: (ApiResultItem | StoredItem)[]) {
   const val = []
   for (const item of items) {
     if (!item) continue // TODO: in case if tool failed ignore it
     if (item.type === 'text') {
-      val.push({ type: 'text', text: item.contentText })
-    } else if (mimeTypeMatch(item?.mimeType, model.value.inputTypes.tool)) {
-      val.push({ type: item.mimeType.startsWith('image/') ? 'image' : 'file', mimeType: item.mimeType, data: item.contentBuffer })
+      // Handle both ApiResultItem (contentText) and StoredItem (content_text)
+      const text = 'content_text' in item ? item.content_text : item.contentText
+      val.push({ type: 'text', text })
+    } else {
+      // Handle mime type field differences: ApiResultItem uses mimeType, StoredItem uses mime_type
+      const mimeType = 'mime_type' in item ? item.mime_type : item.mimeType
+      if (mimeTypeMatch(mimeType, model.value.inputTypes.tool)) {
+        val.push({
+          type: mimeType?.startsWith('image/') ? 'image' : 'file',
+          mimeType,
+          data: 'contentBuffer' in item ? item.contentBuffer : null
+        })
+      }
     }
   }
   return val
