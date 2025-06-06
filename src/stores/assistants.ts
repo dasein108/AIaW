@@ -71,7 +71,6 @@ export const useAssistantsStore = defineStore('assistants', () => {
     }
     assistants.value = assistants.value.map(a => a.id === id ? mapAssistantTypes(data) : a)
     return data
-    // return await db.assistants.update(id, changes)
   }
 
   const throttledUpdate = throttle(async(assistant: Assistant) => {
@@ -86,7 +85,6 @@ export const useAssistantsStore = defineStore('assistants', () => {
   }
 
   async function delete_(id: string) {
-    // return await db.assistants.delete(id)
     const { data, error } = await supabase.from('user_assistants').delete().eq('id', id).select().single()
     if (error) {
       console.error('Error deleting assistant:', error)

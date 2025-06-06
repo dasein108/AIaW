@@ -14,16 +14,11 @@ function wrapMiddlewares(model: LanguageModel) {
   return middlewares.length ? wrapLanguageModel({ model, middleware: middlewares }) : model
 }
 export function useGetModel() {
-  // TODO: add user secrets to supabase
-  // const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
-  // const defaultProvider = computed(() => user?.value.isLoggedIn ? {
-  //   type: 'openai',
-  //   settings: { apiKey: user.value.data.apiKey, baseURL: LitellmBaseURL, compatibility: 'strict' }
-  // } : null)
   const { data: perfs } = useUserPerfsStore()
+
   const providersStore = useProvidersStore()
   function getProvider(provider?: Provider) {
-    return provider || perfs.provider // TODO: || defaultProvider.value
+    return provider || perfs.provider
   }
   function getModel(model?: Model) {
     return model || perfs.model

@@ -65,7 +65,7 @@
           caption
           p="x-4 y-2"
           text-on-sur-var
-          v-if="!perfs.provider && LitellmBaseURL"
+          v-if="!perfs.provider"
         >
           {{ $t('settingsView.noProviderConfigured') }}
           <router-link
@@ -496,7 +496,6 @@ import ModelInputItems from 'src/components/ModelInputItems.vue'
 import ProviderInputItems from 'src/components/ProviderInputItems.vue'
 import { useLocateId } from 'src/composables/locate-id'
 import { pageFhStyle } from 'src/utils/functions'
-import { LitellmBaseURL } from 'src/utils/config'
 import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
 import { useI18n } from 'vue-i18n'
 import { localData } from 'src/utils/local-data'

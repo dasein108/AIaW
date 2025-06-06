@@ -567,13 +567,7 @@ async function deleteBranch(index) {
     else if (c.type === 'assistant-tool') return c.result || []
     else return []
   })
-  // await db.transaction('rw', db.dialogs, db.messages, db.items, () => {
-  //   db.messages.bulkDelete(ids)
-  //   itemIds.forEach(id => {
-  //     let { references } = itemMap.value[id]
-  //     references--
-  //     references === 0 ? db.items.delete(id) : db.items.update(id, { references })
-  //   })
+
   await dialogsStore.removeDialogMessages(ids)
 
   const msgTree = { ...toRaw(dialog.value.msg_tree) }
@@ -889,7 +883,6 @@ async function send() {
     await stream(chain.value.at(-2), true)
   } else {
     const target = chain.value.at(-1)
-    // await db.messages.update(target, { status: 'default' })
     await dialogsStore.updateDialogMessage(props.id, target, { status: 'default' })
     until(chain).changed().then(() => {
       nextTick().then(() => {
@@ -1151,7 +1144,6 @@ const route = useRoute()
 const router = useRouter()
 const userDataStore = useUserDataStore()
 watch(route, to => {
-  // db.workspaces.update(workspace.value.id, { lastDialogId: props.id } as Partial<Workspace>)
   userDataStore.data.lastDialogIds[workspace.value.id] = props.id
   until(dialog).toMatch(val => val?.id === props.id).then(async () => {
     focusInput()

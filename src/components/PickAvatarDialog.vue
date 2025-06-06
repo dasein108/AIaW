@@ -164,7 +164,6 @@ import HueSlider from './HueSlider.vue'
 import ImageInputArea from './ImageInputArea.vue'
 import { genId } from 'src/utils/functions'
 import { cropSquareBlob } from 'src/utils/image-process'
-import { db } from 'src/utils/db'
 import { materialSymbols } from 'src/utils/values'
 import { useStorage } from 'src/composables/storage/useStorage'
 
