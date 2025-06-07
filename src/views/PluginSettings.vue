@@ -126,6 +126,7 @@ import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import ListInput from 'src/components/ListInput.vue'
 import JsonInput from 'src/components/JsonInput.vue'
 import { useSetTitle } from 'src/composables/set-title'
+import { storeToRefs } from 'pinia'
 
 const props = defineProps<{
   id: string
@@ -134,7 +135,7 @@ const props = defineProps<{
 defineEmits(['toggle-drawer'])
 
 const pluginsStore = usePluginsStore()
-const { data } = pluginsStore
+const { data } = storeToRefs(pluginsStore)
 
 const plugin = computed(() => pluginsStore.plugins.find(p => p.id === props.id))
 

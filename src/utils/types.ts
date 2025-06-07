@@ -156,6 +156,12 @@ interface Plugin {
   homepage?: string
 }
 
+interface PluginPrompt {
+  id: string
+  prompt: string
+  actions?: string[]
+}
+
 interface InstalledLobePlugin {
   id: string
   key: string
@@ -453,5 +459,6 @@ export type {
   McpPluginDump,
   McpPluginManifest,
   TransportConf,
-  ArtifactVersion
+  ArtifactVersion,
+  PluginPrompt
 }

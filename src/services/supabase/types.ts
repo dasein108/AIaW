@@ -74,7 +74,7 @@ type ChatMessageWithProfile = ChatMessage & {
   sender: ProfileMapped | null
 }
 
-type AssistantMapped = Assistant & {
+type AssistantMapped = Omit<Assistant, 'plugins'> & {
   avatar: Avatar
   prompt_vars: PromptVar[]
   provider: Provider

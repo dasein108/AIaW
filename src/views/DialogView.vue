@@ -426,12 +426,12 @@
 <script setup lang="ts">
 import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick, onMounted } from 'vue'
 import { almostEqual, displayLength, genId, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
-import { streamText, CoreMessage, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult } from 'ai'
-import { throttle, useQuasar } from 'quasar'
-import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
+import { streamText, CoreMessage, generateText, StreamTextResult, GenerateTextResult } from 'ai'
+import { useQuasar } from 'quasar'
+import { DialogContent } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
-import { PluginApi, ApiCallError, Plugin, ModelSettings, ApiResultItem, ConvertArtifactOptions } from 'src/utils/types'
+import { PluginApi, Plugin, ModelSettings, ApiResultItem } from 'src/utils/types'
 import { UserMessageContent, AssistantMessageContent } from '@/common/types/dialogs'
 import { usePluginsStore } from 'src/stores/plugins'
 import MessageItem from 'src/components/MessageItem.vue'
@@ -454,8 +454,6 @@ import { MaxMessageFileSizeMB } from 'src/utils/config'
 import ATip from 'src/components/ATip.vue'
 import { useListenKey } from 'src/composables/listen-key'
 import { useSetTitle } from 'src/composables/set-title'
-import { useCreateArtifact } from 'src/composables/create-artifact'
-import artifactsPlugin from 'src/utils/artifacts-plugin'
 import ModelOptionsBtn from 'src/components/ModelOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
 import { useI18n } from 'vue-i18n'
@@ -469,7 +467,8 @@ import { Workspace, DialogMessageMapped, StoredItem, MessageContentMapped, Store
 import { useStorage } from 'src/composables/storage/useStorage'
 import { FILES_BUCKET, getFileUrl } from 'src/composables/storage/utils'
 import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
-
+import { useLlmDialog } from 'src/composables/llm/useLlmDialog'
+import { useAssistantTools } from 'src/composables/llm/useAssistantTools'
 const { t, locale } = useI18n()
 
 const props = defineProps<{
@@ -485,7 +484,7 @@ const dialogs = computed(() => Object.values(dialogsStore.dialogs))
 
 const dialog = computed(() => dialogsStore.dialogs[props.id])
 const dialogMessages = computed(() => dialogsStore.dialogMessages[props.id] || [])
-
+const { getAssistantTools, toToolResultContent } = useAssistantTools(assistant, workspace, dialog)
 watch(dialog, () => {
   dialogsStore.fetchDialogMessages(props.id)
 })
@@ -790,49 +789,50 @@ function getChainMessages() {
   return val
 }
 
-function getSystemPrompt(enabledPlugins) {
-  try {
-    const prompt = engine.parseAndRenderSync(assistant.value.prompt_template, {
-      ...getCommonVars(),
-      ...workspace.value.vars,
-      ...dialog.value.input_vars,
-      _pluginsPrompt: enabledPlugins.length
-        ? engine.parseAndRenderSync(PluginsPrompt, { plugins: enabledPlugins })
-        : '',
-      _rolePrompt: assistant.value.prompt
-    })
-    return prompt.trim() ? prompt : undefined
-  } catch (e) {
-    console.error(e)
-    $q.notify({ message: t('dialogView.promptParseFailed'), color: 'negative' })
-    throw e
-  }
-}
+// function getSystemPrompt(enabledPlugins) {
+//   try {
+//     const prompt = engine.parseAndRenderSync(assistant.value.prompt_template, {
+//       ...getCommonVars(),
+//       ...workspace.value.vars,
+//       ...dialog.value.input_vars,
+//       _pluginsPrompt: enabledPlugins.length
+//         ? engine.parseAndRenderSync(PluginsPrompt, { plugins: enabledPlugins })
+//         : '',
+//       _rolePrompt: assistant.value.prompt
+//     })
+//     return prompt.trim() ? prompt : undefined
+//   } catch (e) {
+//     console.error(e)
+//     $q.notify({ message: t('dialogView.promptParseFailed'), color: 'negative' })
+//     throw e
+//   }
+// }
 
-function getCommonVars() {
-  return {
-    _currentTime: new Date().toString(),
-    _userLanguage: navigator.language,
-    _workspaceId: workspace.value.id,
-    _workspaceName: workspace.value.name,
-    _assistantId: assistant.value.id,
-    _assistantName: assistant.value.name,
-    _dialogId: dialog.value.id,
-    _modelId: model.value.name,
-    _isDarkMode: $q.dark.isActive,
-    _platform: $q.platform
-  }
-}
+// function getCommonVars() {
+//   return {
+//     _currentTime: new Date().toString(),
+//     _userLanguage: navigator.language,
+//     _workspaceId: workspace.value.id,
+//     _workspaceName: workspace.value.name,
+//     _assistantId: assistant.value.id,
+//     _assistantName: assistant.value.name,
+//     _dialogId: dialog.value.id,
+//     _modelId: model.value.name,
+//     _isDarkMode: $q.dark.isActive,
+//     _platform: $q.platform
+//   }
+// }
 
 const pluginsStore = usePluginsStore()
 
-const { callApi } = useCallApi({ workspace, dialog })
+const { callApi } = useCallApi(workspace, dialog)
 
 const modelOptions = ref({})
 const { getModel, getSdkModel } = useGetModel()
 const model = computed(() => getModel(dialog.value?.model_override || assistant.value?.model))
 const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value, modelOptions.value))
 const $q = useQuasar()
+const { genTitle, getSystemPrompt, extractArtifact, autoExtractArtifact } = useLlmDialog(workspace, dialog)
 
 const { data } = useUserDataStore()
 const openedArtifacts = computed(() => artifacts.value.filter(a => userDataStore.data.openedArtifacts.includes(a.id)))
@@ -872,7 +872,7 @@ async function send() {
     })
     await stream(target, false)
   }
-  perfs.autoGenTitle && chain.value.length === 4 && genTitle()
+  perfs.autoGenTitle && chain.value.length === 4 && genTitle(getDialogContents())
 }
 
 const artifacts = inject<Ref<ArtifactMapped[]>>('artifacts')
@@ -940,78 +940,97 @@ async function stream(target, insert = false) {
 
     return { result, error }
   }
-  const { plugins } = assistant.value
-  const tools = {}
-  const enabledPlugins = []
-  let noRoundtrip = true
-  await Promise.all(activePlugins.value.map(async p => {
-    noRoundtrip &&= p.noRoundtrip
-    const plugin = plugins[p.id]
-    const pluginVars = {
-      ...getCommonVars(),
-      ...plugin.vars
-    }
-    plugin.tools.forEach(api => {
-      if (!api.enabled) return
-      const a = p.apis.find(a => a.name === api.name)
-      const { name, prompt } = a
-      tools[`${p.id}-${name}`] = tool({
-        description: engine.parseAndRenderSync(prompt, pluginVars),
-        parameters: jsonSchema(a.parameters),
-        async execute(args) {
-          const { result, error } = await callTool(p, a, args)
-          if (error) throw new ApiCallError(error)
-          return result
-        },
-        experimental_toToolResultContent: toToolResultContent
-      })
-    })
-    const pluginInfos = {}
-    await Promise.all(plugin.infos.map(async api => {
-      if (!api.enabled) return
-      const a = p.apis.find(a => a.name === api.name)
-      if (a.infoType !== 'prompt-var') return
-      try {
-        pluginInfos[a.name] = await callApi(p, a, api.args)
-      } catch (e) {
-        $q.notify({ message: t('dialogView.callPluginInfoFailed', { message: e.message }), color: 'negative' })
-      }
-    }))
 
-    try {
-      enabledPlugins.push({
-        id: p.id,
-        prompt: p.prompt && engine.parseAndRenderSync(p.prompt, { ...pluginVars, infos: pluginInfos })
-      })
-    } catch (e) {
-      $q.notify({ message: t('dialogView.pluginPromptParseFailed', { title: p.title }), color: 'negative' })
-    }
-  }))
+  // const getEnabledPlugins = async (plugins: AssistantPlugins) => {
+  //   const tools = {}
+  //   const enabledPlugins: PluginPrompt[] = []
+  //   let noRoundtrip = true
+  //   await Promise.all(activePlugins.value.map(async p => {
+  //     noRoundtrip &&= p.noRoundtrip
+  //     const plugin = plugins[p.id]
+  //     console.log(`----plugin ${p.id}`, plugin)
+  //     const pluginVars = {
+  //       ...getCommonVars(),
+  //       ...plugin.vars
+  //     }
+  //     plugin.tools.forEach(api => {
+  //       if (!api.enabled) return
+  //       const a = p.apis.find(a => a.name === api.name)
+  //       const { name, prompt } = a
+  //       tools[`${p.id}-${name}`] = tool({
+  //         description: engine.parseAndRenderSync(prompt, pluginVars),
+  //         parameters: jsonSchema(a.parameters),
+  //         async execute(args) {
+  //           const { result, error } = await callTool(p, a, args)
+  //           if (error) throw new ApiCallError(error)
+  //           return result
+  //         },
+  //         experimental_toToolResultContent: toToolResultContent
+  //       })
+  //     })
+  //     const pluginInfos = {}
+  //     await Promise.all(plugin.infos.map(async api => {
+  //       if (!api.enabled) return
+  //       const a = p.apis.find(a => a.name === api.name)
+  //       if (a.infoType !== 'prompt-var') return
+  //       try {
+  //         pluginInfos[a.name] = await callApi(p, a, api.args)
+  //       } catch (e) {
+  //         $q.notify({ message: t('dialogView.callPluginInfoFailed', { message: e.message }), color: 'negative' })
+  //       }
+  //     }))
 
-  if (isPlatformEnabled(perfs.artifactsEnabled) && openedArtifacts.value.length > 0) {
-    const { plugin, getPrompt, api } = artifactsPlugin
-    enabledPlugins.push({
-      id: plugin.id,
-      prompt: getPrompt(openedArtifacts.value),
-      actions: []
-    })
-    tools[`${plugin.id}-${api.name}`] = tool({
-      description: api.prompt,
-      parameters: jsonSchema(api.parameters),
-      async execute(args) {
-        const { result, error } = await callTool(plugin, api, args)
-        if (error) throw new ApiCallError(error)
-        return result
-      },
-      experimental_toToolResultContent: toToolResultContent
-    })
-  }
+  //     try {
+  //       enabledPlugins.push({
+  //         id: p.id,
+  //         prompt: p.prompt && engine.parseAndRenderSync(p.prompt, { ...pluginVars, infos: pluginInfos }),
+  //         actions: []
+  //       })
+  //     } catch (e) {
+  //       $q.notify({ message: t('dialogView.pluginPromptParseFailed', { title: p.title }), color: 'negative' })
+  //     }
+  //   }))
+
+  //   if (isPlatformEnabled(perfs.artifactsEnabled) && openedArtifacts.value.length > 0) {
+  //     const { plugin, getPrompt, api } = artifactsPlugin
+  //     enabledPlugins.push({
+  //       id: plugin.id,
+  //       prompt: getPrompt(openedArtifacts.value),
+  //       actions: []
+  //     })
+  //     tools[`${plugin.id}-${api.name}`] = tool({
+  //       description: api.prompt,
+  //       parameters: jsonSchema(api.parameters),
+  //       async execute(args) {
+  //         const { result, error } = await callTool(plugin, api, args)
+  //         if (error) throw new ApiCallError(error)
+  //         return result
+  //       },
+  //       experimental_toToolResultContent: toToolResultContent
+  //     })
+  //   }
+
+  //   return { noRoundtrip, tools, enabledPlugins }
+  // }
+
+  // const { noRoundtrip, tools, enabledPlugins } = await getEnabledPlugins(assistantPlugins)
+
+  // const prompt = getSystemPrompt(enabledPlugins.filter(p => p.prompt),
+  //   assistant.value.prompt_template,
+  //   assistant.value.prompt, {
+  //     ...getCommonVars(),
+  //     ...workspace.value.vars,
+  //     ...dialog.value.input_vars
+  //   })
+
+  const { noRoundtrip, tools, systemPrompt } = await getAssistantTools(callTool)
+
+  console.log(`----noRoundtrip ${noRoundtrip}`, tools, systemPrompt)
   try {
     if (noRoundtrip) settings.maxSteps = 1
     abortController.value = new AbortController()
     const messages = getChainMessages()
-    const prompt = getSystemPrompt(enabledPlugins.filter(p => p.prompt))
-    prompt && messages.unshift({ role: assistant.value.prompt_role, content: prompt })
+    prompt && messages.unshift({ role: assistant.value.prompt_role, content: systemPrompt })
     const params = {
       model: sdkModel.value,
       messages,
@@ -1056,31 +1075,33 @@ async function stream(target, insert = false) {
     }
     await dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents, error: e.message || e.toString(), status: 'failed', generating_session: null })
   }
-  perfs.artifactsAutoExtract && autoExtractArtifact()
+  const message = messageMap.value[chain.value.at(-2)]
+
+  perfs.artifactsAutoExtract && autoExtractArtifact(message, getDialogContents(-3, -1))
   lockingBottom.value = false
 }
-function toToolResultContent(items: (ApiResultItem | StoredItem)[]) {
-  const val = []
-  for (const item of items) {
-    if (!item) continue // TODO: in case if tool failed ignore it
-    if (item.type === 'text') {
-      // Handle both ApiResultItem (contentText) and StoredItem (content_text)
-      const text = 'content_text' in item ? item.content_text : item.contentText
-      val.push({ type: 'text', text })
-    } else {
-      // Handle mime type field differences: ApiResultItem uses mimeType, StoredItem uses mime_type
-      const mimeType = 'mime_type' in item ? item.mime_type : item.mimeType
-      if (mimeTypeMatch(mimeType, model.value.inputTypes.tool)) {
-        val.push({
-          type: mimeType?.startsWith('image/') ? 'image' : 'file',
-          mimeType,
-          data: 'contentBuffer' in item ? item.contentBuffer : null
-        })
-      }
-    }
-  }
-  return val
-}
+// function toToolResultContent(items: (ApiResultItem | StoredItem)[]) {
+//   const val = []
+//   for (const item of items) {
+//     if (!item) continue // TODO: in case if tool failed ignore it
+//     if (item.type === 'text') {
+//       // Handle both ApiResultItem (contentText) and StoredItem (content_text)
+//       const text = 'content_text' in item ? item.content_text : item.contentText
+//       val.push({ type: 'text', text })
+//     } else {
+//       // Handle mime type field differences: ApiResultItem uses mimeType, StoredItem uses mime_type
+//       const mimeType = 'mime_type' in item ? item.mime_type : item.mimeType
+//       if (mimeTypeMatch(mimeType, model.value.inputTypes.tool)) {
+//         val.push({
+//           type: mimeType?.startsWith('image/') ? 'image' : 'file',
+//           mimeType,
+//           data: 'contentBuffer' in item ? item.contentBuffer : null
+//         })
+//       }
+//     }
+//   }
+//   return val
+// }
 const lockingBottom = ref(false)
 let lastScrollTop
 function scrollListener() {
@@ -1105,26 +1126,28 @@ watch(lockingBottom, val => {
 const activePlugins = computed<Plugin[]>(() => assistant.value ? pluginsStore.plugins.filter(p => p.available && assistant.value.plugins[p.id]?.enabled) : [])
 const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
 
-const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))
-function getDialogContents() {
-  return chain.value.slice(1, -1).map(id => messageMap.value[id].message_contents).flat()
+function getDialogContents(from: number = 1, to: number = -1) {
+  return chain.value.slice(from, to).map(id => messageMap.value[id].message_contents).flat()
 }
-async function genTitle() {
-  try {
-    const dialogId = props.id
-    const { text } = await generateText({
-      model: systemSdkModel.value,
-      prompt: await engine.parseAndRender(GenDialogTitle, {
-        contents: getDialogContents(),
-        lang: locale.value
-      })
-    })
-    await dialogsStore.updateDialog({ id: dialogId, name: text })
-  } catch (e) {
-    console.error(e)
-    $q.notify({ message: t('dialogView.summarizeFailed'), color: 'negative' })
-  }
-}
+
+// const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))
+
+// async function genTitle() {
+//   try {
+//     const dialogId = props.id
+//     const { text } = await generateText({
+//       model: systemSdkModel.value,
+//       prompt: await engine.parseAndRender(GenDialogTitle, {
+//         contents: getDialogContents(),
+//         lang: locale.value
+//       })
+//     })
+//     await dialogsStore.updateDialog({ id: dialogId, name: text })
+//   } catch (e) {
+//     console.error(e)
+//     $q.notify({ message: t('dialogView.summarizeFailed'), color: 'negative' })
+//   }
+// }
 async function copyContent() {
   await navigator.clipboard.writeText(await engine.parseAndRender(DialogContent, {
     contents: getDialogContents(),
@@ -1139,7 +1162,7 @@ watch(route, to => {
   until(dialog).toMatch(val => val?.id === props.id).then(async () => {
     focusInput()
     if (to.hash === '#genTitle') {
-      genTitle()
+      genTitle(getDialogContents())
       router.replace({ hash: '' })
     } else if (to.hash === '#copyContent') {
       copyContent()
@@ -1316,54 +1339,57 @@ if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'focusDialogInputKey'), () => focusInput())
 }
 
-async function genArtifactName(content: string, lang?: string) {
-  const { text } = await generateText({
-    model: systemSdkModel.value,
-    prompt: engine.parseAndRenderSync(NameArtifactPrompt, { content, lang })
-  })
-  return text
-}
-const { createArtifact } = useCreateArtifact(toRef(workspace.value, 'id'))
-async function extractArtifact(message: DialogMessageMapped, text: string, pattern, options: ConvertArtifactOptions) {
-  const name = options.name || await genArtifactName(text, options.lang)
-  const id = await createArtifact({
-    name,
-    language: options.lang,
-    versions: [{
-      date: new Date().toISOString(),
-      text
-    }],
-    tmp: text
-  })
-  if (options.reserveOriginal) return
-  const to = `> ${t('dialogView.convertedToArtifact')}: <router-link to="?openArtifact=${id}">${name}</router-link>\n`
-  const index = message.message_contents.findIndex(c => ['assistant-message', 'user-message'].includes(c.type))
-  const content = message.message_contents[index] as UserMessageContent | AssistantMessageContent
-  // TODO: update message_contents ???
-  // await db.messages.update(message.id, {
-  //   [`contents.${index}.text`]: content.text.replace(pattern, to) as any
-  // })
-}
-async function autoExtractArtifact() {
-  const message = messageMap.value[chain.value.at(-2)]
-  const { text } = await generateText({
-    model: systemSdkModel.value,
-    prompt: engine.parseAndRenderSync(ExtractArtifactPrompt, {
-      contents: chain.value.slice(-3, -1).map(id => messageMap.value[id].message_contents).flat()
-    })
-  })
-  const object: ExtractArtifactResult = JSON.parse(text)
-  if (!object.found) return
-  const reg = new RegExp(`(\`{3,}.*\\n)?(${object.regex})(\\s*\`{3,})?`)
-  const content = message.message_contents.find(c => c.type === 'assistant-message')
-  const match = content.text.match(reg)
-  if (!match) return
-  await extractArtifact(message, match[2], reg, {
-    name: object.name,
-    lang: object.language,
-    reserveOriginal: perfs.artifactsReserveOriginal
-  })
-}
+// async function genArtifactName(content: string, lang?: string) {
+//   const { text } = await generateText({
+//     model: systemSdkModel.value,
+//     prompt: engine.parseAndRenderSync(NameArtifactPrompt, { content, lang })
+//   })
+//   return text
+// }
+// const { createArtifact } = useCreateArtifact(toRef(workspace.value, 'id'))
+
+// async function extractArtifact(message: DialogMessageMapped, text: string, pattern, options: ConvertArtifactOptions) {
+//   const name = options.name || await genArtifactName(text, options.lang)
+//   const id = await createArtifact({
+//     name,
+//     language: options.lang,
+//     versions: [{
+//       date: new Date().toISOString(),
+//       text
+//     }],
+//     tmp: text
+//   })
+//   if (options.reserveOriginal) return
+//   const to = `> ${t('dialogView.convertedToArtifact')}: <router-link to="?openArtifact=${id}">${name}</router-link>\n`
+//   const index = message.message_contents.findIndex(c => ['assistant-message', 'user-message'].includes(c.type))
+
+//   await dialogsStore.updateDialogMessage(props.id, message.id, {
+//     message_contents: message.message_contents.map((c, i) => i === index ? {
+//       ...c,
+//       text: c.text.replace(pattern, to)
+//     } : c)
+//   })
+// }
+// async function autoExtractArtifact() {
+//   const message = messageMap.value[chain.value.at(-2)]
+//   const { text } = await generateText({
+//     model: systemSdkModel.value,
+//     prompt: engine.parseAndRenderSync(ExtractArtifactPrompt, {
+//       contents: chain.value.slice(-3, -1).map(id => messageMap.value[id].message_contents).flat()
+//     })
+//   })
+//   const object: ExtractArtifactResult = JSON.parse(text)
+//   if (!object.found) return
+//   const reg = new RegExp(`(\`{3,}.*\\n)?(${object.regex})(\\s*\`{3,})?`)
+//   const content = message.message_contents.find(c => c.type === 'assistant-message')
+//   const match = content.text.match(reg)
+//   if (!match) return
+//   await extractArtifact(message, match[2], reg, {
+//     name: object.name,
+//     lang: object.language,
+//     reserveOriginal: perfs.artifactsReserveOriginal
+//   })
+// }
 
 const uiStateStore = useUiStateStore()
 const scrollTops = uiStateStore.dialogScrollTops

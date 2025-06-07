@@ -99,37 +99,37 @@ const DefaultWsIndexContent = t('templates.defaultWsIndexContent')
 
 const ExtractArtifactSchema = Object({
   thinking: String({
-    description: '在你判断助手回答中是否有适合提取为 Artifact 的独立内容的过程中，你思考的过程。'
+    description: 'During the process of determining whether there are artifacts in the conversation record between the user and the AI assistant, your thinking process.'
   }),
   found: Boolean({
-    description: '是否有适合提取为 Artifact 的独立内容'
+    description: 'Whether there are artifacts in the conversation record between the user and the AI assistant'
   }),
   regex: Optional(String({
-    description: '用于提取 Artifacts 的 JS 正则表达式字符串，需恰好匹配整个 Artifact。Artifacts 很长，可用 `[\\s\\S]*` 匹配中间任意内容。如果 Artifact 代码块，请**不要**包含开头的 "\`\`\`" 标记。'
+    description: 'A JS regular expression string for extracting artifacts, which must exactly match the entire artifact. Artifacts are long, and `[\\s\\S]*` can be used to match any content in the middle. If the artifact is a code block, please **do not** include the opening "\`\`\`" marker.'
   })),
   name: Optional(String({
-    description: '根据 Artifact 内容为 Artifact 命名。像文件名那样带后缀。命名格式需符合对应语言代码的文件命名规范。'
+    description: 'Name the artifact according to its content. Like a file name with a suffix. The naming format must conform to the file naming conventions of the corresponding language code.'
   })),
   language: Optional(String({
-    description: '内容的代码语言，用于代码高亮。示例值："markdown", "javascript", "python" 等'
+    description: 'The code language of the content, used for code highlighting. Example values: "markdown", "javascript", "python", etc.'
   }))
 })
 type ExtractArtifactResult = Static<typeof ExtractArtifactSchema>
 const ExtractArtifactPrompt =
 `
 <instruction>
-你的任务是判断用户与 AI 助手对话记录中是否有 Artifacts，如果有则将它提取出来。
+Your task is to determine whether there are artifacts in the conversation record between the user and the AI assistant, and if so, extract them.
 
-Artifacts 可以是一长段完整的代码、一篇完整的文章、报告。用户可能会复用、修改这些内容，且内容较长（>15行），因此将它们提取出来。
+Artifacts can be a long complete code, a complete article, or a report. Users may reuse and modify these contents, and the content is long (>15 lines), so they are extracted.
 
-对于其他内容（一般的问题解答、操作步骤等）则不提取，认为未找到 Artifact。
+Other content (general question answers, operation steps, etc.) will not be extracted, and it is considered that no artifacts are found.
 
-如果没有适合提取为 Artifact 的独立内容，返回 \`found\` 为 false 即可；
-如果有，请确定 Artifact 在 assistant message 中的范围，给出用于提取 Artifact 的正则表达式，以及 Artifact 的语言和命名。
+If there is no independent content suitable for extraction as an artifact, return \`found\` as false;
+If there is, please determine the scope of the artifact in the assistant message, give the regular expression for extracting the artifact, and the language and name of the artifact.
 
-如果 Artifact 是代码块，则它必须是完整的代码块，不能是代码块的一部分或者多个短代码块。不合适的情况认为没有找到 Artifact 即可。
+If the artifact is a code block, it must be a complete code block, not a part of a code block or multiple short code blocks. In the case of inappropriate situations, it is considered that the artifact is not found.
 
-回复为 json 格式，只回答 json 内容，不要用 "\`\`\`" 包裹。
+The reply is in json format, only the json content is answered, and it is not wrapped in "\`\`\`".
 </instruction>
 <response_schema>
 ${JSON.stringify(ExtractArtifactSchema, null, 2)}
@@ -150,11 +150,11 @@ ${JSON.stringify(ExtractArtifactSchema, null, 2)}
 `
 const NameArtifactPrompt =
 `<instruction>
-请根据该文件的内容，为该文件命名。要求：
-- 文件名带后缀
-- 文件名符合对应语言代码的文件命名规范，如 "hello_world.py"（下划线格式）, "hello-world.js"（连字符格式）, "HelloWorld.java"（驼峰格式） 等。
-- 长度不超过 3 个单词
-- 只回答文件名，不要回答任何其他内容。
+Please name the file according to its content. Requirements:
+- The file name must have a suffix
+- The file name must conform to the file naming conventions of the corresponding language code, such as "hello_world.py" (underscore format), "hello-world.js" (hyphen format), "HelloWorld.java" (camel case format), etc.
+- The length must not exceed 3 words
+- Only answer the file name, do not answer anything else.
 </instruction>
 <file_content {%- if lang %} lang="{{ lang }}"{%- endif %}>
 {{ content }}
