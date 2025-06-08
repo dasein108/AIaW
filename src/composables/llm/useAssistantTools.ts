@@ -50,9 +50,29 @@ export const useAssistantTools = (assistant: Ref<AssistantMapped>, workspace: Re
     }
   }
 
+  function apiResultToToolResultContent(items: ApiResultItem[]) {
+    const val = []
+    for (const item of items) {
+      if (!item) continue // TODO: in case if tool failed ignore it
+      const { contentText, mimeType, contentBuffer } = item
+      if (item.type === 'text') {
+        val.push({ type: 'text', contentText })
+      } else if (mimeTypeMatch(mimeType, model.value.inputTypes.tool)) {
+        val.push({
+          type: mimeType?.startsWith('image/') ? 'image' : 'file',
+          mimeType,
+          data: contentBuffer || null
+        })
+      }
+    }
+
+    return val
+  }
+
   function toToolResultContent(items: (ApiResultItem | StoredItem)[]) {
     const val = []
     for (const item of items) {
+      console.log("-----toToolResultContent item", item)
       if (!item) continue // TODO: in case if tool failed ignore it
       if (item.type === 'text') {
         // Handle both ApiResultItem (contentText) and StoredItem (content_text)
@@ -83,7 +103,7 @@ export const useAssistantTools = (assistant: Ref<AssistantMapped>, workspace: Re
         if (error) throw new ApiCallError(error)
         return result
       },
-      experimental_toToolResultContent: toToolResultContent
+      experimental_toToolResultContent: apiResultToToolResultContent
     })
   }
 
@@ -154,6 +174,7 @@ export const useAssistantTools = (assistant: Ref<AssistantMapped>, workspace: Re
 
   return {
     getAssistantTools,
-    toToolResultContent
+    toToolResultContent,
+    apiResultToToolResultContent
   }
 }

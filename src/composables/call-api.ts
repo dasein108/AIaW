@@ -34,7 +34,6 @@ export function useCallApi(workspace: Ref<WorkspaceMapped>, dialog: Ref<DialogMa
     }
     try {
       const result = await api.execute(args, settings)
-      console.log("---callApi result", result)
       return { result, error: null }
     } catch (e) {
       return { result: [], error: e.message }

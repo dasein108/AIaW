@@ -4,7 +4,7 @@ import { computed, ref, Ref, toRef } from "vue"
 import { useUserPerfsStore } from "src/stores/user-perfs"
 import { useGetModel } from "../get-model"
 import { useI18n } from "vue-i18n"
-import { AssistantMapped, DialogMapped, DialogMessageMapped, MessageContentMapped, StoredItemMapped, WorkspaceMapped } from "@/services/supabase/types"
+import { AssistantMapped, DialogMapped, DialogMessageMapped, MessageContentMapped, MessageContentResult, StoredItemMapped, WorkspaceMapped } from "@/services/supabase/types"
 import { useQuasar, throttle } from "quasar"
 import { ConvertArtifactOptions, Plugin, PluginApi, PluginPrompt } from "@/utils/types"
 import { useCreateArtifact } from "../create-artifact"
@@ -15,28 +15,28 @@ import sessions from 'src/utils/sessions'
 import { useCallApi } from "../call-api"
 import { useAssistantTools } from "./useAssistantTools"
 import { getAssistantModelSettings } from "src/utils/assistant-utils"
-import { streamText, generateText, StreamTextResult, GenerateTextResult } from "ai"
+import { streamText, generateText, StreamTextResult, GenerateTextResult, CoreMessage } from "ai"
 import { useUserDataStore } from "src/stores/user-data"
 import { useStorage } from "src/composables/storage/useStorage"
-import { FILES_BUCKET } from "src/composables/storage/utils"
-import { useDialogModel, useDialogView } from "../useDialogView"
+import { FILES_BUCKET, getFileUrl } from "src/composables/storage/utils"
+import { useDialogChain, useDialogModel, useDialogView } from "../useDialogView"
+import { pickBy } from "lodash"
 
 export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<DialogMapped>, assistant: Ref<AssistantMapped>) => {
   const dialogsStore = useDialogsStore()
   const { createArtifact } = useCreateArtifact(toRef(workspace.value, 'id'))
 
   const { data: perfs } = useUserPerfsStore()
-  const { getModel, getSdkModel } = useGetModel()
   const { t, locale } = useI18n()
   const $q = useQuasar()
   const { model, sdkModel, systemSdkModel } = useDialogModel(dialog, assistant)
   const { callApi } = useCallApi(workspace, dialog)
   const storage = useStorage(FILES_BUCKET)
-  const { getAssistantTools, toToolResultContent } = useAssistantTools(assistant, workspace, dialog)
+  const { getAssistantTools } = useAssistantTools(assistant, workspace, dialog)
   const isStreaming = ref(false)
 
   const {
-    chain, messageMap, getChainMessages, getDialogContents
+    chain, messageMap, getDialogContents, getChainMessages
   } = useDialogView(dialog, assistant, workspace)
 
   const genTitle = async (contents: Readonly<MessageContentMapped[]>) => {
@@ -93,24 +93,7 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
     })
   }
 
-  // function getSystemPrompt(pluginPrompts: PluginPrompt[], promptTemplate: string, rolePrompt: string, vars: Record<string, any>) {
-  //   try {
-  //     const prompt = engine.parseAndRenderSync(promptTemplate, {
-  //       ...vars,
-  //       _pluginsPrompt: pluginPrompts.length
-  //         ? engine.parseAndRenderSync(PluginsPrompt, { plugins: pluginPrompts })
-  //         : '',
-  //       _rolePrompt: rolePrompt
-  //     })
-  //     return prompt.trim() ? prompt : undefined
-  //   } catch (e) {
-  //     console.error(e)
-  //     $q.notify({ message: t('dialogView.promptParseFailed'), color: 'negative' })
-  //     throw e
-  //   }
-  // }
-
-  async function stream(target, insert = false, abortController: AbortController | null = null) {
+  async function stream(target:string | null, insert = false, abortController: AbortController | null = null) {
     if (target) {
       await dialogsStore.updateDialogMessage(dialog.value.id, target, { status: 'default' })
     }
@@ -157,19 +140,25 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
       await update()
 
       const { result: apiResult, error } = await callApi(plugin, api, args)
-      const result: StoredItemMapped[] = await Promise.all(apiResult.map(r => storage.apiResultItemToStoredItem(r, dialog.value.id)))
-      // saveItems(result)
-      content.stored_items = result.filter(i => i)
+      const storedItems: StoredItemMapped[] = await Promise.all(apiResult.map(r => storage.apiResultItemToStoredItem(r, dialog.value.id)))
+
+      content.stored_items = storedItems
       if (error) {
         content.status = 'failed'
         content.error = error
       } else {
         content.status = 'completed'
-        content.result = result.map(i => i)
+        // Save result based on stored items MAPPED without arrayBuffer
+        const contentResult = storedItems.map(i => {
+          const { type, mime_type, content_text, file_url } = i
+          return pickBy({ type, mime_type, content_text, file_url }, (v) => v !== undefined) as MessageContentResult
+        })
+        content.result = contentResult
       }
       await update()
 
-      return { result, error }
+      // Return RAW API Result WITH arrayBuffer
+      return { result: apiResult, error }
     }
 
     const { noRoundtrip, tools, systemPrompt } = await getAssistantTools(callTool)
@@ -207,8 +196,8 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
         }
       } else {
         result = await generateText(params)
-        messageContent.text = await result.text
-        messageContent.reasoning = await result.reasoning
+        messageContent.text = result.text
+        messageContent.reasoning = result.reasoning
       }
 
       const usage = await result.usage
@@ -229,15 +218,13 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
     const message = messageMap.value[chain.value.at(-2)]
 
     perfs.artifactsAutoExtract && autoExtractArtifact(message, getDialogContents(-3, -1))
-    isStreaming.value = false
     perfs.autoGenTitle && chain.value.length === 4 && genTitle(getDialogContents())
+    isStreaming.value = false
   }
 
   return {
     genTitle,
-    genArtifactName,
     extractArtifact,
-    autoExtractArtifact,
     stream,
     isStreaming
   }

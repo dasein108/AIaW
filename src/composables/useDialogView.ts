@@ -10,6 +10,7 @@ import { ApiResultItem } from "@/utils/types"
 import { useStorage } from "./storage/useStorage"
 import { useGetModel } from "./get-model"
 import { useUserPerfsStore } from "src/stores/user-perfs"
+import { storedItemResultContent } from "src/utils/dialog"
 
 export const useDialogModel = (dialog: Ref<DialogMapped>, assistant: Ref<AssistantMapped>) => {
   const { getModel, getSdkModel } = useGetModel()
@@ -103,7 +104,7 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
   }
 
   const inputMessageContent = computed(() => messageMap.value[chain.value.at(-1)]?.message_contents[0] as UserMessageContent)
-  const inputContentItems = computed(() => inputMessageContent.value.stored_items.map(item => itemMap.value[item.id]).filter(x => x))
+  const inputContentItems = computed(() => inputMessageContent.value.stored_items)
   const inputEmpty = computed(() => !inputMessageContent.value?.text && !inputMessageContent.value?.stored_items.length)
 
   async function editBranch(index: number) {
@@ -142,71 +143,73 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
 
   function getChainMessages() {
     const val: CoreMessage[] = []
-    historyChain.value
+    const messages = historyChain.value
       .slice(1)
       .slice(-assistant.value.context_num || 0)
       .filter(id => messageMap.value[id].status !== 'inputing')
       .map(id => messageMap.value[id].message_contents)
       .flat()
-      .forEach(content => {
-        if (content.type === 'user-message') {
-          val.push({
-            role: 'user',
-            content: [
-              { type: 'text', text: content.text },
-              ...content.stored_items.map(item => itemMap.value[item.id]).map(i => {
-                if (i.content_text != null) {
-                  if (i.type === 'file') {
-                    return { type: 'text' as const, text: `<file_content filename="${i.name}">\n${i.content_text}\n</file_content>` }
-                  } else if (i.type === 'quote') {
-                    return { type: 'text' as const, text: `<quote name="${i.name}">${i.content_text}</quote>` }
-                  } else {
-                    return { type: 'text' as const, text: i.content_text }
-                  }
+
+    for (const content of messages) {
+      if (content.type === 'user-message') {
+        val.push({
+          role: 'user',
+          content: [
+            { type: 'text', text: content.text },
+            ...content.stored_items.map(i => {
+              if (i.content_text != null) {
+                if (i.type === 'file') {
+                  return { type: 'text' as const, text: `<file_content filename="${i.name}">\n${i.content_text}\n</file_content>` }
+                } else if (i.type === 'quote') {
+                  return { type: 'text' as const, text: `<quote name="${i.name}">${i.content_text}</quote>` }
                 } else {
-                  if (!mimeTypeMatch(i.mime_type, model.value.inputTypes.user)) {
-                    return null
-                  } else if (i.mime_type.startsWith('image/')) {
-                    return { type: 'image' as const, image: getFileUrl(i.file_url), mimeType: i.mime_type }
-                  } else {
-                    return { type: 'file' as const, mimeType: i.mime_type, data: getFileUrl(i.file_url) }
-                  }
+                  return { type: 'text' as const, text: i.content_text }
                 }
-              }).filter(x => x)
-            ]
-          })
-        } else if (content.type === 'assistant-message') {
-          val.push({
-            role: 'assistant',
-            content: [
-              { type: 'text', text: content.text }
-            ]
-          })
-        } else if (content.type === 'assistant-tool') {
-          if (content.status !== 'completed') return
-          const { name, args, result, plugin_id } = content
-          const id = genId()
-          val.push({
-            role: 'assistant',
-            content: [{
-              type: 'tool-call',
-              toolName: `${plugin_id}-${name}`,
-              toolCallId: id,
-              args
-            }]
-          })
-          val.push({
-            role: 'tool',
-            content: [{
-              type: 'tool-result',
-              toolName: `${plugin_id}-${name}`,
-              toolCallId: id,
-              result: toToolResultContent(result.map(id => itemMap.value[id])),
-              experimental_content: toToolResultContent(result.map(id => itemMap.value[id]))
-            }]
-          })
-        }
-      })
+              } else {
+                if (!mimeTypeMatch(i.mime_type, model.value.inputTypes.user)) {
+                  return null
+                } else if (i.mime_type.startsWith('image/')) {
+                  return { type: 'image' as const, image: getFileUrl(i.file_url), mimeType: i.mime_type }
+                } else {
+                  return { type: 'file' as const, mimeType: i.mime_type, data: getFileUrl(i.file_url) }
+                }
+              }
+            })
+          ]
+        })
+      } else if (content.type === 'assistant-message') {
+        val.push({
+          role: 'assistant',
+          content: [
+            { type: 'text', text: content.text }
+          ]
+        })
+      } else if (content.type === 'assistant-tool') {
+        if (content.status !== 'completed') return
+        const { name, args, result, plugin_id } = content
+        const id = genId()
+        val.push({
+          role: 'assistant',
+          content: [{
+            type: 'tool-call',
+            toolName: `${plugin_id}-${name}`,
+            toolCallId: id,
+            args
+          }]
+        })
+        const resultContent = result.map(i => storedItemResultContent(i))
+        val.push({
+          role: 'tool',
+          content: [{
+            type: 'tool-result',
+            toolName: `${plugin_id}-${name}`,
+            toolCallId: id,
+            result: resultContent,
+            // experimental_content: resultContent
+          }]
+        })
+      }
+    }
     return val
   }
 

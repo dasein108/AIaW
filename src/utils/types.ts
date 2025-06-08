@@ -81,6 +81,13 @@ interface ApiResultItem {
   mimeType?: string
 }
 
+interface ToolResultContent {
+  type: 'text' | 'file' | 'image'
+  text?: string
+  data?: string | ArrayBuffer | null
+  mimeType?: string
+}
+
 class ApiCallError extends Error {}
 
 interface AssistantPluginInfo {
@@ -460,5 +467,6 @@ export type {
   McpPluginManifest,
   TransportConf,
   ArtifactVersion,
-  PluginPrompt
+  PluginPrompt,
+  ToolResultContent
 }

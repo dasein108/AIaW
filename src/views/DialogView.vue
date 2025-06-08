@@ -401,14 +401,11 @@ import ModelOptionsBtn from 'src/components/ModelOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
 import { useI18n } from 'vue-i18n'
 import Mark from 'mark.js'
-import { useCreateDialog } from 'src/composables/create-dialog'
 import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useDialogsStore } from 'src/stores/dialogs'
-import { StoredItemMapped } from '@/services/supabase/types'
 import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
 import { useLlmDialog } from 'src/composables/llm/useLlmDialog'
-import { useAssistantTools } from 'src/composables/llm/useAssistantTools'
 import { useDialogChain, useDialogModel, useDialogView } from 'src/composables/useDialogView'
 const { t, locale } = useI18n()
 
@@ -608,6 +605,7 @@ async function send() {
   nextTick().then(() => {
     scroll('bottom')
   })
+  console.log('-- inputEmpty', inputEmpty.value)
   if (inputEmpty.value) {
     await startStream(chain.value.at(-2), true)
   } else {

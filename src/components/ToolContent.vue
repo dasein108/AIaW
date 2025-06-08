@@ -89,7 +89,7 @@ import MessageImage from './MessageImage.vue'
 import MessageAudio from './MessageAudio.vue'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import { useI18n } from 'vue-i18n'
-import { StoredItem } from '@/services/supabase/types'
+import { StoredItemMapped } from '@/services/supabase/types'
 
 const { t } = useI18n()
 
@@ -128,7 +128,7 @@ const contentMd = computed(() => {
   return engine.parseAndRenderSync(contentTemplate, {
     content,
     result: content.result?.map(item => {
-      const { name = '', type, mime_type, content_text } = item as StoredItem
+      const { name = '', type, mime_type, content_text } = item as StoredItemMapped
       return { name, type, mime_type, content_text }
     })
   })

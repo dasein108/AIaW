@@ -1,4 +1,4 @@
-import { ArtifactVersion, AssistantPlugins, Avatar, Model, ModelSettings, PromptVar, Provider } from '@/utils/types'
+import { ArtifactVersion, AssistantPlugins, Avatar, Model, ModelSettings, PromptVar, Provider, ToolResultContent } from '@/utils/types'
 import { Database, Json } from './database.types'
 import { LanguageModelUsage } from 'ai'
 
@@ -44,6 +44,13 @@ type ChatMapped = Database['public']['Tables']['chats']['Insert'] & {
 
 type StoredItemMapped = Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id' | 'type'> & {dialog_id?: string, type: 'text' | 'file' | 'quote', message_content_id?: string}
 
+type MessageContentResult = {
+  type: StoredItemMapped['type']
+  content_text?: StoredItemMapped['content_text']
+  file_url?: StoredItemMapped['file_url']
+  mime_type?: StoredItemMapped['mime_type']
+}
+
 type WorkspaceMemberRole = 'admin' | 'member' | 'readonly'
 type WorkspaceRole = 'owner' | 'admin' | 'member' | 'readonly' | 'none'
 
@@ -74,7 +81,7 @@ type ChatMessageWithProfile = ChatMessage & {
   sender: ProfileMapped | null
 }
 
-type AssistantMapped = Omit<Assistant, 'plugins'> & {
+type AssistantMapped = Omit<Assistant, 'plugins' | 'model_settings' | 'model' | 'provider' | 'prompt_vars' | 'avatar' | 'prompt_role'> & {
   avatar: Avatar
   prompt_vars: PromptVar[]
   provider: Provider
@@ -84,10 +91,10 @@ type AssistantMapped = Omit<Assistant, 'plugins'> & {
   prompt_role: 'system' | 'user' | 'assistant'
 };
 
-type MessageContentMapped = Omit<Database['public']['Tables']['message_contents']['Insert'], 'message_id' | 'stored_items'> & {
+type MessageContentMapped = Omit<Database['public']['Tables']['message_contents']['Insert'], 'message_id' | 'stored_items' | 'result'> & {
   stored_items?: StoredItemMapped[]
   message_id?: string
-
+  result?: MessageContentResult[]
 }
 
 type DialogMessageStatus = 'pending' | 'streaming' | 'failed' | 'default' | 'inputing' | 'processed'
@@ -108,5 +115,5 @@ export type {
   MessageContent, WorkspaceMember, StoredItem, DialogMessageMapped, MessageContentMapped, DialogMapped,
   StoredItemMapped, CustomProviderMapped, SubproviderMapped, UserDataMapped,
   WorkspaceMemberRole,
-  WorkspaceMemberMapped, WorkspaceRole, ChatMapped, ProfileMapped
+  WorkspaceMemberMapped, WorkspaceRole, ChatMapped, ProfileMapped, MessageContentResult
 }
