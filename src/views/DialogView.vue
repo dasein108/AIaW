@@ -25,6 +25,7 @@
         name="sym_o_expand_more"
         size="sm"
       /> -->
+      <!-- TODO: Refactor/remove model menu -->
       <q-menu important:max-w="300px">
         <q-list>
           <template v-if="assistant.model">
@@ -604,17 +605,13 @@ async function send() {
   // }
 
   showVars.value = false
+  nextTick().then(() => {
+    scroll('bottom')
+  })
   if (inputEmpty.value) {
     await startStream(chain.value.at(-2), true)
   } else {
-    const target = chain.value.at(-1)
-    await dialogsStore.updateDialogMessage(props.id, target, { status: 'default' })
-    until(chain).changed().then(() => {
-      nextTick().then(() => {
-        scroll('bottom')
-      })
-    })
-    await startStream(target, false)
+    await startStream(chain.value.at(-1), false)
   }
 }
 

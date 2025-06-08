@@ -111,8 +111,9 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
   // }
 
   async function stream(target, insert = false, abortController: AbortController | null = null) {
-    isStreaming.value = true
-
+    if (target) {
+      await dialogsStore.updateDialogMessage(dialog.value.id, target, { status: 'default' })
+    }
     const messageContent: AssistantMessageContent = {
       type: 'assistant-message',
       text: ''
@@ -136,6 +137,8 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
       }],
       status: 'inputing'
     })
+
+    isStreaming.value = true
 
     // const update = throttle(() => dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents }), 50)
     const update = async () => await dialogsStore.updateDialogMessage(dialog.value.id, id, { message_contents: contents })
