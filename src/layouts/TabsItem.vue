@@ -39,9 +39,10 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import DialogList from 'src/components/DialogList.vue'
 import ChatList from 'src/components/chats/ChatList.vue'
+import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
 
-const route = useRoute()
-const workspaceId = computed(() => route.params.workspaceId as string)
+const { workspace } = useActiveWorkspace()
+const workspaceId = computed(() => workspace.value?.id as string)
 
 const tabs = ref(['chats', 'dialogs'])
 

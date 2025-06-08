@@ -26,7 +26,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
   const dialogMessages = reactive<Record<string, DialogMessageMapped[]>>({})
   const isLoaded = ref(false)
   async function fetchDialogs() {
-    const { data, error } = await supabase.from('dialogs').select('*').order('created_at', { ascending: false })// .eq('workspace_id', workspaceId)
+    const { data, error } = await supabase.from('dialogs').select('*').order('created_at', { ascending: true })// .eq('workspace_id', workspaceId)
     if (error) {
       console.error(error)
     }
@@ -48,11 +48,10 @@ export const useDialogsStore = defineStore('dialogs', () => {
     if (error) {
       console.error(error)
     }
-    const messages = data.map(mapDialogMessage)
 
-    dialogMessages[dialogId] = messages
+    dialogMessages[dialogId] = data as DialogMessageMapped[]
 
-    return messages as DialogMessageMapped[]
+    return dialogMessages[dialogId]
   }
 
   async function removeDialog(dialogId: string) {
@@ -128,14 +127,37 @@ export const useDialogsStore = defineStore('dialogs', () => {
     dialogMessages[dialogId].push(dialogMessage)
 
     // 4. update dialog msg_tree
+    // const { msg_tree } = dialogs[dialogId]
+    // const children = msg_tree[rootMessageId] || []
+    // const changes = insert ? {
+    //   [rootMessageId]: [dialogMessage.id],
+    //   [dialogMessage.id]: children
+    // } : {
+    //   [rootMessageId]: [...children, dialogMessage.id],
+    //   [dialogMessage.id]: []
+    // }
+
+    // await updateDialog({
+    //   id: dialogId,
+    //   msg_tree: {
+    //     ...msg_tree,
+    //     ...changes
+    //   }
+    // })
+
+    await updateDialogMsgTree(dialogId, rootMessageId, dialogMessage.id, insert)
+    return dialogMessage
+  }
+
+  async function updateDialogMsgTree(dialogId: string, rootMessageId: string, newMessageId: string, insert = false) {
     const { msg_tree } = dialogs[dialogId]
     const children = msg_tree[rootMessageId] || []
     const changes = insert ? {
-      [rootMessageId]: [dialogMessage.id],
-      [dialogMessage.id]: children
+      [rootMessageId]: [newMessageId],
+      [newMessageId]: children
     } : {
-      [rootMessageId]: [...children, dialogMessage.id],
-      [dialogMessage.id]: []
+      [rootMessageId]: [...children, newMessageId],
+      [newMessageId]: []
     }
 
     await updateDialog({
@@ -145,8 +167,6 @@ export const useDialogsStore = defineStore('dialogs', () => {
         ...changes
       }
     })
-
-    return mapDialogMessage(data)
   }
 
   async function updateDialogMessage(dialogId: string, messageId: string, message: Partial<DialogMessageInput>) {

@@ -1,9 +1,10 @@
 import { engine } from "src/utils/template-engine"
 import { generateText, LanguageModelV1 } from "ai"
 import { MessageContentMapped } from "../supabase/types"
-import { GenDialogTitle, NameArtifactPrompt, ExtractArtifactPrompt } from "src/utils/templates"
+import { GenDialogTitle, NameArtifactPrompt, ExtractArtifactPrompt, PluginsPrompt } from "src/utils/templates"
+import { PluginPrompt } from "@/utils/types"
 
-const generateTitle = async (model: LanguageModelV1, contents: MessageContentMapped[], lang: string) => {
+const generateTitle = async (model: LanguageModelV1, contents: Readonly<MessageContentMapped[]>, lang: string) => {
   const { text } = await generateText({
     model,
     prompt: await engine.parseAndRender(GenDialogTitle, {
@@ -31,4 +32,15 @@ const generateExtractArtifact = async (model: LanguageModelV1, content: MessageC
   return text
 }
 
-export { generateTitle, generateArtifactName, generateExtractArtifact }
+function getSystemPrompt(pluginPrompts: PluginPrompt[], promptTemplate: string, rolePrompt: string, vars: Record<string, any>) {
+  const prompt = engine.parseAndRenderSync(promptTemplate, {
+    ...vars,
+    _pluginsPrompt: pluginPrompts.length
+      ? engine.parseAndRenderSync(PluginsPrompt, { plugins: pluginPrompts })
+      : '',
+    _rolePrompt: rolePrompt
+  })
+  return prompt.trim() ? prompt : undefined
+}
+
+export { generateTitle, generateArtifactName, generateExtractArtifact, getSystemPrompt }

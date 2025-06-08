@@ -28,14 +28,13 @@ import { parseEvents } from 'src/services/kepler/utils'
 import { IsTauri } from 'src/utils/platform-api'
 import { computed, ComputedRef, inject } from 'vue'
 
-import { DialogMessageMapped } from '@/services/supabase/types'
+import { DialogMessageMapped, StoredItemMapped } from '@/services/supabase/types'
 import { useDialogsStore } from 'src/stores/dialogs'
 
-const props = defineProps<{ result: any, message: DialogMessageMapped }>()
-const itemMap = inject<ComputedRef>('itemMap')
+const props = defineProps<{ result: StoredItemMapped[], message: DialogMessageMapped }>()
 const keplrWallet = inject<KeplerWallet>('kepler')
 const cosmosWallet = inject<CosmosWallet>('cosmos')
-const transactionBody = computed(() => JSON.parse(itemMap.value[props.result[0]].contentText))
+const transactionBody = computed(() => JSON.parse(props.result[0].content_text))
 const dialogsStore = useDialogsStore()
 const handleAccept = async () => {
   const { message_contents } = props.message

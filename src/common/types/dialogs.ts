@@ -1,9 +1,9 @@
-import { StoredItem } from "src/services/supabase/types"
+import { StoredItemMapped } from "src/services/supabase/types"
 
 type UserMessageContent = {
   type: 'user-message'
   text: string
-  stored_items: StoredItem[]
+  stored_items: StoredItemMapped[]
 }
 
 type AssistantMessageContent = {

@@ -123,13 +123,13 @@
             <message-image
               v-for="image in content.stored_items.filter(i => i.mime_type?.startsWith('image/'))"
               :key="image.id"
-              :image="image as StoredItemMapped"
+              :image="image"
               h="100px"
             />
             <message-file
               v-for="file in content.stored_items.filter(i => !i.mime_type?.startsWith('image/'))"
               :key="file.id"
-              :file="file as StoredItem"
+              :file="file"
             />
           </div>
           <tool-content
@@ -140,7 +140,7 @@
           />
           <CyberlinkResult
             v-if="message.status !== 'processed' && content.type === 'assistant-tool' && content.name === 'create_cyberlink' && content.status === 'completed'"
-            :result="content.result"
+            :result="content.stored_items"
             :message="message"
             :key="'cyberlink-' + index"
             class="my-2"

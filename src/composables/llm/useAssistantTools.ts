@@ -11,9 +11,9 @@ import { useUserDataStore } from "src/stores/user-data"
 import { useQuasar } from "quasar"
 import { useI18n } from "vue-i18n"
 import { useCallApi } from "src/composables/call-api"
-import { useLlmDialog } from "src/composables/llm/useLlmDialog"
 import { useGetModel } from "src/composables/get-model"
 import { jsonSchema, tool, Tool } from "ai"
+import { getSystemPrompt } from "src/services/llm/utils"
 
 type CallTool = (plugin: Plugin, api: PluginApi, args: Record<string, any>) => Promise<{ result?: ApiResultItem[], error?: string }>
 
@@ -26,7 +26,6 @@ export const useAssistantTools = (assistant: Ref<AssistantMapped>, workspace: Re
 
   const model = computed(() => getModel(dialog.value?.model_override || assistant.value?.model))
 
-  const { getSystemPrompt } = useLlmDialog(workspace, dialog)
   const { callApi } = useCallApi(workspace, dialog)
   const activePlugins = computed<Plugin[]>(() => assistant.value ? pluginsStore.plugins.filter(p => p.available && assistant.value.plugins[p.id]?.enabled) : [])
   const artifacts = inject<Ref<ArtifactMapped[]>>('artifacts')
@@ -57,6 +56,7 @@ export const useAssistantTools = (assistant: Ref<AssistantMapped>, workspace: Re
       if (!item) continue // TODO: in case if tool failed ignore it
       if (item.type === 'text') {
         // Handle both ApiResultItem (contentText) and StoredItem (content_text)
+        // TODO: keep contentText  use content_text only for stored Item
         const text = 'content_text' in item ? item.content_text : item.contentText
         val.push({ type: 'text', text })
       } else {
@@ -95,7 +95,7 @@ export const useAssistantTools = (assistant: Ref<AssistantMapped>, workspace: Re
     await Promise.all(activePlugins.value.map(async p => {
       noRoundtrip &&= p.noRoundtrip
       const plugin = plugins[p.id]
-      console.log(`----plugin ${p.id}`, plugin, p.noRoundtrip)
+
       const pluginVars = {
         ...commonVars,
         ...plugin.vars

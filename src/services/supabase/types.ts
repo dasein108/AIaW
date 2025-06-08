@@ -42,7 +42,7 @@ type ChatMapped = Database['public']['Tables']['chats']['Insert'] & {
   type?: ChatType
 }
 
-type StoredItemMapped =Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id' | 'type'> & {dialog_id?: string, type: 'text' | 'file' | 'quote', message_content_id?: string}
+type StoredItemMapped = Omit<Database['public']['Tables']['stored_items']['Insert'], 'message_content_id' | 'dialog_id' | 'type'> & {dialog_id?: string, type: 'text' | 'file' | 'quote', message_content_id?: string}
 
 type WorkspaceMemberRole = 'admin' | 'member' | 'readonly'
 type WorkspaceRole = 'owner' | 'admin' | 'member' | 'readonly' | 'none'
@@ -61,7 +61,7 @@ type ArtifactMapped = Database['public']['Tables']['artifacts']['Insert'] & {
   versions: ArtifactVersion[]
 }
 
-type DialogMapped = Dialog & {
+type DialogMapped = Omit<Dialog, 'msg_tree' | 'msg_route'> & {
   assistant: Assistant | null
   model_override: Model | null
   input_vars: Record<string, string>
@@ -84,7 +84,7 @@ type AssistantMapped = Omit<Assistant, 'plugins'> & {
   prompt_role: 'system' | 'user' | 'assistant'
 };
 
-type MessageContentMapped = Omit<Database['public']['Tables']['message_contents']['Insert'], 'message_id'> & {
+type MessageContentMapped = Omit<Database['public']['Tables']['message_contents']['Insert'], 'message_id' | 'stored_items'> & {
   stored_items?: StoredItemMapped[]
   message_id?: string
 

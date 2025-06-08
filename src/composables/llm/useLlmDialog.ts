@@ -1,17 +1,27 @@
 import { useDialogsStore } from "src/stores/dialogs"
 import { generateTitle, generateArtifactName, generateExtractArtifact } from "src/services/llm/utils"
-import { computed, Ref, toRef } from "vue"
+import { computed, ref, Ref, toRef } from "vue"
 import { useUserPerfsStore } from "src/stores/user-perfs"
 import { useGetModel } from "../get-model"
 import { useI18n } from "vue-i18n"
-import { DialogMapped, DialogMessageMapped, MessageContentMapped, WorkspaceMapped } from "@/services/supabase/types"
-import { useQuasar } from "quasar"
-import { ConvertArtifactOptions, PluginPrompt } from "@/utils/types"
+import { AssistantMapped, DialogMapped, DialogMessageMapped, MessageContentMapped, StoredItemMapped, WorkspaceMapped } from "@/services/supabase/types"
+import { useQuasar, throttle } from "quasar"
+import { ConvertArtifactOptions, Plugin, PluginApi, PluginPrompt } from "@/utils/types"
 import { useCreateArtifact } from "../create-artifact"
 import { ExtractArtifactResult, PluginsPrompt } from "src/utils/templates"
 import { engine } from "src/utils/template-engine"
+import { AssistantMessageContent } from "@/common/types/dialogs"
+import sessions from 'src/utils/sessions'
+import { useCallApi } from "../call-api"
+import { useAssistantTools } from "./useAssistantTools"
+import { getAssistantModelSettings } from "src/utils/assistant-utils"
+import { streamText, generateText, StreamTextResult, GenerateTextResult } from "ai"
+import { useUserDataStore } from "src/stores/user-data"
+import { useStorage } from "src/composables/storage/useStorage"
+import { FILES_BUCKET } from "src/composables/storage/utils"
+import { useDialogModel, useDialogView } from "../useDialogView"
 
-export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<DialogMapped>) => {
+export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<DialogMapped>, assistant: Ref<AssistantMapped>) => {
   const dialogsStore = useDialogsStore()
   const { createArtifact } = useCreateArtifact(toRef(workspace.value, 'id'))
 
@@ -19,10 +29,17 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
   const { getModel, getSdkModel } = useGetModel()
   const { t, locale } = useI18n()
   const $q = useQuasar()
+  const { model, sdkModel, systemSdkModel } = useDialogModel(dialog, assistant)
+  const { callApi } = useCallApi(workspace, dialog)
+  const storage = useStorage(FILES_BUCKET)
+  const { getAssistantTools, toToolResultContent } = useAssistantTools(assistant, workspace, dialog)
+  const isStreaming = ref(false)
 
-  const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))
+  const {
+    chain, messageMap, getChainMessages, getDialogContents
+  } = useDialogView(dialog, assistant, workspace)
 
-  const genTitle = async (contents: MessageContentMapped[]) => {
+  const genTitle = async (contents: Readonly<MessageContentMapped[]>) => {
     try {
       const title = await generateTitle(systemSdkModel.value, contents, locale.value)
       await dialogsStore.updateDialog({ id: dialog.value.id, name: title })
@@ -76,21 +93,134 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
     })
   }
 
-  function getSystemPrompt(pluginPrompts: PluginPrompt[], promptTemplate: string, rolePrompt: string, vars: Record<string, any>) {
+  // function getSystemPrompt(pluginPrompts: PluginPrompt[], promptTemplate: string, rolePrompt: string, vars: Record<string, any>) {
+  //   try {
+  //     const prompt = engine.parseAndRenderSync(promptTemplate, {
+  //       ...vars,
+  //       _pluginsPrompt: pluginPrompts.length
+  //         ? engine.parseAndRenderSync(PluginsPrompt, { plugins: pluginPrompts })
+  //         : '',
+  //       _rolePrompt: rolePrompt
+  //     })
+  //     return prompt.trim() ? prompt : undefined
+  //   } catch (e) {
+  //     console.error(e)
+  //     $q.notify({ message: t('dialogView.promptParseFailed'), color: 'negative' })
+  //     throw e
+  //   }
+  // }
+
+  async function stream(target, insert = false, abortController: AbortController | null = null) {
+    isStreaming.value = true
+    const messageContent: AssistantMessageContent = {
+      type: 'assistant-message',
+      text: ''
+    }
+    const contents: MessageContentMapped[] = [messageContent]
+
+    const { id } = await dialogsStore.addDialogMessage(dialog.value.id, target, {
+      type: 'assistant',
+      assistant_id: assistant.value.id,
+      message_contents: contents,
+      status: 'pending',
+      generating_session: sessions.id,
+      model_name: model.value.name
+    }, insert)
+    !insert && await dialogsStore.addDialogMessage(dialog.value.id, id, {
+      type: 'user',
+      message_contents: [{
+        type: 'user-message',
+        text: '',
+        stored_items: []
+      }],
+      status: 'inputing'
+    })
+
+    // const update = throttle(() => dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents }), 50)
+    const update = async () => await dialogsStore.updateDialogMessage(dialog.value.id, id, { message_contents: contents })
+
+    async function callTool(plugin: Plugin, api: PluginApi, args) {
+      const content: MessageContentMapped = {
+        type: 'assistant-tool',
+        plugin_id: plugin.id,
+        name: api.name,
+        args,
+        status: 'calling'
+      }
+
+      contents.push(content)
+
+      await update()
+
+      const { result: apiResult, error } = await callApi(plugin, api, args)
+      const result: StoredItemMapped[] = await Promise.all(apiResult.map(r => storage.apiResultItemToStoredItem(r, dialog.value.id)))
+      // saveItems(result)
+      content.stored_items = result.filter(i => i)
+      if (error) {
+        content.status = 'failed'
+        content.error = error
+      } else {
+        content.status = 'completed'
+        content.result = result.map(i => i)
+      }
+      await update()
+
+      return { result, error }
+    }
+
+    const { noRoundtrip, tools, systemPrompt } = await getAssistantTools(callTool)
+
     try {
-      const prompt = engine.parseAndRenderSync(promptTemplate, {
-        ...vars,
-        _pluginsPrompt: pluginPrompts.length
-          ? engine.parseAndRenderSync(PluginsPrompt, { plugins: pluginPrompts })
-          : '',
-        _rolePrompt: rolePrompt
-      })
-      return prompt.trim() ? prompt : undefined
+      const settings = getAssistantModelSettings(assistant.value, noRoundtrip ? { maxSteps: 1 } : {})
+      const messages = getChainMessages()
+      systemPrompt && messages.unshift({ role: assistant.value.prompt_role, content: systemPrompt })
+      const params = {
+        model: sdkModel.value,
+        messages,
+        tools,
+        ...settings,
+        abortSignal: abortController?.signal
+      }
+      let result: StreamTextResult<any, any> | GenerateTextResult<any, any>
+      if (assistant.value.stream) {
+        result = streamText(params)
+        await dialogsStore.updateDialogMessage(dialog.value.id, id, { status: 'streaming' })
+        for await (const part of result.fullStream) {
+          if (part.type === 'text-delta') {
+            messageContent.text += part.textDelta
+            await update()
+          } else if (part.type === 'reasoning') {
+            messageContent.reasoning = (messageContent.reasoning ?? '') + part.textDelta
+            await update()
+          } else if (part.type === 'error') {
+            throw part.error
+          }
+        }
+      } else {
+        result = await generateText(params)
+        messageContent.text = await result.text
+        messageContent.reasoning = await result.reasoning
+      }
+
+      const usage = await result.usage
+      const warnings = (await result.warnings).map(w => (w.type === 'unsupported-setting' || w.type === 'unsupported-tool') ? w.details : w.message)
+      await dialogsStore.updateDialogMessage(dialog.value.id, id, { message_contents: contents, status: 'default', generating_session: null, warnings, usage })
     } catch (e) {
       console.error(e)
-      $q.notify({ message: t('dialogView.promptParseFailed'), color: 'negative' })
-      throw e
+      // if (e.data?.error?.type === 'budget_exceeded') {
+      //   $q.notify({
+      //     message: t('dialogView.errors.insufficientQuota'),
+      //     color: 'err-c',
+      //     textColor: 'on-err-c',
+      //     actions: [{ label: t('dialogView.recharge'), color: 'on-sur', handler() { router.push('/account') } }]
+      //   })
+      // }
+      await dialogsStore.updateDialogMessage(dialog.value.id, id, { message_contents: contents, error: e.message || e.toString(), status: 'failed', generating_session: null })
     }
+    const message = messageMap.value[chain.value.at(-2)]
+
+    perfs.artifactsAutoExtract && autoExtractArtifact(message, getDialogContents(-3, -1))
+    isStreaming.value = false
   }
 
   return {
@@ -98,6 +228,7 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
     genArtifactName,
     extractArtifact,
     autoExtractArtifact,
-    getSystemPrompt
+    stream,
+    isStreaming
   }
 }
