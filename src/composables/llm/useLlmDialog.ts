@@ -112,6 +112,7 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
 
   async function stream(target, insert = false, abortController: AbortController | null = null) {
     isStreaming.value = true
+
     const messageContent: AssistantMessageContent = {
       type: 'assistant-message',
       text: ''
@@ -173,7 +174,11 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
     try {
       const settings = getAssistantModelSettings(assistant.value, noRoundtrip ? { maxSteps: 1 } : {})
       const messages = getChainMessages()
-      systemPrompt && messages.unshift({ role: assistant.value.prompt_role, content: systemPrompt })
+
+      if (systemPrompt) {
+        messages.unshift({ role: assistant.value.prompt_role, content: systemPrompt })
+      }
+
       const params = {
         model: sdkModel.value,
         messages,
@@ -181,6 +186,7 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
         ...settings,
         abortSignal: abortController?.signal
       }
+
       let result: StreamTextResult<any, any> | GenerateTextResult<any, any>
       if (assistant.value.stream) {
         result = streamText(params)
@@ -221,6 +227,7 @@ export const useLlmDialog = (workspace: Ref<WorkspaceMapped>, dialog: Ref<Dialog
 
     perfs.artifactsAutoExtract && autoExtractArtifact(message, getDialogContents(-3, -1))
     isStreaming.value = false
+    perfs.autoGenTitle && chain.value.length === 4 && genTitle(getDialogContents())
   }
 
   return {

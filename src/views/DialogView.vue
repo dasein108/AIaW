@@ -1,61 +1,7 @@
 <template>
   <view-common-header
     @toggle-drawer="$emit('toggle-drawer')"
-    @contextmenu="createDialog"
   >
-    <!-- <q-badge
-      bg-pri-c
-      text-on-pri-c
-      ml-2
-      py-1
-    >
-      <a-avatar
-        v-if="workspace"
-        size="sm"
-        :avatar="workspace.avatar"
-      />
-      <q-icon
-        v-else
-        name="sym_o_error"
-        text-warn
-      />
-      <div
-        ml-2
-      >
-        {{ workspace?.name || 'undefined' }}
-      </div>
-    </q-badge>
-    <q-icon
-      name="sym_o_chevron_right"
-      ml-2
-    /> -->
-    <!-- TODO: remove / before -->
-    <!-- <div>
-      <assistant-item
-        clickable
-        :assistant
-        v-if="dialog"
-        text-base
-        item-rd
-        py-1
-        min-h-0
-        main
-      />
-      <q-menu>
-        <q-list>
-          <assistant-item
-            clickable
-            v-for="a in assistants"
-            :key="a.id"
-            :assistant="a"
-            @click="dialogsStore.updateDialog({ id: dialog.id, assistant_id: a.id })"
-            v-close-popup
-            py-1.5
-            min-h-0
-          />
-        </q-list>
-      </q-menu>
-    </div> -->
     <div
       v-if="model && assistant && dialog"
       text-on-sur-var
@@ -210,7 +156,7 @@
             :image="image"
             removable
             h="100px"
-            @remove="removeItem(image)"
+            @remove="removeStoredItem(image)"
             shadow
           />
           <message-file
@@ -218,7 +164,7 @@
             :key="file.id"
             :file="file"
             removable
-            @remove="removeItem(file)"
+            @remove="removeStoredItem(file)"
             shadow
           />
         </div>
@@ -475,29 +421,29 @@ const { assistant, workspace } = useActiveWorkspace()
 const dialogsStore = useDialogsStore()
 
 const dialog = computed(() => dialogsStore.dialogs[props.id])
-const { switchChain, updateChain } = useDialogChain(dialog)
+const { switchChain, updateMsgRoute } = useDialogChain(dialog)
 const {
   chain, messageMap, itemMap,
   editBranch, deleteBranch, updateInputText,
-  inputMessageContent, inputContentItems, addInputItems, inputEmpty, getDialogContents
+  inputMessageContent, inputContentItems, addInputItems, inputEmpty, getDialogContents, removeStoredItem
 } = useDialogView(dialog, assistant, workspace)
 console.log('-- dialog', dialog.value, chain.value, messageMap.value, itemMap.value)
 const pluginsStore = usePluginsStore()
-
-// const { callApi } = useCallApi(workspace, dialog)
 
 const { model, sdkModel, modelOptions } = useDialogModel(dialog, assistant)
 
 const $q = useQuasar()
 const { genTitle, extractArtifact, stream, isStreaming } = useLlmDialog(workspace, dialog, assistant)
 
-const { createDialog } = useCreateDialog(workspace.value.id)
-
 const preventLockingBottom = ref(false)
 const lockingBottom = computed(() => !preventLockingBottom.value && isStreaming.value && perfs.streamingLockBottom)
 
 // stream abort controller
 const abortController = ref<AbortController | null>(null)
+const imageInput = ref()
+const fileInput = ref()
+const messageInput = ref()
+const showVars = ref(true)
 
 const startStream = async (target: string, insert = false) => {
   preventLockingBottom.value = false
@@ -510,10 +456,6 @@ watch(() => props.id, () => {
 }, { immediate: true })
 
 provide('dialog', dialog)
-provide('messageMap', messageMap)
-provide('itemMap', itemMap)
-
-const messageInput = ref()
 
 function focusInput() {
   isPlatformEnabled(perfs.autoFocusDialogInput) && messageInput.value?.focus()
@@ -563,8 +505,6 @@ function onTextPaste(ev: ClipboardEvent) {
   }
 }
 
-const imageInput = ref()
-const fileInput = ref()
 function onInputFiles({ target }) {
   const files = target.files
   parseFiles(Array.from(files))
@@ -590,9 +530,6 @@ function onPaste(ev: ClipboardEvent) {
 }
 addEventListener('paste', onPaste)
 onUnmounted(() => removeEventListener('paste', onPaste))
-async function removeItem(stored_item: StoredItemMapped) {
-  await dialogsStore.removeStoreItem(stored_item)
-}
 
 async function parseFiles(files: File[]) {
   if (!files.length) return
@@ -679,7 +616,6 @@ async function send() {
     })
     await startStream(target, false)
   }
-  perfs.autoGenTitle && chain.value.length === 4 && genTitle(getDialogContents())
 }
 
 let lastScrollTop
@@ -730,7 +666,7 @@ watch(route, to => {
     if (to.query.goto) {
       const { route, highlight } = JSON.parse(to.query.goto as string)
       if (!JSONEqual(route, dialog.value.msg_route.slice(0, route.length))) {
-        updateChain(route)
+        updateMsgRoute(route)
         await until(chain).changed()
       }
       await nextTick()
@@ -757,8 +693,6 @@ function onEnter(ev) {
     else if (!ev.shiftKey) send()
   }
 }
-
-const showVars = ref(true)
 
 const scrollContainer = ref<HTMLElement>()
 function getEls() {

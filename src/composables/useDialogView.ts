@@ -31,7 +31,7 @@ export const useDialogChain = (dialog: Ref<DialogMapped>) => {
 
   const chain = computed<string[]>(() => dialog.value ? getChain(null, dialog.value.msg_route)[0] : [])
 
-  async function updateChain(route) {
+  async function updateMsgRoute(route) {
     const res = getChain(null, route)
     historyChain.value = res[0]
     await dialogsStore.updateDialog({ id: dialog.value.id, msg_route: res[1] })
@@ -50,10 +50,10 @@ export const useDialogChain = (dialog: Ref<DialogMapped>) => {
 
   async function switchChain(index: number, value: number) {
     const route = [...dialog.value.msg_route.slice(0, index), value]
-    await updateChain(route)
+    await updateMsgRoute(route)
   }
 
-  return { chain, historyChain, updateChain, switchChain }
+  return { chain, historyChain, updateMsgRoute, switchChain }
 }
 
 export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<AssistantMapped>, workspace: Ref<WorkspaceMapped>) => {
@@ -63,11 +63,12 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
 
   const { toToolResultContent } = useAssistantTools(assistant, workspace, dialog)
   const storage = useStorage()
-  const { chain, historyChain, updateChain, switchChain } = useDialogChain(dialog)
+  const { chain, historyChain, updateMsgRoute, switchChain } = useDialogChain(dialog)
 
   watch([() => dialogMessages.value.length, () => dialog.value?.id], () => {
-    dialog.value && updateChain(dialog.value.msg_route)
+    dialog.value && updateMsgRoute(dialog.value.msg_route)
   })
+
   const messageMap = computed<Record<string, DialogMessageMapped>>(() => {
     const map = {}
     dialogMessages.value.forEach(m => { map[m.id] = m })
@@ -100,6 +101,7 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
       }]
     })
   }
+
   const inputMessageContent = computed(() => messageMap.value[chain.value.at(-1)]?.message_contents[0] as UserMessageContent)
   const inputContentItems = computed(() => inputMessageContent.value.stored_items.map(item => itemMap.value[item.id]).filter(x => x))
   const inputEmpty = computed(() => !inputMessageContent.value?.text && !inputMessageContent.value?.stored_items.length)
@@ -212,6 +214,10 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
     return chain.value.slice(from, to).map(id => messageMap.value[id].message_contents).flat()
   }
 
+  async function removeStoredItem(stored_item: StoredItemMapped) {
+    await dialogsStore.removeStoreItem(stored_item)
+  }
+
   return {
     dialog,
     chain,
@@ -219,7 +225,7 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
     messageMap,
     itemMap,
     switchChain,
-    updateChain,
+    updateMsgRoute,
     editBranch,
     deleteBranch,
     getChainMessages,
@@ -228,6 +234,7 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
     inputContentItems,
     addInputItems,
     inputEmpty,
-    getDialogContents
+    getDialogContents,
+    removeStoredItem
   }
 }
