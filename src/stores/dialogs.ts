@@ -50,12 +50,12 @@ export const useDialogsStore = defineStore('dialogs', () => {
     }
 
     dialogMessages[dialogId] = data as DialogMessageMapped[]
-    console.log(`-- fetchDialogMessages ${dialogId}`, dialogs[dialogId].msg_route, dialogs[dialogId].msg_tree, Object.values(dialogMessages[dialogId]).map(m => toRaw(m)))
-    for (const rootId of Object.keys(dialogs[dialogId].msg_tree)) {
-      const rootContents = dialogMessages[dialogId].find(m => m.id === rootId)?.message_contents[0].text || '[root]'
-      const childContents = dialogMessages[dialogId].filter(m => dialogs[dialogId].msg_tree[rootId].includes(m.id)).map(m => m.message_contents[0].text)
-      console.log(`-- fetchDialogMessages msg_tree`, rootContents, childContents)
-    }
+    // console.log(`-- fetchDialogMessages ${dialogId}`, dialogs[dialogId].msg_route, dialogs[dialogId].msg_tree, Object.values(dialogMessages[dialogId]).map(m => toRaw(m)))
+    // for (const rootId of Object.keys(dialogs[dialogId].msg_tree)) {
+    //   const rootContents = dialogMessages[dialogId].find(m => m.id === rootId)?.message_contents[0].text || '[root]'
+    //   const childContents = dialogMessages[dialogId].filter(m => dialogs[dialogId].msg_tree[rootId].includes(m.id)).map(m => m.message_contents[0].text)
+    //   console.log(`-- fetchDialogMessages msg_tree`, rootContents, childContents)
+    // }
     return dialogMessages[dialogId]
   }
 

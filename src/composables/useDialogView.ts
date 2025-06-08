@@ -62,7 +62,6 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
   const dialogMessages = computed(() => dialogsStore.dialogMessages[dialog.value.id] || [])
   const { model } = useDialogModel(dialog, assistant)
 
-  const { toToolResultContent } = useAssistantTools(assistant, workspace, dialog)
   const storage = useStorage()
   const { chain, historyChain, updateMsgRoute, switchChain } = useDialogChain(dialog)
 
@@ -73,11 +72,6 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
   const messageMap = computed<Record<string, DialogMessageMapped>>(() => {
     const map = {}
     dialogMessages.value.forEach(m => { map[m.id] = m })
-    return map
-  })
-  const itemMap = computed<Record<string, StoredItemMapped>>(() => {
-    const map = {}
-    dialogMessages.value.flatMap(m => m.message_contents).flatMap(c => c.stored_items).forEach(i => { map[i.id] = i })
     return map
   })
 
@@ -137,8 +131,10 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
     ids.forEach(id => {
       delete msgTree[id]
     })
+
+    await dialogsStore.removeDialogMessages(ids)
+
     await dialogsStore.updateDialog({ id: dialog.value.id, msg_tree: msgTree })
-    // })
   }
 
   function getChainMessages() {
@@ -226,7 +222,6 @@ export const useDialogView = (dialog: Ref<DialogMapped>, assistant: Ref<Assistan
     chain,
     historyChain,
     messageMap,
-    itemMap,
     switchChain,
     updateMsgRoute,
     editBranch,

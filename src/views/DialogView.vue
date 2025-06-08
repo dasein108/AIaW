@@ -421,11 +421,11 @@ const dialogsStore = useDialogsStore()
 const dialog = computed(() => dialogsStore.dialogs[props.id])
 const { switchChain, updateMsgRoute } = useDialogChain(dialog)
 const {
-  chain, messageMap, itemMap,
+  chain, messageMap,
   editBranch, deleteBranch, updateInputText,
   inputMessageContent, inputContentItems, addInputItems, inputEmpty, getDialogContents, removeStoredItem
 } = useDialogView(dialog, assistant, workspace)
-console.log('-- dialog', dialog.value, chain.value, messageMap.value, itemMap.value)
+
 const pluginsStore = usePluginsStore()
 
 const { model, sdkModel, modelOptions } = useDialogModel(dialog, assistant)
