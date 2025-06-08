@@ -1,7 +1,7 @@
 <template>
   <view-common-header @toggle-drawer="$emit('toggle-drawer')">
     <q-toolbar-title>
-      {{ $t('assistantsMarket.title') }}
+      {{ $t("assistantsMarket.title") }}
     </q-toolbar-title>
   </view-common-header>
   <q-page-container>
@@ -21,9 +21,7 @@
         v-slot="{ item, index }"
         :items="filterList"
       >
-        <q-item
-          :key="index"
-        >
+        <q-item :key="index">
           <q-item-section avatar>
             <a-avatar :avatar="item.avatar" />
           </q-item-section>
@@ -50,7 +48,7 @@
                     @click="addToGlobal(item)"
                   >
                     <q-item-section>
-                      {{ $t('assistantsMarket.addToGlobal') }}
+                      {{ $t("assistantsMarket.addToGlobal") }}
                     </q-item-section>
                   </q-item>
                   <q-item
@@ -59,7 +57,7 @@
                     @click="addToWorkspace(item)"
                   >
                     <q-item-section>
-                      {{ $t('assistantsMarket.addToWorkspace') }}
+                      {{ $t("assistantsMarket.addToWorkspace") }}
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -74,51 +72,60 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, toRaw } from 'vue'
-import { useI18n } from 'vue-i18n'
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
-import { useQuasar } from 'quasar'
+import { useQuasar } from "quasar"
 
-import { caselessIncludes, pageFhStyle } from 'src/utils/functions'
-import AAvatar from 'src/components/AAvatar.vue'
+import AAvatar from "src/components/AAvatar.vue"
 
-import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
-import { useAssistantActions } from 'src/composables/workspaces/assistant-actions'
+import SelectWorkspaceDialog from "src/components/SelectWorkspaceDialog.vue"
+import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
+import { useAssistantActions } from "src/composables/workspaces/assistant-actions"
+import { caselessIncludes, pageFhStyle } from "src/utils/functions"
+import { computed, reactive, ref } from "vue"
+import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()
-defineEmits(['toggle-drawer'])
+defineEmits(["toggle-drawer"])
 
-const query = ref('')
+const query = ref("")
 const list = reactive([])
 
 const filterList = computed(() =>
   query.value
-    ? list.filter(item => caselessIncludes(item.name, query.value) || caselessIncludes(item.description, query.value))
+    ? list.filter(
+      (item) =>
+        caselessIncludes(item.name, query.value) ||
+          caselessIncludes(item.description, query.value)
+    )
     : list
 )
 
 const $q = useQuasar()
 const loading = ref(false)
 const { locale } = useI18n()
-function load() {
+
+function load () {
   loading.value = true
   fetch(`/json/assistants.${locale.value}.json`)
-    .then(res => res.json())
-    .then(data => {
+    .then((res) => res.json())
+    .then((data) => {
       list.push(...data)
-    }).catch(err => {
+    })
+    .catch((err) => {
       console.error(err)
       $q.notify({
-        message: t('assistantsMarket.loadError'),
-        color: 'err-c',
-        textColor: 'on-err-c',
-        actions: [{
-          label: t('assistantsMarket.retry'),
-          color: 'on-sur',
-          handler: load
-        }]
+        message: t("assistantsMarket.loadError"),
+        color: "err-c",
+        textColor: "on-err-c",
+        actions: [
+          {
+            label: t("assistantsMarket.retry"),
+            color: "on-sur",
+            handler: load,
+          },
+        ],
       })
-    }).finally(() => {
+    })
+    .finally(() => {
       loading.value = false
     })
 }
@@ -126,18 +133,18 @@ load()
 
 const { add } = useAssistantActions()
 
-function addToGlobal(item) {
+function addToGlobal (item) {
   add(item, null)
 }
-function addToWorkspace(item) {
+
+function addToWorkspace (item) {
   $q.dialog({
     component: SelectWorkspaceDialog,
     componentProps: {
-      accept: 'workspace'
-    }
-  }).onOk(selected => {
+      accept: "workspace",
+    },
+  }).onOk((selected) => {
     add(item, selected)
   })
 }
-
 </script>

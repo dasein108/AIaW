@@ -7,3 +7,4 @@
 /node_modules
 .eslintrc.cjs
 /quasar.config.*.temporary.compiled*
+/src/services/supabase/database.types.ts

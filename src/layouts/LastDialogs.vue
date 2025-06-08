@@ -23,9 +23,7 @@
           size="xs"
         />
       </q-item-section>
-      <q-item-section
-        class="q-pa-none q-pt-xs q-pl-xs"
-      >
+      <q-item-section class="q-pa-none q-pt-xs q-pl-xs">
         <div class="text-body2 ellipsis">
           {{ dialog.name }}
         </div>
@@ -35,13 +33,13 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogsStore } from 'src/stores/dialogs'
-import { useWorkspacesStore } from 'src/stores/workspaces'
-import { computed } from 'vue'
-import { DialogMapped } from 'src/services/supabase/types'
-import { storeToRefs } from 'pinia'
-import { useRouter } from 'vue-router'
-import AAvatar from 'src/components/AAvatar.vue'
+import { storeToRefs } from "pinia"
+import AAvatar from "src/components/AAvatar.vue"
+import { DialogMapped } from "src/services/supabase/types"
+import { useDialogsStore } from "src/stores/dialogs"
+import { useWorkspacesStore } from "src/stores/workspaces"
+import { computed } from "vue"
+import { useRouter } from "vue-router"
 
 const MAX_LAST_DIALOGS = 3
 const router = useRouter()
@@ -51,19 +49,29 @@ const dialogsMapped = computed(() => Object.values<DialogMapped>(dialogs.value))
 
 const lastDialogs = computed(() => {
   return [...dialogsMapped.value]
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
     .slice(0, MAX_LAST_DIALOGS)
 })
 
-const lastDialogsWithWorkspace = computed(() => workspacesStore.workspaces.length > 0 ? lastDialogs.value.map(d => {
-  const workspace = workspacesStore.workspaces?.find(w => w.id === d.workspace_id)
-  return {
-    ...d,
-    workspace
-  }
-}) : [])
+const lastDialogsWithWorkspace = computed(() =>
+  workspacesStore.workspaces.length > 0
+    ? lastDialogs.value.map((d) => {
+      const workspace = workspacesStore.workspaces?.find(
+        (w) => w.id === d.workspace_id
+      )
 
-function goToDialog(workspaceId: string, dialogId: string) {
+      return {
+        ...d,
+        workspace,
+      }
+    })
+    : []
+)
+
+function goToDialog (workspaceId: string, dialogId: string) {
   router.push(`/workspaces/${workspaceId}/dialogs/${dialogId}`)
 }
 </script>

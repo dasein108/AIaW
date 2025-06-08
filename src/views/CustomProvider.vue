@@ -4,7 +4,7 @@
     back-to="."
   >
     <q-toolbar-title>
-      {{ $t('customProvider.title') }}
+      {{ $t("customProvider.title") }}
     </q-toolbar-title>
   </view-common-header>
   <q-page-container v-if="provider">
@@ -15,7 +15,7 @@
         mx-a
       >
         <q-item>
-          <q-item-section>{{ $t('customProvider.name') }}</q-item-section>
+          <q-item-section>{{ $t("customProvider.name") }}</q-item-section>
           <q-item-section side>
             <a-input
               class="w-150px"
@@ -29,7 +29,7 @@
           clickable
           @click="pickAvatar"
         >
-          <q-item-section>{{ $t('customProvider.icon') }}</q-item-section>
+          <q-item-section>{{ $t("customProvider.icon") }}</q-item-section>
           <q-item-section
             side
             text-on-sur
@@ -44,7 +44,7 @@
         />
         <q-separator spaced />
         <q-item-label header>
-          {{ $t('customProvider.subproviders') }}
+          {{ $t("customProvider.subproviders") }}
         </q-item-label>
         <template
           v-for="(subprovider, index) in provider.subproviders"
@@ -87,61 +87,74 @@
 </template>
 
 <script setup lang="ts">
-import { computed, toRaw } from 'vue'
-import { useProvidersStore } from 'src/stores/providers'
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
-import AAvatar from 'src/components/AAvatar.vue'
-import { useQuasar } from 'quasar'
-import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
-import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
-import { useSetTitle } from 'src/composables/set-title'
-import { useI18n } from 'vue-i18n'
-import { CustomProviderMapped, SubproviderMapped } from 'src/services/supabase/types'
-import ProviderInputItems from 'src/components/ProviderInputItems.vue'
-import SubproviderInput from 'src/components/SubproviderInput.vue'
-import { syncRef } from 'src/composables/sync-ref'
-import { pageFhStyle } from 'src/utils/functions'
+import { useQuasar } from "quasar"
+import AAvatar from "src/components/AAvatar.vue"
+import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
+import ProviderInputItems from "src/components/ProviderInputItems.vue"
+import SubproviderInput from "src/components/SubproviderInput.vue"
+import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
+import { useSetTitle } from "src/composables/set-title"
+import { syncRef } from "src/composables/sync-ref"
+import ErrorNotFound from "src/pages/ErrorNotFound.vue"
+import {
+  CustomProviderMapped,
+  SubproviderMapped,
+} from "src/services/supabase/types"
+import { useProvidersStore } from "src/stores/providers"
+import { pageFhStyle } from "src/utils/functions"
+import { computed, toRaw } from "vue"
+import { useI18n } from "vue-i18n"
 
 const props = defineProps<{
   id: string
 }>()
 
-defineEmits(['toggle-drawer'])
+defineEmits(["toggle-drawer"])
 
 const store = useProvidersStore()
 
 const provider = syncRef<CustomProviderMapped>(
-  () => store.providers.find(a => a.id === props.id),
-  val => { store.put(toRaw(val)) },
+  () => store.providers.find((a) => a.id === props.id),
+  (val) => {
+    store.put(toRaw(val))
+  },
   { valueDeep: true }
 )
 
-function addSubprovider() {
+function addSubprovider () {
   store.update(provider.value.id, {
-    subproviders: [{
-      custom_provider_id: provider.value.id,
-      provider: null,
-      model_map: {}
-    }]
+    subproviders: [
+      {
+        custom_provider_id: provider.value.id,
+        provider: null,
+        model_map: {},
+      },
+    ],
   })
 }
 
-function removeSubprovider(subprovider: SubproviderMapped) {
+function removeSubprovider (subprovider: SubproviderMapped) {
   store.deleteSubprovider(provider.value.id, subprovider.id)
 }
 
 const $q = useQuasar()
-function pickAvatar() {
+
+function pickAvatar () {
   $q.dialog({
     component: PickAvatarDialog,
     componentProps: {
       model: provider.value.avatar,
-      defaultTab: 'icon'
-    }
-  }).onOk(avatar => {
+      defaultTab: "icon",
+    },
+  }).onOk((avatar) => {
     provider.value.avatar = avatar
   })
 }
 const { t } = useI18n()
-useSetTitle(computed(() => provider.value && `${t('customProvider.title')} - ${provider.value.name}`))
+useSetTitle(
+  computed(
+    () =>
+      provider.value && `${t("customProvider.title")} - ${provider.value.name}`
+  )
+)
 </script>

@@ -1,8 +1,6 @@
 <template>
   <transition name="fade">
-    <q-page-container
-      v-if="show"
-    >
+    <q-page-container v-if="show">
       <q-page
         flex
         items-center
@@ -29,12 +27,12 @@
 </template>
 
 <script setup lang="ts">
-import HintCard from 'src/components/HintCard.vue'
-import { ref, onMounted } from 'vue'
-import { useUiStateStore } from 'src/stores/ui-state'
+import HintCard from "src/components/HintCard.vue"
+import { useUiStateStore } from "src/stores/ui-state"
+import { ref, onMounted } from "vue"
 
 const props = defineProps<{
-  timeout?: number,
+  timeout?: number
   drawerToggle?: boolean
 }>()
 
@@ -47,5 +45,4 @@ onMounted(() => {
     show.value = true
   }, props.timeout ?? 200)
 })
-
 </script>

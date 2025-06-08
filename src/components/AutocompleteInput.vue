@@ -23,8 +23,8 @@
 </template>
 
 <script setup lang="ts">
-import { useFilterOptions } from 'src/composables/filter-options'
-import { toRef } from 'vue'
+import { useFilterOptions } from "src/composables/filter-options"
+import { toRef } from "vue"
 
 const props = defineProps<{
   options: string[]
@@ -32,5 +32,5 @@ const props = defineProps<{
 
 const model = defineModel<string>()
 
-const { filteredOptions, filterFn } = useFilterOptions(toRef(props, 'options'))
+const { filteredOptions, filterFn } = useFilterOptions(toRef(props, "options"))
 </script>

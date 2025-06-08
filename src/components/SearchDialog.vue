@@ -36,7 +36,10 @@
           toggle-text-color="on-pri-c"
           v-model="global"
           no-caps
-          :options="[{ label: $t('searchDialog.workspace'), value: false }, { label: $t('searchDialog.global'), value: true }]"
+          :options="[
+            { label: $t('searchDialog.workspace'), value: false },
+            { label: $t('searchDialog.global'), value: true },
+          ]"
         />
       </div>
       <div
@@ -49,7 +52,7 @@
           <q-item v-if="!results.length">
             <q-item-section>
               <q-item-label text-on-sur-var>
-                {{ $t('searchDialog.noResults') }}
+                {{ $t("searchDialog.noResults") }}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -79,25 +82,23 @@
 </template>
 
 <script setup lang="ts">
-import { QList, useDialogPluginComponent } from 'quasar'
-import { escapeRegex } from 'src/utils/functions'
-import { nextTick, watch, ref, watchEffect } from 'vue'
-import Mark from 'mark.js'
-import { useDialogsStore } from 'src/stores/dialogs'
+import Mark from "mark.js"
+import { QList, useDialogPluginComponent } from "quasar"
+import { useDialogsStore } from "src/stores/dialogs"
+import { escapeRegex } from "src/utils/functions"
+import { nextTick, watch, ref, watchEffect } from "vue"
 
 const props = defineProps<{
   workspaceId: string
 }>()
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
 const open = defineModel<boolean>({ required: true })
 
 const global = ref(false)
 const dialogsStore = useDialogsStore()
-const q = ref('')
+const q = ref("")
 watchEffect(async () => {
   await search()
 })
@@ -111,19 +112,31 @@ interface Result {
 }
 const results = ref<Result[]>(null)
 const listRef = ref<QList>()
-async function search() {
+
+async function search () {
   if (!q.value) return
+
   // const hits = docs.value.filter(d => caselessIncludes(d.content, q.value)).slice(0, 100)
   unmark()
-  const dialogs = await dialogsStore.searchDialogs(q.value, global.value ? null : props.workspaceId)
+  const dialogs = await dialogsStore.searchDialogs(
+    q.value,
+    global.value ? null : props.workspaceId
+  )
   console.log("---search dialogs: ", dialogs)
   // debugger
-  results.value = (await dialogsStore.searchDialogs(q.value, props.workspaceId)).map(d => ({
+  results.value = (
+    await dialogsStore.searchDialogs(q.value, props.workspaceId)
+  ).map((d) => ({
     workspaceId: d.dialog_message.dialog.workspace_id,
     dialogId: d.dialog_message.dialog_id,
     title: d.dialog_message.dialog.name,
-    route: getRoute(d.dialog_message.dialog.msg_tree as Record<string, string[]>, d.message_id),
-    preview: d.text.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))?.[0]
+    route: getRoute(
+      d.dialog_message.dialog.msg_tree as Record<string, string[]>,
+      d.message_id
+    ),
+    preview: d.text.match(
+      new RegExp(`^.*${escapeRegex(q.value)}.*$`, "im")
+    )?.[0],
   }))
 
   nextTick(() => {
@@ -131,29 +144,36 @@ async function search() {
   })
 }
 
-function unmark() {
+function unmark () {
   if (!listRef.value) return
+
   const mark = new Mark(listRef.value.$el)
   mark.unmark()
 }
 
-function highlight() {
+function highlight () {
   if (!q.value) return
+
   if (!listRef.value) return
+
   const mark = new Mark(listRef.value.$el)
   mark.mark(q.value)
 }
 
-watch(open, val => {
-  val && results.value && nextTick(() => {
-    highlight()
-  })
+watch(open, (val) => {
+  val &&
+    results.value &&
+    nextTick(() => {
+      highlight()
+    })
 })
 
-function getRoute(tree: Record<string, string[]>, target: string, curr = null) {
+function getRoute (tree: Record<string, string[]>, target: string, curr = null) {
   for (const [i, v] of tree[curr].entries()) {
     if (v === target) return [i]
+
     const route = getRoute(tree, target, v)
+
     if (route) return [i, ...route]
   }
 }

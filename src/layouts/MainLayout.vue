@@ -45,7 +45,7 @@
         text-sec
       >
         <q-item-section>
-          {{ t('mainLayout.workspace', 1) }}
+          {{ t("mainLayout.workspace", 1) }}
         </q-item-section>
         <q-item-section side>
           <q-btn
@@ -54,7 +54,9 @@
             dense
             icon="sym_o_home"
             :to="`/workspaces/${workspace.id}`"
-            :class="{'route-active': route.path === `/workspaces/${workspace.id}`}"
+            :class="{
+              'route-active': route.path === `/workspaces/${workspace.id}`,
+            }"
             :title="$t('workspacePage.workspaceHome')"
           />
         </q-item-section>
@@ -75,7 +77,7 @@
         pb-0
       >
         <q-item-section>
-          {{ t('mainLayout.lastDialogs') }}
+          {{ t("mainLayout.lastDialogs") }}
         </q-item-section>
       </q-item>
       <q-item>
@@ -88,7 +90,7 @@
         text-sec
       >
         <q-item-section>
-          {{ t('mainLayout.pinnedChats') }}
+          {{ t("mainLayout.pinnedChats") }}
         </q-item-section>
       </q-item>
       <q-item>
@@ -100,23 +102,22 @@
 </template>
 
 <script setup>
-import { useUiStateStore } from 'src/stores/ui-state'
-import { useRoute } from 'vue-router'
-import { useQuasar } from 'quasar'
-import version from 'src/version.json'
-import { useI18n } from 'vue-i18n'
-import { useOpenLastWorkspace } from 'src/composables/open-last-workspace'
-import { VueDraggable } from 'vue-draggable-plus'
-import WorkspaceSelector from './WorkspaceSelector.vue'
-import AssistantSelector from './AssistantSelector.vue'
-import TabsItem from './TabsItem.vue'
-import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
-import AddDialogItem from 'src/components/AddDialogItem.vue'
-import LastDialogs from './LastDialogs.vue'
-import PinnedChats from './PinnedChats.vue'
+import { useQuasar } from "quasar"
+import AddDialogItem from "src/components/AddDialogItem.vue"
+import { useOpenLastWorkspace } from "src/composables/open-last-workspace"
+import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
+import { useUiStateStore } from "src/stores/ui-state"
+import version from "src/version.json"
+import { useI18n } from "vue-i18n"
+import { useRoute } from "vue-router"
+import AssistantSelector from "./AssistantSelector.vue"
+import LastDialogs from "./LastDialogs.vue"
+import PinnedChats from "./PinnedChats.vue"
+import TabsItem from "./TabsItem.vue"
+import WorkspaceSelector from "./WorkspaceSelector.vue"
 
 defineOptions({
-  name: 'MainLayout'
+  name: "MainLayout",
 })
 
 const uiStore = useUiStateStore()
@@ -124,22 +125,25 @@ const route = useRoute()
 const { workspace } = useActiveWorkspace()
 
 const { openLastWorkspace } = useOpenLastWorkspace()
-route.path === '/' && openLastWorkspace()
+route.path === "/" && openLastWorkspace()
 
 const { t, locale } = useI18n()
 const $q = useQuasar()
-function notifyVersion() {
+
+function notifyVersion () {
   $q.notify({
-    message: `${t('mainLayout.currentVersion')}: ${version.version}`,
-    color: 'inv-sur',
-    textColor: 'inv-on-sur',
-    actions: [{
-      label: t('mainLayout.changeLog'),
-      handler: () => {
-        window.open('https://github.com/NitroRCr/AIaW/releases', '_blank')
+    message: `${t("mainLayout.currentVersion")}: ${version.version}`,
+    color: "inv-sur",
+    textColor: "inv-on-sur",
+    actions: [
+      {
+        label: t("mainLayout.changeLog"),
+        handler: () => {
+          window.open("https://github.com/NitroRCr/AIaW/releases", "_blank")
+        },
+        textColor: "inv-pri",
       },
-      textColor: 'inv-pri'
-    }]
+    ],
   })
 }
 </script>
@@ -153,7 +157,7 @@ function notifyVersion() {
   cursor: pointer;
 }
 .logo {
-  font-family: 'Material Symbols Outlined';
+  font-family: "Material Symbols Outlined";
   font-weight: 800;
   text-shadow: 0 0 1px #000;
   letter-spacing: 0.1em;

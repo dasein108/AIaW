@@ -7,11 +7,11 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          {{ $t('saveDialog.title') }}
+          {{ $t("saveDialog.title") }}
         </div>
       </q-card-section>
       <q-card-section pt-0>
-        {{ $t('saveDialog.message', { name }) }}
+        {{ $t("saveDialog.message", { name }) }}
       </q-card-section>
       <q-card-actions>
         <q-btn
@@ -39,15 +39,14 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
+import { useDialogPluginComponent } from "quasar"
 
 defineProps<{
   name: string
 }>()
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent()
 </script>

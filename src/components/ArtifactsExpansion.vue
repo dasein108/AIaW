@@ -4,9 +4,7 @@
     expand-icon-class="important:pl-2"
   >
     <template #header>
-      <q-item-section>
-        Artifacts
-      </q-item-section>
+      <q-item-section> Artifacts </q-item-section>
       <q-item-section side>
         <div>
           <select-file-btn
@@ -33,12 +31,13 @@
         tip-key="artifacts-usage"
         rd-0
       >
-        {{ $t('artifactsExpansion.artifactsGuide') }} <a
+        {{ $t("artifactsExpansion.artifactsGuide") }}
+        <a
           href="https://docs.aiaw.app/usage/artifacts.html"
           target="_blank"
           pri-link
         >
-          {{ $t('artifactsExpansion.artifactsGuideLink') }}
+          {{ $t("artifactsExpansion.artifactsGuideLink") }}
         </a>
       </a-tip>
       <q-list>
@@ -55,7 +54,10 @@
           v-for="artifact in filteredArtifacts"
           :key="artifact.id"
           clickable
-          @click="route.query.artifactId !== artifact.id && router.push({ query: { openArtifact: artifact.id } })"
+          @click="
+            route.query.artifactId !== artifact.id &&
+              router.push({ query: { openArtifact: artifact.id } })
+          "
           :class="{ 'route-active': openedArtifacts.includes(artifact.id) }"
           item-rd
           min-h="32px"
@@ -95,71 +97,77 @@
 </template>
 
 <script setup lang="ts">
-import { caselessIncludes, getFileExt, isTextFile } from 'src/utils/functions'
-import { computed, inject, ref, Ref, toRef, watch } from 'vue'
-import { useCloseArtifact } from 'src/composables/close-artifact'
-import ArtifactItemMenu from './ArtifactItemMenu.vue'
-import ArtifactItemIcon from './ArtifactItemIcon.vue'
-import SelectFileBtn from 'src/components/SelectFileBtn.vue'
-import { useCreateArtifact } from 'src/composables/create-artifact'
-import { useQuasar } from 'quasar'
-import { dialogOptions } from 'src/utils/values'
-import { useI18n } from 'vue-i18n'
-import ATip from './ATip.vue'
-import { useRouter, useRoute } from 'vue-router'
-import { ArtifactMapped, Workspace } from '@/services/supabase/types'
-import { useUserDataStore } from 'src/stores/user-data'
+import { useQuasar } from "quasar"
+import SelectFileBtn from "src/components/SelectFileBtn.vue"
+import { useCloseArtifact } from "src/composables/close-artifact"
+import { useCreateArtifact } from "src/composables/create-artifact"
+import { useUserDataStore } from "src/stores/user-data"
+import { caselessIncludes, getFileExt, isTextFile } from "src/utils/functions"
+import { dialogOptions } from "src/utils/values"
+import { computed, inject, ref, Ref, toRef } from "vue"
+import { useI18n } from "vue-i18n"
+import { useRouter, useRoute } from "vue-router"
+import ArtifactItemIcon from "./ArtifactItemIcon.vue"
+import ArtifactItemMenu from "./ArtifactItemMenu.vue"
+import ATip from "./ATip.vue"
+import { ArtifactMapped, Workspace } from "@/services/supabase/types"
 
-const artifacts: Ref<ArtifactMapped[]> = inject('artifacts')
+const artifacts: Ref<ArtifactMapped[]> = inject("artifacts")
 
 const filter = ref(null)
 const filteredArtifacts = computed(() => {
-  return artifacts.value.filter(d => !filter.value || caselessIncludes(d.name, filter.value)).reverse()
+  return artifacts.value
+    .filter((d) => !filter.value || caselessIncludes(d.name, filter.value))
+    .reverse()
 })
 
 const { closeArtifact } = useCloseArtifact()
 const userDataStore = useUserDataStore()
-const workspace = inject<Ref<Workspace>>('workspace')
-const openedArtifacts = computed(() => userDataStore.data.openedArtifacts[workspace.value.id] || [])
+const workspace = inject<Ref<Workspace>>("workspace")
+const openedArtifacts = computed(
+  () => userDataStore.data.openedArtifacts[workspace.value.id] || []
+)
 const { t } = useI18n()
 const $q = useQuasar()
-const { createArtifact } = useCreateArtifact(toRef(workspace.value, 'id'))
+const { createArtifact } = useCreateArtifact(toRef(workspace.value, "id"))
 const router = useRouter()
 const route = useRoute()
 
-function createEmptyArtifact() {
+function createEmptyArtifact () {
   $q.dialog({
-    title: t('artifactsExpansion.createArtifact'),
+    title: t("artifactsExpansion.createArtifact"),
     prompt: {
-      model: '',
-      type: 'text',
-      label: t('artifactsExpansion.name'),
-      isValid: v => !!v.trim()
+      model: "",
+      type: "text",
+      label: t("artifactsExpansion.name"),
+      isValid: (v) => !!v.trim(),
     },
     cancel: true,
-    ok: t('artifactsExpansion.create'),
-    ...dialogOptions
-  }).onOk(name => {
+    ok: t("artifactsExpansion.create"),
+    ...dialogOptions,
+  }).onOk((name) => {
     const language = getFileExt(name)
     createArtifact({ name, language })
   })
 }
-async function artifactFromFiles(files: File[]) {
+
+async function artifactFromFiles (files: File[]) {
   for (const file of files) {
-    if (!await isTextFile(file)) {
+    if (!(await isTextFile(file))) {
       $q.notify({
-        message: t('artifactsExpansion.nonTextFile', { name: file.name }),
-        color: 'negative'
+        message: t("artifactsExpansion.nonTextFile", { name: file.name }),
+        color: "negative",
       })
       continue
     }
+
     const text = await file.text()
     await createArtifact({
       name: file.name,
       language: getFileExt(file.name),
       versions: [{ date: new Date(file.lastModified).toISOString(), text }],
       curr_index: 0,
-      tmp: text
+      tmp: text,
     })
   }
 }

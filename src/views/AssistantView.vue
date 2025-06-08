@@ -1,7 +1,7 @@
 <template>
   <view-common-header @toggle-drawer="$emit('toggle-drawer')">
     <q-toolbar-title>
-      {{ $t('assistantView.header') }}
+      {{ $t("assistantView.header") }}
     </q-toolbar-title>
   </view-common-header>
   <q-page-container
@@ -19,22 +19,22 @@
           tip-key="assistant-effect-scope"
           rd-0
         >
-          {{ $t('assistantView.effectScopeTip') }}
+          {{ $t("assistantView.effectScopeTip") }}
           <router-link
             to="/settings"
             pri-link
           >
-            {{ $t('assistantView.settingsPage') }}
+            {{ $t("assistantView.settingsPage") }}
           </router-link>
         </a-tip>
         <q-item-label
           header
           id="assistant"
         >
-          {{ $t('assistantView.assistant') }}
+          {{ $t("assistantView.assistant") }}
         </q-item-label>
         <q-item>
-          <q-item-section>{{ $t('assistantView.name') }}</q-item-section>
+          <q-item-section>{{ $t("assistantView.name") }}</q-item-section>
           <q-item-section side>
             <a-input
               class="w-150px"
@@ -48,14 +48,14 @@
           clickable
           @click="pickAvatar"
         >
-          <q-item-section>{{ $t('assistantView.avatar') }}</q-item-section>
+          <q-item-section>{{ $t("assistantView.avatar") }}</q-item-section>
           <q-item-section side>
             <a-avatar :avatar="assistant.avatar" />
           </q-item-section>
         </q-item>
         <q-item>
           <q-item-section avatar>
-            {{ $t('assistantView.roleSetting') }}
+            {{ $t("assistantView.roleSetting") }}
           </q-item-section>
           <q-item-section>
             <a-input
@@ -68,7 +68,7 @@
         </q-item>
         <q-item>
           <q-item-section avatar>
-            {{ $t('assistantView.promptTemplate') }}
+            {{ $t("assistantView.promptTemplate") }}
           </q-item-section>
           <q-item-section>
             <a-input
@@ -81,7 +81,7 @@
         </q-item>
         <q-item>
           <q-item-section avatar>
-            {{ $t('assistantView.promptVars') }}
+            {{ $t("assistantView.promptVars") }}
           </q-item-section>
           <q-item-section>
             <prompt-var-editor
@@ -95,19 +95,19 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          {{ $t('assistantView.promptVarsGuide1') }}
+          {{ $t("assistantView.promptVarsGuide1") }}
           <a
             href="https://docs.aiaw.app/usage/prompt-vars.html"
             target="_blank"
             pri-link
-          >{{ $t('assistantView.promptVarsGuide2') }}</a>
+          >{{ $t("assistantView.promptVarsGuide2") }}</a>
         </q-item-label>
         <q-separator spaced />
         <q-item-label
           header
           id="model"
         >
-          {{ $t('assistantView.model') }}
+          {{ $t("assistantView.model") }}
         </q-item-label>
         <model-input-items v-model="assistant.model" />
         <q-item-label
@@ -115,14 +115,14 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          {{ $t('assistantView.modelEmptyTip') }}
+          {{ $t("assistantView.modelEmptyTip") }}
         </q-item-label>
         <q-separator spaced />
         <q-item-label
           header
           id="provider"
         >
-          {{ $t('assistantView.provider') }}
+          {{ $t("assistantView.provider") }}
         </q-item-label>
         <provider-input-items v-model="assistant.provider" />
         <q-item-label
@@ -130,15 +130,15 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          {{ $t('assistantView.providerEmptyTip') }}
+          {{ $t("assistantView.providerEmptyTip") }}
         </q-item-label>
         <q-separator spaced />
         <q-item id="plugins">
           <q-item-section text-sec>
-            {{ $t('assistantView.plugins') }}
+            {{ $t("assistantView.plugins") }}
           </q-item-section>
           <q-item-section side>
-            {{ $t('assistantView.enable') }}
+            {{ $t("assistantView.enable") }}
           </q-item-section>
         </q-item>
         <enable-plugins-items :assistant-id="assistant.id" />
@@ -147,11 +147,11 @@
           header
           id="generate-settings"
         >
-          {{ $t('assistantView.generateSettings') }}
+          {{ $t("assistantView.generateSettings") }}
         </q-item-label>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.stream') }}</q-item-label>
+            <q-item-label>{{ $t("assistantView.stream") }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-toggle v-model="assistant.stream" />
@@ -159,9 +159,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.maxRetries') }}</q-item-label>
+            <q-item-label>{{ $t("assistantView.maxRetries") }}</q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.maxRetriesTip') }}
+              {{ $t("assistantView.maxRetriesTip") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -176,9 +176,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.maxSteps') }}</q-item-label>
+            <q-item-label>{{ $t("assistantView.maxSteps") }}</q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.maxStepsTip') }}
+              {{ $t("assistantView.maxStepsTip") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -193,9 +193,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.contextNum') }}</q-item-label>
+            <q-item-label>{{ $t("assistantView.contextNum") }}</q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.contextNumTip') }}
+              {{ $t("assistantView.contextNumTip") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -211,7 +211,7 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.promptRole') }}</q-item-label>
+            <q-item-label>{{ $t("assistantView.promptRole") }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-select
@@ -228,13 +228,15 @@
           header
           id="model-params"
         >
-          {{ $t('assistantView.modelParams') }}
+          {{ $t("assistantView.modelParams") }}
         </q-item-label>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.temperature') }}<code>temperature</code></q-item-label>
+            <q-item-label>
+              {{ $t("assistantView.temperature") }}<code>temperature</code>
+            </q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.temperatureTip') }}
+              {{ $t("assistantView.temperatureTip") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -250,9 +252,11 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.topP') }}<code>topP</code></q-item-label>
+            <q-item-label>
+              {{ $t("assistantView.topP") }}<code>topP</code>
+            </q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.topPTip') }}
+              {{ $t("assistantView.topPTip") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -268,9 +272,12 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.presencePenalty') }}<code>presencePenalty</code></q-item-label>
+            <q-item-label>
+              {{ $t("assistantView.presencePenalty")
+              }}<code>presencePenalty</code>
+            </q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.presencePenaltyTip') }}
+              {{ $t("assistantView.presencePenaltyTip") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -286,9 +293,12 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.frequencyPenalty') }}<code>frequencyPenalty</code></q-item-label>
+            <q-item-label>
+              {{ $t("assistantView.frequencyPenalty")
+              }}<code>frequencyPenalty</code>
+            </q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.frequencyPenaltyTip') }}
+              {{ $t("assistantView.frequencyPenaltyTip") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -304,9 +314,11 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.stopSequences') }}<code>stopSequences</code></q-item-label>
+            <q-item-label>
+              {{ $t("assistantView.stopSequences") }}<code>stopSequences</code>
+            </q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.stopSequencesTip') }}
+              {{ $t("assistantView.stopSequencesTip") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -326,9 +338,11 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.maxTokens') }}<code>maxTokens</code></q-item-label>
+            <q-item-label>
+              {{ $t("assistantView.maxTokens") }}<code>maxTokens</code>
+            </q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.maxTokensTip') }}
+              {{ $t("assistantView.maxTokensTip") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -344,9 +358,11 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.seed') }}<code>seed</code></q-item-label>
+            <q-item-label>
+              {{ $t("assistantView.seed") }}<code>seed</code>
+            </q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.seedTip') }}
+              {{ $t("assistantView.seedTip") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -365,18 +381,18 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          {{ $t('assistantView.notAllParamsSupported') }}
+          {{ $t("assistantView.notAllParamsSupported") }}
         </q-item-label>
         <q-separator spaced />
         <q-item-label
           header
           id="model-params"
         >
-          {{ $t('assistantView.metadata') }}
+          {{ $t("assistantView.metadata") }}
         </q-item-label>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.author') }}</q-item-label>
+            <q-item-label>{{ $t("assistantView.author") }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <a-input
@@ -389,7 +405,7 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.description') }}</q-item-label>
+            <q-item-label>{{ $t("assistantView.description") }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <a-input
@@ -403,7 +419,7 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.homepage') }}</q-item-label>
+            <q-item-label>{{ $t("assistantView.homepage") }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <a-input
@@ -417,13 +433,14 @@
         <q-separator spaced />
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.export') }}</q-item-label>
+            <q-item-label>{{ $t("assistantView.export") }}</q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.exportTip1') }}<a
+              {{ $t("assistantView.exportTip1")
+              }}<a
                 href="https://docs.aiaw.app/usage/assistants.html#分享助手"
                 target="_blank"
                 pri-link
-              >{{ $t('assistantView.exportTip2') }}</a>
+              >{{ $t("assistantView.exportTip2") }}</a>
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -440,7 +457,7 @@
                   @click="exportAssistant('file')"
                 >
                   <q-item-section>
-                    {{ $t('assistantView.exportToFile') }}
+                    {{ $t("assistantView.exportToFile") }}
                   </q-item-section>
                 </q-item>
                 <q-item
@@ -449,7 +466,7 @@
                   @click="exportAssistant('clipboard')"
                 >
                   <q-item-section>
-                    {{ $t('assistantView.exportToClipboard') }}
+                    {{ $t("assistantView.exportToClipboard") }}
                   </q-item-section>
                 </q-item>
               </q-menu>
@@ -463,66 +480,93 @@
 </template>
 
 <script setup lang="ts">
-import { syncRef } from 'src/composables/sync-ref'
-import { useAssistantsStore } from 'src/stores/assistants'
-import { computed, inject, toRaw } from 'vue'
-import ProviderInputItems from 'src/components/ProviderInputItems.vue'
-import PromptVarEditor from 'src/components/PromptVarEditor.vue'
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
-import AAvatar from 'src/components/AAvatar.vue'
-import { copyToClipboard, useQuasar } from 'quasar'
-import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
-import ModelInputItems from 'src/components/ModelInputItems.vue'
-import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
-import ATip from 'src/components/ATip.vue'
-import { useLocateId } from 'src/composables/locate-id'
-import { blobToBase64, pageFhStyle } from 'src/utils/functions'
-import { useSetTitle } from 'src/composables/set-title'
-import EnablePluginsItems from 'src/components/EnablePluginsItems.vue'
-import { exportFile } from 'src/utils/platform-api'
-import { AssistantMapped } from '@/services/supabase/types'
-import { getAvatarUrl } from 'src/composables/storage/utils'
+import { copyToClipboard, useQuasar } from "quasar"
+import AAvatar from "src/components/AAvatar.vue"
+import ATip from "src/components/ATip.vue"
+import EnablePluginsItems from "src/components/EnablePluginsItems.vue"
+import ModelInputItems from "src/components/ModelInputItems.vue"
+import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
+import PromptVarEditor from "src/components/PromptVarEditor.vue"
+import ProviderInputItems from "src/components/ProviderInputItems.vue"
+import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
+import { useLocateId } from "src/composables/locate-id"
+import { useSetTitle } from "src/composables/set-title"
+import { getAvatarUrl } from "src/composables/storage/utils"
+import { syncRef } from "src/composables/sync-ref"
+import ErrorNotFound from "src/pages/ErrorNotFound.vue"
+import { useAssistantsStore } from "src/stores/assistants"
+import { pageFhStyle } from "src/utils/functions"
+import { exportFile } from "src/utils/platform-api"
+import { computed, inject, toRaw } from "vue"
+import { AssistantMapped } from "@/services/supabase/types"
 
 const props = defineProps<{
   id: string
 }>()
 
-defineEmits(['toggle-drawer'])
+defineEmits(["toggle-drawer"])
 
 const store = useAssistantsStore()
 const assistant = syncRef<AssistantMapped>(
-  () => store.assistants.find(a => a.id === props.id),
-  val => { store.put(toRaw(val)) },
+  () => store.assistants.find((a) => a.id === props.id),
+  (val) => {
+    store.put(toRaw(val))
+  },
   { valueDeep: true }
 )
 
 const $q = useQuasar()
-function pickAvatar() {
+
+function pickAvatar () {
   $q.dialog({
     component: PickAvatarDialog,
     componentProps: {
       model: assistant.value.avatar,
-      defaultTab: 'ai'
-    }
-  }).onOk(avatar => {
+      defaultTab: "ai",
+    },
+  }).onOk((avatar) => {
     console.log("---pickAvatar avatar", avatar)
     assistant.value.avatar = avatar
   })
 }
 
-const rightDrawerAbove = inject('rightDrawerAbove')
+const rightDrawerAbove = inject("rightDrawerAbove")
 useLocateId(assistant)
 
 useSetTitle(computed(() => assistant.value?.name))
 
-async function exportAssistant(target: 'file' | 'clipboard') {
+async function exportAssistant (target: "file" | "clipboard") {
   let { avatar } = assistant.value
-  if (avatar.type === 'image') {
-    avatar = { type: 'url', url: getAvatarUrl(avatar.imageId) }
+
+  if (avatar.type === "image") {
+    avatar = { type: "url", url: getAvatarUrl(avatar.imageId) }
   }
-  const { name, prompt, prompt_vars, prompt_template, model, model_settings, author, homepage, description } = assistant.value
-  const json = JSON.stringify({ name, avatar, prompt, prompt_vars, prompt_template, model, model_settings, author, homepage, description })
-  if (target === 'file') {
+
+  const {
+    name,
+    prompt,
+    prompt_vars,
+    prompt_template,
+    model,
+    model_settings,
+    author,
+    homepage,
+    description,
+  } = assistant.value
+  const json = JSON.stringify({
+    name,
+    avatar,
+    prompt,
+    prompt_vars,
+    prompt_template,
+    model,
+    model_settings,
+    author,
+    homepage,
+    description,
+  })
+
+  if (target === "file") {
     exportFile(`${name}.json`, json)
   } else {
     copyToClipboard(json)

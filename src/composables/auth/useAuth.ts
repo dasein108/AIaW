@@ -1,29 +1,39 @@
-import { useQuasar } from 'quasar'
-import { supabase } from 'src/services/supabase/client'
-import { Ref } from 'vue'
+import { useQuasar } from "quasar"
+import { supabase } from "src/services/supabase/client"
+import { Ref } from "vue"
 
-export function useAuth(loading: Ref<boolean>, onComplete: () => void) {
+export function useAuth (loading: Ref<boolean>, onComplete: () => void) {
   const $q = useQuasar()
 
-  async function auth(email: string, password:string, isSignUp:boolean = false) {
+  async function auth (
+    email: string,
+    password: string,
+    isSignUp: boolean = false
+  ) {
     try {
       loading.value = true
 
-      const { error } = isSignUp ? await supabase.auth.signUp({
-        email,
-        password
-      }) : await supabase.auth.signInWithPassword({ email, password })
+      const { error } = isSignUp
+        ? await supabase.auth.signUp({
+          email,
+          password,
+        })
+        : await supabase.auth.signInWithPassword({ email, password })
 
       if (error) {
         $q.notify({
           message: error.message,
-          color: 'negative'
+          color: "negative",
         })
+
         return
       }
+
       $q.notify({
-        message: isSignUp ? `Signed up with ${email}` : `Logged in with ${email}`,
-        color: 'green'
+        message: isSignUp
+          ? `Signed up with ${email}`
+          : `Logged in with ${email}`,
+        color: "green",
       })
 
       onComplete()
@@ -31,7 +41,7 @@ export function useAuth(loading: Ref<boolean>, onComplete: () => void) {
       console.error(error)
       $q.notify({
         message: `Error: ${error}`,
-        color: 'negative'
+        color: "negative",
       })
     } finally {
       loading.value = false
@@ -41,12 +51,13 @@ export function useAuth(loading: Ref<boolean>, onComplete: () => void) {
   }
 
   return {
-    signUp: async (email: string, password: string) => await auth(email, password, true),
-    signIn: async (email: string, password: string) => await auth(email, password, false),
+    signUp: async (email: string, password: string) =>
+      await auth(email, password, true),
+    signIn: async (email: string, password: string) =>
+      await auth(email, password, false),
     signOut: async () => {
       await supabase.auth.signOut()
       onComplete()
-    }
-
+    },
   }
 }

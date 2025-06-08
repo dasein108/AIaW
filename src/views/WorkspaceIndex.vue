@@ -1,13 +1,11 @@
 <template>
   <view-common-header @toggle-drawer="$emit('toggle-drawer')">
     <q-toolbar-title>
-      {{ $t('workspaceIndex.title') }}
+      {{ $t("workspaceIndex.title") }}
     </q-toolbar-title>
   </view-common-header>
   <q-page-container bg-sur-c-low>
-    <q-page
-      bg-sur
-    >
+    <q-page bg-sur>
       <md-preview
         bg-sur
         rd-lg
@@ -21,28 +19,34 @@
 </template>
 
 <script setup lang="ts">
-import { computed, Ref, inject, toRaw } from 'vue'
-import { syncRef } from 'src/composables/sync-ref'
-import { useWorkspacesStore } from 'src/stores/workspaces'
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
-import { MdPreview } from 'md-editor-v3'
-import { engine } from 'src/utils/template-engine'
-import { useSetTitle } from 'src/composables/set-title'
-import { useMdPreviewProps } from 'src/composables/md-preview-props'
-import { DefaultWsIndexContent } from 'src/utils/templates'
-import { WorkspaceMapped } from '@/services/supabase/types'
+import { MdPreview } from "md-editor-v3"
+import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
+import { useMdPreviewProps } from "src/composables/md-preview-props"
+import { useSetTitle } from "src/composables/set-title"
+import { syncRef } from "src/composables/sync-ref"
+import { useWorkspacesStore } from "src/stores/workspaces"
+import { engine } from "src/utils/template-engine"
+import { DefaultWsIndexContent } from "src/utils/templates"
+import { computed, Ref, inject, toRaw } from "vue"
+import { WorkspaceMapped } from "@/services/supabase/types"
 
-defineEmits(['toggle-drawer'])
+defineEmits(["toggle-drawer"])
 
 const store = useWorkspacesStore()
 
 const workspace = syncRef(
-  inject('workspace') as Ref<WorkspaceMapped>,
-  val => { store.putItem(toRaw(val)) },
+  inject("workspace") as Ref<WorkspaceMapped>,
+  (val) => {
+    store.putItem(toRaw(val))
+  },
   { valueDeep: true }
 )
 
-const contentMd = computed(() => engine.parseAndRenderSync(workspace.value.index_content, { workspace: workspace.value || DefaultWsIndexContent }))
+const contentMd = computed(() =>
+  engine.parseAndRenderSync(workspace.value.index_content, {
+    workspace: workspace.value || DefaultWsIndexContent,
+  })
+)
 
 useSetTitle(computed(() => workspace.value?.name))
 

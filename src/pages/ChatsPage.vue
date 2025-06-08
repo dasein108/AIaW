@@ -18,15 +18,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide, ref } from 'vue'
-import { useQuasar } from 'quasar'
-import ChatsExpansion from 'src/components/chats/ChatsExpansion.vue'
-import { useRoute } from 'vue-router'
+import { useQuasar } from "quasar"
+import ChatsExpansion from "src/components/chats/ChatsExpansion.vue"
+import { computed, provide, ref } from "vue"
 
-const route = useRoute()
 const drawerOpen = ref(false)
 const drawerBreakpoint = 960
 const $q = useQuasar()
 const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
-provide('rightDrawerAbove', rightDrawerAbove)
+provide("rightDrawerAbove", rightDrawerAbove)
 </script>

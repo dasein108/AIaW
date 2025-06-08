@@ -29,13 +29,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue'
-import { KeplerWallet } from '@/services/kepler/KeplerWallet'
-import { useAuthStore } from 'src/stores/auth'
+import { useAuthStore } from "src/stores/auth"
+import { computed, inject } from "vue"
+import { KeplerWallet } from "@/services/kepler/KeplerWallet"
 
-const hasKeplr = computed(() => typeof window !== 'undefined' && window.keplr)
+const hasKeplr = computed(() => typeof window !== "undefined" && window.keplr)
 
-const wallet = inject<KeplerWallet>('kepler')
+const wallet = inject<KeplerWallet>("kepler")
 
 const walletState = computed(() => wallet.state.value)
 
@@ -45,7 +45,7 @@ const connectWallet = async () => {
     const authStore = useAuthStore()
     authStore.connectWithExternalSigner(wallet.getOfflineSigner())
   } catch (error) {
-    console.error('Failed to connect wallet:', error)
+    console.error("Failed to connect wallet:", error)
     // You might want to show an error message to the user here
   }
 }
@@ -56,7 +56,7 @@ const disconnectWallet = async () => {
     const authStore = useAuthStore()
     authStore.disconnect()
   } catch (error) {
-    console.error('Failed to disconnect wallet:', error)
+    console.error("Failed to disconnect wallet:", error)
   }
 }
 </script>
@@ -83,5 +83,4 @@ const disconnectWallet = async () => {
   font-family: monospace;
   word-break: break-all;
 }
-
 </style>

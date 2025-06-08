@@ -15,6 +15,15 @@ const model = defineModel<number>()
 
 <style lang="scss" scoped>
 .q-slider :is(.q-slider__track) {
-  background: linear-gradient(to right, #984061, #8F4E00, #566500, #006B5B, #006590, #684FA4, #984061);
+  background: linear-gradient(
+    to right,
+    #984061,
+    #8f4e00,
+    #566500,
+    #006b5b,
+    #006590,
+    #684fa4,
+    #984061
+  );
 }
 </style>

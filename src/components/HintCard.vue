@@ -8,9 +8,7 @@
       w-full
       h-a
     >
-    <div
-      text="on-sur-var center"
-    >
+    <div text="on-sur-var center">
       {{ message }}
     </div>
   </div>

@@ -11,34 +11,37 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
-import { StoredItemMapped } from '@/services/supabase/types'
-import ViewFileDialog from './ViewFileDialog.vue'
-import { computed } from 'vue'
-import { codeExtensions } from 'src/utils/values'
+import { useQuasar } from "quasar"
+import { codeExtensions } from "src/utils/values"
+import { computed } from "vue"
+import ViewFileDialog from "./ViewFileDialog.vue"
+import { StoredItemMapped } from "@/services/supabase/types"
 
 const props = defineProps<{
-  file: StoredItemMapped,
+  file: StoredItemMapped
   removable?: boolean
 }>()
 
-defineEmits(['remove'])
+defineEmits(["remove"])
 
 const $q = useQuasar()
-function viewFile() {
+
+function viewFile () {
   $q.dialog({
     component: ViewFileDialog,
     componentProps: {
-      file: props.file
-    }
+      file: props.file,
+    },
   })
 }
 
 const icon = computed(() => {
-  const ext = props.file.name.split('.').pop()
+  const ext = props.file.name.split(".").pop()
+
   if (codeExtensions.includes(ext)) {
-    return 'sym_o_code'
+    return "sym_o_code"
   }
-  return 'sym_o_description'
+
+  return "sym_o_description"
 })
 </script>

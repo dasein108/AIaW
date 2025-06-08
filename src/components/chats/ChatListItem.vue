@@ -1,8 +1,13 @@
 <template>
   <q-item
-
     clickable
-    :to="{ path: chat.type === 'private' ? `/chats/${chat.id}` : `/workspaces/${chat.workspace_id}/chats/${chat.id}`, query: route.query }"
+    :to="{
+      path:
+        chat.type === 'private'
+          ? `/chats/${chat.id}`
+          : `/workspaces/${chat.workspace_id}/chats/${chat.id}`,
+      query: route.query,
+    }"
     active-class="bg-sec-c text-on-sec-c"
     item-rd
     py-1.5
@@ -22,9 +27,7 @@
     <q-item-section>
       {{ chat.name }}
     </q-item-section>
-    <menu-button
-      :menu-ref="toRef(menuChatRef)"
-    />
+    <menu-button :menu-ref="toRef(menuChatRef)" />
     <q-menu
       ref="menuChatRef"
       context-menu
@@ -52,16 +55,15 @@
 </template>
 
 <script setup lang="ts">
-
-import { ChatMapped } from '@/services/supabase/types'
-import { useWorkspaceChats } from '../../composables/chats/useWorkspaceChats'
-import MenuButton from '../ExpansionItem/MenuButton.vue'
-import MenuItem from '../MenuItem.vue'
-import { dialogOptions } from 'src/utils/values'
-import { useQuasar, QMenu } from 'quasar'
-import { useRoute } from 'vue-router'
-import { computed, ref, toRef } from 'vue'
-import AAvatar from 'src/components/AAvatar.vue'
+import { useQuasar, QMenu } from "quasar"
+import AAvatar from "src/components/AAvatar.vue"
+import { dialogOptions } from "src/utils/values"
+import { computed, ref, toRef } from "vue"
+import { useRoute } from "vue-router"
+import { useWorkspaceChats } from "../../composables/chats/useWorkspaceChats"
+import MenuButton from "../ExpansionItem/MenuButton.vue"
+import MenuItem from "../MenuItem.vue"
+import { ChatMapped } from "@/services/supabase/types"
 
 const props = defineProps<{
   chat: ChatMapped
@@ -69,40 +71,40 @@ const props = defineProps<{
 
 const $q = useQuasar()
 const route = useRoute()
-const selected = defineModel<string>('selected')
+const selected = defineModel<string>("selected")
 
 const workspaceId = computed(() => props.chat.workspace_id)
 const { updateChat, removeChat } = useWorkspaceChats(workspaceId)
 
 const menuChatRef = ref<QMenu | null>(null)
 
-function renameItem(chat: ChatMapped) {
+function renameItem (chat: ChatMapped) {
   $q.dialog({
-    title: 'Rename chat',
+    title: "Rename chat",
     prompt: {
       model: chat.name,
-      type: 'text',
-      label: 'Chat name',
-      isValid: v => v.trim() && v !== chat.name
+      type: "text",
+      label: "Chat name",
+      isValid: (v) => v.trim() && v !== chat.name,
     },
     cancel: true,
-    ...dialogOptions
-  }).onOk(async newName => {
+    ...dialogOptions,
+  }).onOk(async (newName) => {
     await updateChat(chat.id, { name: newName.trim() })
   })
 }
 
-function deleteItem(chat: ChatMapped) {
+function deleteItem (chat: ChatMapped) {
   $q.dialog({
-    title: 'Delete chat',
-    message: 'Are you sure you want to delete this chat?',
+    title: "Delete chat",
+    message: "Are you sure you want to delete this chat?",
     cancel: true,
-    ...dialogOptions
+    ...dialogOptions,
   }).onOk(async () => {
-    await removeChat(chat.id).catch(error => {
+    await removeChat(chat.id).catch((error) => {
       $q.notify({
         message: error.message,
-        color: 'negative'
+        color: "negative",
       })
     })
   })

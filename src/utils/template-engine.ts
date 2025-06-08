@@ -1,4 +1,4 @@
-import { Liquid } from 'liquidjs'
+import { Liquid } from "liquidjs"
 
 const engine = new Liquid({ jsTruthy: true })
 

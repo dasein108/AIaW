@@ -10,7 +10,7 @@
       :name="icon"
       v-else
     />
-    <span ml-2>{{ loading ? $t('abortableBtn.stop') : label }}</span>
+    <span ml-2>{{ loading ? $t("abortableBtn.stop") : label }}</span>
   </q-btn>
 </template>
 
@@ -20,5 +20,5 @@ defineProps<{
   icon: string
   loading: boolean
 }>()
-defineEmits(['click', 'abort'])
+defineEmits(["click", "abort"])
 </script>

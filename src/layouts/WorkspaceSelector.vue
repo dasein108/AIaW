@@ -7,7 +7,7 @@
       />
     </q-item-section>
     <q-item-section>
-      {{ workspace?.name || 'Select a workspace...' }}
+      {{ workspace?.name || "Select a workspace..." }}
     </q-item-section>
 
     <q-item-section side>
@@ -24,15 +24,18 @@
   </q-item>
 </template>
 <script setup lang="ts">
-import { computed } from 'vue'
-import WorkspaceNav from 'src/components/WorkspaceNav.vue'
-import AAvatar from 'src/components/AAvatar.vue'
-import { IconAvatar } from 'src/utils/types'
-import { avatarKey } from 'src/utils/functions'
-import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
+import AAvatar from "src/components/AAvatar.vue"
+import WorkspaceNav from "src/components/WorkspaceNav.vue"
+import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
+import { avatarKey } from "src/utils/functions"
+import { IconAvatar } from "src/utils/types"
+import { computed } from "vue"
 
 const { workspace } = useActiveWorkspace()
 
-const avatar = computed(() => workspace.value?.avatar || { type: 'icon', icon: 'sym_o_question_mark' } as IconAvatar)
-
+const avatar = computed(
+  () =>
+    workspace.value?.avatar ||
+    ({ type: "icon", icon: "sym_o_question_mark" } as IconAvatar)
+)
 </script>

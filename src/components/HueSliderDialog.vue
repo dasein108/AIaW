@@ -6,7 +6,7 @@
     <q-card style="width: min(90vw, 400px)">
       <q-card-section>
         <div class="text-h6">
-          {{ $t('hueSliderDialog.title') }}
+          {{ $t("hueSliderDialog.title") }}
         </div>
       </q-card-section>
       <q-card-section py-0>
@@ -47,23 +47,22 @@
 </template>
 
 <script setup>
-import { useDialogPluginComponent } from 'quasar'
-import { ref } from 'vue'
-import HctPreviewCircle from './HctPreviewCircle.vue'
-import HueSlider from './HueSlider.vue'
+import { useDialogPluginComponent } from "quasar"
+import { ref } from "vue"
+import HctPreviewCircle from "./HctPreviewCircle.vue"
+import HueSlider from "./HueSlider.vue"
 
 const props = defineProps({
   value: {
     type: Number,
-    required: true
-  }
+    required: true,
+  },
 })
 
 const model = ref(props.value)
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent()
 </script>

@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="cosmos-wallet"
-  >
+  <div class="cosmos-wallet">
     <div
       v-if="!walletState.isConnected"
       class="not-connected"
@@ -40,11 +38,11 @@
 </template>
 
 <script setup lang="ts">
-import { CosmosWallet } from '@/services/cosmos/CosmosWallet'
-import { computed, inject, ref } from 'vue'
-import MnemonicDialog from './MnemonicDialog.vue'
+import { computed, inject, ref } from "vue"
+import MnemonicDialog from "./MnemonicDialog.vue"
+import { CosmosWallet } from "@/services/cosmos/CosmosWallet"
 
-const wallet = inject<CosmosWallet>('cosmos')
+const wallet = inject<CosmosWallet>("cosmos")
 const showMnemonicDialog = ref(false)
 
 const walletState = computed(() => wallet.state.value)
@@ -57,7 +55,7 @@ const connectWithMnemonic = async (mnemonic: string, pin: string) => {
   try {
     await wallet.connectWithMnemonic(mnemonic, pin)
   } catch (error) {
-    console.error('Failed to connect with mnemonic:', error)
+    console.error("Failed to connect with mnemonic:", error)
   }
 }
 
@@ -65,7 +63,7 @@ const disconnectWallet = async () => {
   try {
     await wallet.disconnect()
   } catch (error) {
-    console.error('Failed to disconnect wallet:', error)
+    console.error("Failed to disconnect wallet:", error)
   }
 }
 </script>

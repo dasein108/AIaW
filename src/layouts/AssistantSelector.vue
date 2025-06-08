@@ -11,7 +11,7 @@
       />
     </q-item-section>
     <q-item-section>
-      {{ assistant?.name || 'Select a assistant...' }}
+      {{ assistant?.name || "Select a assistant..." }}
     </q-item-section>
 
     <q-item-section side>
@@ -28,15 +28,18 @@
   </q-item>
 </template>
 <script setup lang="ts">
-import { computed } from 'vue'
-import AAvatar from 'src/components/AAvatar.vue'
-import AssistantList from 'src/components/AssistantList.vue'
-import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
-import { avatarKey } from 'src/utils/functions'
-import { IconAvatar } from 'src/utils/types'
+import AAvatar from "src/components/AAvatar.vue"
+import AssistantList from "src/components/AssistantList.vue"
+import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
+import { avatarKey } from "src/utils/functions"
+import { IconAvatar } from "src/utils/types"
+import { computed } from "vue"
 
 const { assistant, workspace } = useActiveWorkspace()
 
-const avatar = computed(() => assistant.value?.avatar || { type: 'icon', icon: 'sym_o_question_mark' } as IconAvatar)
-
+const avatar = computed(
+  () =>
+    assistant.value?.avatar ||
+    ({ type: "icon", icon: "sym_o_question_mark" } as IconAvatar)
+)
 </script>

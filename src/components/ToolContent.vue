@@ -8,7 +8,7 @@
       <template #header>
         <q-item-section avatar>
           <a-avatar
-            :avatar="pluginData?.avatar || {type: 'text',text: 'DF'}"
+            :avatar="pluginData?.avatar || { type: 'text', text: 'DF' }"
           />
         </q-item-section>
         <q-item-section>
@@ -16,7 +16,7 @@
             {{ plugin.title }}<code bg-sur-c-high>{{ content.name }}</code>
           </q-item-label>
           <q-item-label caption>
-            {{ $t('toolContent.toolCall') }}
+            {{ $t("toolContent.toolCall") }}
           </q-item-label>
         </q-item-section>
         <q-item-section side>
@@ -61,7 +61,12 @@
         />
         <md-preview
           v-else-if="['json', 'code'].includes(component)"
-          :model-value="wrapCode(content.result[index].content_text, component === 'json' ? 'json' : '')"
+          :model-value="
+            wrapCode(
+              content.result[index].content_text,
+              component === 'json' ? 'json' : ''
+            )
+          "
           v-bind="mdPreviewProps"
           bg-sur-c-low
           rd-md
@@ -78,18 +83,18 @@
 </template>
 
 <script setup lang="ts">
-import { usePluginsStore } from 'src/stores/plugins'
-import { AssistantToolContent } from '@/common/types/dialogs'
-import { computed, ComputedRef, inject } from 'vue'
-import AAvatar from './AAvatar.vue'
-import { engine } from 'src/utils/template-engine'
-import { MdPreview } from 'md-editor-v3'
-import { wrapCode } from 'src/utils/functions'
-import MessageImage from './MessageImage.vue'
-import MessageAudio from './MessageAudio.vue'
-import { useMdPreviewProps } from 'src/composables/md-preview-props'
-import { useI18n } from 'vue-i18n'
-import { StoredItemMapped } from '@/services/supabase/types'
+import { MdPreview } from "md-editor-v3"
+import { useMdPreviewProps } from "src/composables/md-preview-props"
+import { usePluginsStore } from "src/stores/plugins"
+import { wrapCode } from "src/utils/functions"
+import { engine } from "src/utils/template-engine"
+import { computed } from "vue"
+import { useI18n } from "vue-i18n"
+import AAvatar from "./AAvatar.vue"
+import MessageAudio from "./MessageAudio.vue"
+import MessageImage from "./MessageImage.vue"
+import { AssistantToolContent } from "@/common/types/dialogs"
+import { StoredItemMapped } from "@/services/supabase/types"
 
 const { t } = useI18n()
 
@@ -98,19 +103,22 @@ const props = defineProps<{
 }>()
 
 const pluginsStore = usePluginsStore()
-const plugin = computed(() => pluginsStore.plugins.find(p => p.id === props.content.plugin_id))
-const api = computed(() => plugin.value?.apis.find(a => a.name === props.content.name))
+const plugin = computed(() =>
+  pluginsStore.plugins.find((p) => p.id === props.content.plugin_id)
+)
+const api = computed(() =>
+  plugin.value?.apis.find((a) => a.name === props.content.name)
+)
 const pluginData = computed(() => pluginsStore.data[props.content.plugin_id])
 
-const contentTemplate =
-`### ${t('toolContent.callParams')}
+const contentTemplate = `### ${t("toolContent.callParams")}
 
 \`\`\`json
 {{ content.args | json: 2 }}
 \`\`\`
 
 {%- if result %}
-### ${t('toolContent.callResult')}
+### ${t("toolContent.callResult")}
 
 \`\`\`json
 {{ result | json: 2 }}
@@ -118,19 +126,26 @@ const contentTemplate =
 {%- endif %}
 
 {%- if content.error %}
-### ${t('toolContent.errorMessage')}
+### ${t("toolContent.errorMessage")}
 
 {{ content.error }}
 {%- endif %}
 `
 const contentMd = computed(() => {
   const { content } = props
+
   return engine.parseAndRenderSync(contentTemplate, {
     content,
-    result: content.result?.map(item => {
-      const { name = '', type, mime_type, content_text } = item as StoredItemMapped
+    result: content.result?.map((item) => {
+      const {
+        name = "",
+        type,
+        mime_type,
+        content_text,
+      } = item as StoredItemMapped
+
       return { name, type, mime_type, content_text }
-    })
+    }),
   })
 })
 

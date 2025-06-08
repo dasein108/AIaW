@@ -1,27 +1,35 @@
-import { usePluginsStore } from 'src/stores/plugins'
-import { GradioPluginManifestSchema, HuggingPluginManifestSchema, LobePluginManifestSchema, McpPluginManifestSchema } from 'src/utils/types'
-import { Validator } from '@cfworker/json-schema'
-import { toRaw } from 'vue'
-import { useQuasar } from 'quasar'
-import { useI18n } from 'vue-i18n'
-import { fetch } from 'src/utils/platform-api'
+import { Validator } from "@cfworker/json-schema"
+import { useQuasar } from "quasar"
+import { usePluginsStore } from "src/stores/plugins"
+import { fetch } from "src/utils/platform-api"
+import {
+  GradioPluginManifestSchema,
+  HuggingPluginManifestSchema,
+  LobePluginManifestSchema,
+  McpPluginManifestSchema,
+} from "src/utils/types"
+import { toRaw } from "vue"
+import { useI18n } from "vue-i18n"
 
-export function useInstallPlugin() {
+export function useInstallPlugin () {
   const store = usePluginsStore()
   const $q = useQuasar()
   const { t } = useI18n()
-  async function install(source) {
+
+  async function install (source) {
     let manifest
-    if (typeof source === 'string') {
-      if (source.startsWith('http')) {
+
+    if (typeof source === "string") {
+      if (source.startsWith("http")) {
         try {
-          manifest = await fetch(source).then(res => res.json())
+          manifest = await fetch(source).then((res) => res.json())
         } catch (err) {
           console.error(err)
           $q.notify({
-            message: t('installPlugin.fetchFailed', { message: err.message }),
-            color: 'negative'
+            message: t("installPlugin.fetchFailed", { message: err.message }),
+            color: "negative",
           })
+
           return
         }
       } else {
@@ -29,35 +37,44 @@ export function useInstallPlugin() {
           manifest = JSON.parse(source)
         } catch (err) {
           $q.notify({
-            message: t('installPlugin.formatError'),
-            color: 'negative'
+            message: t("installPlugin.formatError"),
+            color: "negative",
           })
+
           return
         }
       }
-    } else if (typeof source === 'object') {
+    } else if (typeof source === "object") {
       manifest = toRaw(source)
     }
+
     if (new Validator(GradioPluginManifestSchema).validate(manifest).valid) {
       await store.installGradioPlugin(manifest)
-    } else if (new Validator(HuggingPluginManifestSchema).validate(manifest).valid) {
+    } else if (
+      new Validator(HuggingPluginManifestSchema).validate(manifest).valid
+    ) {
       await store.installHuggingPlugin(manifest)
-    } else if (new Validator(LobePluginManifestSchema).validate(manifest).valid) {
+    } else if (
+      new Validator(LobePluginManifestSchema).validate(manifest).valid
+    ) {
       await store.installLobePlugin(manifest)
-    } else if (new Validator(McpPluginManifestSchema).validate(manifest).valid) {
-      await store.installMcpPlugin(manifest).catch(err => {
+    } else if (
+      new Validator(McpPluginManifestSchema).validate(manifest).valid
+    ) {
+      await store.installMcpPlugin(manifest).catch((err) => {
         console.error(err)
         $q.notify({
-          message: t('installPlugin.installFailed', { message: err.message }),
-          color: 'negative'
+          message: t("installPlugin.installFailed", { message: err.message }),
+          color: "negative",
         })
       })
     } else {
       $q.notify({
-        message: t('installPlugin.unsupportedFormat'),
-        color: 'negative'
+        message: t("installPlugin.unsupportedFormat"),
+        color: "negative",
       })
     }
   }
+
   return { install }
 }

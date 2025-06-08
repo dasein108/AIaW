@@ -1,9 +1,8 @@
 /* eslint-disable no-useless-escape */
-import { Boolean, Object, Optional, Static, String } from '@sinclair/typebox'
-import { i18n } from 'src/boot/i18n'
+import { Boolean, Object, Optional, Static, String } from "@sinclair/typebox"
+import { i18n } from "src/boot/i18n"
 
-const GenDialogTitle =
-`
+const GenDialogTitle = `
 <instructions>
   Your task is to analyze the provided chat history between a user and an assistant and generate a concise, relevant title summarizing the conversation.
   Follow these rules strictly:
@@ -55,8 +54,7 @@ const GenDialogTitle =
 </final_instruction>
 `
 
-const DialogContent =
-`# {{ title }}
+const DialogContent = `# {{ title }}
 {%- for content in contents %}
 {%- if content.type == 'user-message' %}
 
@@ -69,8 +67,7 @@ const DialogContent =
 {%- endif %}
 {%- endfor %}`
 
-const PluginsPrompt =
-`<plugins>
+const PluginsPrompt = `<plugins>
 {%- for plugin in plugins %}
 <plugin id="{{ plugin.id }}">
 {%- if plugin.prompt %}
@@ -83,8 +80,7 @@ const PluginsPrompt =
 </plugins>
 `
 
-const AssistantDefaultPrompt =
-`{%- if _rolePrompt %}
+const AssistantDefaultPrompt = `{%- if _rolePrompt %}
 <role_prompt>
 {{ _rolePrompt }}
 </role_prompt>
@@ -95,28 +91,38 @@ const AssistantDefaultPrompt =
 
 const { t } = i18n.global
 
-const DefaultWsIndexContent = t('templates.defaultWsIndexContent')
+const DefaultWsIndexContent = t("templates.defaultWsIndexContent")
 
 const ExtractArtifactSchema = Object({
   thinking: String({
-    description: 'During the process of determining whether there are artifacts in the conversation record between the user and the AI assistant, your thinking process.'
+    description:
+      "During the process of determining whether there are artifacts in the conversation record between the user and the AI assistant, your thinking process.",
   }),
   found: Boolean({
-    description: 'Whether there are artifacts in the conversation record between the user and the AI assistant'
+    description:
+      "Whether there are artifacts in the conversation record between the user and the AI assistant",
   }),
-  regex: Optional(String({
-    description: 'A JS regular expression string for extracting artifacts, which must exactly match the entire artifact. Artifacts are long, and `[\\s\\S]*` can be used to match any content in the middle. If the artifact is a code block, please **do not** include the opening "\`\`\`" marker.'
-  })),
-  name: Optional(String({
-    description: 'Name the artifact according to its content. Like a file name with a suffix. The naming format must conform to the file naming conventions of the corresponding language code.'
-  })),
-  language: Optional(String({
-    description: 'The code language of the content, used for code highlighting. Example values: "markdown", "javascript", "python", etc.'
-  }))
+  regex: Optional(
+    String({
+      description:
+        'A JS regular expression string for extracting artifacts, which must exactly match the entire artifact. Artifacts are long, and `[\\s\\S]*` can be used to match any content in the middle. If the artifact is a code block, please **do not** include the opening "\`\`\`" marker.',
+    })
+  ),
+  name: Optional(
+    String({
+      description:
+        "Name the artifact according to its content. Like a file name with a suffix. The naming format must conform to the file naming conventions of the corresponding language code.",
+    })
+  ),
+  language: Optional(
+    String({
+      description:
+        'The code language of the content, used for code highlighting. Example values: "markdown", "javascript", "python", etc.',
+    })
+  ),
 })
 type ExtractArtifactResult = Static<typeof ExtractArtifactSchema>
-const ExtractArtifactPrompt =
-`
+const ExtractArtifactPrompt = `
 <instruction>
 Your task is to determine whether there are artifacts in the conversation record between the user and the AI assistant, and if so, extract them.
 
@@ -148,8 +154,7 @@ ${JSON.stringify(ExtractArtifactSchema, null, 2)}
 {%- endfor %}
 </chat_history>
 `
-const NameArtifactPrompt =
-`<instruction>
+const NameArtifactPrompt = `<instruction>
 Please name the file according to its content. Requirements:
 - The file name must have a suffix
 - The file name must conform to the file naming conventions of the corresponding language code, such as "hello_world.py" (underscore format), "hello-world.js" (hyphen format), "HelloWorld.java" (camel case format), etc.
@@ -172,7 +177,7 @@ export {
   ExampleWsIndexContent,
   ExtractArtifactPrompt,
   ExtractArtifactSchema,
-  NameArtifactPrompt
+  NameArtifactPrompt,
 }
 
 export type { ExtractArtifactResult }

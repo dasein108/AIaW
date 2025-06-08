@@ -41,27 +41,28 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
-import { StoredItemMapped } from 'src/services/supabase/types'
-import ViewImageDialog from './ViewImageDialog.vue'
-import { getFileUrl } from 'src/composables/storage/utils'
+import { useQuasar } from "quasar"
+import { getFileUrl } from "src/composables/storage/utils"
+import { StoredItemMapped } from "src/services/supabase/types"
+import ViewImageDialog from "./ViewImageDialog.vue"
 
 const props = defineProps<{
-  image: StoredItemMapped,
+  image: StoredItemMapped
   removable?: boolean
 }>()
 
-defineEmits(['remove'])
+defineEmits(["remove"])
 
 const url = getFileUrl(props.image.file_url)
 
 const $q = useQuasar()
-function viewImage() {
+
+function viewImage () {
   $q.dialog({
     component: ViewImageDialog,
     componentProps: {
-      url
-    }
+      url,
+    },
   })
 }
 </script>

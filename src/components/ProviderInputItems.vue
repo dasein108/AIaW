@@ -2,7 +2,7 @@
   <q-item>
     <q-item-section>
       <q-item-label>
-        {{ label || $t('providerInputItems.provider') }}
+        {{ label || $t("providerInputItems.provider") }}
       </q-item-label>
       <q-item-label
         caption
@@ -35,7 +35,9 @@
             >
               <a-avatar
                 size="24px"
-                :avatar="store.providerTypes.find(p => p.name === opt.value).avatar"
+                :avatar="
+                  store.providerTypes.find((p) => p.name === opt.value).avatar
+                "
               />
             </q-item-section>
             <q-item-section>{{ opt.label }}</q-item-section>
@@ -51,17 +53,17 @@
     component="item"
     lazy
     :input-props="{
-      clearable: true
+      clearable: true,
     }"
   />
 </template>
 
 <script setup lang="ts">
-import JsonInput from './JsonInput.vue'
-import { Provider } from 'src/utils/types'
-import AAvatar from 'src/components/AAvatar.vue'
-import { computed } from 'vue'
-import { useProvidersStore } from 'src/stores/providers'
+import AAvatar from "src/components/AAvatar.vue"
+import { useProvidersStore } from "src/stores/providers"
+import { Provider } from "src/utils/types"
+import { computed } from "vue"
+import JsonInput from "./JsonInput.vue"
 
 defineProps<{
   label?: string
@@ -71,15 +73,23 @@ defineProps<{
 const provider = defineModel<Provider>()
 const store = useProvidersStore()
 const providerOptions = computed(() =>
-  store.providerTypes.map(p => ({
+  store.providerTypes.map((p) => ({
     label: p.label,
-    value: p.name
+    value: p.name,
   }))
 )
-const providerType = computed(() => store.providerTypes.find(p => p.name === provider.value?.type))
-function switchProvider(type: string) {
+const providerType = computed(() =>
+  store.providerTypes.find((p) => p.name === provider.value?.type)
+)
+
+function switchProvider (type: string) {
   if (type) {
-    provider.value = { type, settings: { ...store.providerTypes.find(p => p.name === type).initialSettings } }
+    provider.value = {
+      type,
+      settings: {
+        ...store.providerTypes.find((p) => p.name === type).initialSettings,
+      },
+    }
   } else {
     provider.value = null
   }

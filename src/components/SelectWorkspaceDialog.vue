@@ -6,7 +6,11 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          {{ accept === 'workspace' ? $t('selectWorkspaceDialog.selectWorkspace') : $t('selectWorkspaceDialog.selectFolder') }}
+          {{
+            accept === "workspace"
+              ? $t("selectWorkspaceDialog.selectWorkspace")
+              : $t("selectWorkspaceDialog.selectFolder")
+          }}
         </div>
       </q-card-section>
       <q-card-section p-0>
@@ -35,20 +39,19 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
-import { ref } from 'vue'
-import WorkspaceListSelect from './WorkspaceListSelect.vue'
+import { useDialogPluginComponent } from "quasar"
+import { ref } from "vue"
+import WorkspaceListSelect from "./WorkspaceListSelect.vue"
 
 defineProps<{
-  accept: 'workspace' | 'folder',
+  accept: "workspace" | "folder"
   exclude?: string[]
 }>()
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
 const selected = ref<string>()
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent()
 </script>

@@ -29,15 +29,15 @@
           <q-list>
             <q-item>
               <q-item-section>
-                {{ $t('viewFileDialog.fileSize') }}
+                {{ $t("viewFileDialog.fileSize") }}
               </q-item-section>
               <q-item-section side>
-                {{ fileSize ? sizeStr(fileSize) : '...' }}
+                {{ fileSize ? sizeStr(fileSize) : "..." }}
               </q-item-section>
             </q-item>
             <q-item>
               <q-item-section>
-                {{ $t('viewFileDialog.fileType') }}
+                {{ $t("viewFileDialog.fileType") }}
               </q-item-section>
               <q-item-section side>
                 {{ file.mime_type }}
@@ -46,9 +46,7 @@
           </q-list>
         </div>
       </q-card-section>
-      <q-card-actions
-        bg-sur-c-low
-      >
+      <q-card-actions bg-sur-c-low>
         <copy-btn
           v-if="file.content_text"
           flat
@@ -77,25 +75,23 @@
 </template>
 
 <script setup lang="ts">
-import { MdPreview } from 'md-editor-v3'
-import { useDialogPluginComponent } from 'quasar'
-import { wrapCode, wrapQuote } from 'src/utils/functions'
-import { StoredItem } from '@/services/supabase/types'
-import { codeExtensions } from 'src/utils/values'
-import { computed, ref, watchEffect } from 'vue'
-import CopyBtn from './CopyBtn.vue'
-import { useMdPreviewProps } from 'src/composables/md-preview-props'
+import { MdPreview } from "md-editor-v3"
+import { useDialogPluginComponent } from "quasar"
+import { useMdPreviewProps } from "src/composables/md-preview-props"
 // import { exportFile } from 'src/utils/platform-api'
-import { useStorage } from 'src/composables/storage/useStorage'
-import { FILES_BUCKET } from 'src/composables/storage/utils'
+import { useStorage } from "src/composables/storage/useStorage"
+import { FILES_BUCKET } from "src/composables/storage/utils"
+import { wrapCode, wrapQuote } from "src/utils/functions"
+import { codeExtensions } from "src/utils/values"
+import { computed, ref, watchEffect } from "vue"
+import CopyBtn from "./CopyBtn.vue"
+import { StoredItem } from "@/services/supabase/types"
 
 const props = defineProps<{
   file: StoredItem
 }>()
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
 const storage = useStorage(FILES_BUCKET)
 
@@ -111,27 +107,33 @@ watchEffect(async () => {
   }
 })
 
-function sizeStr(bytes: number) {
+function sizeStr (bytes: number) {
   if (bytes < 1024) return `${bytes} B`
+
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   else return `${(bytes / 1024 / 1024).toFixed(1)} MB`
 }
 
 const markdown = computed(() => {
   const { file } = props
-  if (file.type === 'quote') return wrapQuote(file.content_text)
-  const splits = file.name.split('.')
+
+  if (file.type === "quote") return wrapQuote(file.content_text)
+
+  const splits = file.name.split(".")
+
   if (splits.length < 2) return file.content_text
+
   const ext = splits.at(-1)
+
   return codeExtensions.includes(ext)
-    ? wrapCode((file.content_text), ext)
-    : (file.content_text)
+    ? wrapCode(file.content_text, ext)
+    : file.content_text
 })
 
-function download() {
+function download () {
   // trigger download of props.file.file_url
   const url = props.file.file_url
-  const a = document.createElement('a')
+  const a = document.createElement("a")
   a.href = url
   a.download = props.file.name
   a.click()

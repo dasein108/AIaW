@@ -40,7 +40,9 @@
               v-for="artifact in openedArtifacts"
               :key="artifact.id"
               :to="{ query: { artifactId: artifact.id } }"
-              :class="{'text-pri icon-fill': focusedArtifact?.id === artifact.id}"
+              :class="{
+                'text-pri icon-fill': focusedArtifact?.id === artifact.id,
+              }"
               pl-3
               pr-2
             >
@@ -144,26 +146,22 @@
 </template>
 
 <script setup lang="ts">
-
-import { computed, provide, ref, watch } from 'vue'
-import AssistantsExpansion from 'src/components/AssistantsExpansion.vue'
-import ArtifactsExpansion from 'src/components/ArtifactsExpansion.vue'
-import { useWorkspacesStore } from 'src/stores/workspaces'
-import { ListOpen, useUserDataStore } from 'src/stores/user-data'
-import { useQuasar } from 'quasar'
-import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
-import { artifactUnsaved, isPlatformEnabled } from 'src/utils/functions'
-import { useRoute, useRouter } from 'vue-router'
-import EditArtifact from 'src/views/EditArtifact.vue'
-import { useCloseArtifact } from 'src/composables/close-artifact'
-import ArtifactItemMenu from 'src/components/ArtifactItemMenu.vue'
-import DragableSeparator from 'src/components/DragableSeparator.vue'
-import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import DialogsExpansion from 'src/components/DialogsExpansion.vue'
-import ChatsExpansion from 'src/components/chats/ChatsExpansion.vue'
-import { ArtifactMapped, Workspace, WorkspaceMapped } from '@/services/supabase/types'
-import { useArtifactsStore } from 'src/stores/artifacts'
+import { useQuasar } from "quasar"
+import ArtifactItemIcon from "src/components/ArtifactItemIcon.vue"
+import ArtifactItemMenu from "src/components/ArtifactItemMenu.vue"
+import ArtifactsExpansion from "src/components/ArtifactsExpansion.vue"
+import DragableSeparator from "src/components/DragableSeparator.vue"
+import { useCloseArtifact } from "src/composables/close-artifact"
+import ErrorNotFound from "src/pages/ErrorNotFound.vue"
+import { useArtifactsStore } from "src/stores/artifacts"
+import { ListOpen, useUserDataStore } from "src/stores/user-data"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useWorkspacesStore } from "src/stores/workspaces"
+import { artifactUnsaved, isPlatformEnabled } from "src/utils/functions"
+import EditArtifact from "src/views/EditArtifact.vue"
+import { computed, provide, ref, watch } from "vue"
+import { useRoute, useRouter } from "vue-router"
+import { ArtifactMapped, WorkspaceMapped } from "@/services/supabase/types"
 
 const props = defineProps<{
   id: string
@@ -172,87 +170,125 @@ const props = defineProps<{
 const workspacesStore = useWorkspacesStore()
 const userStore = useUserDataStore()
 const artifactsStore = useArtifactsStore()
-const listOpen = computed(() => userStore.data.listOpen[props.id] || {
-  assistants: true,
-  artifacts: false,
-  dialogs: true,
-  chats: true
-})
+const listOpen = computed(
+  () =>
+    userStore.data.listOpen[props.id] || {
+      assistants: true,
+      artifacts: false,
+      dialogs: true,
+      chats: true,
+    }
+)
 
-const workspace = computed<WorkspaceMapped | undefined>(() => workspacesStore.workspaces.find(item => item.id === props.id) as WorkspaceMapped)
+const workspace = computed<WorkspaceMapped | undefined>(
+  () =>
+    workspacesStore.workspaces.find(
+      (item) => item.id === props.id
+    ) as WorkspaceMapped
+)
 
-const artifacts = computed(() => Object.values(artifactsStore.workspaceArtifacts[props.id] || {}).map(a => a as ArtifactMapped))
+const artifacts = computed(() =>
+  Object.values(artifactsStore.workspaceArtifacts[props.id] || {}).map(
+    (a) => a as ArtifactMapped
+  )
+)
 
-provide('workspace', workspace)
-provide('artifacts', artifacts)
+provide("workspace", workspace)
+provide("artifacts", artifacts)
 
 const $q = useQuasar()
 
 const drawerBreakpoint = 960
 // TODO: opened artifacts should be USER settings
 const userDataStore = useUserDataStore()
-const openedArtifacts = computed(() => artifacts.value.filter(a => userDataStore.data.openedArtifacts.includes(a.id)))
-const showArtifacts = computed(() => $q.screen.width > drawerBreakpoint && openedArtifacts.value.length)
-provide('showArtifacts', showArtifacts)
+const openedArtifacts = computed(() =>
+  artifacts.value.filter((a) =>
+    userDataStore.data.openedArtifacts.includes(a.id)
+  )
+)
+const showArtifacts = computed(
+  () => $q.screen.width > drawerBreakpoint && openedArtifacts.value.length
+)
+provide("showArtifacts", showArtifacts)
 const route = useRoute()
-const focusedArtifact = computed(() =>
-  openedArtifacts.value.find(a => a.id === route.query.artifactId) || openedArtifacts.value.at(-1)
+const focusedArtifact = computed(
+  () =>
+    openedArtifacts.value.find((a) => a.id === route.query.artifactId) ||
+    openedArtifacts.value.at(-1)
 )
 const router = useRouter()
 
-console.log('ws page opened artifacts', openedArtifacts.value, focusedArtifact)
+console.log("ws page opened artifacts", openedArtifacts.value, focusedArtifact)
 
-watch(focusedArtifact, val => {
-  if (val) {
-    val.id !== route.query.artifactId && router.replace({ query: { artifactId: val.id } })
-  } else {
-    router.replace({ query: { artifactId: undefined } })
-  }
-}, { immediate: true })
-watch(() => route.query.openArtifact, val => {
-  if (!val) return
-  const artifact = artifacts.value.find(a => a.id === val)
-  if (artifact) {
-    if (!userDataStore.data.openedArtifacts.includes(artifact.id)) {
-      userDataStore.data.openedArtifacts.push(artifact.id)
-      router.replace({ query: { artifactId: artifact.id } })
+watch(
+  focusedArtifact,
+  (val) => {
+    if (val) {
+      val.id !== route.query.artifactId &&
+        router.replace({ query: { artifactId: val.id } })
+    } else {
+      router.replace({ query: { artifactId: undefined } })
     }
-  } else {
-    router.replace({ query: { artifactId: focusedArtifact.value?.id } })
+  },
+  { immediate: true }
+)
+watch(
+  () => route.query.openArtifact,
+  (val) => {
+    if (!val) return
+
+    const artifact = artifacts.value.find((a) => a.id === val)
+
+    if (artifact) {
+      if (!userDataStore.data.openedArtifacts.includes(artifact.id)) {
+        userDataStore.data.openedArtifacts.push(artifact.id)
+        router.replace({ query: { artifactId: artifact.id } })
+      }
+    } else {
+      router.replace({ query: { artifactId: focusedArtifact.value?.id } })
+    }
   }
-})
+)
 const { closeArtifact } = useCloseArtifact()
-function closeAllArtifacts() {
+
+function closeAllArtifacts () {
   for (const artifact of openedArtifacts.value) {
     closeArtifact(artifact)
   }
 }
 const widthWithArtifacts = ref(Math.max(innerWidth / 2, 600))
-const drawerWidth = computed(() => showArtifacts.value ? widthWithArtifacts.value : 250)
+const drawerWidth = computed(() =>
+  showArtifacts.value ? widthWithArtifacts.value : 250
+)
 
 const { data } = useUserDataStore()
-watch(workspace, val => {
-  if (val) {
-    data.lastWorkspaceId = val.id
-  }
-}, { immediate: true })
+watch(
+  workspace,
+  (val) => {
+    if (val) {
+      data.lastWorkspaceId = val.id
+    }
+  },
+  { immediate: true }
+)
 
 const drawerOpen = ref(false)
 
 const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
-provide('rightDrawerAbove', rightDrawerAbove)
+provide("rightDrawerAbove", rightDrawerAbove)
 
 const { data: perfs } = useUserPerfsStore()
 
-function setListOpen(key: keyof ListOpen, value: boolean) {
+function setListOpen (key: keyof ListOpen, value: boolean) {
   if (!userStore.data.listOpen[workspace.value.id]) {
     userStore.data.listOpen[workspace.value.id] = {
       assistants: true,
       artifacts: false,
       dialogs: true,
-      chats: true
+      chats: true,
     }
   }
+
   userStore.data.listOpen[workspace.value.id][key] = value
 }
 </script>

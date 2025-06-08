@@ -19,18 +19,17 @@
 </template>
 
 <script setup lang="ts">
-import { genId } from 'src/utils/functions'
-import { PromptVar } from 'src/utils/types'
-import PromptVarItem from './PromptVarItem.vue'
+import { genId } from "src/utils/functions"
+import { PromptVar } from "src/utils/types"
+import PromptVarItem from "./PromptVarItem.vue"
 
 const model = defineModel<PromptVar[]>()
 
-function add() {
-  const id = genId()
+function add () {
   model.value.push({
     id: genId(),
     name: null,
-    type: 'text'
+    type: "text",
   })
 }
 </script>

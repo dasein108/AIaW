@@ -1,1 +1,1 @@
-export const CODE_NO_RECORD_FOUND = 'PGRST116'
+export const CODE_NO_RECORD_FOUND = "PGRST116"

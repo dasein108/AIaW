@@ -6,7 +6,7 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          {{ $t('modelDragSortDialog.title') }}
+          {{ $t("modelDragSortDialog.title") }}
         </div>
       </q-card-section>
       <q-card-section p-2>
@@ -54,10 +54,10 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
-import { VueDraggable } from 'vue-draggable-plus'
-import { ref } from 'vue'
-import ModelItem from './ModelItem.vue'
+import { useDialogPluginComponent } from "quasar"
+import { ref } from "vue"
+import { VueDraggable } from "vue-draggable-plus"
+import ModelItem from "./ModelItem.vue"
 
 const props = defineProps<{
   models: string[]
@@ -65,13 +65,12 @@ const props = defineProps<{
 
 const list = ref([...props.models])
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
-function sortByName() {
+function sortByName () {
   list.value.sort((a, b) => a.localeCompare(b))
 }
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent()
 </script>

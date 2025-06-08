@@ -14,7 +14,7 @@
         component="item"
         lazy
         :item-props="{
-          class: 'px-3 py-1'
+          class: 'px-3 py-1',
         }"
       />
     </q-menu>
@@ -22,10 +22,15 @@
 </template>
 
 <script setup lang="ts">
-import { Boolean as TBoolean, Object as TObject, Optional, Unsafe } from '@sinclair/typebox'
-import { computed, watch } from 'vue'
-import JsonInput from './JsonInput.vue'
-import { useI18n } from 'vue-i18n'
+import {
+  Boolean as TBoolean,
+  Object as TObject,
+  Optional,
+  Unsafe,
+} from "@sinclair/typebox"
+import { computed, watch } from "vue"
+import { useI18n } from "vue-i18n"
+import JsonInput from "./JsonInput.vue"
 
 const { t } = useI18n()
 
@@ -34,38 +39,56 @@ const props = defineProps<{
   modelId: string
 }>()
 
-const rules = [{
-  match: (provider: string, model: string) => {
-    return provider.startsWith('openai.') && (model.startsWith('o3') || model.startsWith('o4') || model === 'o1')
+const rules = [
+  {
+    match: (provider: string, model: string) => {
+      return (
+        provider.startsWith("openai.") &&
+        (model.startsWith("o3") || model.startsWith("o4") || model === "o1")
+      )
+    },
+    options: {
+      reasoningEffort: Optional(
+        Unsafe({
+          title: t("modelOptionsBtn.reasoningEffort"),
+          type: "string",
+          enum: ["low", "medium", "high"],
+        })
+      ),
+    },
   },
-  options: {
-    reasoningEffort: Optional(Unsafe({
-      title: t('modelOptionsBtn.reasoningEffort'),
-      type: 'string',
-      enum: ['low', 'medium', 'high']
-    }))
-  }
-}, {
-  match: (provider: string, model: string) => {
-    return provider.startsWith('google.') && /^gemini-2\.0-(flash|pro)(-(exp|latest|00\d))?$/.test(model)
+  {
+    match: (provider: string, model: string) => {
+      return (
+        provider.startsWith("google.") &&
+        /^gemini-2\.0-(flash|pro)(-(exp|latest|00\d))?$/.test(model)
+      )
+    },
+    options: {
+      useSearchGrounding: Optional(
+        TBoolean({ title: t("modelOptionsBtn.useSearchGrounding") })
+      ),
+    },
   },
-  options: {
-    useSearchGrounding: Optional(TBoolean({ title: t('modelOptionsBtn.useSearchGrounding') }))
-  }
-}]
+]
 
 const options = defineModel<Record<string, any>>()
 
 const schema = computed(() => {
   let options = {}
-  const matched = rules.filter((rule) => rule.match(props.providerName, props.modelId))
+  const matched = rules.filter((rule) =>
+    rule.match(props.providerName, props.modelId)
+  )
+
   if (!matched.length) return null
+
   matched.forEach((rule) => {
     options = {
       ...options,
-      ...rule.options
+      ...rule.options,
     }
   })
+
   return TObject(options)
 })
 

@@ -1,6 +1,6 @@
-import { boot } from 'quasar/wrappers'
-import { createPinia } from 'pinia'
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { createPinia } from "pinia"
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate"
+import { boot } from "quasar/wrappers"
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)

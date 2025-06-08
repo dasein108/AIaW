@@ -1,6 +1,6 @@
 <template>
   <q-item>
-    <q-item-section>{{ $t('modelInputItems.model') }}</q-item-section>
+    <q-item-section>{{ $t("modelInputItems.model") }}</q-item-section>
     <q-item-section side>
       <autocomplete-input
         class="w-250px"
@@ -27,7 +27,7 @@
   >
     <q-item>
       <q-item-section>
-        {{ $t('modelInputItems.userInputTypes') }}
+        {{ $t("modelInputItems.userInputTypes") }}
       </q-item-section>
       <q-item-section side>
         <list-input
@@ -41,7 +41,7 @@
     </q-item>
     <q-item>
       <q-item-section>
-        {{ $t('modelInputItems.assistantMessageTypes') }}
+        {{ $t("modelInputItems.assistantMessageTypes") }}
       </q-item-section>
       <q-item-section side>
         <list-input
@@ -55,7 +55,7 @@
     </q-item>
     <q-item>
       <q-item-section>
-        {{ $t('modelInputItems.toolResultTypes') }}
+        {{ $t("modelInputItems.toolResultTypes") }}
       </q-item-section>
       <q-item-section side>
         <list-input
@@ -71,16 +71,22 @@
 </template>
 
 <script setup lang="ts">
-import { InputTypes, models } from 'src/utils/values'
-import AutocompleteInput from './AutocompleteInput.vue'
-import ModelItem from './ModelItem.vue'
-import ListInput from './ListInput.vue'
-import { Model } from 'src/utils/types'
-import { useProvidersStore } from 'src/stores/providers'
+import { useProvidersStore } from "src/stores/providers"
+import { Model } from "src/utils/types"
+import { InputTypes, models } from "src/utils/values"
+import AutocompleteInput from "./AutocompleteInput.vue"
+import ListInput from "./ListInput.vue"
+import ModelItem from "./ModelItem.vue"
 
 const model = defineModel<Model>()
-function setModel(name: string) {
-  model.value = name ? models.find(m => m.name === name) || { name, inputTypes: InputTypes.default } : null
+
+function setModel (name: string) {
+  model.value = name
+    ? models.find((m) => m.name === name) || {
+      name,
+      inputTypes: InputTypes.default,
+    }
+    : null
 }
 
 const providersStore = useProvidersStore()

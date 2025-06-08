@@ -1,7 +1,5 @@
 <template>
-  <q-dialog
-    ref="dialogRef"
-  >
+  <q-dialog ref="dialogRef">
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
@@ -48,11 +46,11 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
-import type { ProfileMapped } from '@/services/supabase/types'
-import AAvatar from 'src/components/AAvatar.vue'
-import { onMounted, ref } from 'vue'
-import { useProfileStore } from 'src/stores/profile'
+import { useDialogPluginComponent } from "quasar"
+import AAvatar from "src/components/AAvatar.vue"
+import { useProfileStore } from "src/stores/profile"
+import { onMounted, ref } from "vue"
+import type { ProfileMapped } from "@/services/supabase/types"
 
 const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 
@@ -68,7 +66,8 @@ const onSelectUser = async (user: ProfileMapped) => {
 }
 
 onMounted(async () => {
-  users.value = Object.values(profileStore.profiles).filter(profile => profile.id !== props.currentUserId)
+  users.value = Object.values(profileStore.profiles).filter(
+    (profile) => profile.id !== props.currentUserId
+  )
 })
-
 </script>

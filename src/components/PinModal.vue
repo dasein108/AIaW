@@ -20,7 +20,7 @@
           outlined
           dark
           class="pin-input"
-          :rules="[val => val.length === 4 || 'PIN must be 4 digits']"
+          :rules="[(val) => val.length === 4 || 'PIN must be 4 digits']"
           @keyup.enter="handleSubmit"
         >
           <template #prepend>
@@ -41,18 +41,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useQuasar } from 'quasar'
+import { useQuasar } from "quasar"
+import { ref } from "vue"
 
 const $q = useQuasar()
 const isVisible = ref(false)
-const pin = ref('')
+const pin = ref("")
 
-const emit = defineEmits<{(e: 'submit', pin: string): void}>()
+const emit = defineEmits<{(e: "submit", pin: string): void }>()
 
 const show = () => {
   isVisible.value = true
-  pin.value = ''
+  pin.value = ""
 }
 
 const hide = () => {
@@ -61,19 +61,19 @@ const hide = () => {
 
 const handleSubmit = () => {
   if (pin.value.length === 4) {
-    emit('submit', pin.value)
+    emit("submit", pin.value)
     hide()
   } else {
     $q.notify({
-      type: 'negative',
-      message: 'Please enter a 4-digit PIN code'
+      type: "negative",
+      message: "Please enter a 4-digit PIN code",
     })
   }
 }
 
 defineExpose({
   show,
-  hide
+  hide,
 })
 </script>
 

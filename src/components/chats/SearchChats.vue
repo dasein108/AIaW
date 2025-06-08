@@ -36,7 +36,10 @@
           toggle-text-color="on-pri-c"
           v-model="global"
           no-caps
-          :options="[{ label: $t('searchDialog.workspace'), value: false }, { label: $t('searchDialog.global'), value: true }]"
+          :options="[
+            { label: $t('searchDialog.workspace'), value: false },
+            { label: $t('searchDialog.global'), value: true },
+          ]"
         />
       </div>
       <div
@@ -49,7 +52,7 @@
           <q-item v-if="!results.length">
             <q-item-section>
               <q-item-label text-on-sur-var>
-                {{ $t('searchDialog.noResults') }}
+                {{ $t("searchDialog.noResults") }}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -79,24 +82,22 @@
 </template>
 
 <script setup lang="ts">
-import { QList, useDialogPluginComponent } from 'quasar'
-import { useChatsStore } from 'src/stores/chats'
-import { nextTick, watch, ref, watchEffect } from 'vue'
-import Mark from 'mark.js'
-import { escapeRegex } from 'src/utils/functions'
+import Mark from "mark.js"
+import { QList, useDialogPluginComponent } from "quasar"
+import { useChatsStore } from "src/stores/chats"
+import { escapeRegex } from "src/utils/functions"
+import { nextTick, watch, ref, watchEffect } from "vue"
 
 const props = defineProps<{
   workspaceId: string | null
 }>()
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
 const open = defineModel<boolean>({ required: true })
 
 const chatsStore = useChatsStore()
-const q = ref('')
+const q = ref("")
 
 const global = ref(false)
 watchEffect(async () => {
@@ -112,16 +113,22 @@ interface Result {
 }
 const results = ref<Result[]>(null)
 const listRef = ref<QList>()
-async function search() {
+
+async function search () {
   if (!q.value) return
+
   // const hits = docs.value.filter(d => caselessIncludes(d.content, q.value)).slice(0, 100)
   unmark()
-  results.value = (await chatsStore.search(q.value, global.value ? null : props.workspaceId)).map(r => ({
+  results.value = (
+    await chatsStore.search(q.value, global.value ? null : props.workspaceId)
+  ).map((r) => ({
     workspaceId: r.chat.workspace_id,
     chatId: r.chat_id,
     name: r.chat.name,
     messageId: r.id,
-    preview: r.content.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))[0]
+    preview: r.content.match(
+      new RegExp(`^.*${escapeRegex(q.value)}.*$`, "im")
+    )[0],
   }))
   // results.value = [
   //   ...hits.map(h => {
@@ -146,23 +153,28 @@ async function search() {
   })
 }
 
-function unmark() {
+function unmark () {
   if (!listRef.value) return
+
   const mark = new Mark(listRef.value.$el)
   mark.unmark()
 }
 
-function highlight() {
+function highlight () {
   if (!q.value) return
+
   if (!listRef.value) return
+
   const mark = new Mark(listRef.value.$el)
   mark.mark(q.value)
 }
 
-watch(open, val => {
-  val && results.value && nextTick(() => {
-    highlight()
-  })
+watch(open, (val) => {
+  val &&
+    results.value &&
+    nextTick(() => {
+      highlight()
+    })
 })
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent()

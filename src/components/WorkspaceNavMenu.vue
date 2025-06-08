@@ -29,12 +29,12 @@
 </template>
 
 <script setup lang="ts">
-import { useWorkspacesStore } from 'src/stores/workspaces'
-import WorkspaceListSelect from './WorkspaceListSelect.vue'
-import { useWorkspaceActions } from 'src/composables/workspaces/workspace-actions'
-import { useRouter, useRoute } from 'vue-router'
-import type { WorkspaceMapped } from '@/services/supabase/types'
-import { useUserDataStore } from 'src/stores/user-data'
+import { useWorkspaceActions } from "src/composables/workspaces/workspace-actions"
+import { useUserDataStore } from "src/stores/user-data"
+import { useWorkspacesStore } from "src/stores/workspaces"
+import { useRouter, useRoute } from "vue-router"
+import WorkspaceListSelect from "./WorkspaceListSelect.vue"
+import type { WorkspaceMapped } from "@/services/supabase/types"
 
 const { addWorkspace, addFolder } = useWorkspaceActions()
 const userDataStore = useUserDataStore()
@@ -43,11 +43,15 @@ const workspaceStore = useWorkspacesStore()
 const router = useRouter()
 const route = useRoute()
 
-async function goTo(id: string) {
-  const workspace = workspaceStore.workspaces.find(w => w.id === id) as WorkspaceMapped
+async function goTo (id: string) {
+  const workspace = workspaceStore.workspaces.find(
+    (w) => w.id === id
+  ) as WorkspaceMapped
   let path = `/workspaces/${workspace.id}`
   const dialogId = userDataStore.data.lastDialogIds[workspace.id]
+
   if (dialogId) path += `/dialogs/${dialogId}`
+
   router.push(path)
 }
 </script>

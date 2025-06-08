@@ -36,22 +36,20 @@
 </template>
 
 <script setup lang="ts">
-import { useBack } from 'src/composables/back'
-import { useUiStateStore } from 'src/stores/ui-state'
-import { inject } from 'vue'
-import SettingsArea from 'src/layouts/SettingsArea.vue'
+import { useBack } from "src/composables/back"
+import SettingsArea from "src/layouts/SettingsArea.vue"
+import { useUiStateStore } from "src/stores/ui-state"
+import { inject } from "vue"
 
 const uiStore = useUiStateStore()
-const rightDrawerAbove = inject('rightDrawerAbove')
+const rightDrawerAbove = inject("rightDrawerAbove")
 
-defineEmits(['toggle-drawer', 'contextmenu'])
+defineEmits(["toggle-drawer", "contextmenu"])
 
 const props = defineProps<{
-  backTo?: string,
+  backTo?: string
   noDrawer?: boolean
 }>()
 const back = useBack(props.backTo)
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>

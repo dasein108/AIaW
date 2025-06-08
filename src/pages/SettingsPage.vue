@@ -16,13 +16,13 @@
         tip-key="custom-provider-usage"
         rd-0
       >
-        {{ $t('settingsPage.customProviderUsage') }}
+        {{ $t("settingsPage.customProviderUsage") }}
         <a
           href="https://docs.aiaw.app/usage/custom-provider.html"
           target="_blank"
           pri-link
         >
-          {{ $t('settingsPage.usageGuide') }}
+          {{ $t("settingsPage.usageGuide") }}
         </a>
       </a-tip>
       <custom-providers />
@@ -31,12 +31,12 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref } from 'vue'
-import CustomProviders from 'src/components/CustomProviders.vue'
-import ATip from 'src/components/ATip.vue'
+import ATip from "src/components/ATip.vue"
+import CustomProviders from "src/components/CustomProviders.vue"
+import { provide, ref } from "vue"
 
 const drawerOpen = ref(false)
 const drawerBreakpoint = 960
 const rightDrawerAbove = ref(false)
-provide('rightDrawerAbove', rightDrawerAbove)
+provide("rightDrawerAbove", rightDrawerAbove)
 </script>

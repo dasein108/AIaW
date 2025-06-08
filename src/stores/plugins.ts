@@ -1,61 +1,101 @@
-import { UserPlugin } from '@/services/supabase/types'
-import { LobeChatPluginManifest } from '@lobehub/chat-plugin-sdk'
-import { defineStore, storeToRefs } from 'pinia'
-import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
-import authzPlugin from 'src/plugins/cosmos-authz'
-import { keplerPlugin } from 'src/services/kepler/kepler-plugin'
-import { supabase } from 'src/services/supabase/client'
-import artifacts from 'src/utils/artifacts-plugin'
-import { IsTauri } from 'src/utils/platform-api'
-import { buildGradioPlugin, buildLobePlugin, buildMcpPlugin, calculatorPlugin, docParsePlugin, dumpMcpPlugin, emotionsPlugin, fluxPlugin, gradioDefaultData, huggingToGradio, lobeDefaultData, mcpDefaultData, mermaidPlugin, timePlugin, videoTranscriptPlugin, whisperPlugin } from 'src/utils/plugins'
-import { GradioPluginManifest, HuggingPluginManifest, McpPluginDump, McpPluginManifest } from 'src/utils/types'
-import webSearchPlugin from 'src/utils/web-search-plugin'
-import { computed, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useAssistantsStore } from './assistants'
-import { useUserPluginsStore } from './user-plugins'
+import { LobeChatPluginManifest } from "@lobehub/chat-plugin-sdk"
+import { defineStore, storeToRefs } from "pinia"
+import { useUserLoginCallback } from "src/composables/auth/useUserLoginCallback"
+import authzPlugin from "src/plugins/cosmos-authz"
+import { keplerPlugin } from "src/services/kepler/kepler-plugin"
+import { supabase } from "src/services/supabase/client"
+import artifacts from "src/utils/artifacts-plugin"
+import { IsTauri } from "src/utils/platform-api"
+import {
+  buildGradioPlugin,
+  buildLobePlugin,
+  buildMcpPlugin,
+  calculatorPlugin,
+  docParsePlugin,
+  dumpMcpPlugin,
+  emotionsPlugin,
+  fluxPlugin,
+  gradioDefaultData,
+  huggingToGradio,
+  lobeDefaultData,
+  mcpDefaultData,
+  mermaidPlugin,
+  timePlugin,
+  videoTranscriptPlugin,
+  whisperPlugin,
+} from "src/utils/plugins"
+import {
+  GradioPluginManifest,
+  HuggingPluginManifest,
+  McpPluginDump,
+  McpPluginManifest,
+} from "src/utils/types"
+import webSearchPlugin from "src/utils/web-search-plugin"
+import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
+import { useAssistantsStore } from "./assistants"
+import { useUserPluginsStore } from "./user-plugins"
+import { UserPlugin } from "@/services/supabase/types"
 
-export const usePluginsStore = defineStore('plugins', () => {
+export const usePluginsStore = defineStore("plugins", () => {
   const assistantsStore = useAssistantsStore()
   const installedPlugins = ref<UserPlugin[]>([])
   const isLoaded = ref(false)
-  async function fetchPlugins() {
+
+  async function fetchPlugins () {
     const { data, error } = await supabase
-      .from('user_plugins')
-      .select('*')
-      .order('created_at', { ascending: false })
+      .from("user_plugins")
+      .select("*")
+      .order("created_at", { ascending: false })
 
     if (error) {
-      console.error('❌ Failed to fetch chats:', error.message)
+      console.error("❌ Failed to fetch chats:", error.message)
+
       return
     }
-    installedPlugins.value = data// .map(i => ({ ...i, manifest: i.manifest as PluginManifest }))
+
+    installedPlugins.value = data // .map(i => ({ ...i, manifest: i.manifest as PluginManifest }))
   }
 
-  async function upsertPlugin(plugin: Omit<UserPlugin, 'user_id'>) {
-    const { data, error } = await supabase.from('user_plugins').upsert(plugin).select().single()
+  async function upsertPlugin (plugin: Omit<UserPlugin, "user_id">) {
+    const { data, error } = await supabase
+      .from("user_plugins")
+      .upsert(plugin)
+      .select()
+      .single()
+
     if (error) {
-      console.error('❌ Failed to put plugin:', error.message)
+      console.error("❌ Failed to put plugin:", error.message)
+
       return
     }
-    if (installedPlugins.value.find(i => i.id === plugin.id)) {
-      installedPlugins.value = installedPlugins.value.map(i => i.id === plugin.id ? data : i)
+
+    if (installedPlugins.value.find((i) => i.id === plugin.id)) {
+      installedPlugins.value = installedPlugins.value.map((i) =>
+        i.id === plugin.id ? data : i
+      )
     } else {
       installedPlugins.value.push(data)
     }
+
     return data.id
   }
 
-  async function deletePlugin(id: string) {
-    const { error } = await supabase.from('user_plugins').delete().eq('id', id)
+  async function deletePlugin (id: string) {
+    const { error } = await supabase.from("user_plugins").delete().eq("id", id)
+
     if (error) {
-      console.error('❌ Failed to delete plugin:', error.message)
+      console.error("❌ Failed to delete plugin:", error.message)
+
       return
     }
-    installedPlugins.value = installedPlugins.value.filter(i => i.id !== id)
+
+    installedPlugins.value = installedPlugins.value.filter((i) => i.id !== id)
   }
 
-  const availableKeys = computed(() => installedPlugins.value.filter(i => i.available).map(i => i.key))
+  const availableKeys = computed(() =>
+    installedPlugins.value.filter((i) => i.available).map((i) => i.key)
+  )
   const { data, ready } = storeToRefs(useUserPluginsStore())
 
   const plugins = computed(() => [
@@ -71,17 +111,26 @@ export const usePluginsStore = defineStore('plugins', () => {
     keplerPlugin,
     artifacts.plugin,
     authzPlugin,
-    ...installedPlugins.value.map(i => {
-      if (i.type === 'lobechat') return buildLobePlugin(i.manifest as LobeChatPluginManifest, i.available)
-      else if (i.type === 'gradio') return buildGradioPlugin(i.manifest as GradioPluginManifest, i.available)
-      else return buildMcpPlugin(i.manifest as McpPluginDump, i.available)
-    })
+    ...installedPlugins.value.map((i) => {
+      if (i.type === "lobechat") {
+        return buildLobePlugin(
+          i.manifest as LobeChatPluginManifest,
+          i.available
+        )
+      } else if (i.type === "gradio") {
+        return buildGradioPlugin(
+          i.manifest as GradioPluginManifest,
+          i.available
+        )
+      } else return buildMcpPlugin(i.manifest as McpPluginDump, i.available)
+    }),
   ])
-  async function installLobePlugin(manifest: LobeChatPluginManifest) {
+
+  async function installLobePlugin (manifest: LobeChatPluginManifest) {
     const key = `lobe-${manifest.identifier}`
-    const id = await upsertPlugin({
+    await upsertPlugin({
       key,
-      type: 'lobechat',
+      type: "lobechat",
       available: true,
       manifest,
       created_at: new Date().toISOString(),
@@ -91,10 +140,10 @@ export const usePluginsStore = defineStore('plugins', () => {
     data.value[key] = lobeDefaultData(manifest)
   }
 
-  async function installGradioPlugin(manifest: GradioPluginManifest) {
-    const id = await upsertPlugin({
+  async function installGradioPlugin (manifest: GradioPluginManifest) {
+    await upsertPlugin({
       key: manifest.id,
-      type: 'gradio',
+      type: "gradio",
       available: true,
       manifest,
       created_at: new Date().toISOString(),
@@ -103,43 +152,55 @@ export const usePluginsStore = defineStore('plugins', () => {
     data.value[manifest.id] = gradioDefaultData(manifest)
   }
 
-  async function installHuggingPlugin(manifest: HuggingPluginManifest) {
+  async function installHuggingPlugin (manifest: HuggingPluginManifest) {
     await installGradioPlugin(huggingToGradio(manifest))
   }
 
   const { t } = useI18n()
-  async function installMcpPlugin(manifest: McpPluginManifest) {
-    if (manifest.transport.type === 'stdio' && !IsTauri) throw new Error(t('stores.plugins.stdioRequireDesktop'))
+
+  async function installMcpPlugin (manifest: McpPluginManifest) {
+    if (manifest.transport.type === "stdio" && !IsTauri) {
+      throw new Error(t("stores.plugins.stdioRequireDesktop"))
+    }
+
     const dump = await dumpMcpPlugin(manifest)
-    const id = await upsertPlugin({
+    await upsertPlugin({
       key: manifest.id,
-      type: 'mcp',
+      type: "mcp",
       available: true,
       manifest: dump,
     })
     data.value[manifest.id] = mcpDefaultData(manifest)
   }
 
-  async function uninstall(key: string) {
+  async function uninstall (key: string) {
     // const plugin = installedPlugins.value.find(i => i.key === id)
     // if (!plugin) {
     //   console.error('❌ Plugin not found:', id)
     //   return
     // }
-    const { error } = await supabase.from('user_plugins').update({ available: false }).eq('key', key)
+    const { error } = await supabase
+      .from("user_plugins")
+      .update({ available: false })
+      .eq("key", key)
+
     if (error) {
       console.error(`❌ Failed to uninstall plugin: ${key}`, error.message)
+
       return
     }
+
     for (const assistant of assistantsStore.assistants) {
       if (assistant.plugins[key]) {
-        assistantsStore.update(assistant.id, { plugins: { ...assistant.plugins, [key]: undefined } })
+        assistantsStore.update(assistant.id, {
+          plugins: { ...assistant.plugins, [key]: undefined },
+        })
       }
     }
-    installedPlugins.value = installedPlugins.value.filter(i => i.key !== key)
+    installedPlugins.value = installedPlugins.value.filter((i) => i.key !== key)
   }
 
-  async function init() {
+  async function init () {
     isLoaded.value = false
     installedPlugins.value = []
     await fetchPlugins()
@@ -157,6 +218,6 @@ export const usePluginsStore = defineStore('plugins', () => {
     installHuggingPlugin,
     installGradioPlugin,
     installMcpPlugin,
-    uninstall
+    uninstall,
   }
 })

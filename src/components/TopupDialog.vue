@@ -6,7 +6,7 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          {{ $t('topupDialog.title') }}
+          {{ $t("topupDialog.title") }}
         </div>
       </q-card-section>
       <q-card-section p-0>
@@ -14,10 +14,16 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                {{ $t(payMethod === 'wxpay' ? 'topupDialog.amountCNY' : 'topupDialog.amountUSD') }}
+                {{
+                  $t(
+                    payMethod === "wxpay"
+                      ? "topupDialog.amountCNY"
+                      : "topupDialog.amountUSD"
+                  )
+                }}
               </q-item-label>
               <q-item-label caption>
-                {{ $t('topupDialog.amountCaption') }}
+                {{ $t("topupDialog.amountCaption") }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -30,7 +36,7 @@
           </q-item>
           <q-item v-if="payMethod === 'stripe'">
             <q-item-section>
-              {{ $t('topupDialog.transactionFee') }}
+              {{ $t("topupDialog.transactionFee") }}
             </q-item-section>
             <q-item-section side>
               {{ `$ ${StripeFee}` }}
@@ -38,7 +44,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              {{ $t('topupDialog.payableAmount') }}
+              {{ $t("topupDialog.payableAmount") }}
             </q-item-section>
             <q-item-section side>
               {{ payAmount }}
@@ -60,7 +66,15 @@
           :label="$t('topupDialog.order')"
           :loading
           :disable="!valid"
-          @click="order({ type: payMethod === 'wxpay' ? 'api-budget' : 'api-budget-usd', amount }, payMethod)"
+          @click="
+            order(
+              {
+                type: payMethod === 'wxpay' ? 'api-budget' : 'api-budget-usd',
+                amount,
+              },
+              payMethod
+            )
+          "
         />
       </q-card-actions>
     </q-card>
@@ -68,35 +82,41 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
-import { useOrder } from 'src/composables/order'
-import { StripeFee } from 'src/utils/config'
-import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import PayMethodItem from './PayMethodItem.vue'
+import { useDialogPluginComponent } from "quasar"
+import { useOrder } from "src/composables/order"
+import { StripeFee } from "src/utils/config"
+import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
+import PayMethodItem from "./PayMethodItem.vue"
 
 const { locale } = useI18n()
 
-const payMethod = ref<'wxpay' | 'stripe'>(locale.value === 'zh-CN' ? 'wxpay' : 'stripe')
+const payMethod = ref<"wxpay" | "stripe">(
+  locale.value === "zh-CN" ? "wxpay" : "stripe"
+)
 const amount = ref<number>(5)
 
 const payAmount = computed(() => {
-  if (!valid.value) return '-'
-  if (payMethod.value === 'wxpay') {
-    return '￥' + amount.value
+  if (!valid.value) return "-"
+
+  if (payMethod.value === "wxpay") {
+    return "￥" + amount.value
   } else {
-    return '$ ' + (amount.value + StripeFee)
+    return "$ " + (amount.value + StripeFee)
   }
 })
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
-const valid = computed(() => amount.value > 0 && amount.value < 1000 && amount.value % 1 === 0)
+const valid = computed(
+  () => amount.value > 0 && amount.value < 1000 && amount.value % 1 === 0
+)
 const loading = ref(false)
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent()
 
-const { order } = useOrder(loading, res => { onDialogOK(res) })
+const { order } = useOrder(loading, (res) => {
+  onDialogOK(res)
+})
 </script>

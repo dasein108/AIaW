@@ -1,19 +1,19 @@
-import { createUserDataStore } from './createUserDataStore'
+import { createUserDataStore } from "./createUserDataStore"
 
 export type ListOpen = {
-  assistants: boolean,
-  artifacts: boolean,
-  dialogs: boolean,
+  assistants: boolean
+  artifacts: boolean
+  dialogs: boolean
   chats: boolean
 }
 
 interface UserData {
   lastWorkspaceId: string
-  noobAlertDismissed: boolean,
+  noobAlertDismissed: boolean
   lastDialogIds: Record<string, string>
-  defaultAssistantIds: Record<string, string>,
-  openedArtifacts: string[],
-  listOpen: Record<string, ListOpen>,
+  defaultAssistantIds: Record<string, string>
+  openedArtifacts: string[]
+  listOpen: Record<string, ListOpen>
   tipDismissed: Record<string, boolean>
   prodExpiredNotifiedTimestamp: number
   evalExpiredNotified: boolean
@@ -27,10 +27,10 @@ const defaultUserData: UserData = {
   defaultAssistantIds: {},
   prodExpiredNotifiedTimestamp: null,
   evalExpiredNotified: false,
-  listOpen: { },
-  openedArtifacts: []
+  listOpen: {},
+  openedArtifacts: [],
 }
 
 export const useUserDataStore = () => {
-  return createUserDataStore<UserData>('user-data', defaultUserData)()
+  return createUserDataStore<UserData>("user-data", defaultUserData)()
 }
