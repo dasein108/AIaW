@@ -81,6 +81,13 @@ interface ApiResultItem {
   mimeType?: string
 }
 
+interface ToolResultContent {
+  type: 'text' | 'file' | 'image'
+  text?: string
+  data?: string | ArrayBuffer | null
+  mimeType?: string
+}
+
 class ApiCallError extends Error {}
 
 interface AssistantPluginInfo {
@@ -154,6 +161,12 @@ interface Plugin {
   noRoundtrip?: boolean
   author?: string
   homepage?: string
+}
+
+interface PluginPrompt {
+  id: string
+  prompt: string
+  actions?: string[]
 }
 
 interface InstalledLobePlugin {
@@ -453,5 +466,7 @@ export type {
   McpPluginDump,
   McpPluginManifest,
   TransportConf,
-  ArtifactVersion
+  ArtifactVersion,
+  PluginPrompt,
+  ToolResultContent
 }

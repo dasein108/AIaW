@@ -109,8 +109,6 @@ const defaultPerfs: Perfs = {
   showWarnings: false
 }
 
-const USER_PERFS_KEY = 'perfs'
-
 export const useUserPerfsStore = () => {
   const store = createUserDataStore<Perfs>('user-perfs', defaultPerfs)()
 
@@ -119,74 +117,3 @@ export const useUserPerfsStore = () => {
   })
   return store
 }
-// export const useUserPerfsStore = defineStore('user-perfs', () => {
-//   const perfs = reactive<Perfs>(defaultPerfs)
-//   const ready = ref(false)
-//   const userStore = useUserStore()
-//   const lastPerfsSnapshot = ref(cloneDeep(perfs))
-
-//   const fetchPerfs = async () => {
-//     const { data, error } = await supabase.from('user_data').select('*').eq('key', USER_PERFS_KEY).single()
-//     if (error) {
-//       if (error.code === CODE_NO_RECORD_FOUND) {
-//         await addPerfs(defaultPerfs)
-//       } else {
-//         console.error(error)
-//         return
-//       }
-//     } else {
-//       Object.assign(perfs, data.value as Perfs)
-//     }
-
-//     ready.value = true
-//   }
-
-//   const init = async () => {
-//     Object.assign(perfs, defaultPerfs)
-//     await fetchPerfs()
-//   }
-
-//   useUserLoginCallback(init)
-
-//   const addPerfs = async (value:Perfs) => {
-//     const { data, error } = await supabase.from('user_data').insert({ user_id: userStore.currentUserId, key: USER_PERFS_KEY, value }).select().single()
-//     if (data) {
-//       Object.assign(perfs, data.value as Perfs)
-//     }
-//   }
-
-//   const updatePerfs = async (value: Perfs) => {
-//     const { data, error } = await supabase.from('user_data').upsert({ key: USER_PERFS_KEY, value })
-//       .eq('key', USER_PERFS_KEY).eq('user_id', userStore.currentUserId).select().single()
-
-//     if (data) {
-//       Object.assign(perfs, data.value as Perfs)
-//     }
-//     if (error) {
-//       console.error(error)
-//     }
-//   }
-
-//   const restore = () => {
-//     Object.assign(perfs, defaultPerfs)
-//     updatePerfs(perfs)
-//   }
-
-//   const throttledUpdate = throttle((perfs: Perfs) => {
-//     updatePerfs(perfs)
-//   }, 2000)
-
-//   watch(perfs, () => {
-//     if (!ready.value) return
-//     if (!isEqual(perfs, lastPerfsSnapshot.value)) {
-//       throttledUpdate(perfs)
-//       lastPerfsSnapshot.value = cloneDeep(perfs)
-//     }
-//   }, { deep: true })
-
-//   watchEffect(() => {
-//     Dark.set(perfs.darkMode)
-//   })
-
-//   return { perfs, ready, init, restore }
-// })

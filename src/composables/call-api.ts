@@ -2,10 +2,11 @@ import { usePluginsStore } from 'src/stores/plugins'
 import { Schema, Validator } from '@cfworker/json-schema'
 import { ApiResultItem, Plugin, PluginApi } from 'src/utils/types'
 import { removeUndefinedProps } from 'src/utils/functions'
-import { toRaw } from 'vue'
+import { Ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { DialogMapped, WorkspaceMapped } from '@/services/supabase/types'
 
-export function useCallApi({ workspace, dialog }) {
+export function useCallApi(workspace: Ref<WorkspaceMapped>, dialog: Ref<DialogMapped>) {
   const pluginsStore = usePluginsStore()
   const { t } = useI18n()
 
@@ -22,7 +23,7 @@ export function useCallApi({ workspace, dialog }) {
     return { valid, settings }
   }
 
-  async function callApi(plugin: Plugin, api: PluginApi, args): Promise<{ result?: ApiResultItem[], error?: string }> {
+  async function callApi(plugin: Plugin, api: PluginApi, args: Record<string, any>): Promise<{ result?: ApiResultItem[], error?: string }> {
     const { valid: argValid } = new Validator(api.parameters as Schema).validate(args)
     if (!argValid) {
       return { result: [], error: t('callApi.argValidationFailed') }
@@ -33,11 +34,10 @@ export function useCallApi({ workspace, dialog }) {
     }
     try {
       const result = await api.execute(args, settings)
-      console.log("---callApi result", result)
       return { result, error: null }
     } catch (e) {
       return { result: [], error: e.message }
     }
   }
-  return { getPluginSettings, callApi }
+  return { callApi }
 }

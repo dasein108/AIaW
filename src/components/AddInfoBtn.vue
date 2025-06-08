@@ -50,7 +50,7 @@
 import { useQuasar } from 'quasar'
 import { useCallApi } from 'src/composables/call-api'
 import { ApiResultItem, AssistantPlugins, Plugin, PluginApi } from 'src/utils/types'
-import { Dialog, Workspace } from '@/services/supabase/types'
+import { DialogMapped, WorkspaceMapped } from '@/services/supabase/types'
 import { computed, inject, Ref } from 'vue'
 import JsonInputDialog from './JsonInputDialog.vue'
 import { useI18n } from 'vue-i18n'
@@ -60,8 +60,8 @@ const props = defineProps<{
   assistantPlugins: AssistantPlugins
 }>()
 
-const workspace = inject<Ref<Workspace>>('workspace')
-const dialog = inject<Ref<Dialog>>('dialog')
+const workspace = inject<Ref<WorkspaceMapped>>('workspace')
+const dialog = inject<Ref<DialogMapped>>('dialog')
 
 const pluginInfos = computed<{ plugin: Plugin, apis: PluginApi[] }[]>(() =>
   props.plugins.map(p => ({
@@ -76,7 +76,7 @@ const pluginInfos = computed<{ plugin: Plugin, apis: PluginApi[] }[]>(() =>
 )
 
 const $q = useQuasar()
-const { callApi } = useCallApi({ workspace, dialog })
+const { callApi } = useCallApi(workspace, dialog)
 const { t } = useI18n()
 
 function handleResult(res: Awaited<ReturnType<typeof callApi>>) {

@@ -10,7 +10,7 @@ import { IsTauri } from 'src/utils/platform-api'
 import { buildGradioPlugin, buildLobePlugin, buildMcpPlugin, calculatorPlugin, docParsePlugin, dumpMcpPlugin, emotionsPlugin, fluxPlugin, gradioDefaultData, huggingToGradio, lobeDefaultData, mcpDefaultData, mermaidPlugin, timePlugin, videoTranscriptPlugin, whisperPlugin } from 'src/utils/plugins'
 import { GradioPluginManifest, HuggingPluginManifest, McpPluginDump, McpPluginManifest } from 'src/utils/types'
 import webSearchPlugin from 'src/utils/web-search-plugin'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAssistantsStore } from './assistants'
 import { useUserPluginsStore } from './user-plugins'
@@ -57,6 +57,7 @@ export const usePluginsStore = defineStore('plugins', () => {
 
   const availableKeys = computed(() => installedPlugins.value.filter(i => i.available).map(i => i.key))
   const { data, ready } = storeToRefs(useUserPluginsStore())
+
   const plugins = computed(() => [
     webSearchPlugin.plugin,
     calculatorPlugin,
@@ -77,8 +78,9 @@ export const usePluginsStore = defineStore('plugins', () => {
     })
   ])
   async function installLobePlugin(manifest: LobeChatPluginManifest) {
+    const key = `lobe-${manifest.identifier}`
     const id = await upsertPlugin({
-      key: `lobe-${manifest.identifier}`,
+      key,
       type: 'lobechat',
       available: true,
       manifest,
@@ -86,7 +88,7 @@ export const usePluginsStore = defineStore('plugins', () => {
       updated_at: new Date().toISOString(),
     })
 
-    data.value[id] = lobeDefaultData(manifest)
+    data.value[key] = lobeDefaultData(manifest)
   }
 
   async function installGradioPlugin(manifest: GradioPluginManifest) {

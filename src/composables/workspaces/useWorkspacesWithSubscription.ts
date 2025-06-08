@@ -32,7 +32,6 @@ async function fetchWorkspaces() {
   }
   workspaces.value = data.map((w) => mapWorkspaceTypes(w as Workspace))
   isLoaded.value = true
-  console.log("---fetchWorkspaces", data)
 }
 
 function subscribeToWorkspaces() {

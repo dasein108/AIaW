@@ -4,9 +4,6 @@ import { Database } from './database.types'
 
 const supabaseUrl = process.env.SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_KEY
-const testEmail = 'acidpictures@gmail.com'
-const testPassword = '1234567890'
-const chatId = 'c7e0948f-a00f-4835-a3d5-5297d1cd12f4'
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey)
 

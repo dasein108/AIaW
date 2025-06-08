@@ -1,61 +1,7 @@
 <template>
   <view-common-header
     @toggle-drawer="$emit('toggle-drawer')"
-    @contextmenu="createDialog"
   >
-    <!-- <q-badge
-      bg-pri-c
-      text-on-pri-c
-      ml-2
-      py-1
-    >
-      <a-avatar
-        v-if="workspace"
-        size="sm"
-        :avatar="workspace.avatar"
-      />
-      <q-icon
-        v-else
-        name="sym_o_error"
-        text-warn
-      />
-      <div
-        ml-2
-      >
-        {{ workspace?.name || 'undefined' }}
-      </div>
-    </q-badge>
-    <q-icon
-      name="sym_o_chevron_right"
-      ml-2
-    /> -->
-    <!-- TODO: remove / before -->
-    <!-- <div>
-      <assistant-item
-        clickable
-        :assistant
-        v-if="dialog"
-        text-base
-        item-rd
-        py-1
-        min-h-0
-        main
-      />
-      <q-menu>
-        <q-list>
-          <assistant-item
-            clickable
-            v-for="a in assistants"
-            :key="a.id"
-            :assistant="a"
-            @click="dialogsStore.updateDialog({ id: dialog.id, assistant_id: a.id })"
-            v-close-popup
-            py-1.5
-            min-h-0
-          />
-        </q-list>
-      </q-menu>
-    </div> -->
     <div
       v-if="model && assistant && dialog"
       text-on-sur-var
@@ -79,6 +25,7 @@
         name="sym_o_expand_more"
         size="sm"
       /> -->
+      <!-- TODO: Refactor/remove model menu -->
       <q-menu important:max-w="300px">
         <q-list>
           <template v-if="assistant.model">
@@ -207,18 +154,18 @@
           <message-image
             v-for="image in inputContentItems.filter(i => i.mime_type?.startsWith('image/'))"
             :key="image.id"
-            :image="image as StoredItemMapped"
+            :image="image"
             removable
             h="100px"
-            @remove="removeItem(image as StoredItemMapped)"
+            @remove="removeStoredItem(image)"
             shadow
           />
           <message-file
             v-for="file in inputContentItems.filter(i => !i.mime_type?.startsWith('image/'))"
             :key="file.id"
-            :file
+            :file="file"
             removable
-            @remove="removeItem(file as StoredItemMapped)"
+            @remove="removeStoredItem(file)"
             shadow
           />
         </div>
@@ -379,7 +326,7 @@
             :label="$t('dialogView.send')"
             @click="send"
             @abort="abortController?.abort()"
-            :loading="!!messageMap[chain.at(-2)]?.generating_session"
+            :loading="isStreaming || !!messageMap[chain.at(-2)]?.generating_session"
             ml-4
             min-h="40px"
           />
@@ -426,19 +373,15 @@
 <script setup lang="ts">
 import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick, onMounted } from 'vue'
 import { almostEqual, displayLength, genId, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
-import { streamText, CoreMessage, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult } from 'ai'
-import { throttle, useQuasar } from 'quasar'
-import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
-import sessions from 'src/utils/sessions'
+import { useQuasar } from 'quasar'
+import { DialogContent } from 'src/utils/templates'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
-import { PluginApi, ApiCallError, Plugin, ModelSettings, ApiResultItem, ConvertArtifactOptions } from 'src/utils/types'
-import { UserMessageContent, AssistantMessageContent } from '@/common/types/dialogs'
+import { PluginApi, Plugin, ModelSettings, ApiResultItem } from 'src/utils/types'
 import { usePluginsStore } from 'src/stores/plugins'
 import MessageItem from 'src/components/MessageItem.vue'
 import { scaleBlob } from 'src/utils/image-process'
 import MessageImage from 'src/components/MessageImage.vue'
 import { engine } from 'src/utils/template-engine'
-import { useCallApi } from 'src/composables/call-api'
 import { until } from '@vueuse/core'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
@@ -454,22 +397,16 @@ import { MaxMessageFileSizeMB } from 'src/utils/config'
 import ATip from 'src/components/ATip.vue'
 import { useListenKey } from 'src/composables/listen-key'
 import { useSetTitle } from 'src/composables/set-title'
-import { useCreateArtifact } from 'src/composables/create-artifact'
-import artifactsPlugin from 'src/utils/artifacts-plugin'
 import ModelOptionsBtn from 'src/components/ModelOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
 import { useI18n } from 'vue-i18n'
 import Mark from 'mark.js'
-import { useCreateDialog } from 'src/composables/create-dialog'
 import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
-import { useGetModel } from 'src/composables/get-model'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useDialogsStore } from 'src/stores/dialogs'
-import { Workspace, DialogMessageMapped, StoredItem, MessageContentMapped, StoredItemMapped, ArtifactMapped, WorkspaceMapped } from '@/services/supabase/types'
-import { useStorage } from 'src/composables/storage/useStorage'
-import { FILES_BUCKET, getFileUrl } from 'src/composables/storage/utils'
 import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
-
+import { useLlmDialog } from 'src/composables/llm/useLlmDialog'
+import { useDialogChain, useDialogModel, useDialogView } from 'src/composables/useDialogView'
 const { t, locale } = useI18n()
 
 const props = defineProps<{
@@ -478,135 +415,75 @@ const props = defineProps<{
 
 const rightDrawerAbove = inject('rightDrawerAbove')
 
-const dialogsStore = useDialogsStore()
 const { assistant, workspace } = useActiveWorkspace()
-
-const dialogs = computed(() => Object.values(dialogsStore.dialogs))
+const dialogsStore = useDialogsStore()
 
 const dialog = computed(() => dialogsStore.dialogs[props.id])
-const dialogMessages = computed(() => dialogsStore.dialogMessages[props.id] || [])
+const { switchChain, updateMsgRoute } = useDialogChain(dialog)
+const {
+  chain, messageMap,
+  editBranch, deleteBranch, updateInputText,
+  inputMessageContent, inputContentItems, addInputItems, inputEmpty, getDialogContents, removeStoredItem
+} = useDialogView(dialog, assistant, workspace)
 
-watch(dialog, () => {
-  dialogsStore.fetchDialogMessages(props.id)
-})
+const pluginsStore = usePluginsStore()
 
-onMounted(() => {
-  // dialogsStore.fetchDialogs()
+const { model, sdkModel, modelOptions } = useDialogModel(dialog, assistant)
+
+const $q = useQuasar()
+const { genTitle, extractArtifact, stream, isStreaming } = useLlmDialog(workspace, dialog, assistant)
+
+const preventLockingBottom = ref(false)
+const lockingBottom = computed(() => !preventLockingBottom.value && isStreaming.value && perfs.streamingLockBottom)
+
+// stream abort controller
+const abortController = ref<AbortController | null>(null)
+const imageInput = ref()
+const fileInput = ref()
+const messageInput = ref()
+const showVars = ref(true)
+
+const startStream = async (target: string, insert = false) => {
+  preventLockingBottom.value = false
+  abortController.value = new AbortController()
+  await stream(target, insert, abortController.value)
+}
+
+watch(() => props.id, () => {
   dialogsStore.fetchDialogMessages(props.id)
-})
+}, { immediate: true })
 
 provide('dialog', dialog)
 
-const chain = computed<string[]>(() => dialog.value ? getChain(null, dialog.value.msg_route)[0] : [])
-
-const historyChain = ref<string[]>([])
-function switchChain(index: number, value: number) {
-  const route = [...dialog.value.msg_route.slice(0, index), value]
-  updateChain(route)
-}
-function updateChain(route) {
-  const res = getChain(null, route)
-  historyChain.value = res[0]
-  dialogsStore.updateDialog({ id: dialog.value.id, msg_route: res[1] })
-}
-watch([() => dialogMessages.value.length, () => dialog.value?.id], () => {
-  dialog.value && updateChain(dialog.value.msg_route)
-})
-function getChain(node, route: number[]) {
-  const children = dialog.value.msg_tree[node]
-  const r = route.at(0) || 0
-  if (children[r]) {
-    const [restChain, restRoute] = getChain(children[r], route.slice(1))
-    return [[node, ...restChain], [r, ...restRoute]]
-  } else {
-    return [[node], [r]]
-  }
-}
-
-const messageInput = ref()
 function focusInput() {
   isPlatformEnabled(perfs.autoFocusDialogInput) && messageInput.value?.focus()
 }
 async function edit(index: number) {
-  const target = chain.value[index - 1]
-  const { type, message_contents } = messageMap.value[chain.value[index]]
-  switchChain(index - 1, dialog.value.msg_tree[target].length)
-
-  await dialogsStore.addDialogMessage(props.id, target, {
-    type,
-    message_contents,
-    status: 'inputing'
-  })
+  await editBranch(index)
   await nextTick()
   focusInput()
 }
 
-async function regenerate(index) {
+function ensureAssistantAndModel() {
   if (!assistant.value) {
     $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
-    return
+    return false
   }
   if (!sdkModel.value) {
     $q.notify({ message: t('dialogView.errors.configModel'), color: 'negative' })
-    return
+    return false
   }
+
+  return true
+}
+
+async function regenerate(index) {
+  if (!ensureAssistantAndModel()) return
+
   const target = chain.value[index - 1]
   switchChain(index - 1, dialog.value.msg_tree[target].length)
-  await stream(target, false)
+  await startStream(target, false)
 }
-async function deleteBranch(index) {
-  const parent = chain.value[index - 1]
-  const anchor = chain.value[index]
-  const branch = dialog.value.msg_route[index - 1]
-  branch === dialog.value.msg_tree[parent].length - 1 && switchChain(index - 1, branch - 1)
-  const ids = expandMessageTree(anchor)
-  const itemIds = ids.flatMap(id => messageMap.value[id].message_contents).flatMap(c => {
-    if (c.type === 'user-message') return c.stored_items
-    else if (c.type === 'assistant-tool') return c.result || []
-    else return []
-  })
-
-  await dialogsStore.removeDialogMessages(ids)
-
-  const msgTree = { ...toRaw(dialog.value.msg_tree) }
-  msgTree[parent] = msgTree[parent].filter(id => id !== anchor)
-  ids.forEach(id => {
-    delete msgTree[id]
-  })
-  dialogsStore.updateDialog({ id: props.id, msg_tree: msgTree })
-  // })
-}
-
-function expandMessageTree(root): string[] {
-  return [root, ...dialog.value.msg_tree[root].flatMap(id => expandMessageTree(id))]
-}
-
-async function updateInputText(text) {
-  await dialogsStore.updateDialogMessage(props.id, chain.value.at(-1), {
-    // use shallow keyPath to avoid dexie's sync bug
-    message_contents: [{
-      ...inputMessageContent.value,
-      text
-    }] as MessageContentMapped[],
-    status: 'inputing'
-  })
-}
-const inputMessageContent = computed(() => messageMap.value[chain.value.at(-1)]?.message_contents[0] as UserMessageContent)
-const inputContentItems = computed(() => inputMessageContent.value.stored_items.map(item => itemMap.value[item.id]).filter(x => x))
-const messageMap = computed<Record<string, DialogMessageMapped>>(() => {
-  const map = {}
-  dialogMessages.value.forEach(m => { map[m.id] = m })
-  return map
-})
-const itemMap = computed<Record<string, StoredItem>>(() => {
-  const map = {}
-  dialogMessages.value.flatMap(m => m.message_contents).flatMap(c => c.stored_items).forEach(i => { map[i.id] = i })
-  return map
-})
-
-provide('messageMap', messageMap)
-provide('itemMap', itemMap)
-const inputEmpty = computed(() => !inputMessageContent.value?.text && !inputMessageContent.value?.stored_items.length)
 
 function onTextPaste(ev: ClipboardEvent) {
   if (!perfs.codePasteOptimize) return
@@ -626,9 +503,6 @@ function onTextPaste(ev: ClipboardEvent) {
   }
 }
 
-const imageInput = ref()
-const fileInput = ref()
-const storage = useStorage(FILES_BUCKET)
 function onInputFiles({ target }) {
   const files = target.files
   parseFiles(Array.from(files))
@@ -654,9 +528,6 @@ function onPaste(ev: ClipboardEvent) {
 }
 addEventListener('paste', onPaste)
 onUnmounted(() => removeEventListener('paste', onPaste))
-async function removeItem(stored_item: StoredItemMapped) {
-  await dialogsStore.removeStoreItem(stored_item)
-}
 
 async function parseFiles(files: File[]) {
   if (!files.length) return
@@ -690,7 +561,8 @@ async function parseFiles(files: File[]) {
       contentBuffer: await f.arrayBuffer() // TODO: fix this
     })
   }
-  addInputItems(parsedFiles)
+
+  await addInputItems(parsedFiles)
 
   otherFiles.length && $q.dialog({
     component: ParseFilesDialog,
@@ -699,400 +571,61 @@ async function parseFiles(files: File[]) {
     addInputItems(files)
   })
 }
-function quote(item: ApiResultItem) {
+async function quote(item: ApiResultItem) {
   if (displayLength(item.contentText) > 200) {
-    addInputItems([item])
+    await addInputItems([item])
   } else {
     const { text } = inputMessageContent.value
     const content = wrapQuote(item.contentText) + '\n\n'
-    updateInputText(text ? text + '\n' + content : content)
+    await updateInputText(text ? text + '\n' + content : content)
     focusInput()
   }
 }
-async function addInputItems(items: ApiResultItem[]) {
-  const storedItems: StoredItemMapped[] = await Promise.all(items.map(r => storage.apiResultItemToStoredItem(r, props.id)))
 
-  await dialogsStore.updateDialogMessage(props.id, chain.value.at(-1), {
-    message_contents: [{
-      ...inputMessageContent.value,
-      stored_items: [...inputMessageContent.value.stored_items, ...storedItems.filter(i => i)]
-    }]
-  })
-}
-
-function getChainMessages() {
-  const val: CoreMessage[] = []
-  historyChain.value
-    .slice(1)
-    .slice(-assistant.value.context_num || 0)
-    .filter(id => messageMap.value[id].status !== 'inputing')
-    .map(id => messageMap.value[id].message_contents)
-    .flat()
-    .forEach(content => {
-      if (content.type === 'user-message') {
-        val.push({
-          role: 'user',
-          content: [
-            { type: 'text', text: content.text },
-            ...content.stored_items.map(item => itemMap.value[item.id]).map(i => {
-              if (i.content_text != null) {
-                if (i.type === 'file') {
-                  return { type: 'text' as const, text: `<file_content filename="${i.name}">\n${i.content_text}\n</file_content>` }
-                } else if (i.type === 'quote') {
-                  return { type: 'text' as const, text: `<quote name="${i.name}">${i.content_text}</quote>` }
-                } else {
-                  return { type: 'text' as const, text: i.content_text }
-                }
-              } else {
-                if (!mimeTypeMatch(i.mime_type, model.value.inputTypes.user)) {
-                  return null
-                } else if (i.mime_type.startsWith('image/')) {
-                  return { type: 'image' as const, image: getFileUrl(i.file_url), mimeType: i.mime_type }
-                } else {
-                  return { type: 'file' as const, mimeType: i.mime_type, data: getFileUrl(i.file_url) }
-                }
-              }
-            }).filter(x => x)
-          ]
-        })
-      } else if (content.type === 'assistant-message') {
-        val.push({
-          role: 'assistant',
-          content: [
-            { type: 'text', text: content.text }
-          ]
-        })
-      } else if (content.type === 'assistant-tool') {
-        if (content.status !== 'completed') return
-        const { name, args, result, plugin_id } = content
-        const id = genId()
-        val.push({
-          role: 'assistant',
-          content: [{
-            type: 'tool-call',
-            toolName: `${plugin_id}-${name}`,
-            toolCallId: id,
-            args
-          }]
-        })
-        val.push({
-          role: 'tool',
-          content: [{
-            type: 'tool-result',
-            toolName: `${plugin_id}-${name}`,
-            toolCallId: id,
-            result: toToolResultContent(result.map(id => itemMap.value[id])),
-            experimental_content: toToolResultContent(result.map(id => itemMap.value[id]))
-          }]
-        })
-      }
-    })
-  return val
-}
-
-function getSystemPrompt(enabledPlugins) {
-  try {
-    const prompt = engine.parseAndRenderSync(assistant.value.prompt_template, {
-      ...getCommonVars(),
-      ...workspace.value.vars,
-      ...dialog.value.input_vars,
-      _pluginsPrompt: enabledPlugins.length
-        ? engine.parseAndRenderSync(PluginsPrompt, { plugins: enabledPlugins })
-        : '',
-      _rolePrompt: assistant.value.prompt
-    })
-    return prompt.trim() ? prompt : undefined
-  } catch (e) {
-    console.error(e)
-    $q.notify({ message: t('dialogView.promptParseFailed'), color: 'negative' })
-    throw e
-  }
-}
-
-function getCommonVars() {
-  return {
-    _currentTime: new Date().toString(),
-    _userLanguage: navigator.language,
-    _workspaceId: workspace.value.id,
-    _workspaceName: workspace.value.name,
-    _assistantId: assistant.value.id,
-    _assistantName: assistant.value.name,
-    _dialogId: dialog.value.id,
-    _modelId: model.value.name,
-    _isDarkMode: $q.dark.isActive,
-    _platform: $q.platform
-  }
-}
-
-const pluginsStore = usePluginsStore()
-
-const { callApi } = useCallApi({ workspace, dialog })
-
-const modelOptions = ref({})
-const { getModel, getSdkModel } = useGetModel()
-const model = computed(() => getModel(dialog.value?.model_override || assistant.value?.model))
-const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value, modelOptions.value))
-const $q = useQuasar()
-
-const { data } = useUserDataStore()
-const openedArtifacts = computed(() => artifacts.value.filter(a => userDataStore.data.openedArtifacts.includes(a.id)))
 async function send() {
-  if (!assistant.value) {
-    $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
-    return
-  }
-  if (!sdkModel.value) {
-    $q.notify({ message: t('dialogView.errors.configModel'), color: 'negative' })
-    return
-  }
-  if (!data.noobAlertDismissed && chain.value.length > 10 && dialogs.value.length < 3) {
-    $q.dialog({
-      title: t('dialogView.noobAlert.title'),
-      message: t('dialogView.noobAlert.message'),
-      persistent: true,
-      ok: t('dialogView.noobAlert.okBtn'),
-      cancel: t('dialogView.noobAlert.cancelBtn'),
-      ...dialogOptions
-    }).onCancel(() => {
-      data.noobAlertDismissed = true
-      send()
-    })
-    return
-  }
+  if (!ensureAssistantAndModel()) return
+
+  // TODO: Noob alert - probably not needed
+  // if (!data.noobAlertDismissed && chain.value.length > 10 && dialogs.value.length < 3) {
+  //   $q.dialog({
+  //     title: t('dialogView.noobAlert.title'),
+  //     message: t('dialogView.noobAlert.message'),
+  //     persistent: true,
+  //     ok: t('dialogView.noobAlert.okBtn'),
+  //     cancel: t('dialogView.noobAlert.cancelBtn'),
+  //     ...dialogOptions
+  //   }).onCancel(() => {
+  //     data.noobAlertDismissed = true
+  //     send()
+  //   })
+  //   return
+  // }
+
   showVars.value = false
-  if (inputEmpty.value) {
-    await stream(chain.value.at(-2), true)
-  } else {
-    const target = chain.value.at(-1)
-    await dialogsStore.updateDialogMessage(props.id, target, { status: 'default' })
-    until(chain).changed().then(() => {
-      nextTick().then(() => {
-        scroll('bottom')
-      })
-    })
-    await stream(target, false)
-  }
-  perfs.autoGenTitle && chain.value.length === 4 && genTitle()
-}
-
-const artifacts = inject<Ref<ArtifactMapped[]>>('artifacts')
-const abortController = ref<AbortController>()
-async function stream(target, insert = false) {
-  const settings: Partial<ModelSettings> = {}
-  for (const key in assistant.value.model_settings) {
-    const val = assistant.value.model_settings[key]
-    if (val || val === 0) {
-      settings[key] = val
-    }
-  }
-  const messageContent: AssistantMessageContent = {
-    type: 'assistant-message',
-    text: ''
-  }
-  const contents: MessageContentMapped[] = [messageContent]
-
-  const { id } = await dialogsStore.addDialogMessage(props.id, target, {
-    type: 'assistant',
-    assistant_id: assistant.value.id,
-    message_contents: contents,
-    status: 'pending',
-    generating_session: sessions.id,
-    model_name: model.value.name
-  }, insert)
-  !insert && await dialogsStore.addDialogMessage(props.id, id, {
-    type: 'user',
-    message_contents: [{
-      type: 'user-message',
-      text: '',
-      stored_items: []
-    }],
-    status: 'inputing'
+  nextTick().then(() => {
+    scroll('bottom')
   })
-
-  // const update = throttle(() => dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents }), 50)
-  const update = async () => await dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents })
-
-  async function callTool(plugin: Plugin, api: PluginApi, args) {
-    const content: MessageContentMapped = {
-      type: 'assistant-tool',
-      plugin_id: plugin.id,
-      name: api.name,
-      args,
-      status: 'calling'
-    }
-
-    contents.push(content)
-
-    await update()
-
-    const { result: apiResult, error } = await callApi(plugin, api, args)
-    const result: StoredItemMapped[] = await Promise.all(apiResult.map(r => storage.apiResultItemToStoredItem(r, props.id)))
-    // saveItems(result)
-    content.stored_items = result.filter(i => i)
-    if (error) {
-      content.status = 'failed'
-      content.error = error
-    } else {
-      content.status = 'completed'
-      content.result = result.map(i => i)
-    }
-    await update()
-
-    return { result, error }
+  console.log('-- inputEmpty', inputEmpty.value)
+  if (inputEmpty.value) {
+    await startStream(chain.value.at(-2), true)
+  } else {
+    await startStream(chain.value.at(-1), false)
   }
-  const { plugins } = assistant.value
-  const tools = {}
-  const enabledPlugins = []
-  let noRoundtrip = true
-  await Promise.all(activePlugins.value.map(async p => {
-    noRoundtrip &&= p.noRoundtrip
-    const plugin = plugins[p.id]
-    const pluginVars = {
-      ...getCommonVars(),
-      ...plugin.vars
-    }
-    plugin.tools.forEach(api => {
-      if (!api.enabled) return
-      const a = p.apis.find(a => a.name === api.name)
-      const { name, prompt } = a
-      tools[`${p.id}-${name}`] = tool({
-        description: engine.parseAndRenderSync(prompt, pluginVars),
-        parameters: jsonSchema(a.parameters),
-        async execute(args) {
-          const { result, error } = await callTool(p, a, args)
-          if (error) throw new ApiCallError(error)
-          return result
-        },
-        experimental_toToolResultContent: toToolResultContent
-      })
-    })
-    const pluginInfos = {}
-    await Promise.all(plugin.infos.map(async api => {
-      if (!api.enabled) return
-      const a = p.apis.find(a => a.name === api.name)
-      if (a.infoType !== 'prompt-var') return
-      try {
-        pluginInfos[a.name] = await callApi(p, a, api.args)
-      } catch (e) {
-        $q.notify({ message: t('dialogView.callPluginInfoFailed', { message: e.message }), color: 'negative' })
-      }
-    }))
-
-    try {
-      enabledPlugins.push({
-        id: p.id,
-        prompt: p.prompt && engine.parseAndRenderSync(p.prompt, { ...pluginVars, infos: pluginInfos })
-      })
-    } catch (e) {
-      $q.notify({ message: t('dialogView.pluginPromptParseFailed', { title: p.title }), color: 'negative' })
-    }
-  }))
-
-  if (isPlatformEnabled(perfs.artifactsEnabled) && openedArtifacts.value.length > 0) {
-    const { plugin, getPrompt, api } = artifactsPlugin
-    enabledPlugins.push({
-      id: plugin.id,
-      prompt: getPrompt(openedArtifacts.value),
-      actions: []
-    })
-    tools[`${plugin.id}-${api.name}`] = tool({
-      description: api.prompt,
-      parameters: jsonSchema(api.parameters),
-      async execute(args) {
-        const { result, error } = await callTool(plugin, api, args)
-        if (error) throw new ApiCallError(error)
-        return result
-      },
-      experimental_toToolResultContent: toToolResultContent
-    })
-  }
-  try {
-    if (noRoundtrip) settings.maxSteps = 1
-    abortController.value = new AbortController()
-    const messages = getChainMessages()
-    const prompt = getSystemPrompt(enabledPlugins.filter(p => p.prompt))
-    prompt && messages.unshift({ role: assistant.value.prompt_role, content: prompt })
-    const params = {
-      model: sdkModel.value,
-      messages,
-      tools,
-      ...settings,
-      abortSignal: abortController.value.signal
-    }
-    let result: StreamTextResult<any, any> | GenerateTextResult<any, any>
-    if (assistant.value.stream) {
-      result = streamText(params)
-      await dialogsStore.updateDialogMessage(props.id, id, { status: 'streaming' })
-      lockingBottom.value = perfs.streamingLockBottom
-      for await (const part of result.fullStream) {
-        if (part.type === 'text-delta') {
-          messageContent.text += part.textDelta
-          await update()
-        } else if (part.type === 'reasoning') {
-          messageContent.reasoning = (messageContent.reasoning ?? '') + part.textDelta
-          await update()
-        } else if (part.type === 'error') {
-          throw part.error
-        }
-      }
-    } else {
-      result = await generateText(params)
-      messageContent.text = await result.text
-      messageContent.reasoning = await result.reasoning
-    }
-
-    const usage = await result.usage
-    const warnings = (await result.warnings).map(w => (w.type === 'unsupported-setting' || w.type === 'unsupported-tool') ? w.details : w.message)
-    await dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents, status: 'default', generating_session: null, warnings, usage })
-  } catch (e) {
-    console.error(e)
-    if (e.data?.error?.type === 'budget_exceeded') {
-      $q.notify({
-        message: t('dialogView.errors.insufficientQuota'),
-        color: 'err-c',
-        textColor: 'on-err-c',
-        actions: [{ label: t('dialogView.recharge'), color: 'on-sur', handler() { router.push('/account') } }]
-      })
-    }
-    await dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents, error: e.message || e.toString(), status: 'failed', generating_session: null })
-  }
-  perfs.artifactsAutoExtract && autoExtractArtifact()
-  lockingBottom.value = false
 }
-function toToolResultContent(items: (ApiResultItem | StoredItem)[]) {
-  const val = []
-  for (const item of items) {
-    if (!item) continue // TODO: in case if tool failed ignore it
-    if (item.type === 'text') {
-      // Handle both ApiResultItem (contentText) and StoredItem (content_text)
-      const text = 'content_text' in item ? item.content_text : item.contentText
-      val.push({ type: 'text', text })
-    } else {
-      // Handle mime type field differences: ApiResultItem uses mimeType, StoredItem uses mime_type
-      const mimeType = 'mime_type' in item ? item.mime_type : item.mimeType
-      if (mimeTypeMatch(mimeType, model.value.inputTypes.tool)) {
-        val.push({
-          type: mimeType?.startsWith('image/') ? 'image' : 'file',
-          mimeType,
-          data: 'contentBuffer' in item ? item.contentBuffer : null
-        })
-      }
-    }
-  }
-  return val
-}
-const lockingBottom = ref(false)
+
 let lastScrollTop
 function scrollListener() {
   const container = scrollContainer.value
   if (container.scrollTop < lastScrollTop) {
-    lockingBottom.value = false
+    preventLockingBottom.value = true
   }
   lastScrollTop = container.scrollTop
 }
+
 function lockBottom() {
   lockingBottom.value && scroll('bottom', 'auto')
 }
+
 watch(lockingBottom, val => {
   if (val) {
     lastScrollTop = scrollContainer.value.scrollTop
@@ -1105,26 +638,6 @@ watch(lockingBottom, val => {
 const activePlugins = computed<Plugin[]>(() => assistant.value ? pluginsStore.plugins.filter(p => p.available && assistant.value.plugins[p.id]?.enabled) : [])
 const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
 
-const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))
-function getDialogContents() {
-  return chain.value.slice(1, -1).map(id => messageMap.value[id].message_contents).flat()
-}
-async function genTitle() {
-  try {
-    const dialogId = props.id
-    const { text } = await generateText({
-      model: systemSdkModel.value,
-      prompt: await engine.parseAndRender(GenDialogTitle, {
-        contents: getDialogContents(),
-        lang: locale.value
-      })
-    })
-    await dialogsStore.updateDialog({ id: dialogId, name: text })
-  } catch (e) {
-    console.error(e)
-    $q.notify({ message: t('dialogView.summarizeFailed'), color: 'negative' })
-  }
-}
 async function copyContent() {
   await navigator.clipboard.writeText(await engine.parseAndRender(DialogContent, {
     contents: getDialogContents(),
@@ -1139,7 +652,7 @@ watch(route, to => {
   until(dialog).toMatch(val => val?.id === props.id).then(async () => {
     focusInput()
     if (to.hash === '#genTitle') {
-      genTitle()
+      genTitle(getDialogContents())
       router.replace({ hash: '' })
     } else if (to.hash === '#copyContent') {
       copyContent()
@@ -1148,7 +661,7 @@ watch(route, to => {
     if (to.query.goto) {
       const { route, highlight } = JSON.parse(to.query.goto as string)
       if (!JSONEqual(route, dialog.value.msg_route.slice(0, route.length))) {
-        updateChain(route)
+        updateMsgRoute(route)
         await until(chain).changed()
       }
       await nextTick()
@@ -1175,8 +688,6 @@ function onEnter(ev) {
     else if (!ev.shiftKey) send()
   }
 }
-
-const showVars = ref(true)
 
 const scrollContainer = ref<HTMLElement>()
 function getEls() {
@@ -1316,55 +827,6 @@ if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'focusDialogInputKey'), () => focusInput())
 }
 
-async function genArtifactName(content: string, lang?: string) {
-  const { text } = await generateText({
-    model: systemSdkModel.value,
-    prompt: engine.parseAndRenderSync(NameArtifactPrompt, { content, lang })
-  })
-  return text
-}
-const { createArtifact } = useCreateArtifact(toRef(workspace.value, 'id'))
-async function extractArtifact(message: DialogMessageMapped, text: string, pattern, options: ConvertArtifactOptions) {
-  const name = options.name || await genArtifactName(text, options.lang)
-  const id = await createArtifact({
-    name,
-    language: options.lang,
-    versions: [{
-      date: new Date().toISOString(),
-      text
-    }],
-    tmp: text
-  })
-  if (options.reserveOriginal) return
-  const to = `> ${t('dialogView.convertedToArtifact')}: <router-link to="?openArtifact=${id}">${name}</router-link>\n`
-  const index = message.message_contents.findIndex(c => ['assistant-message', 'user-message'].includes(c.type))
-  const content = message.message_contents[index] as UserMessageContent | AssistantMessageContent
-  // TODO: update message_contents ???
-  // await db.messages.update(message.id, {
-  //   [`contents.${index}.text`]: content.text.replace(pattern, to) as any
-  // })
-}
-async function autoExtractArtifact() {
-  const message = messageMap.value[chain.value.at(-2)]
-  const { text } = await generateText({
-    model: systemSdkModel.value,
-    prompt: engine.parseAndRenderSync(ExtractArtifactPrompt, {
-      contents: chain.value.slice(-3, -1).map(id => messageMap.value[id].message_contents).flat()
-    })
-  })
-  const object: ExtractArtifactResult = JSON.parse(text)
-  if (!object.found) return
-  const reg = new RegExp(`(\`{3,}.*\\n)?(${object.regex})(\\s*\`{3,})?`)
-  const content = message.message_contents.find(c => c.type === 'assistant-message')
-  const match = content.text.match(reg)
-  if (!match) return
-  await extractArtifact(message, match[2], reg, {
-    name: object.name,
-    lang: object.language,
-    reserveOriginal: perfs.artifactsReserveOriginal
-  })
-}
-
 const uiStateStore = useUiStateStore()
 const scrollTops = uiStateStore.dialogScrollTops
 function onScroll(ev) {
@@ -1376,8 +838,6 @@ watch(() => dialog.value?.id, id => {
     scrollContainer.value?.scrollTo({ top: scrollTops[id] ?? 0 })
   })
 })
-
-const { createDialog } = useCreateDialog(workspace.value.id)
 
 defineEmits(['toggle-drawer'])
 

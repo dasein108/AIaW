@@ -3,7 +3,7 @@ import { Dialog, DialogMapped, DialogMessageMapped, MessageContentMapped, Stored
 import { LanguageModelUsage } from 'ai'
 import { defineStore } from 'pinia'
 import { supabase } from 'src/services/supabase/client'
-import { reactive, ref } from 'vue'
+import { reactive, ref, toRaw } from 'vue'
 import merge from 'lodash/merge'
 import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
 
@@ -26,7 +26,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
   const dialogMessages = reactive<Record<string, DialogMessageMapped[]>>({})
   const isLoaded = ref(false)
   async function fetchDialogs() {
-    const { data, error } = await supabase.from('dialogs').select('*').order('created_at', { ascending: false })// .eq('workspace_id', workspaceId)
+    const { data, error } = await supabase.from('dialogs').select('*').order('created_at', { ascending: true })// .eq('workspace_id', workspaceId)
     if (error) {
       console.error(error)
     }
@@ -48,11 +48,15 @@ export const useDialogsStore = defineStore('dialogs', () => {
     if (error) {
       console.error(error)
     }
-    const messages = data.map(mapDialogMessage)
 
-    dialogMessages[dialogId] = messages
-
-    return messages as DialogMessageMapped[]
+    dialogMessages[dialogId] = data as DialogMessageMapped[]
+    // console.log(`-- fetchDialogMessages ${dialogId}`, dialogs[dialogId].msg_route, dialogs[dialogId].msg_tree, Object.values(dialogMessages[dialogId]).map(m => toRaw(m)))
+    // for (const rootId of Object.keys(dialogs[dialogId].msg_tree)) {
+    //   const rootContents = dialogMessages[dialogId].find(m => m.id === rootId)?.message_contents[0].text || '[root]'
+    //   const childContents = dialogMessages[dialogId].filter(m => dialogs[dialogId].msg_tree[rootId].includes(m.id)).map(m => m.message_contents[0].text)
+    //   console.log(`-- fetchDialogMessages msg_tree`, rootContents, childContents)
+    // }
+    return dialogMessages[dialogId]
   }
 
   async function removeDialog(dialogId: string) {
@@ -83,6 +87,7 @@ export const useDialogsStore = defineStore('dialogs', () => {
   }
 
   async function updateDialog(dialog: Partial<DialogMapped>) {
+    console.log('-- updateDialog', dialog)
     const { data, error } = await supabase.from('dialogs').update(dialog).eq('id', dialog.id).select().single()
     if (error) {
       console.error(error)
@@ -93,17 +98,19 @@ export const useDialogsStore = defineStore('dialogs', () => {
 
   async function addDialogMessage(dialogId: string, rootMessageId: string | null, message: DialogMessageInput, insert = false) {
     const { message_contents, ...messageInput } = message
+
+    console.log('-- addDialogMessage', message)
     // 1. create dialog message
-    const { data, error } = await supabase.from('dialog_messages').insert({ ...messageInput, dialog_id: dialogId }).select(SELECT_DIALOG_MESSAGES).single()
+    const { data: dialogMessage, error } = await supabase.from('dialog_messages').insert({ ...messageInput, dialog_id: dialogId }).select(SELECT_DIALOG_MESSAGES).single<DialogMessageMapped>()
     if (error) {
       console.error(error)
       throw error
     }
-    const dialogMessage = mapDialogMessage(data)
+
     // 2. create message contents
     for (const content of message_contents) {
       const { stored_items = [], id, ...contentInput } = content
-      const { data: contentData, error: contentError } = await supabase.from('message_contents').insert({ ...contentInput, message_id: data.id }).select('*, stored_items(*)').single()
+      const { data: contentData, error: contentError } = await supabase.from('message_contents').insert({ ...contentInput, message_id: dialogMessage.id }).select('*, stored_items(*)').single()
       if (contentError) {
         console.error(contentError)
         throw contentError
@@ -127,15 +134,20 @@ export const useDialogsStore = defineStore('dialogs', () => {
 
     dialogMessages[dialogId].push(dialogMessage)
 
-    // 4. update dialog msg_tree
+    await updateDialogMsgTree(dialogId, rootMessageId, dialogMessage.id, insert)
+
+    return dialogMessage
+  }
+
+  async function updateDialogMsgTree(dialogId: string, rootMessageId: string, newMessageId: string, insert = false) {
     const { msg_tree } = dialogs[dialogId]
     const children = msg_tree[rootMessageId] || []
     const changes = insert ? {
-      [rootMessageId]: [dialogMessage.id],
-      [dialogMessage.id]: children
+      [rootMessageId]: [newMessageId],
+      [newMessageId]: children
     } : {
-      [rootMessageId]: [...children, dialogMessage.id],
-      [dialogMessage.id]: []
+      [rootMessageId]: [...children, newMessageId],
+      [newMessageId]: []
     }
 
     await updateDialog({
@@ -145,8 +157,6 @@ export const useDialogsStore = defineStore('dialogs', () => {
         ...changes
       }
     })
-
-    return mapDialogMessage(data)
   }
 
   async function updateDialogMessage(dialogId: string, messageId: string, message: Partial<DialogMessageInput>) {
@@ -161,6 +171,8 @@ export const useDialogsStore = defineStore('dialogs', () => {
     const { message_contents, ...messageInput } = dialogMessage
     if (Object.keys(messageInput).length > 0) {
       const { data, error } = await supabase.from('dialog_messages').update(messageInput).eq('id', messageId).eq('dialog_id', dialogId).select(SELECT_DIALOG_MESSAGES).single()
+      console.log('-- updateDialogMessage shouldSave', messageInput, data)
+
       if (error) {
         console.error(error)
         throw error
