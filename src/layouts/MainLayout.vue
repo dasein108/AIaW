@@ -49,6 +49,7 @@
         </q-item-section>
         <q-item-section side>
           <q-btn
+            v-if="canViewCyberlinks"
             flat
             dense
             icon="sym_o_history"
@@ -118,13 +119,12 @@ import { useQuasar } from "quasar"
 import AddDialogItem from "src/components/AddDialogItem.vue"
 import { useOpenLastWorkspace } from "src/composables/open-last-workspace"
 import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
-import { useDialogsStore } from "src/stores/dialogs"
 import { usePluginsStore } from "src/stores/plugins"
 import { useUiStateStore } from "src/stores/ui-state"
 import version from "src/version.json"
-import { computed, ref } from "vue"
+import { computed } from "vue"
 import { useI18n } from "vue-i18n"
-import { useRoute, useRouter } from "vue-router"
+import { useRoute } from "vue-router"
 import AssistantSelector from "./AssistantSelector.vue"
 import LastDialogs from "./LastDialogs.vue"
 import PinnedChats from "./PinnedChats.vue"
@@ -137,7 +137,6 @@ defineOptions({
 
 const uiStore = useUiStateStore()
 const route = useRoute()
-const router = useRouter()
 const { workspace } = useActiveWorkspace()
 
 const { openLastWorkspace } = useOpenLastWorkspace()
@@ -145,12 +144,6 @@ route.path === "/" && openLastWorkspace()
 
 const { t, locale } = useI18n()
 const $q = useQuasar()
-
-const rightDrawerOpen = ref(false)
-
-function toggleRightDrawer () {
-  rightDrawerOpen.value = !rightDrawerOpen.value
-}
 
 const pluginsStore = usePluginsStore()
 const { assistant } = useActiveWorkspace()
@@ -166,8 +159,6 @@ const canViewCyberlinks = computed(() => {
     plugin.apis.some((api) => api.name === "query_cyberlinks")
   )
 })
-
-const dialogsStore = useDialogsStore()
 
 function notifyVersion () {
   $q.notify({

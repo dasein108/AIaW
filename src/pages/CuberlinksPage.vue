@@ -1,31 +1,80 @@
 <template>
   <router-view @toggle-drawer="drawerOpen = !drawerOpen" />
   <q-page-container>
-    <q-page :style-fn="pageFhStyle">
-      <div>
-        <h3>Cyberlinks</h3>
-        <q-list
-          v-if="cyberlinks"
-          bordered
-          separator
-        >
+    <q-page
+      :style-fn="pageFhStyle"
+      class="q-pa-md"
+    >
+      <q-card
+        flat
+        bordered
+      >
+        <q-card-section>
+          <h3 class="text-h6 q-ma-none">
+            Cyberlinks
+          </h3>
+        </q-card-section>
+        <q-separator />
+        <q-list separator>
           <q-item
             v-for="link in cyberlinks"
             :key="link.id"
+            clickable
+            v-ripple
+            class="q-py-md"
           >
+            <q-item-section
+              avatar
+              top
+            >
+              <q-icon
+                name="sym_o_link"
+                color="primary"
+                size="32px"
+              />
+            </q-item-section>
+
             <q-item-section>
-              <q-item-label>{{ link.value }}</q-item-label>
+              <q-item-label
+                class="text-body1"
+                style="word-break: break-word"
+              >
+                {{ link.value }}
+              </q-item-label>
+              <q-item-label
+                caption
+                class="q-mt-sm row items-center"
+              >
+                <q-chip
+                  :label="link.type"
+                  color="secondary"
+                  text-color="white"
+                  size="sm"
+                  class="q-mr-sm"
+                />
+                <span>{{ link.fid }}</span>
+              </q-item-label>
+            </q-item-section>
+
+            <q-item-section
+              side
+              top
+            >
               <q-item-label caption>
-                {{ link.fid }} | {{ link.type }} |
-                {{ new Date(link.created_at).toLocaleString() }}
+                {{
+                  new Date(link.created_at).toLocaleString()
+                }}
               </q-item-label>
             </q-item-section>
           </q-item>
         </q-list>
         <q-inner-loading :showing="loading" />
-        <div v-if="error">
-          {{ error }}
-        </div>
+      </q-card>
+      <div
+        v-if="error"
+        class="text-negative q-mt-md"
+      >
+        {{ error }}
       </div>
     </q-page>
   </q-page-container>
@@ -46,7 +95,18 @@ const pageFhStyle = (offset: number, height: number) => ({
   overflowY: "auto",
 })
 
-const cyberlinks = ref()
+const cyberlinks = ref<
+  {
+    id: number
+    fid: string
+    type: string
+    from: string
+    to:string
+    value: string
+    owner: string
+    created_at: string
+  }[]
+>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
 
