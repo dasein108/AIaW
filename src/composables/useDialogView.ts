@@ -207,7 +207,7 @@ export const useDialogView = (
       .map((id) => messageMap.value[id].message_contents)
       .flat()
 
-    for (const content of messages) {
+    messages.forEach((content) => {
       if (content.type === "user-message") {
         val.push({
           role: "user",
@@ -283,7 +283,7 @@ export const useDialogView = (
           ],
         })
       }
-    }
+    })
 
     return val
   }
