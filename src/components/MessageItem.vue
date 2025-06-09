@@ -254,6 +254,17 @@
             :value="textContent.text"
           />
           <q-btn
+            v-if="canCreateCyberlink"
+            icon="sym_o_link"
+            round
+            flat
+            dense
+            text="sec xs"
+            un-size="32px"
+            title="Create Cyberlink"
+            @click="$emit('create-cyberlink', textContent.text)"
+          />
+          <q-btn
             v-if="message.type === 'assistant'"
             icon="sym_o_refresh"
             round
@@ -423,6 +434,7 @@ const emit = defineEmits<{
   "extract-artifact": [[string, RegExp | string, ConvertArtifactOptions]]
   rendered: []
   delete: []
+  "create-cyberlink": [string]
 }>()
 
 watchEffect(async () => {
@@ -470,6 +482,28 @@ const textContent = computed(
 
 const { data: perfs } = useUserPerfsStore()
 const assistantsStore = useAssistantsStore()
+const dialog = computed(() => dialogsStore.dialogs[props.message.dialog_id])
+
+const assistant = computed(() => {
+  if (!dialog.value?.assistant_id) return null
+
+  return assistantsStore.assistants.find(
+    (a) => a.id === dialog.value.assistant_id
+  )
+})
+
+const canCreateCyberlink = computed(() => {
+  if (!assistant.value?.plugins) return false
+
+  const plugins = assistant.value.plugins as Record<
+    string,
+    { enabled: boolean; tools?: { name: string }[] }
+  >
+
+  return Object.values(plugins).some((plugin) =>
+    plugin.tools?.some((tool) => tool.name === "create_cyberlink")
+  )
+})
 const avatar = computed(() =>
   props.message.type === "user"
     ? perfs.userAvatar

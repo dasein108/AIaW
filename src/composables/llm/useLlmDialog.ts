@@ -107,16 +107,13 @@ export const useLlmDialog = (
     await dialogsStore.updateDialogMessage(dialog.value.id, message.id, {
       message_contents: message.message_contents.map((c, i) =>
         i === index
-          ? {
-              ...c,
-              text: c.text.replace(pattern, to),
-            }
+          ? { ...c, text: c.text.replace(pattern, to) }
           : c
       ),
     })
   }
 
-  async function autoExtractArtifact (
+  async function autoExtractArtifact(
     message: DialogMessageMapped,
     contents: MessageContentMapped[]
   ) {
@@ -140,7 +137,7 @@ export const useLlmDialog = (
     })
   }
 
-  async function stream (
+  async function stream(
     target: string | null,
     insert = false,
     abortController: AbortController | null = null
@@ -191,7 +188,7 @@ export const useLlmDialog = (
         message_contents: contents,
       })
 
-    async function callTool (plugin: Plugin, api: PluginApi, args) {
+    async function callTool(plugin: Plugin, api: PluginApi, args) {
       const content: MessageContentMapped = {
         type: "assistant-tool",
         plugin_id: plugin.id,

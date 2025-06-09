@@ -147,6 +147,7 @@
             @quote="quote"
             @extract-artifact="extractArtifact(messageMap[i], ...$event)"
             @rendered="messageMap[i].generating_session && lockBottom()"
+            @create-cyberlink="sendCyberlinkPrompt"
             pt-2
             pb-4
           />
@@ -442,7 +443,7 @@ import {
   pageFhStyle,
   textBeginning,
   wrapCode,
-  wrapQuote,
+  wrapQuote
 } from "src/utils/functions"
 import { scaleBlob } from "src/utils/image-process"
 import { engine } from "src/utils/template-engine"
@@ -697,6 +698,39 @@ async function quote (item: ApiResultItem) {
     await updateInputText(text ? text + "\n" + content : content)
     focusInput()
   }
+}
+
+async function sendPrompt (prompt: string) {
+  if (!ensureAssistantAndModel()) return
+
+  const parentId = chain.value.at(-1)
+
+  const { id: newUserMessageId } = await dialogsStore.addDialogMessage(
+    dialog.value.id,
+    parentId,
+    {
+      type: "user",
+      message_contents: [{
+        type: "user-message",
+        text: prompt,
+        stored_items: []
+      }],
+      status: "default"
+    }
+  )
+
+  const parentChildrenCount = dialog.value.msg_tree[parentId]?.length ?? 1
+  const newRoute = [...dialog.value.msg_route]
+  newRoute[chain.value.indexOf(parentId)] = parentChildrenCount - 1
+  await dialogsStore.updateDialog({ id: dialog.value.id, msg_route: newRoute })
+
+  await nextTick()
+  await startStream(newUserMessageId, false)
+}
+
+async function sendCyberlinkPrompt (text: string) {
+  const prompt = `Create a cyberlink with type "Post" and the following content:\n\n${text}`
+  await sendPrompt(prompt)
 }
 
 async function send () {
