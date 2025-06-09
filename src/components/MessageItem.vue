@@ -501,8 +501,10 @@ const canCreateCyberlink = computed(() => {
     (p) => assistant.value.plugins[p.id]?.enabled
   )
 
-  return activePlugins.some((plugin) =>
-    plugin.apis.some((api) => api.name === "create_cyberlink")
+  return activePlugins.some(
+    (plugin) =>
+      plugin.id === "cosmos-authz" ||
+      plugin.apis.some((api) => api.name === "create_cyberlink")
   )
 })
 const avatar = computed(() =>
