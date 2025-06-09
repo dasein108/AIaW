@@ -49,6 +49,18 @@
         </q-item-section>
         <q-item-section side>
           <q-btn
+            flat
+            dense
+            icon="sym_o_history"
+            :to="'/cyberlinks'"
+            :class="{
+              'route-active': route.path === '/cyberlinks',
+            }"
+            :title="$t('View cyberlinks')"
+          />
+        </q-item-section>
+        <q-item-section side>
+          <q-btn
             v-if="workspace"
             flat
             dense
@@ -106,10 +118,13 @@ import { useQuasar } from "quasar"
 import AddDialogItem from "src/components/AddDialogItem.vue"
 import { useOpenLastWorkspace } from "src/composables/open-last-workspace"
 import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
+import { useDialogsStore } from "src/stores/dialogs"
+import { usePluginsStore } from "src/stores/plugins"
 import { useUiStateStore } from "src/stores/ui-state"
 import version from "src/version.json"
+import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { useRoute } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
 import AssistantSelector from "./AssistantSelector.vue"
 import LastDialogs from "./LastDialogs.vue"
 import PinnedChats from "./PinnedChats.vue"
@@ -122,6 +137,7 @@ defineOptions({
 
 const uiStore = useUiStateStore()
 const route = useRoute()
+const router = useRouter()
 const { workspace } = useActiveWorkspace()
 
 const { openLastWorkspace } = useOpenLastWorkspace()
@@ -129,6 +145,29 @@ route.path === "/" && openLastWorkspace()
 
 const { t, locale } = useI18n()
 const $q = useQuasar()
+
+const rightDrawerOpen = ref(false)
+
+function toggleRightDrawer () {
+  rightDrawerOpen.value = !rightDrawerOpen.value
+}
+
+const pluginsStore = usePluginsStore()
+const { assistant } = useActiveWorkspace()
+
+const canViewCyberlinks = computed(() => {
+  if (!assistant.value?.plugins) return false
+
+  const activePlugins = pluginsStore.plugins.filter(
+    (p) => p.available && assistant.value.plugins[p.id]?.enabled
+  )
+
+  return activePlugins.some((plugin) =>
+    plugin.apis.some((api) => api.name === "query_cyberlinks")
+  )
+})
+
+const dialogsStore = useDialogsStore()
 
 function notifyVersion () {
   $q.notify({

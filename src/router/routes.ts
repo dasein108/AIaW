@@ -22,6 +22,7 @@ import ShortcutKeys from "src/views/ShortcutKeys.vue"
 import WorkspaceIndex from "src/views/WorkspaceIndex.vue"
 import WorkspaceSettings from "src/views/WorkspaceSettings.vue"
 import { RouteRecordRaw } from "vue-router"
+import CyberlinksPage from "../pages/CuberlinksPage.vue"
 import SettingsPage from "../pages/SettingsPage.vue"
 
 const { t } = i18n.global
@@ -143,6 +144,11 @@ const routes: RouteRecordRaw[] = [
         path: "/account",
         component: AccountPage,
         meta: { title: t("routes.account"), requiresAuth: true },
+      },
+      {
+        path: "/cyberlinks",
+        component: CyberlinksPage,
+        meta: { title: t("routes.cyberlinks") },
       },
       { path: "/", component: EmptyPage },
 
