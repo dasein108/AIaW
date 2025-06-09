@@ -7,11 +7,11 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          {{ $t('payDialog.pay') }}
+          {{ $t("payDialog.pay") }}
         </div>
       </q-card-section>
       <q-card-section>
-        <div>{{ $t('payDialog.refreshAfterPay') }}</div>
+        <div>{{ $t("payDialog.refreshAfterPay") }}</div>
       </q-card-section>
       <q-card-actions align="right">
         <q-btn
@@ -32,10 +32,9 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+import { useDialogPluginComponent } from "quasar"
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent()
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 </script>

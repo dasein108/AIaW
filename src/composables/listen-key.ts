@@ -1,17 +1,37 @@
-import { ShortcutKey } from 'src/utils/types'
-import { onActivated, onDeactivated, onMounted, onUnmounted, Ref } from 'vue'
+import { ShortcutKey } from "src/utils/types"
+import { onActivated, onDeactivated, onMounted, onUnmounted, Ref } from "vue"
 
-export function useListenKey(shortcutKey: Ref<ShortcutKey>, callback, prevent = true) {
-  const listener = event => {
+export function useListenKey (
+  shortcutKey: Ref<ShortcutKey>,
+  callback,
+  prevent = true
+) {
+  const listener = (event) => {
     if (!shortcutKey.value) return
-    const { key, withCtrl = false, withShift = false, withAlt = false } = shortcutKey.value
-    if (event.code === key && event.ctrlKey === withCtrl && event.shiftKey === withShift && event.altKey === withAlt) {
+
+    const {
+      key,
+      withCtrl = false,
+      withShift = false,
+      withAlt = false,
+    } = shortcutKey.value
+
+    if (
+      event.code === key &&
+      event.ctrlKey === withCtrl &&
+      event.shiftKey === withShift &&
+      event.altKey === withAlt
+    ) {
       callback()
       prevent && event.preventDefault()
     }
   }
-  const addListener = () => { document.addEventListener('keydown', listener) }
-  const rmListener = () => { document.removeEventListener('keydown', listener) }
+  const addListener = () => {
+    document.addEventListener("keydown", listener)
+  }
+  const rmListener = () => {
+    document.removeEventListener("keydown", listener)
+  }
   onMounted(addListener)
   onUnmounted(rmListener)
   onActivated(addListener)

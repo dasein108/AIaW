@@ -1,7 +1,19 @@
-import { LobeChatPluginManifest, PluginSchema } from '@lobehub/chat-plugin-sdk'
-import { Prompt, Resource, Tool } from '@modelcontextprotocol/sdk/types.js'
-import { Any, Array, Boolean, Literal, Null, Number, Object, Optional, Static, String, TSchema, Union } from '@sinclair/typebox'
-import { LanguageModelUsage } from 'ai'
+import { LobeChatPluginManifest, PluginSchema } from "@lobehub/chat-plugin-sdk"
+import { Prompt, Resource, Tool } from "@modelcontextprotocol/sdk/types.js"
+import {
+  Any,
+  Array,
+  Boolean,
+  Literal,
+  Null,
+  Number,
+  Object,
+  Optional,
+  Static,
+  String,
+  TSchema,
+  Union,
+} from "@sinclair/typebox"
 
 interface ModelSettings {
   temperature: number
@@ -20,38 +32,38 @@ type PromptVarValue = string | number | boolean | string[]
 interface PromptVar {
   id: string
   name: string
-  type: 'text' | 'number' | 'select' | 'multi-select' | 'toggle'
+  type: "text" | "number" | "select" | "multi-select" | "toggle"
   label?: string
   options?: string[]
   default?: PromptVarValue
 }
 
 interface SvgAvatar {
-  type: 'svg'
+  type: "svg"
   name: string
   hue?: number
   title?: string
 }
 interface TextAvatar {
-  type: 'text'
+  type: "text"
   text: string
   hue?: number
   title?: string
 }
 interface ImageAvatar {
-  type: 'image'
+  type: "image"
   imageId: string
   hue?: number
   title?: string
 }
 interface UrlAvatar {
-  type: 'url'
+  type: "url"
   url: string
   hue?: number
   title?: string
 }
 interface IconAvatar {
-  type: 'icon'
+  type: "icon"
   icon: string
   hue?: number
   title?: string
@@ -60,7 +72,7 @@ type Avatar = SvgAvatar | TextAvatar | ImageAvatar | UrlAvatar | IconAvatar
 
 const ProviderSchema = Object({
   type: String(),
-  settings: Object(undefined)
+  settings: Object(undefined),
 })
 type Provider = Static<typeof ProviderSchema>
 interface ProviderType {
@@ -74,7 +86,7 @@ interface ProviderType {
 }
 
 interface ApiResultItem {
-  type: 'text' | 'file' | 'quote'
+  type: "text" | "file" | "quote"
   contentText?: string
   contentBuffer?: ArrayBuffer
   name?: string
@@ -82,7 +94,7 @@ interface ApiResultItem {
 }
 
 interface ToolResultContent {
-  type: 'text' | 'file' | 'image'
+  type: "text" | "file" | "image"
   text?: string
   data?: string | ArrayBuffer | null
   mimeType?: string
@@ -126,8 +138,8 @@ interface AssistantPlugins {
 }
 
 interface PluginApi {
-  type: 'info' | 'tool'
-  infoType?: 'resource' | 'prompt' | 'prompt-var'
+  type: "info" | "tool"
+  infoType?: "resource" | "prompt" | "prompt-var"
   name: string
   description?: string
   prompt?: string
@@ -144,12 +156,15 @@ interface PluginFileparser {
     hint?: string
     mask?: string
   }
-  execute(args: { file: Blob, range?: string }, settings): Promise<ApiResultItem[]>
+  execute(
+    args: { file: Blob; range?: string },
+    settings
+  ): Promise<ApiResultItem[]>
 }
 
 interface Plugin {
   id: string
-  type: 'builtin' | 'lobechat' | 'gradio' | 'mcp'
+  type: "builtin" | "lobechat" | "gradio" | "mcp"
   available: boolean
   apis: PluginApi[]
   fileparsers: PluginFileparser[]
@@ -172,25 +187,25 @@ interface PluginPrompt {
 interface InstalledLobePlugin {
   id: string
   key: string
-  type: 'lobechat'
+  type: "lobechat"
   available: boolean
   manifest: LobeChatPluginManifest
 }
 interface GradioFileInput {
   name: string
-  paramType: 'file'
+  paramType: "file"
   mimeTypes: string[]
 }
 interface GradioRangeInput {
   name: string
-  paramType: 'range'
+  paramType: "range"
   label?: string
   hint?: string
   mask?: string
 }
 interface GradioFixedInput {
   name: string
-  paramType: 'fixed'
+  paramType: "fixed"
   type: string
   value
   description?: string
@@ -198,28 +213,34 @@ interface GradioFixedInput {
 interface GradioOptionalInput {
   name: string
   description?: string
-  paramType: 'optional'
+  paramType: "optional"
   type: string
   default
 }
 interface GradioRequiredInput {
   name: string
   description?: string
-  paramType: 'required'
+  paramType: "required"
   type: string
 }
-type GradioFileparserInput = GradioFileInput | GradioRangeInput | GradioFixedInput
+type GradioFileparserInput =
+  | GradioFileInput
+  | GradioRangeInput
+  | GradioFixedInput
 interface GradioManifestFileparser {
-  type: 'fileparser'
+  type: "fileparser"
   name: string
   description: string
   path: string
   inputs: GradioFileparserInput[]
   outputIdxs: number[]
 }
-type GradioApiInput = GradioFixedInput | GradioOptionalInput | GradioRequiredInput
+type GradioApiInput =
+  | GradioFixedInput
+  | GradioOptionalInput
+  | GradioRequiredInput
 interface GradioManifestTool {
-  type: 'tool'
+  type: "tool"
   name: string
   description: string
   prompt: string
@@ -229,7 +250,7 @@ interface GradioManifestTool {
   outputIdxs: number[]
 }
 interface GradioManifestAction {
-  type: 'action'
+  type: "action"
   name: string
   description: string
   prompt: string
@@ -240,8 +261,8 @@ interface GradioManifestAction {
   autoExecute: boolean
 }
 interface GradioManifestInfo {
-  type: 'info'
-  infoType?: 'resource' | 'prompt' | 'prompt-var'
+  type: "info"
+  infoType?: "resource" | "prompt" | "prompt-var"
   name: string
   description: string
   path: string
@@ -249,7 +270,11 @@ interface GradioManifestInfo {
   outputIdxs: number[]
 }
 
-type GradioManifestEndpoint = GradioManifestFileparser | GradioManifestTool | GradioManifestAction | GradioManifestInfo
+type GradioManifestEndpoint =
+  | GradioManifestFileparser
+  | GradioManifestTool
+  | GradioManifestAction
+  | GradioManifestInfo
 interface GradioPluginManifest {
   id: string
   title: string
@@ -265,15 +290,15 @@ interface GradioPluginManifest {
 }
 const TransportConfSchema = Union([
   Object({
-    type: Literal('stdio'),
+    type: Literal("stdio"),
     command: String(),
     env: Optional(Object(undefined)),
-    cwd: Optional(String())
+    cwd: Optional(String()),
   }),
   Object({
-    type: Literal('sse'),
-    url: String()
-  })
+    type: Literal("sse"),
+    url: String(),
+  }),
 ])
 type TransportConf = Static<typeof TransportConfSchema>
 const McpPluginManifestSchema = Object({
@@ -284,7 +309,7 @@ const McpPluginManifestSchema = Object({
   avatar: Optional(Object(undefined)),
   noRoundtrip: Optional(Boolean()),
   author: Optional(String()),
-  homepage: Optional(String())
+  homepage: Optional(String()),
 })
 type McpPluginManifest = Static<typeof McpPluginManifestSchema>
 interface McpPluginDump extends McpPluginManifest {
@@ -298,21 +323,27 @@ const GradioPluginManifestSchema = Object({
   description: String(),
   baseUrl: String(),
   avatar: Object(undefined),
-  endpoints: Array(Object(undefined))
+  endpoints: Array(Object(undefined)),
 })
 const HuggingPluginManifestSchema = Object({
   name: String(),
   description: String(),
   endpoint: String(),
-  inputs: Array(Object({
-    name: String(),
-    description: Optional(String()),
-    paramType: Union([Literal('fixed'), Literal('optional'), Literal('required')]),
-    type: String(),
-    value: Optional(Any()),
-    default: Optional(Any()),
-    mimeTypes: Optional(String())
-  })),
+  inputs: Array(
+    Object({
+      name: String(),
+      description: Optional(String()),
+      paramType: Union([
+        Literal("fixed"),
+        Literal("optional"),
+        Literal("required"),
+      ]),
+      type: String(),
+      value: Optional(Any()),
+      default: Optional(Any()),
+      mimeTypes: Optional(String()),
+    })
+  ),
   outputComponent: String(),
   outputComponentIdx: Number(),
   showOutput: Boolean(),
@@ -320,31 +351,38 @@ const HuggingPluginManifestSchema = Object({
   baseUrl: String(),
   displayName: String(),
   color: String(),
-  icon: String()
+  icon: String(),
 })
 const LobePluginManifestSchema = Object({
   api: Array(Object(undefined)),
   identifier: String(),
   meta: Object(undefined),
-  type: Optional(Union([Literal('default'), Literal('markdown')]))
+  type: Optional(Union([Literal("default"), Literal("markdown")])),
 })
 type HuggingPluginManifest = Static<typeof HuggingPluginManifestSchema>
-type PluginManifest = LobeChatPluginManifest | GradioPluginManifest | HuggingPluginManifest | McpPluginManifest
+type PluginManifest =
+  | LobeChatPluginManifest
+  | GradioPluginManifest
+  | HuggingPluginManifest
+  | McpPluginManifest
 interface InstalledGradioPlugin {
   id: string
   key: string
-  type: 'gradio'
+  type: "gradio"
   available: boolean
   manifest: GradioPluginManifest
 }
 interface InstalledMcpPlugin {
   id: string
   key: string
-  type: 'mcp'
+  type: "mcp"
   available: boolean
   manifest: McpPluginDump
 }
-type InstalledPlugin = InstalledLobePlugin | InstalledGradioPlugin | InstalledMcpPlugin
+type InstalledPlugin =
+  | InstalledLobePlugin
+  | InstalledGradioPlugin
+  | InstalledMcpPlugin
 interface PluginData {
   settings
   avatar: Avatar
@@ -364,7 +402,8 @@ interface Model {
   inputTypes: ModelInputTypes
 }
 
-const TSOptional = <T extends TSchema>(schema: T) => Optional(Union([Null(), schema]))
+const TSOptional = <T extends TSchema>(schema: T) =>
+  Optional(Union([Null(), schema]))
 const MarketAssistantSchema = Object({
   name: String(),
   avatar: Object(undefined),
@@ -375,7 +414,7 @@ const MarketAssistantSchema = Object({
   model: TSOptional(Object(undefined)),
   modelSettings: TSOptional(Object(undefined)),
   author: TSOptional(String()),
-  homepage: TSOptional(String())
+  homepage: TSOptional(String()),
 })
 type MarketAssistant = Static<typeof MarketAssistantSchema>
 
@@ -390,7 +429,7 @@ interface StoredReactive {
 }
 
 interface OrderItem {
-  type: 'sync-service' | 'api-budget' | 'api-budget-usd'
+  type: "sync-service" | "api-budget" | "api-budget-usd"
   amount: number
 }
 
@@ -401,7 +440,7 @@ interface ShortcutKey {
   withAlt?: boolean
 }
 
-type PlatformEnabled = 'always' | 'desktop-only' | 'mobile-only' | 'never'
+type PlatformEnabled = "always" | "desktop-only" | "mobile-only" | "never"
 
 interface ConvertArtifactOptions {
   name?: string
@@ -416,7 +455,7 @@ export {
   McpPluginManifestSchema,
   LobePluginManifestSchema,
   MarketAssistantSchema,
-  ProviderSchema
+  ProviderSchema,
 }
 export type {
   Provider,
@@ -468,5 +507,5 @@ export type {
   TransportConf,
   ArtifactVersion,
   PluginPrompt,
-  ToolResultContent
+  ToolResultContent,
 }

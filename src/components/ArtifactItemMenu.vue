@@ -1,7 +1,5 @@
 <template>
-  <q-menu
-    context-menu
-  >
+  <q-menu context-menu>
     <q-list style="min-width: 100px">
       <menu-item
         v-if="isOpen"
@@ -36,17 +34,17 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
-import { dialogOptions } from 'src/utils/values'
-import MenuItem from './MenuItem.vue'
-import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
-import { ArtifactMapped } from '@/services/supabase/types'
-import { artifactUnsaved, saveArtifactChanges } from 'src/utils/functions'
-import { useI18n } from 'vue-i18n'
-import { exportFile } from 'src/utils/platform-api'
-import { useArtifactsStore } from 'src/stores/artifacts'
-import { useUserDataStore } from 'src/stores/user-data'
-import { computed } from 'vue'
+import { useQuasar } from "quasar"
+import { useArtifactsStore } from "src/stores/artifacts"
+import { useUserDataStore } from "src/stores/user-data"
+import { artifactUnsaved, saveArtifactChanges } from "src/utils/functions"
+import { exportFile } from "src/utils/platform-api"
+import { dialogOptions } from "src/utils/values"
+import { computed } from "vue"
+import { useI18n } from "vue-i18n"
+import MenuItem from "./MenuItem.vue"
+import SelectWorkspaceDialog from "./SelectWorkspaceDialog.vue"
+import { ArtifactMapped } from "@/services/supabase/types"
 
 const $q = useQuasar()
 const { t } = useI18n()
@@ -56,62 +54,68 @@ const props = defineProps<{
   artifact: ArtifactMapped
 }>()
 
-const isOpen = computed(() => userDataStore.data.openedArtifacts.find(id => id === props.artifact.id))
+const isOpen = computed(() =>
+  userDataStore.data.openedArtifacts.find((id) => id === props.artifact.id)
+)
 
-function renameItem(artifact: ArtifactMapped) {
+function renameItem (artifact: ArtifactMapped) {
   $q.dialog({
-    title: t('artifactItemMenu.rename'),
+    title: t("artifactItemMenu.rename"),
     prompt: {
       model: artifact.name,
-      type: 'text',
-      label: t('artifactItemMenu.rename'),
-      isValid: v => v.trim() && v !== artifact.name
+      type: "text",
+      label: t("artifactItemMenu.rename"),
+      isValid: (v) => v.trim() && v !== artifact.name,
     },
     cancel: true,
-    ...dialogOptions
-  }).onOk(newName => {
+    ...dialogOptions,
+  }).onOk((newName) => {
     artifactsStore.update({
       ...artifact,
-      name: newName.trim()
+      name: newName.trim(),
     })
   })
 }
-function moveItem(artifact: ArtifactMapped) {
+
+function moveItem (artifact: ArtifactMapped) {
   $q.dialog({
     component: SelectWorkspaceDialog,
     componentProps: {
-      accept: 'workspace'
-    }
-  }).onOk(workspaceId => {
+      accept: "workspace",
+    },
+  }).onOk((workspaceId) => {
     artifactsStore.update({
       ...artifact,
-      workspace_id: workspaceId
+      workspace_id: workspaceId,
     })
   })
 }
-function downloadItem({ name, versions, curr_index }: ArtifactMapped) {
+
+function downloadItem ({ name, versions, curr_index }: ArtifactMapped) {
   exportFile(name, versions[curr_index].text)
 }
-function deleteItem(artifact: ArtifactMapped) {
+
+function deleteItem (artifact: ArtifactMapped) {
   $q.dialog({
-    title: t('artifactItemMenu.deleteConfirmTitle'),
-    message: t('artifactItemMenu.deleteConfirmMessage', { name: artifact.name }),
+    title: t("artifactItemMenu.deleteConfirmTitle"),
+    message: t("artifactItemMenu.deleteConfirmMessage", {
+      name: artifact.name,
+    }),
     cancel: true,
     ok: {
-      label: t('artifactItemMenu.deleteConfirmOk'),
-      color: 'err',
-      flat: true
+      label: t("artifactItemMenu.deleteConfirmOk"),
+      color: "err",
+      flat: true,
     },
-    ...dialogOptions
+    ...dialogOptions,
   }).onOk(() => {
     artifactsStore.remove(artifact)
   })
 }
-function saveItem(artifact: ArtifactMapped) {
+
+function saveItem (artifact: ArtifactMapped) {
   artifactsStore.update(saveArtifactChanges(artifact))
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

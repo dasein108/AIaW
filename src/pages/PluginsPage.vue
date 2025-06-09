@@ -14,7 +14,7 @@
     >
       <template #header>
         <q-item-section>
-          {{ $t('pluginsPage.installedPlugins') }}
+          {{ $t("pluginsPage.installedPlugins") }}
         </q-item-section>
         <q-item-section side>
           <install-plugins-button />
@@ -28,14 +28,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide, ref } from 'vue'
-import InstalledPlugins from 'src/components/InstalledPlugins.vue'
-import { useQuasar } from 'quasar'
-import InstallPluginsButton from 'src/components/InstallPluginsButton.vue'
+import { useQuasar } from "quasar"
+import InstalledPlugins from "src/components/InstalledPlugins.vue"
+import InstallPluginsButton from "src/components/InstallPluginsButton.vue"
+import { computed, provide, ref } from "vue"
 
 const drawerOpen = ref(false)
 const drawerBreakpoint = 960
 const $q = useQuasar()
 const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
-provide('rightDrawerAbove', rightDrawerAbove)
+provide("rightDrawerAbove", rightDrawerAbove)
 </script>

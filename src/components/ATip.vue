@@ -6,7 +6,7 @@
   >
     <template v-if="dense">
       <div class="top-row">
-        <span style="font-weight: 500;">{{ $t('aTip.tip') }}</span>
+        <span style="font-weight: 500">{{ $t("aTip.tip") }}</span>
         <div class="spacer" />
         <q-btn
           flat
@@ -37,9 +37,9 @@
 </template>
 
 <script setup lang="ts">
-import { Screen } from 'quasar'
-import { useUserDataStore } from 'src/stores/user-data'
-import { computed } from 'vue'
+import { Screen } from "quasar"
+import { useUserDataStore } from "src/stores/user-data"
+import { computed } from "vue"
 
 const props = defineProps<{
   tipKey: string
@@ -48,8 +48,11 @@ const props = defineProps<{
 }>()
 
 const store = useUserDataStore()
-const dismissed = computed(() => !store.ready || store.data.tipDismissed[props.tipKey])
-function dismiss() {
+const dismissed = computed(
+  () => !store.ready || store.data.tipDismissed[props.tipKey]
+)
+
+function dismiss () {
   store.data.tipDismissed[props.tipKey] = true
 }
 const dense = computed(() => Screen.xs && props.long)

@@ -17,15 +17,15 @@
     </q-item-section>
     <q-item-section>
       <q-item-label whitespace-nowrap>
-        {{ assistant ? assistant.name : $t('assistantItem.unselected') }}
+        {{ assistant ? assistant.name : $t("assistantItem.unselected") }}
         <q-badge
           bg-pri-c
           text-on-pri-c
           ml-2
           py-1
-          v-if="assistant && !assistant.workspace_id "
+          v-if="assistant && !assistant.workspace_id"
         >
-          {{ $t('assistantItem.global') }}
+          {{ $t("assistantItem.global") }}
         </q-badge>
         <!-- <q-icon
           name="sym_o_expand_more"
@@ -38,8 +38,8 @@
 </template>
 
 <script setup lang="ts">
-import { AssistantMapped } from 'src/services/supabase/types'
-import AAvatar from './AAvatar.vue'
+import { AssistantMapped } from "src/services/supabase/types"
+import AAvatar from "./AAvatar.vue"
 
 defineProps<{
   assistant?: AssistantMapped

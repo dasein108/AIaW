@@ -62,12 +62,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import LazyInput from './LazyInput.vue'
-import { QInput } from 'quasar'
+import { QInput } from "quasar"
+import { computed } from "vue"
+import LazyInput from "./LazyInput.vue"
 
 const props = defineProps<{
-  type: 'string' | 'array' | 'number' | 'boolean'
+  type: "string" | "array" | "number" | "boolean"
   options?: string[]
   label?: string
   inputProps?: Record<string, any>
@@ -75,9 +75,9 @@ const props = defineProps<{
 }>()
 const model = defineModel<any>()
 
-if (props.type === 'array' && !model.value) {
+if (props.type === "array" && !model.value) {
   model.value = []
 }
 
-const inputComponent = computed(() => props.lazy ? LazyInput : QInput)
+const inputComponent = computed(() => (props.lazy ? LazyInput : QInput))
 </script>

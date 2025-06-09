@@ -19,15 +19,15 @@
           {{ provider.name }}
         </q-item-label>
       </q-item-section>
-      <q-menu
-        context-menu
-      >
+      <q-menu context-menu>
         <q-list style="min-width: 100px">
           <menu-item
             icon="sym_o_check_box"
             :label="$t('customProviders.setAsDefault')"
             @click="setAsDefault(provider)"
-            :class="{ 'route-active': perfs.provider?.type === `custom:${provider.id}` }"
+            :class="{
+              'route-active': perfs.provider?.type === `custom:${provider.id}`,
+            }"
           />
           <menu-item
             icon="sym_o_delete"
@@ -51,21 +51,21 @@
         <q-icon name="sym_o_add" />
       </q-item-section>
       <q-item-section>
-        {{ $t('customProviders.createProvider') }}
+        {{ $t("customProviders.createProvider") }}
       </q-item-section>
     </q-item>
   </q-list>
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
-import AAvatar from './AAvatar.vue'
-import { useProvidersStore } from 'src/stores/providers'
-import { useI18n } from 'vue-i18n'
-import MenuItem from './MenuItem.vue'
-import { useRouter } from 'vue-router'
-import { CustomProviderMapped } from 'src/services/supabase/types'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
+import { useQuasar } from "quasar"
+import { CustomProviderMapped } from "src/services/supabase/types"
+import { useProvidersStore } from "src/stores/providers"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useI18n } from "vue-i18n"
+import { useRouter } from "vue-router"
+import AAvatar from "./AAvatar.vue"
+import MenuItem from "./MenuItem.vue"
 
 const { t } = useI18n()
 
@@ -74,25 +74,28 @@ const providersStore = useProvidersStore()
 const $q = useQuasar()
 
 const router = useRouter()
-async function addItem() {
+
+async function addItem () {
   const customProvider = await providersStore.add()
   router.push(`/settings/providers/${customProvider.id}`)
 }
 
 const { data: perfs } = useUserPerfsStore()
-function setAsDefault({ id }: CustomProviderMapped) {
+
+function setAsDefault ({ id }: CustomProviderMapped) {
   perfs.provider = { type: `custom:${id}`, settings: {} }
 }
-function deleteItem({ id, name }: CustomProviderMapped) {
+
+function deleteItem ({ id, name }: CustomProviderMapped) {
   $q.dialog({
-    title: t('customProviders.deleteProvider'),
-    message: t('customProviders.deleteConfirm', { name }),
+    title: t("customProviders.deleteProvider"),
+    message: t("customProviders.deleteConfirm", { name }),
     cancel: true,
     ok: {
-      label: t('customProviders.delete'),
-      color: 'err',
-      flat: true
-    }
+      label: t("customProviders.delete"),
+      color: "err",
+      flat: true,
+    },
   }).onOk(() => {
     providersStore.delete(id)
   })

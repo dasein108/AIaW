@@ -1,20 +1,36 @@
 // Modified from QInput, replace key-composition with a custom one
 
-import { h, ref, computed, watch, onBeforeUnmount, onMounted, nextTick, getCurrentInstance } from 'vue'
+import useMask, { useMaskProps } from "quasar/src/components/input/use-mask.js"
+import useField, {
+  useFieldState,
+  useFieldProps,
+  useFieldEmits,
+  fieldValueIsFilled,
+} from "quasar/src/composables/private.use-field/use-field.js"
+import useFileFormDomProps from "quasar/src/composables/private.use-file/use-file-dom-props.js"
+import {
+  useFormProps,
+  useFormInputNameAttr,
+} from "quasar/src/composables/use-form/private.use-form.js"
 
-import useField, { useFieldState, useFieldProps, useFieldEmits, fieldValueIsFilled } from 'quasar/src/composables/private.use-field/use-field.js'
-import useMask, { useMaskProps } from 'quasar/src/components/input/use-mask.js'
-import { useFormProps, useFormInputNameAttr } from 'quasar/src/composables/use-form/private.use-form.js'
-import useFileFormDomProps from 'quasar/src/composables/private.use-file/use-file-dom-props.js'
-import useKeyComposition from 'src/composables/key-composition.ts'
-
-import { createComponent } from 'quasar/src/utils/private.create/create.js'
-import { stop } from 'quasar/src/utils/event/event.js'
-import { addFocusFn } from 'quasar/src/utils/private.focus/focus-manager.js'
-import { injectProp } from 'quasar/src/utils/private.inject-obj-prop/inject-obj-prop.js'
+import { stop } from "quasar/src/utils/event/event.js"
+import { createComponent } from "quasar/src/utils/private.create/create.js"
+import { addFocusFn } from "quasar/src/utils/private.focus/focus-manager.js"
+import { injectProp } from "quasar/src/utils/private.inject-obj-prop/inject-obj-prop.js"
+import useKeyComposition from "src/composables/key-composition.ts"
+import {
+  h,
+  ref,
+  computed,
+  watch,
+  onBeforeUnmount,
+  onMounted,
+  nextTick,
+  getCurrentInstance,
+} from "vue"
 
 export default createComponent({
-  name: 'AInput',
+  name: "AInput",
 
   inheritAttrs: false,
 
@@ -32,7 +48,7 @@ export default createComponent({
 
     type: {
       type: String,
-      default: 'text'
+      default: "text",
     },
 
     debounce: [String, Number],
@@ -40,13 +56,16 @@ export default createComponent({
     autogrow: Boolean, // makes a textarea
 
     inputClass: [Array, String, Object],
-    inputStyle: [Array, String, Object]
+    inputStyle: [Array, String, Object],
   },
 
   emits: [
     ...useFieldEmits,
-    'paste', 'change',
-    'keydown', 'click', 'animationend'
+    "paste",
+    "change",
+    "keydown",
+    "click",
+    "animationend",
   ],
 
   setup (props, { emit, attrs }) {
@@ -54,7 +73,11 @@ export default createComponent({
     const { $q } = proxy
 
     const temp = {}
-    let emitCachedValue = NaN, typedNumber, stopValueWatcher, emitTimer = null, emitValueFn
+    let emitCachedValue = NaN,
+      typedNumber,
+      stopValueWatcher,
+      emitTimer = null,
+      emitValueFn
 
     const inputRef = ref(null)
     const nameProp = useFormInputNameAttr(props)
@@ -65,7 +88,7 @@ export default createComponent({
       moveCursorForPaste,
       updateMaskValue,
       onMaskedKeydown,
-      onMaskedClick
+      onMaskedClick,
     } = useMask(props, emit, emitValue, inputRef)
 
     const formDomProps = useFileFormDomProps(props, /* type guard */ true)
@@ -75,13 +98,14 @@ export default createComponent({
 
     const state = useFieldState({ changeEvent: true })
 
-    const isTextarea = computed(() =>
-      props.type === 'textarea' || props.autogrow === true
+    const isTextarea = computed(
+      () => props.type === "textarea" || props.autogrow === true
     )
 
-    const isTypeText = computed(() =>
-      isTextarea.value === true ||
-      ['text', 'search', 'url', 'tel', 'password'].includes(props.type)
+    const isTypeText = computed(
+      () =>
+        isTextarea.value === true ||
+        ["text", "search", "url", "tel", "password"].includes(props.type)
     )
 
     const onEvents = computed(() => {
@@ -95,10 +119,13 @@ export default createComponent({
         // fires "change" instead of "input" on autocomplete.
         onChange,
         onBlur: onFinishEditing,
-        onFocus: stop
+        onFocus: stop,
       }
 
-      evt.onCompositionstart = evt.onCompositionupdate = evt.onCompositionend = onComposition
+      evt.onCompositionstart =
+        evt.onCompositionupdate =
+        evt.onCompositionend =
+          onComposition
 
       if (hasMask.value === true) {
         evt.onKeydown = onMaskedKeydown
@@ -116,15 +143,15 @@ export default createComponent({
     const inputAttrs = computed(() => {
       const attrs = {
         tabindex: 0,
-        'data-autofocus': props.autofocus === true || void 0,
-        rows: props.type === 'textarea' ? 6 : void 0,
-        'aria-label': props.label,
+        "data-autofocus": props.autofocus === true || void 0,
+        rows: props.type === "textarea" ? 6 : void 0,
+        "aria-label": props.label,
         name: nameProp.value,
         ...state.splitAttrs.attributes.value,
         id: state.targetUid.value,
         maxlength: props.maxlength,
         disabled: props.disable === true,
-        readonly: props.readonly === true
+        readonly: props.readonly === true,
       }
 
       if (isTextarea.value === false) {
@@ -141,57 +168,71 @@ export default createComponent({
     // some browsers lose the native input value
     // so we need to reattach it dynamically
     // (like type="password" <-> type="text"; see #12078)
-    watch(() => props.type, () => {
-      if (inputRef.value) {
-        inputRef.value.value = props.modelValue
-      }
-    })
-
-    watch(() => props.modelValue, v => {
-      if (hasMask.value === true) {
-        if (stopValueWatcher === true) {
-          stopValueWatcher = false
-          if (String(v) === emitCachedValue) return
+    watch(
+      () => props.type,
+      () => {
+        if (inputRef.value) {
+          inputRef.value.value = props.modelValue
         }
+      }
+    )
 
-        updateMaskValue(v)
-      } else if (innerValue.value !== v) {
-        innerValue.value = v
+    watch(
+      () => props.modelValue,
+      (v) => {
+        if (hasMask.value === true) {
+          if (stopValueWatcher === true) {
+            stopValueWatcher = false
 
-        if (
-          props.type === 'number' &&
-          temp.hasOwnProperty('value') === true
-        ) {
-          if (typedNumber === true) {
-            typedNumber = false
-          } else {
-            delete temp.value
+            if (String(v) === emitCachedValue) return
+          }
+
+          updateMaskValue(v)
+        } else if (innerValue.value !== v) {
+          innerValue.value = v
+
+          if (
+            props.type === "number" &&
+            temp.hasOwnProperty("value") === true
+          ) {
+            if (typedNumber === true) {
+              typedNumber = false
+            } else {
+              delete temp.value
+            }
           }
         }
+
+        // textarea only
+        props.autogrow === true && nextTick(adjustHeight)
       }
+    )
 
-      // textarea only
-      props.autogrow === true && nextTick(adjustHeight)
-    })
+    watch(
+      () => props.autogrow,
+      (val) => {
+        // textarea only
+        if (val === true) {
+          nextTick(adjustHeight)
 
-    watch(() => props.autogrow, val => {
-      // textarea only
-      if (val === true) {
-        nextTick(adjustHeight)
-
-      // if it has a number of rows set respect it
-      } else if (inputRef.value !== null && attrs.rows > 0) {
-        inputRef.value.style.height = 'auto'
+          // if it has a number of rows set respect it
+        } else if (inputRef.value !== null && attrs.rows > 0) {
+          inputRef.value.style.height = "auto"
+        }
       }
-    })
+    )
 
-    watch(() => props.dense, () => {
-      props.autogrow === true && nextTick(adjustHeight)
-    })
+    watch(
+      () => props.dense,
+      () => {
+        props.autogrow === true && nextTick(adjustHeight)
+      }
+    )
 
     function focus () {
       addFocusFn(() => {
         const el = document.activeElement
+
         if (
           inputRef.value !== null &&
           inputRef.value !== el &&
@@ -212,14 +253,15 @@ export default createComponent({
         moveCursorForPaste(inp, inp.selectionStart, inp.selectionEnd)
       }
 
-      emit('paste', e)
+      emit("paste", e)
     }
 
     function onInput (e) {
       if (!e || !e.target) return
 
-      if (props.type === 'file') {
-        emit('update:modelValue', e.target.files)
+      if (props.type === "file") {
+        emit("update:modelValue", e.target.files)
+
         return
       }
 
@@ -227,6 +269,7 @@ export default createComponent({
 
       if (e.target.qComposing === true) {
         temp.value = val
+
         return
       }
 
@@ -240,7 +283,10 @@ export default createComponent({
 
           if (selectionStart !== void 0 && selectionEnd !== void 0) {
             nextTick(() => {
-              if (e.target === document.activeElement && val.indexOf(e.target.value) === 0) {
+              if (
+                e.target === document.activeElement &&
+                val.indexOf(e.target.value) === 0
+              ) {
                 e.target.setSelectionRange(selectionStart, selectionEnd)
               }
             })
@@ -254,7 +300,7 @@ export default createComponent({
     }
 
     function onAnimationend (e) {
-      emit('animationend', e)
+      emit("animationend", e)
       adjustHeight()
     }
 
@@ -262,10 +308,7 @@ export default createComponent({
       emitValueFn = () => {
         emitTimer = null
 
-        if (
-          props.type !== 'number' &&
-          temp.hasOwnProperty('value') === true
-        ) {
+        if (props.type !== "number" && temp.hasOwnProperty("value") === true) {
           delete temp.value
         }
 
@@ -273,7 +316,7 @@ export default createComponent({
           emitCachedValue = val
 
           stopWatcher === true && (stopValueWatcher = true)
-          emit('update:modelValue', val)
+          emit("update:modelValue", val)
 
           nextTick(() => {
             emitCachedValue === val && (emitCachedValue = NaN)
@@ -283,7 +326,7 @@ export default createComponent({
         emitValueFn = void 0
       }
 
-      if (props.type === 'number') {
+      if (props.type === "number") {
         typedNumber = true
         temp.value = val
       }
@@ -301,30 +344,32 @@ export default createComponent({
     function adjustHeight () {
       requestAnimationFrame(() => {
         const inp = inputRef.value
+
         if (inp !== null) {
           const parentStyle = inp.parentNode.style
           // chrome does not keep scroll #15498
           const { scrollTop } = inp
           // chrome calculates a smaller scrollHeight when in a .column container
-          const { overflowY, maxHeight } = $q.platform.is.firefox === true
-            ? {}
-            : window.getComputedStyle(inp)
+          const { overflowY, maxHeight } =
+            $q.platform.is.firefox === true ? {} : window.getComputedStyle(inp)
           // on firefox or if overflowY is specified as scroll #14263, #14344
           // we don't touch overflow
           // firefox is not so bad in the end
-          const changeOverflow = overflowY !== void 0 && overflowY !== 'scroll'
+          const changeOverflow = overflowY !== void 0 && overflowY !== "scroll"
 
           // reset height of textarea to a small size to detect the real height
           // but keep the total control size the same
-          changeOverflow === true && (inp.style.overflowY = 'hidden')
-          parentStyle.marginBottom = (inp.scrollHeight - 1) + 'px'
-          inp.style.height = '1px'
+          changeOverflow === true && (inp.style.overflowY = "hidden")
+          parentStyle.marginBottom = inp.scrollHeight - 1 + "px"
+          inp.style.height = "1px"
 
-          inp.style.height = inp.scrollHeight + 'px'
+          inp.style.height = inp.scrollHeight + "px"
           // we should allow scrollbars only
           // if there is maxHeight and content is taller than maxHeight
-          changeOverflow === true && (inp.style.overflowY = parseInt(maxHeight, 10) < inp.scrollHeight ? 'auto' : 'hidden')
-          parentStyle.marginBottom = ''
+          changeOverflow === true &&
+            (inp.style.overflowY =
+              parseInt(maxHeight, 10) < inp.scrollHeight ? "auto" : "hidden")
+          parentStyle.marginBottom = ""
           inp.scrollTop = scrollTop
         }
       })
@@ -340,7 +385,7 @@ export default createComponent({
 
       emitValueFn?.()
 
-      emit('change', e.target.value)
+      emit("change", e.target.value)
     }
 
     function onFinishEditing (e) {
@@ -359,17 +404,21 @@ export default createComponent({
 
       // we need to use setTimeout instead of this.$nextTick
       // to avoid a bug where focusout is not emitted for type date/time/week/...
-      props.type !== 'file' && setTimeout(() => {
-        if (inputRef.value !== null) {
-          inputRef.value.value = innerValue.value !== void 0 ? innerValue.value : ''
-        }
-      })
+      props.type !== "file" &&
+        setTimeout(() => {
+          if (inputRef.value !== null) {
+            inputRef.value.value =
+              innerValue.value !== void 0 ? innerValue.value : ""
+          }
+        })
     }
 
     function getCurValue () {
-      return temp.hasOwnProperty('value') === true
+      return temp.hasOwnProperty("value") === true
         ? temp.value
-        : (innerValue.value !== void 0 ? innerValue.value : '')
+        : innerValue.value !== void 0
+          ? innerValue.value
+          : ""
     }
 
     onBeforeUnmount(() => {
@@ -384,15 +433,17 @@ export default createComponent({
     Object.assign(state, {
       innerValue,
 
-      fieldClass: computed(() =>
-        `q-${isTextarea.value === true ? 'textarea' : 'input'}` +
-        (props.autogrow === true ? ' q-textarea--autogrow' : '')
+      fieldClass: computed(
+        () =>
+          `q-${isTextarea.value === true ? "textarea" : "input"}` +
+          (props.autogrow === true ? " q-textarea--autogrow" : "")
       ),
 
-      hasShadow: computed(() =>
-        props.type !== 'file' &&
-        typeof props.shadowText === 'string' &&
-        props.shadowText.length !== 0
+      hasShadow: computed(
+        () =>
+          props.type !== "file" &&
+          typeof props.shadowText === "string" &&
+          props.shadowText.length !== 0
       ),
 
       inputRef,
@@ -401,41 +452,40 @@ export default createComponent({
 
       hasValue,
 
-      floatingLabel: computed(() =>
-        (
-          hasValue.value === true &&
-          (props.type !== 'number' || isNaN(innerValue.value) === false)
-        ) ||
-        fieldValueIsFilled(props.displayValue)
+      floatingLabel: computed(
+        () =>
+          (hasValue.value === true &&
+            (props.type !== "number" || isNaN(innerValue.value) === false)) ||
+          fieldValueIsFilled(props.displayValue)
       ),
 
       getControl: () => {
-        return h(isTextarea.value === true ? 'textarea' : 'input', {
+        return h(isTextarea.value === true ? "textarea" : "input", {
           ref: inputRef,
-          class: [
-            'q-field__native q-placeholder',
-            props.inputClass
-          ],
+          class: ["q-field__native q-placeholder", props.inputClass],
           style: props.inputStyle,
           ...inputAttrs.value,
           ...onEvents.value,
-          ...(
-            props.type !== 'file'
-              ? { value: getCurValue() }
-              : formDomProps.value
-          )
+          ...(props.type !== "file"
+            ? { value: getCurValue() }
+            : formDomProps.value),
         })
       },
 
       getShadowControl: () => {
-        return h('div', {
-          class: 'q-field__native q-field__shadow absolute-bottom no-pointer-events' +
-            (isTextarea.value === true ? '' : ' text-no-wrap')
-        }, [
-          h('span', { class: 'invisible' }, getCurValue()),
-          h('span', props.shadowText)
-        ])
-      }
+        return h(
+          "div",
+          {
+            class:
+              "q-field__native q-field__shadow absolute-bottom no-pointer-events" +
+              (isTextarea.value === true ? "" : " text-no-wrap"),
+          },
+          [
+            h("span", { class: "invisible" }, getCurValue()),
+            h("span", props.shadowText),
+          ]
+        )
+      },
     })
 
     const renderFn = useField(state)
@@ -444,11 +494,11 @@ export default createComponent({
     Object.assign(proxy, {
       focus,
       select,
-      getNativeElement: () => inputRef.value // deprecated
+      getNativeElement: () => inputRef.value, // deprecated
     })
 
-    injectProp(proxy, 'nativeEl', () => inputRef.value)
+    injectProp(proxy, "nativeEl", () => inputRef.value)
 
     return renderFn
-  }
+  },
 })

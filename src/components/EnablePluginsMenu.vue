@@ -23,7 +23,7 @@
         </q-item-section>
         <q-item-section>
           <q-item-label>
-            {{ $t('enablePluginsMenu.moreInfo') }}
+            {{ $t("enablePluginsMenu.moreInfo") }}
           </q-item-label>
         </q-item-section>
       </q-item>
@@ -32,10 +32,9 @@
 </template>
 
 <script setup lang="ts">
-import EnablePluginsItems from './EnablePluginsItems.vue'
+import EnablePluginsItems from "./EnablePluginsItems.vue"
 
 defineProps<{
   assistantId: string
 }>()
-
 </script>

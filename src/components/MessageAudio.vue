@@ -7,14 +7,14 @@
 </template>
 
 <script setup lang="ts">
-import { StoredItem } from '@/services/supabase/types'
-import { getFileUrl } from 'src/composables/storage/utils'
+import { getFileUrl } from "src/composables/storage/utils"
+import { StoredItem } from "@/services/supabase/types"
 
 const props = defineProps<{
-  audio: StoredItem,
+  audio: StoredItem
 }>()
 
-defineEmits(['remove'])
+defineEmits(["remove"])
 
 const url = getFileUrl(props.audio.file_url)
 </script>

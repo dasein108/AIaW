@@ -4,7 +4,7 @@
     back-to="."
   >
     <q-toolbar-title>
-      {{ $t('shortcutKeysView.keyboardShortcuts') }}
+      {{ $t("shortcutKeysView.keyboardShortcuts") }}
     </q-toolbar-title>
   </view-common-header>
   <q-page-container>
@@ -17,7 +17,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.enableKeyboardShortcuts') }}
+              {{ $t("shortcutKeysView.enableKeyboardShortcuts") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -29,12 +29,12 @@
         </q-item>
         <q-separator spaced />
         <q-item-label header>
-          {{ $t('shortcutKeysView.dialogPage') }}
+          {{ $t("shortcutKeysView.dialogPage") }}
         </q-item-label>
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.scrollUp') }}
+              {{ $t("shortcutKeysView.scrollUp") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -47,7 +47,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.scrollDown') }}
+              {{ $t("shortcutKeysView.scrollDown") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -60,7 +60,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.scrollToTop') }}
+              {{ $t("shortcutKeysView.scrollToTop") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -73,7 +73,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.scrollToBottom') }}
+              {{ $t("shortcutKeysView.scrollToBottom") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -86,7 +86,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.switchToPreviousThread') }}
+              {{ $t("shortcutKeysView.switchToPreviousThread") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -99,7 +99,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.switchToNextThread') }}
+              {{ $t("shortcutKeysView.switchToNextThread") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -112,7 +112,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.switchToFirstThread') }}
+              {{ $t("shortcutKeysView.switchToFirstThread") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -125,7 +125,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.switchToLastThread') }}
+              {{ $t("shortcutKeysView.switchToLastThread") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -138,7 +138,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.regenerateAssistantMessage') }}
+              {{ $t("shortcutKeysView.regenerateAssistantMessage") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -151,7 +151,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.editUserMessage') }}
+              {{ $t("shortcutKeysView.editUserMessage") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -164,7 +164,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.focusInputBox') }}
+              {{ $t("shortcutKeysView.focusInputBox") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -176,12 +176,12 @@
         </q-item>
         <q-separator spaced />
         <q-item-label header>
-          {{ $t('shortcutKeysView.dialogList') }}
+          {{ $t("shortcutKeysView.dialogList") }}
         </q-item-label>
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.createDialog') }}
+              {{ $t("shortcutKeysView.createDialog") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -194,12 +194,12 @@
 
         <q-separator spaced />
         <q-item-label header>
-          {{ $t('shortcutKeysView.editArtifacts') }}
+          {{ $t("shortcutKeysView.editArtifacts") }}
         </q-item-label>
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysView.saveArtifact') }}
+              {{ $t("shortcutKeysView.saveArtifact") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -215,19 +215,19 @@
 </template>
 
 <script setup lang="ts">
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { pageFhStyle } from 'src/utils/functions'
-import ShortcutKeyInput from 'src/components/ShortcutKeyInput.vue'
-import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
+import PlatformEnabledInput from "src/components/PlatformEnabledInput.vue"
+import ShortcutKeyInput from "src/components/ShortcutKeyInput.vue"
+import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { pageFhStyle } from "src/utils/functions"
 
 const { data: perfs } = useUserPerfsStore()
 
-defineEmits(['toggle-drawer'])
+defineEmits(["toggle-drawer"])
 
 const inputProps = {
   dense: true,
   filled: true,
-  class: 'min-w-150px'
+  class: "min-w-150px",
 }
 </script>

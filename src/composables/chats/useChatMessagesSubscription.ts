@@ -1,7 +1,10 @@
-import { supabase } from 'src/services/supabase/client'
-import type { ChatMessageWithProfile, ProfileMapped } from 'src/services/supabase/types'
-import { useUserLoginCallback } from '../auth/useUserLoginCallback'
-import { useProfileStore } from 'src/stores/profile'
+import { supabase } from "src/services/supabase/client"
+import type {
+  ChatMessageWithProfile,
+  ProfileMapped,
+} from "src/services/supabase/types"
+import { useProfileStore } from "src/stores/profile"
+import { useUserLoginCallback } from "../auth/useUserLoginCallback"
 
 // Cache for sender profiles
 const profileCache = new Map<string, ProfileMapped | null>()
@@ -14,7 +17,7 @@ let subscription: ReturnType<typeof supabase.channel> | null = null
  * Messages are stored in a Record keyed by chat_id.
  * Optionally, a callback can be provided to handle each new message.
  */
-export function useChatMessagesSubscription(
+export function useChatMessagesSubscription (
   onNewMessage: (message: ChatMessageWithProfile) => void
 ) {
   const { fetchProfile } = useProfileStore()
@@ -22,13 +25,13 @@ export function useChatMessagesSubscription(
   const subscribe = () => {
     if (!subscription) {
       subscription = supabase
-        .channel('all-messages')
+        .channel("all-messages")
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'messages',
+            event: "INSERT",
+            schema: "public",
+            table: "messages",
           },
           async (payload) => {
             const message = payload.new as ChatMessageWithProfile
@@ -44,7 +47,7 @@ export function useChatMessagesSubscription(
     }
   }
 
-  function unsubscribe() {
+  function unsubscribe () {
     if (subscription) {
       subscription.unsubscribe()
       subscription = null
@@ -54,7 +57,7 @@ export function useChatMessagesSubscription(
   subscribe()
 
   // Watch for currentUser changes
-  useUserLoginCallback(async() => {
+  useUserLoginCallback(async () => {
     unsubscribe()
     subscribe()
   })

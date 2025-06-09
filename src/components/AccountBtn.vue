@@ -1,7 +1,6 @@
 <template>
   <q-btn
     round
-
     v-if="myProfile"
     @click="onClick"
   >
@@ -15,18 +14,20 @@
     icon="sym_o_account_circle"
     @click="onClick"
     :class="{ 'route-active': route.path === '/account' }"
-    :label="userStore.isLoggedIn ? $t('accountBtn.account') : $t('accountBtn.login')"
+    :label="
+      userStore.isLoggedIn ? $t('accountBtn.account') : $t('accountBtn.login')
+    "
   />
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
-import { useRouter, useRoute } from 'vue-router'
-import AuthDialog from './auth/AuthDialog.vue'
-import { useUserStore } from 'src/stores/user'
-import { useProfileStore } from 'src/stores/profile'
-import { storeToRefs } from 'pinia'
-import AAvatar from './AAvatar.vue'
+import { storeToRefs } from "pinia"
+import { useQuasar } from "quasar"
+import { useProfileStore } from "src/stores/profile"
+import { useUserStore } from "src/stores/user"
+import { useRouter, useRoute } from "vue-router"
+import AAvatar from "./AAvatar.vue"
+import AuthDialog from "./auth/AuthDialog.vue"
 
 const $q = useQuasar()
 
@@ -36,20 +37,19 @@ const route = useRoute()
 const userStore = useUserStore()
 const { myProfile } = storeToRefs(useProfileStore())
 
-console.log('isLoggedIn', userStore.isLoggedIn)
-function onClick() {
+console.log("isLoggedIn", userStore.isLoggedIn)
+
+function onClick () {
   if (userStore.isLoggedIn) {
-    router.push('/account')
+    router.push("/account")
   } else {
     $q.dialog({
-      component: AuthDialog
+      component: AuthDialog,
     }).onOk(() => {
-      console.log('OOK')
+      console.log("OOK")
     })
   }
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

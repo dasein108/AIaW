@@ -53,11 +53,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import PinModal from './PinModal.vue'
-import { useAuthStore } from '../stores/auth'
-import { WalletService, WalletInfo } from 'src/services/authz/wallet-service'
-import { useQuasar } from 'quasar'
+import { useQuasar } from "quasar"
+import { WalletService, WalletInfo } from "src/services/authz/wallet-service"
+import { ref, computed, watch } from "vue"
+import { useAuthStore } from "../stores/auth"
+import PinModal from "./PinModal.vue"
 
 const $q = useQuasar()
 const showPinModal = ref(false)
@@ -66,11 +66,17 @@ const walletInfo = ref<WalletInfo | null>(null)
 const actionLoading = ref(false)
 
 const isGranterConnected = computed(() => authStore.isGranterActuallyConnected)
-const isAuthorizationActuallyGranted = computed(() => authStore.isGranteeActuallyAuthorized)
+const isAuthorizationActuallyGranted = computed(
+  () => authStore.isGranteeActuallyAuthorized
+)
 
-watch(() => authStore.walletInfo, (newVal) => {
-  walletInfo.value = newVal
-}, { immediate: true, deep: true })
+watch(
+  () => authStore.walletInfo,
+  (newVal) => {
+    walletInfo.value = newVal
+  },
+  { immediate: true, deep: true }
+)
 
 const handlePinSubmit = async (pin: string) => {
   actionLoading.value = true
@@ -79,16 +85,28 @@ const handlePinSubmit = async (pin: string) => {
     walletInfo.value = newWalletInfo
 
     if (newWalletInfo?.address && authStore.granterSigner) {
-      await WalletService.getInstance().sendTokensToGrantee(authStore.granterSigner, newWalletInfo.address)
-      $q.notify({ message: 'Grantee wallet created and activated. Please grant authorization.', color: 'positive' })
+      await WalletService.getInstance().sendTokensToGrantee(
+        authStore.granterSigner,
+        newWalletInfo.address
+      )
+      $q.notify({
+        message:
+          "Grantee wallet created and activated. Please grant authorization.",
+        color: "positive",
+      })
     } else if (!authStore.granterSigner) {
-      throw new Error('Granter wallet is not connected. Cannot send activation tokens.')
+      throw new Error(
+        "Granter wallet is not connected. Cannot send activation tokens."
+      )
     } else {
-      throw new Error('Failed to create grantee wallet or get its address.')
+      throw new Error("Failed to create grantee wallet or get its address.")
     }
   } catch (error) {
-    console.error('Error in handlePinSubmit:', error)
-    $q.notify({ message: `Error creating grantee: ${error.message || error}`, color: 'negative' })
+    console.error("Error in handlePinSubmit:", error)
+    $q.notify({
+      message: `Error creating grantee: ${error.message || error}`,
+      color: "negative",
+    })
   } finally {
     actionLoading.value = false
     showPinModal.value = false
@@ -96,45 +114,85 @@ const handlePinSubmit = async (pin: string) => {
 }
 
 const handleGrantAuthorizationClick = async () => {
-  if (!walletInfo.value?.address || !isGranterConnected.value || !authStore.granterSigner) {
-    $q.notify({ message: 'Granter not connected or grantee address missing.', color: 'warning' })
+  if (
+    !walletInfo.value?.address ||
+    !isGranterConnected.value ||
+    !authStore.granterSigner
+  ) {
+    $q.notify({
+      message: "Granter not connected or grantee address missing.",
+      color: "warning",
+    })
+
     return
   }
+
   actionLoading.value = true
   try {
     const granterAccounts = await authStore.granterSigner.getAccounts()
+
     if (granterAccounts.length === 0) {
-      throw new Error('Granter account not found for authorization')
+      throw new Error("Granter account not found for authorization")
     }
+
     const granterAddress = granterAccounts[0].address
-    await authStore.grantAgentAuthorization(granterAddress, walletInfo.value.address)
-    $q.notify({ message: 'Authorization granted successfully.', color: 'positive' })
+    await authStore.grantAgentAuthorization(
+      granterAddress,
+      walletInfo.value.address
+    )
+    $q.notify({
+      message: "Authorization granted successfully.",
+      color: "positive",
+    })
   } catch (error) {
-    console.error('Error granting authorization:', error)
-    $q.notify({ message: `Error granting authorization: ${error.message || error}`, color: 'negative' })
+    console.error("Error granting authorization:", error)
+    $q.notify({
+      message: `Error granting authorization: ${error.message || error}`,
+      color: "negative",
+    })
   } finally {
     actionLoading.value = false
   }
 }
 
 const handleRevokeClick = async () => {
-  if (!walletInfo.value?.address || !isGranterConnected.value || !authStore.granterSigner) {
-    $q.notify({ message: 'Granter not connected or grantee address missing.', color: 'warning' })
+  if (
+    !walletInfo.value?.address ||
+    !isGranterConnected.value ||
+    !authStore.granterSigner
+  ) {
+    $q.notify({
+      message: "Granter not connected or grantee address missing.",
+      color: "warning",
+    })
+
     return
   }
+
   actionLoading.value = true
   try {
     const granterAccounts = await authStore.granterSigner.getAccounts()
+
     if (granterAccounts.length === 0) {
-      throw new Error('Granter account not found for authorization')
+      throw new Error("Granter account not found for authorization")
     }
+
     const granterAddress = granterAccounts[0].address
-    await authStore.revokeAgentAuthorization(granterAddress, walletInfo.value.address)
+    await authStore.revokeAgentAuthorization(
+      granterAddress,
+      walletInfo.value.address
+    )
     authStore.disconnect()
-    $q.notify({ message: 'Authorization revoked successfully.', color: 'positive' })
+    $q.notify({
+      message: "Authorization revoked successfully.",
+      color: "positive",
+    })
   } catch (error) {
-    console.error('Error revoking authorization:', error)
-    $q.notify({ message: `Error revoking authorization: ${error.message || error}`, color: 'negative' })
+    console.error("Error revoking authorization:", error)
+    $q.notify({
+      message: `Error revoking authorization: ${error.message || error}`,
+      color: "negative",
+    })
   } finally {
     actionLoading.value = false
   }

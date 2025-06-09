@@ -31,11 +31,11 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
-import { hctToHex } from 'src/utils/functions'
-import { Avatar } from 'src/utils/types'
-import { computed } from 'vue'
-import ImageAvatar from './ImageAvatar.vue'
+import { useQuasar } from "quasar"
+import { hctToHex } from "src/utils/functions"
+import { Avatar } from "src/utils/types"
+import { computed } from "vue"
+import ImageAvatar from "./ImageAvatar.vue"
 const props = defineProps<{
   avatar: Avatar
 }>()
@@ -43,15 +43,19 @@ const props = defineProps<{
 const $q = useQuasar()
 const style = computed(() => {
   if (!props.avatar.hue) return {}
+
   const { hue } = props.avatar
-  return $q.dark.isActive ? {
-    color: hctToHex(hue, 40, 90),
-    backgroundColor: hctToHex(hue, 40, 30)
-  } : {
-    color: hctToHex(hue, 40, 10),
-    backgroundColor: hctToHex(hue, 40, 90)
-  }
+
+  return $q.dark.isActive
+    ? {
+        color: hctToHex(hue, 40, 90),
+        backgroundColor: hctToHex(hue, 40, 30),
+      }
+    : {
+        color: hctToHex(hue, 40, 10),
+        backgroundColor: hctToHex(hue, 40, 90),
+      }
 })
 
-const fontSize = '0.6em'
+const fontSize = "0.6em"
 </script>

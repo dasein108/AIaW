@@ -19,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import { useUiStateStore } from 'src/stores/ui-state'
-import SettingsArea from 'src/layouts/SettingsArea.vue'
+import SettingsArea from "src/layouts/SettingsArea.vue"
+import { useUiStateStore } from "src/stores/ui-state"
 
 const uiStateStore = useUiStateStore()
 </script>

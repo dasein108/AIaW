@@ -34,11 +34,12 @@
         :input-props="{
           dense: true,
           filled: true,
-          ...inputProps
+          ...inputProps,
         }"
         :class="{
-          'xs:w-200px sm:w-250px': ['string', 'array'].includes(type) && !options,
-          'xs:w-100px sm:w-150px': type === 'number'
+          'xs:w-200px sm:w-250px':
+            ['string', 'array'].includes(type) && !options,
+          'xs:w-100px sm:w-150px': type === 'number',
         }"
       />
     </q-item-section>
@@ -46,11 +47,11 @@
 </template>
 
 <script setup lang="ts">
-import TypesInput from './TypesInput.vue'
+import TypesInput from "./TypesInput.vue"
 
 defineProps<{
-  type: 'string' | 'number' | 'boolean' | 'array'
-  component: 'input' | 'item'
+  type: "string" | "number" | "boolean" | "array"
+  component: "input" | "item"
   options?: string[]
   label?: string
   description?: string

@@ -16,7 +16,7 @@
       v-else
       :type="sch.type as any"
       :options="sch.enum as any"
-      :label="sch.title || key as string"
+      :label="sch.title || (key as string)"
       :description="sch.description"
       :component
       :lazy
@@ -24,7 +24,7 @@
       :input-props="{
         type: sch.format === 'password' ? 'password' : undefined,
         placeholder: sch.default,
-        ...inputProps
+        ...inputProps,
       }"
       :item-props
     />
@@ -32,13 +32,13 @@
 </template>
 
 <script setup lang="ts">
-import { PluginSchema } from '@lobehub/chat-plugin-sdk'
-import UnifiedInput from './UnifiedInput.vue'
+import { PluginSchema } from "@lobehub/chat-plugin-sdk"
+import UnifiedInput from "./UnifiedInput.vue"
 
 defineProps<{
   schema: PluginSchema
   prefix?: string
-  component: 'input' | 'item'
+  component: "input" | "item"
   inputProps?: Record<string, any>
   itemProps?: Record<string, any>
   lazy?: boolean

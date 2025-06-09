@@ -4,9 +4,7 @@
     expand-icon-class="important:pl-2"
   >
     <template #header>
-      <q-item-section>
-        Chats
-      </q-item-section>
+      <q-item-section> Chats </q-item-section>
       <q-item-section side>
         <div>
           <q-btn
@@ -40,18 +38,18 @@
 </template>
 
 <script setup lang="ts">
-import ChatList from './ChatList.vue'
-import SearchChats from './SearchChats.vue'
-import { inject, ref, toRef } from 'vue'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { useListenKey } from 'src/composables/listen-key'
-import { isPlatformEnabled } from 'src/utils/functions'
-import { useQuasar } from 'quasar'
-import UserListDialog from './UserListDialog.vue'
-import { supabase } from 'src/services/supabase/client'
-import { useRouter } from 'vue-router'
-import { useUserStore } from 'src/stores/user'
-import { ProfileMapped } from '@/services/supabase/types'
+import { useQuasar } from "quasar"
+import { useListenKey } from "src/composables/listen-key"
+import { supabase } from "src/services/supabase/client"
+import { useUserStore } from "src/stores/user"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { isPlatformEnabled } from "src/utils/functions"
+import { ref, toRef } from "vue"
+import { useRouter } from "vue-router"
+import ChatList from "./ChatList.vue"
+import SearchChats from "./SearchChats.vue"
+import UserListDialog from "./UserListDialog.vue"
+import { ProfileMapped } from "@/services/supabase/types"
 
 const $q = useQuasar()
 const router = useRouter()
@@ -65,34 +63,45 @@ const showUserSelectDialog = () => {
   $q.dialog({
     component: UserListDialog,
     componentProps: {
-      currentUserId: userStore.currentUserId
-    }
+      currentUserId: userStore.currentUserId,
+    },
   }).onOk((user) => {
     onSelectUser(user)
   })
 }
 
 const onSelectUser = async (user: ProfileMapped) => {
-  const { data: chatId, error } = await supabase.rpc('start_private_chat_with', {
-    target_user_id: user.id,
-    current_user_id: userStore.currentUserId
-  })
+  const { data: chatId, error } = await supabase.rpc(
+    "start_private_chat_with",
+    {
+      target_user_id: user.id,
+      current_user_id: userStore.currentUserId,
+    }
+  )
+
   if (error) {
-    console.error('error', error)
+    console.error("error", error)
     $q.notify({
       message: error.message,
-      color: 'negative'
+      color: "negative",
     })
+
     return
   }
-  router.push(props.workspaceId ? `/workspaces/${props.workspaceId}/chats/${chatId}` : `/chats/${chatId}`)
+
+  router.push(
+    props.workspaceId
+      ? `/workspaces/${props.workspaceId}/chats/${chatId}`
+      : `/chats/${chatId}`
+  )
 }
 
 const showSearchDialog = ref(false)
 
 const { data: perfs } = useUserPerfsStore()
+
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
-  useListenKey(toRef(perfs, 'searchDialogKey'), () => {
+  useListenKey(toRef(perfs, "searchDialogKey"), () => {
     showSearchDialog.value = true
   })
 }

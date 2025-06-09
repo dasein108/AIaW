@@ -1,5 +1,5 @@
-import fs from 'fs'
 import { execSync } from 'child_process'
+import fs from 'fs'
 import path from 'path'
 
 // Run the Supabase type generator normally (change to your project ID and types file path ie.: ./app/types/database.types.ts)

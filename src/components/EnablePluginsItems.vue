@@ -1,6 +1,8 @@
 <template>
   <q-item
-    v-for="plugin in pluginsStore.plugins.filter(p => p.available && (p.apis.length || p.prompt))"
+    v-for="plugin in pluginsStore.plugins.filter(
+      (p) => p.available && (p.apis.length || p.prompt)
+    )"
     :key="plugin.id"
     :clickable="dense"
     @click="dense && setPlugin(plugin, !assistant.plugins[plugin.id]?.enabled)"
@@ -17,7 +19,8 @@
     </q-item-section>
     <q-item-section>
       <q-item-label>
-        {{ plugin.title }}<plugin-type-badge
+        {{ plugin.title
+        }}<plugin-type-badge
           v-if="!dense"
           :type="plugin.type"
           ml-2
@@ -57,14 +60,14 @@
 </template>
 
 <script setup lang="ts">
-import { syncRef } from 'src/composables/sync-ref'
-import { useAssistantsStore } from 'src/stores/assistants'
-import { usePluginsStore } from 'src/stores/plugins'
-import { AssistantPlugin, Plugin } from 'src/utils/types'
-import { AssistantMapped } from '@/services/supabase/types'
-import { toRaw } from 'vue'
-import AAvatar from './AAvatar.vue'
-import PluginTypeBadge from './PluginTypeBadge.vue'
+import { syncRef } from "src/composables/sync-ref"
+import { useAssistantsStore } from "src/stores/assistants"
+import { usePluginsStore } from "src/stores/plugins"
+import { AssistantPlugin, Plugin } from "src/utils/types"
+import { toRaw } from "vue"
+import AAvatar from "./AAvatar.vue"
+import PluginTypeBadge from "./PluginTypeBadge.vue"
+import { AssistantMapped } from "@/services/supabase/types"
 
 const props = defineProps<{
   assistantId: string
@@ -74,26 +77,34 @@ const props = defineProps<{
 const store = useAssistantsStore()
 
 const assistant = syncRef<AssistantMapped>(
-  () => store.assistants.find(a => a.id === props.assistantId),
-  val => { store.put(toRaw(val)) },
+  () => store.assistants.find((a) => a.id === props.assistantId),
+  (val) => {
+    store.put(toRaw(val))
+  },
   { valueDeep: true }
 )
 const pluginsStore = usePluginsStore()
 
-function setPlugin(plugin: Plugin, enabled: boolean) {
+function setPlugin (plugin: Plugin, enabled: boolean) {
   if (enabled && !assistant.value.plugins[plugin.id]) {
-    const assistantPlugin: AssistantPlugin = { enabled: true, infos: [], tools: [], resources: [], vars: {} }
-    plugin.apis.forEach(api => {
-      if (api.type === 'tool') {
+    const assistantPlugin: AssistantPlugin = {
+      enabled: true,
+      infos: [],
+      tools: [],
+      resources: [],
+      vars: {},
+    }
+    plugin.apis.forEach((api) => {
+      if (api.type === "tool") {
         assistantPlugin.tools.push({
           name: api.name,
-          enabled: true
+          enabled: true,
         })
-      } else if (api.type === 'info') {
+      } else if (api.type === "info") {
         assistantPlugin.infos.push({
           name: api.name,
           enabled: true,
-          args: {}
+          args: {},
         })
       }
     })
@@ -102,5 +113,4 @@ function setPlugin(plugin: Plugin, enabled: boolean) {
     assistant.value.plugins[plugin.id].enabled = enabled
   }
 }
-
 </script>

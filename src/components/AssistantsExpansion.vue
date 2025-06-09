@@ -5,7 +5,7 @@
   >
     <template #header>
       <q-item-section>
-        {{ label || $t('assistantsExpansion.assistants') }}
+        {{ label || $t("assistantsExpansion.assistants") }}
       </q-item-section>
       <q-item-section side>
         <import-assistant-button />
@@ -44,9 +44,7 @@
           <q-item-section>
             {{ assistant.name }}
           </q-item-section>
-          <q-menu
-            context-menu
-          >
+          <q-menu context-menu>
             <q-list style="min-width: 100px">
               <menu-item
                 v-if="!workspaceId"
@@ -55,7 +53,7 @@
                 @click="createDialog({ assistant_id: assistant.id })"
               />
               <menu-item
-                v-if="!workspaceId "
+                v-if="!workspaceId"
                 icon="sym_o_move_item"
                 :label="$t('assistantsExpansion.moveToGlobal')"
                 @click="move(assistant.id, null)"
@@ -89,7 +87,7 @@
             <q-icon name="sym_o_add" />
           </q-item-section>
           <q-item-section>
-            {{ $t('assistantsExpansion.createAssistant') }}
+            {{ $t("assistantsExpansion.createAssistant") }}
           </q-item-section>
         </q-item>
       </q-list>
@@ -98,41 +96,52 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
-import { computed } from 'vue'
-import { useAssistantsStore } from 'src/stores/assistants'
-import { useRouter } from 'vue-router'
-import AAvatar from './AAvatar.vue'
-import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
-import { useCreateDialog } from 'src/composables/create-dialog'
-import MenuItem from './MenuItem.vue'
-import { dialogOptions } from 'src/utils/values'
-import { useI18n } from 'vue-i18n'
-import { defaultAvatar } from 'src/utils/functions'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import ImportAssistantButton from './ImportAssistantButton.vue'
+import { useQuasar } from "quasar"
+import { useCreateDialog } from "src/composables/create-dialog"
+import { useAssistantsStore } from "src/stores/assistants"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { defaultAvatar } from "src/utils/functions"
+import { dialogOptions } from "src/utils/values"
+import { computed } from "vue"
+import { useI18n } from "vue-i18n"
+import { useRouter } from "vue-router"
+import AAvatar from "./AAvatar.vue"
+import ImportAssistantButton from "./ImportAssistantButton.vue"
+import MenuItem from "./MenuItem.vue"
+import SelectWorkspaceDialog from "./SelectWorkspaceDialog.vue"
 
 const { t } = useI18n()
 
-const props = withDefaults(defineProps<{
-  workspaceId?: string | null,
-  dense?: boolean,
-  label?: string
-}>(), {
-  workspaceId: null,
-  label: ''
-})
+const props = withDefaults(
+  defineProps<{
+    workspaceId?: string | null
+    dense?: boolean
+    label?: string
+  }>(),
+  {
+    workspaceId: null,
+    label: "",
+  }
+)
 
 const assistantsStore = useAssistantsStore()
 const userPerfsStore = useUserPerfsStore()
-const assistants = computed(() => assistantsStore.assistants.filter(a => a.workspace_id === props.workspaceId || a.workspace_id == null))
-function getLink(id) {
-  return !props.workspaceId ? `/assistants/${id}` : `/workspaces/${props.workspaceId}/assistants/${id}`
+const assistants = computed(() =>
+  assistantsStore.assistants.filter(
+    (a) => a.workspace_id === props.workspaceId || a.workspace_id == null
+  )
+)
+
+function getLink (id) {
+  return !props.workspaceId
+    ? `/assistants/${id}`
+    : `/workspaces/${props.workspaceId}/assistants/${id}`
 }
 const router = useRouter()
-async function addItem() {
+
+async function addItem () {
   const assistant = await assistantsStore.add({
-    name: 'New Assistant',
+    name: "New Assistant",
     workspace_id: props.workspaceId,
     avatar: defaultAvatar("AI"),
     provider: userPerfsStore.data.provider,
@@ -141,31 +150,33 @@ async function addItem() {
   router.push(getLink(assistant.id))
 }
 
-function move(id, workspaceId) {
+function move (id, workspaceId) {
   assistantsStore.update(id, { workspaceId })
 }
 const $q = useQuasar()
-function moveToWorkspace(id) {
+
+function moveToWorkspace (id) {
   $q.dialog({
     component: SelectWorkspaceDialog,
     componentProps: {
-      accept: 'workspace'
-    }
-  }).onOk(workspaceId => {
+      accept: "workspace",
+    },
+  }).onOk((workspaceId) => {
     move(id, workspaceId)
   })
 }
-function deleteItem({ id, name }) {
+
+function deleteItem ({ id, name }) {
   $q.dialog({
-    title: t('assistantsExpansion.deleteConfirmTitle'),
-    message: t('assistantsExpansion.deleteConfirmMessage', { name }),
+    title: t("assistantsExpansion.deleteConfirmTitle"),
+    message: t("assistantsExpansion.deleteConfirmMessage", { name }),
     cancel: true,
     ok: {
-      label: t('assistantsExpansion.delete'),
-      color: 'err',
-      flat: true
+      label: t("assistantsExpansion.delete"),
+      color: "err",
+      flat: true,
     },
-    ...dialogOptions
+    ...dialogOptions,
   }).onOk(() => {
     assistantsStore.delete(id)
   })

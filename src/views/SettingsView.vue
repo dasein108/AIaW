@@ -1,7 +1,7 @@
 <template>
   <view-common-header @toggle-drawer="$emit('toggle-drawer')">
     <q-toolbar-title>
-      {{ $t('settingsView.title') }}
+      {{ $t("settingsView.title") }}
     </q-toolbar-title>
   </view-common-header>
   <q-page-container>
@@ -67,14 +67,16 @@
           header
           id="default-provider"
         >
-          {{ $t('settingsView.defaultProviderHeader') }}
+          {{ $t("settingsView.defaultProviderHeader") }}
         </q-item-label>
         <provider-input-items v-model="perfs.provider" />
-        <q-item v-if="perfs.provider && !perfs.provider.type.startsWith('custom:')">
+        <q-item
+          v-if="perfs.provider && !perfs.provider.type.startsWith('custom:')"
+        >
           <q-item-section>
-            <q-item-label>{{ $t('settingsView.shareLinkLabel') }}</q-item-label>
+            <q-item-label>{{ $t("settingsView.shareLinkLabel") }}</q-item-label>
             <q-item-label caption>
-              {{ $t('settingsView.shareLinkCaption') }}
+              {{ $t("settingsView.shareLinkCaption") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -93,10 +95,10 @@
         >
           <q-item-section>
             <q-item-label>
-              {{ $t('settingsView.customProvider') }}
+              {{ $t("settingsView.customProvider") }}
             </q-item-label>
             <q-item-label caption>
-              {{ $t('settingsView.customProviderCaption') }}
+              {{ $t("settingsView.customProviderCaption") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -109,30 +111,30 @@
           text-on-sur-var
           v-if="!perfs.provider"
         >
-          {{ $t('settingsView.noProviderConfigured') }}
+          {{ $t("settingsView.noProviderConfigured") }}
           <router-link
             pri-link
             to="/account"
           >
-            {{ $t('settingsView.accountPage') }}
+            {{ $t("settingsView.accountPage") }}
           </router-link>
-          {{ $t('settingsView.pageSuffix') }}
+          {{ $t("settingsView.pageSuffix") }}
         </q-item-label>
         <q-separator spaced />
         <q-item-label
           header
           id="default-model"
         >
-          {{ $t('settingsView.defaultModelHeader') }}
+          {{ $t("settingsView.defaultModelHeader") }}
         </q-item-label>
         <model-input-items v-model="perfs.model" />
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('settingsView.commonModels') }}
+              {{ $t("settingsView.commonModels") }}
             </q-item-label>
             <q-item-label caption>
-              {{ $t('settingsView.commonModelsCaption') }}<br>
+              {{ $t("settingsView.commonModelsCaption") }}<br>
               <get-model-list
                 :provider
                 v-model="perfs.commonModelOptions"
@@ -142,7 +144,7 @@
                 @click="sortModels"
                 pri-link
               >
-                {{ $t('settingsView.sort') }}
+                {{ $t("settingsView.sort") }}
               </a>
             </q-item-label>
           </q-item-section>
@@ -160,7 +162,7 @@
           header
           id="system-assistant"
         >
-          {{ $t('settingsView.systemAssistantHeader') }}
+          {{ $t("settingsView.systemAssistantHeader") }}
         </q-item-label>
         <provider-input-items v-model="perfs.systemProvider" />
         <model-input-items v-model="perfs.systemModel" />
@@ -169,20 +171,22 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          {{ $t('settingsView.systemAssistantCaption') }}
+          {{ $t("settingsView.systemAssistantCaption") }}
         </q-item-label>
         <q-separator spaced />
         <q-item-label
           header
           id="feature"
         >
-          {{ $t('settingsView.featureHeader') }}
+          {{ $t("settingsView.featureHeader") }}
         </q-item-label>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('settingsView.autoSummarizeTitle') }}</q-item-label>
+            <q-item-label>
+              {{ $t("settingsView.autoSummarizeTitle") }}
+            </q-item-label>
             <q-item-label caption>
-              {{ $t('settingsView.autoSummarizeCaption') }}
+              {{ $t("settingsView.autoSummarizeCaption") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -192,10 +196,10 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('settingsView.messageSelectionMenu') }}
+              {{ $t("settingsView.messageSelectionMenu") }}
             </q-item-label>
             <q-item-label caption>
-              {{ $t('settingsView.messageSelectionCaption') }}
+              {{ $t("settingsView.messageSelectionCaption") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -205,10 +209,10 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('settingsView.codePasteOptimize') }}
+              {{ $t("settingsView.codePasteOptimize") }}
             </q-item-label>
             <q-item-label caption>
-              {{ $t('settingsView.codePasteCaption') }}
+              {{ $t("settingsView.codePasteCaption") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -218,10 +222,10 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('settingsView.quickScrollButton') }}
+              {{ $t("settingsView.quickScrollButton") }}
             </q-item-label>
             <q-item-label caption>
-              {{ $t('settingsView.quickScrollCaption') }}
+              {{ $t("settingsView.quickScrollCaption") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -236,7 +240,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('settingsView.autoFocusInput') }}
+              {{ $t("settingsView.autoFocusInput") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -251,7 +255,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('settingsView.autoLockBottom') }}
+              {{ $t("settingsView.autoLockBottom") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -261,10 +265,10 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('settingsView.messageContentCatalog') }}
+              {{ $t("settingsView.messageContentCatalog") }}
             </q-item-label>
             <q-item-label caption>
-              {{ $t('settingsView.messageContentCatalogCaption') }}
+              {{ $t("settingsView.messageContentCatalogCaption") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -275,7 +279,7 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                {{ $t('settingsView.enableArtifacts') }}
+                {{ $t("settingsView.enableArtifacts") }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -290,10 +294,10 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                {{ $t('settingsView.autoExtractArtifact') }}
+                {{ $t("settingsView.autoExtractArtifact") }}
               </q-item-label>
               <q-item-label caption>
-                {{ $t('settingsView.autoExtractArtifactCaption') }}
+                {{ $t("settingsView.autoExtractArtifactCaption") }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -302,7 +306,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              {{ $t('settingsView.reserveOriginalArtifact') }}
+              {{ $t("settingsView.reserveOriginalArtifact") }}
             </q-item-section>
             <q-item-section side>
               <q-toggle v-model="perfs.artifactsReserveOriginal" />
@@ -310,7 +314,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              {{ $t('settingsView.autoNameArtifact') }}
+              {{ $t("settingsView.autoNameArtifact") }}
             </q-item-section>
             <q-item-section side>
               <q-toggle v-model="perfs.artifactsAutoName" />
@@ -322,15 +326,21 @@
           header
           id="operation"
         >
-          {{ $t('settingsView.operationHeader') }}
+          {{ $t("settingsView.operationHeader") }}
         </q-item-label>
         <q-item>
-          <q-item-section>{{ $t('settingsView.sendKeyShortcut') }}</q-item-section>
+          <q-item-section>
+            {{ $t("settingsView.sendKeyShortcut") }}
+          </q-item-section>
           <q-item-section side>
             <q-select
               class="w-150px"
               v-model="perfs.sendKey"
-              :options="[{ label: 'Ctrl + Enter', value: 'ctrl+enter' }, { label: 'Shift + Enter', value: 'shift+enter' }, { label: 'Enter', value: 'enter' }]"
+              :options="[
+                { label: 'Ctrl + Enter', value: 'ctrl+enter' },
+                { label: 'Shift + Enter', value: 'shift+enter' },
+                { label: 'Enter', value: 'enter' },
+              ]"
               filled
               dense
               emit-value
@@ -343,7 +353,9 @@
           v-ripple
           to="/settings/shortcut-keys"
         >
-          <q-item-section>{{ $t('settingsView.keyboardShortcuts') }}</q-item-section>
+          <q-item-section>
+            {{ $t("settingsView.keyboardShortcuts") }}
+          </q-item-section>
           <q-item-section side>
             <q-icon name="sym_o_chevron_right" />
           </q-item-section>
@@ -353,13 +365,13 @@
           header
           id="ui"
         >
-          {{ $t('settingsView.uiHeader') }}
+          {{ $t("settingsView.uiHeader") }}
         </q-item-label>
         <q-item>
           <q-item-section avatar>
             <q-icon name="sym_o_dark_mode" />
           </q-item-section>
-          <q-item-section>{{ $t('settingsView.appearance') }}</q-item-section>
+          <q-item-section>{{ $t("settingsView.appearance") }}</q-item-section>
           <q-item-section side>
             <q-select
               class="min-w-120px"
@@ -380,7 +392,7 @@
           <q-item-section avatar>
             <q-icon name="sym_o_palette" />
           </q-item-section>
-          <q-item-section>{{ $t('settingsView.themeColor') }}</q-item-section>
+          <q-item-section>{{ $t("settingsView.themeColor") }}</q-item-section>
           <q-item-section side>
             <hct-preview-circle
               :hue="perfs.themeHue"
@@ -396,7 +408,7 @@
           <q-item-section avatar>
             <q-icon name="sym_o_account_circle" />
           </q-item-section>
-          <q-item-section>{{ $t('settingsView.userAvatar') }}</q-item-section>
+          <q-item-section>{{ $t("settingsView.userAvatar") }}</q-item-section>
           <q-item-section
             side
             text-on-sur
@@ -410,10 +422,10 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>
-              {{ $t('settingsView.showWarnings') }}
+              {{ $t("settingsView.showWarnings") }}
             </q-item-label>
             <q-item-label caption>
-              {{ $t('settingsView.showWarningsCaption') }}
+              {{ $t("settingsView.showWarningsCaption") }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -424,7 +436,7 @@
           <q-item-section avatar>
             <q-icon name="sym_o_language" />
           </q-item-section>
-          <q-item-section>{{ $t('settingsView.language') }}</q-item-section>
+          <q-item-section>{{ $t("settingsView.language") }}</q-item-section>
           <q-item-section side>
             <q-select
               filled
@@ -445,7 +457,7 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                {{ $t('settingsView.theme') }}
+                {{ $t("settingsView.theme") }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -459,7 +471,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              {{ $t('settingsView.codeTheme') }}
+              {{ $t("settingsView.codeTheme") }}
             </q-item-section>
             <q-item-section side>
               <q-select
@@ -472,7 +484,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              {{ $t('settingsView.disableMermaid') }}
+              {{ $t("settingsView.disableMermaid") }}
             </q-item-section>
             <q-item-section side>
               <q-toggle v-model="perfs.mdNoMermaid" />
@@ -481,10 +493,10 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                {{ $t('settingsView.codeAutoFoldThreshold') }}
+                {{ $t("settingsView.codeAutoFoldThreshold") }}
               </q-item-label>
               <q-item-label caption>
-                {{ $t('settingsView.codeAutoFoldThresholdCaption') }}
+                {{ $t("settingsView.codeAutoFoldThresholdCaption") }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -504,7 +516,7 @@
           header
           id="ui"
         >
-          {{ $t('settingsView.dataHeader') }}
+          {{ $t("settingsView.dataHeader") }}
         </q-item-label>
         <q-item
           clickable
@@ -514,7 +526,9 @@
           <q-item-section avatar>
             <q-icon name="sym_o_restore" />
           </q-item-section>
-          <q-item-section>{{ $t('settingsView.restoreDefaultSettings') }}</q-item-section>
+          <q-item-section>
+            {{ $t("settingsView.restoreDefaultSettings") }}
+          </q-item-section>
           <q-item-section side>
             <q-icon name="sym_o_chevron_right" />
           </q-item-section>
@@ -530,34 +544,34 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
-import AAvatar from 'src/components/AAvatar.vue'
-import AuthzGrantModal from 'src/components/AuthzGrantModal.vue'
-import CopyBtn from 'src/components/CopyBtn.vue'
-import CosmosWallet from 'src/components/CosmosWallet.vue'
-import GetModelList from 'src/components/GetModelList.vue'
-import HctPreviewCircle from 'src/components/HctPreviewCircle.vue'
-import HueSliderDialog from 'src/components/HueSliderDialog.vue'
-import KeplerWallet from 'src/components/KeplerWallet.vue'
-import ModelDragSortDialog from 'src/components/ModelDragSortDialog.vue'
-import ModelInputItems from 'src/components/ModelInputItems.vue'
-import ModelsInput from 'src/components/ModelsInput.vue'
-import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
-import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
-import ProviderInputItems from 'src/components/ProviderInputItems.vue'
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
-import { useGetModel } from 'src/composables/get-model'
-import { useLocateId } from 'src/composables/locate-id'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { pageFhStyle } from 'src/utils/functions'
-import { localData } from 'src/utils/local-data'
-import { IsTauri } from 'src/utils/platform-api'
-import { dialogOptions, mdCodeThemes, mdPreviewThemes } from 'src/utils/values'
-import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '../stores/auth'
+import { useQuasar } from "quasar"
+import AAvatar from "src/components/AAvatar.vue"
+import AuthzGrantModal from "src/components/AuthzGrantModal.vue"
+import CopyBtn from "src/components/CopyBtn.vue"
+import CosmosWallet from "src/components/CosmosWallet.vue"
+import GetModelList from "src/components/GetModelList.vue"
+import HctPreviewCircle from "src/components/HctPreviewCircle.vue"
+import HueSliderDialog from "src/components/HueSliderDialog.vue"
+import KeplerWallet from "src/components/KeplerWallet.vue"
+import ModelDragSortDialog from "src/components/ModelDragSortDialog.vue"
+import ModelInputItems from "src/components/ModelInputItems.vue"
+import ModelsInput from "src/components/ModelsInput.vue"
+import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
+import PlatformEnabledInput from "src/components/PlatformEnabledInput.vue"
+import ProviderInputItems from "src/components/ProviderInputItems.vue"
+import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
+import { useGetModel } from "src/composables/get-model"
+import { useLocateId } from "src/composables/locate-id"
+import { useAuthStore } from "src/stores/auth"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { pageFhStyle } from "src/utils/functions"
+import { localData } from "src/utils/local-data"
+import { IsTauri } from "src/utils/platform-api"
+import { dialogOptions, mdCodeThemes, mdPreviewThemes } from "src/utils/values"
+import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
 
-defineEmits(['toggle-drawer'])
+defineEmits(["toggle-drawer"])
 
 const { t } = useI18n()
 
@@ -565,34 +579,44 @@ const isTauri = computed(() => IsTauri)
 
 const { data: perfs, restore } = useUserPerfsStore()
 const darkModeOptions = [
-  { label: t('settingsView.followSystem'), value: 'auto' },
-  { label: t('settingsView.light'), value: false },
-  { label: t('settingsView.dark'), value: true }
+  { label: t("settingsView.followSystem"), value: "auto" },
+  { label: t("settingsView.light"), value: false },
+  { label: t("settingsView.dark"), value: true },
 ]
 
 const $q = useQuasar()
-function pickThemeHue() {
+
+function pickThemeHue () {
   $q.dialog({
     component: HueSliderDialog,
-    componentProps: { value: perfs.themeHue }
-  }).onOk(hue => { perfs.themeHue = hue })
+    componentProps: { value: perfs.themeHue },
+  }).onOk((hue) => {
+    perfs.themeHue = hue
+  })
 }
-function pickUserAvatar() {
+
+function pickUserAvatar () {
   $q.dialog({
     component: PickAvatarDialog,
-    componentProps: { model: perfs.userAvatar, defaultTab: 'text' }
-  }).onOk(avatar => { perfs.userAvatar = avatar })
+    componentProps: { model: perfs.userAvatar, defaultTab: "text" },
+  }).onOk((avatar) => {
+    perfs.userAvatar = avatar
+  })
 }
-function restoreSettings() {
+
+function restoreSettings () {
   $q.dialog({
-    title: t('settingsView.restoreDefaultSettings'),
-    message: t('settingsView.restoreSettingsConfirmation'),
+    title: t("settingsView.restoreDefaultSettings"),
+    message: t("settingsView.restoreSettingsConfirmation"),
     cancel: true,
-    ...dialogOptions
-  }).onOk(() => { restore() })
+    ...dialogOptions,
+  }).onOk(() => {
+    restore()
+  })
 }
 const providerLink = computed(() => {
-  if (!perfs.provider) return ''
+  if (!perfs.provider) return ""
+
   return `${window.location.origin}/#/provider/${perfs.provider.settings.id}`
 })
 
@@ -600,40 +624,40 @@ const { getProvider } = useGetModel()
 const provider = computed(() => getProvider())
 
 const langOptions = [
-  { label: t('settingsView.auto'), value: null },
-  { label: 'English', value: 'en-US' },
-  { label: '简体中文', value: 'zh-CN' },
-  { label: '繁體中文', value: 'zh-TW' }
+  { label: t("settingsView.auto"), value: null },
+  { label: "English", value: "en-US" },
+  { label: "简体中文", value: "zh-CN" },
+  { label: "繁體中文", value: "zh-TW" },
 ]
 
-function sortModels() {
+function sortModels () {
   const models = perfs.commonModelOptions
   $q.dialog({
     component: ModelDragSortDialog,
     componentProps: { models },
     persistent: true,
-    ...dialogOptions
-  }).onOk(sortedModels => {
+    ...dialogOptions,
+  }).onOk((sortedModels) => {
     perfs.commonModelOptions = sortedModels
   })
 }
 
 useLocateId(ref(true))
 
-const showPinModal = ref(false)
+// const showPinModal = ref(false)
 const authStore = useAuthStore()
-const walletInfo = ref(authStore.walletInfo)
-const handlePinSubmit = async (pin: string) => {
-  walletInfo.value = await authStore.createGranteeWallet(pin)
-  showPinModal.value = false
-}
+// const walletInfo = ref(authStore.walletInfo)
+// const handlePinSubmit = async (pin: string) => {
+//   walletInfo.value = await authStore.createGranteeWallet(pin)
+//   showPinModal.value = false
+// }
 
 const showAuthzModal = ref(false)
 
 const handleAuthzSuccess = () => {
   $q.notify({
-    message: 'Authz grant setup completed successfully!',
-    color: 'positive'
+    message: "Authz grant setup completed successfully!",
+    color: "positive",
   })
 }
 </script>

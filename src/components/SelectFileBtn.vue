@@ -17,9 +17,9 @@
             cursor-pointer
           >
             <div text="xl center out">
-              {{ $t('selectFileBtn.clickToSelect') }}<br>
-              {{ $t('selectFileBtn.dragHere') }}<br>
-              {{ $t('selectFileBtn.paste') }}
+              {{ $t("selectFileBtn.clickToSelect") }}<br>
+              {{ $t("selectFileBtn.dragHere") }}<br>
+              {{ $t("selectFileBtn.paste") }}
             </div>
           </div>
         </q-card-section>
@@ -37,8 +37,8 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
-import { onUnmounted, ref } from 'vue'
+import { useQuasar } from "quasar"
+import { onUnmounted, ref } from "vue"
 
 const emit = defineEmits<{
   input: [File[]]
@@ -47,31 +47,36 @@ const show = ref(false)
 
 const fileInput = ref<HTMLInputElement>()
 
-function onInput() {
+function onInput () {
   if (fileInput.value.files.length) {
-    emit('input', Array.from(fileInput.value.files))
+    emit("input", Array.from(fileInput.value.files))
     show.value = false
   }
 }
-function onDrop({ dataTransfer }) {
+
+function onDrop ({ dataTransfer }) {
   if (dataTransfer.files.length) {
-    emit('input', Array.from(dataTransfer.files))
+    emit("input", Array.from(dataTransfer.files))
     show.value = false
   }
 }
-function onPaste(ev: ClipboardEvent) {
+
+function onPaste (ev: ClipboardEvent) {
   if (!show.value) return
+
   ev.stopPropagation()
+
   if (ev.clipboardData.files.length) {
-    emit('input', Array.from(ev.clipboardData.files))
+    emit("input", Array.from(ev.clipboardData.files))
     show.value = false
   }
 }
-addEventListener('paste', onPaste, true)
-onUnmounted(() => removeEventListener('paste', onPaste, true))
+addEventListener("paste", onPaste, true)
+onUnmounted(() => removeEventListener("paste", onPaste, true))
 
 const $q = useQuasar()
-function onClick() {
+
+function onClick () {
   if ($q.platform.is.desktop) {
     show.value = true
   } else {

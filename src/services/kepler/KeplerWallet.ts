@@ -1,58 +1,65 @@
-import type { OfflineAminoSigner, StdSignDoc } from '@cosmjs/amino'
-import { CosmWasmClient, SigningCosmWasmClient } from '@cosmjs/cosmwasm-stargate'
-import { GasPrice } from '@cosmjs/stargate'
-import { ref, watch } from 'vue'
-import { config } from '../constants'
-import type { KeplerWalletState, TxStatusResponse } from './types'
-import { parseTxStatus } from './utils'
+import type { OfflineAminoSigner, StdSignDoc } from "@cosmjs/amino"
+import {
+  CosmWasmClient,
+  SigningCosmWasmClient,
+} from "@cosmjs/cosmwasm-stargate"
+import { GasPrice } from "@cosmjs/stargate"
+import { ref, watch } from "vue"
+import { config } from "../constants"
+import type { KeplerWalletState, TxStatusResponse } from "./types"
+import { parseTxStatus } from "./utils"
 
 declare global {
   interface Window {
     keplr: {
-      experimentalSuggestChain: (chainInfo: any) => Promise<void>;
-      enable: (chainId: string) => Promise<void>;
-      getOfflineSigner: (chainId: string) => OfflineAminoSigner;
-    };
+      experimentalSuggestChain: (chainInfo: any) => Promise<void>
+      enable: (chainId: string) => Promise<void>
+      getOfflineSigner: (chainId: string) => OfflineAminoSigner
+    }
   }
 }
 
-export const STORAGE_KEY = 'kepler_wallet_state'
-export const CYBER_CONTRACT_ADDRESS = 'cyber14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9sjxkrqd'
+export const STORAGE_KEY = "kepler_wallet_state"
+export const CYBER_CONTRACT_ADDRESS =
+  "cyber14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9sjxkrqd"
 
 export const getLocalStorageWalletState = () => {
-  return typeof window !== 'undefined'
-    ? JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"isConnected": false, "address": null}')
+  return typeof window !== "undefined"
+    ? JSON.parse(
+      localStorage.getItem(STORAGE_KEY) ||
+          '{"isConnected": false, "address": null}'
+    )
     : { isConnected: false, address: null }
 }
 
 // Chain suggestion configuration for Keplr
 const CHAIN_INFO = {
   chainId: config.CHAIN_ID,
-  chainName: 'Cyber TESTNET',
+  chainName: "Cyber TESTNET",
   rpc: config.NODE_RPC_URL,
   rest: config.LCD_URL,
   bip44: {
-    coinType: 118
+    coinType: 118,
   },
   bech32Config: {
-    bech32PrefixAccAddr: 'cyber',
-    bech32PrefixAccPub: 'cyberpub',
-    bech32PrefixValAddr: 'cybervaloper',
-    bech32PrefixValPub: 'cybervaloperpub',
-    bech32PrefixConsAddr: 'cybervalcons',
-    bech32PrefixConsPub: 'cybervalconspub'
+    bech32PrefixAccAddr: "cyber",
+    bech32PrefixAccPub: "cyberpub",
+    bech32PrefixValAddr: "cybervaloper",
+    bech32PrefixValPub: "cybervaloperpub",
+    bech32PrefixConsAddr: "cybervalcons",
+    bech32PrefixConsPub: "cybervalconspub",
   },
   currencies: [
     {
       coinDenom: config.DENOM,
       coinMinimalDenom: config.DENOM.toLowerCase(),
-      coinDecimals: 6
+      coinDecimals: 6,
     },
     {
       coinDenom: config.FEE_DENOM,
       coinMinimalDenom: config.FEE_DENOM.toLowerCase(),
-      coinDecimals: 6
-    }
+      coinDecimals: 6,
+    },
   ],
   feeCurrencies: [
     {
@@ -62,25 +69,25 @@ const CHAIN_INFO = {
       gasPriceStep: {
         low: 0.1,
         average: 0.15,
-        high: 0.3
-      }
-    }
+        high: 0.3,
+      },
+    },
   ],
   stakeCurrency: {
     coinDenom: config.DENOM,
     coinMinimalDenom: config.DENOM.toLowerCase(),
-    coinDecimals: 6
-  }
+    coinDecimals: 6,
+  },
 }
 
-export function createKeplerWallet() {
+export function createKeplerWallet () {
   // Initialize state from localStorage if available
   const initialState: KeplerWalletState = getLocalStorageWalletState()
   const state = ref<KeplerWalletState>(initialState)
   const client = ref<CosmWasmClient | null>(null)
 
   // Initialize CosmWasmClient
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     CosmWasmClient.connect(config.NODE_RPC_URL)
       .then((cosmWasmClient) => {
         client.value = cosmWasmClient
@@ -89,16 +96,20 @@ export function createKeplerWallet() {
   }
 
   // Watch for state changes and save to localStorage
-  if (typeof window !== 'undefined') {
-    watch(state, (newState) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
-    }, { deep: true })
+  if (typeof window !== "undefined") {
+    watch(
+      state,
+      (newState) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState))
+      },
+      { deep: true }
+    )
   }
 
   const connect = async () => {
     try {
       if (!window.keplr) {
-        throw new Error('Keplr extension not installed')
+        throw new Error("Keplr extension not installed")
       }
 
       // Try to suggest the chain to Keplr
@@ -116,7 +127,7 @@ export function createKeplerWallet() {
 
       state.value = { ...state.value, isConnected: true, address }
     } catch (error) {
-      console.error('Failed to connect Kepler wallet:', error)
+      console.error("Failed to connect Kepler wallet:", error)
       throw error
     }
   }
@@ -128,8 +139,9 @@ export function createKeplerWallet() {
   const signTransaction = async (signDoc: StdSignDoc) => {
     try {
       if (!window.keplr) {
-        throw new Error('Keplr extension not installed')
+        throw new Error("Keplr extension not installed")
       }
+
       const offlineSigner = window.keplr.getOfflineSigner(config.CHAIN_ID)
       const accounts = await offlineSigner.getAccounts()
 
@@ -139,25 +151,27 @@ export function createKeplerWallet() {
         chain_id: config.CHAIN_ID,
         fee: {
           ...signDoc.fee,
-          amount: signDoc.fee.amount.map(coin => ({
+          amount: signDoc.fee.amount.map((coin) => ({
             ...coin,
-            denom: config.FEE_DENOM
-          }))
-        }
+            denom: config.FEE_DENOM,
+          })),
+        },
       }
 
       return await offlineSigner.signAmino(accounts[0].address, newSignDoc)
     } catch (error) {
-      console.error('Failed to sign transaction:', error)
+      console.error("Failed to sign transaction:", error)
       throw error
     }
   }
 
-  const executeTransaction = async (msg: Record<string, any>,
-    contractAddress: string = CYBER_CONTRACT_ADDRESS) => {
+  const executeTransaction = async (
+    msg: Record<string, any>,
+    contractAddress: string = CYBER_CONTRACT_ADDRESS
+  ) => {
     try {
       if (!window.keplr) {
-        throw new Error('Keplr extension not installed')
+        throw new Error("Keplr extension not installed")
       }
 
       // Get the offline signer
@@ -166,32 +180,37 @@ export function createKeplerWallet() {
       const sender = accounts[0]
 
       // Create signing client
-      const gasPrice = GasPrice.fromString(`${config.GAS_PRICE_AMOUNT}${config.FEE_DENOM}`)
+      const gasPrice = GasPrice.fromString(
+        `${config.GAS_PRICE_AMOUNT}${config.FEE_DENOM}`
+      )
       const signingClient = await SigningCosmWasmClient.connectWithSigner(
         config.NODE_RPC_URL,
         offlineSigner,
         { gasPrice }
       )
-      console.log('Signing client', sender.address, contractAddress, msg)
+      console.log("Signing client", sender.address, contractAddress, msg)
       // Execute transaction
       const result = await signingClient.execute(
         sender.address,
         contractAddress,
         msg,
-        'auto'
+        "auto"
       )
 
       return result
     } catch (error) {
-      console.error('Failed to execute transaction:', error)
+      console.error("Failed to execute transaction:", error)
       throw error
     }
   }
 
-  const getTx = async (transactionHash: string): Promise<TxStatusResponse | null> => {
+  const getTx = async (
+    transactionHash: string
+  ): Promise<TxStatusResponse | null> => {
     if (!client.value) {
-      throw new Error('CosmWasm client not initialized')
+      throw new Error("CosmWasm client not initialized")
     }
+
     const tx = await client.value.getTx(transactionHash)
 
     if (!tx) {
@@ -211,6 +230,7 @@ export function createKeplerWallet() {
     while (Date.now() - startTime < timeoutMs) {
       try {
         const result = await getTx(txHash)
+
         if (result) return result
       } catch (error) {
         console.error(`Error while polling transaction ${txHash}:`, error)
@@ -224,8 +244,9 @@ export function createKeplerWallet() {
 
   const getOfflineSigner = () => {
     if (!window.keplr) {
-      throw new Error('Keplr extension not installed')
+      throw new Error("Keplr extension not installed")
     }
+
     return window.keplr.getOfflineSigner(config.CHAIN_ID)
   }
 
@@ -236,7 +257,7 @@ export function createKeplerWallet() {
     signTransaction,
     executeTransaction,
     getTx: waitForTransaction,
-    getOfflineSigner
+    getOfflineSigner,
   }
 }
 

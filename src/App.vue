@@ -9,37 +9,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, provide, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useFirstVisit } from './composables/first-visit'
-import { useSetTheme } from './composables/set-theme'
-import { createCosmosSigner } from './services/cosmos/CosmosWallet'
-import { createKeplerWallet } from './services/kepler/KeplerWallet'
-import { IsTauri, IsWeb } from './utils/platform-api'
-import { checkUpdate, ready } from './utils/update'
 // import { createDbService } from './services/database/Db'
 
-import { until } from '@vueuse/core'
-import { storeToRefs } from 'pinia'
-import { useQuasar } from 'quasar'
-import { useUserStore } from 'src/stores/user'
-import { useI18n } from 'vue-i18n'
-import PinModal from './components/PinModal.vue'
-import { usePinModal } from './composables/use-pin-modal'
-import type { CosmosWallet } from './services/cosmos/CosmosWallet'
-import { EncryptionService } from './services/encryption/EncryptionService'
-import { useAssistantsStore } from './stores/assistants'
-import { useAuthStore } from './stores/auth'
-import { useChatMessagesStore } from './stores/chat-messages'
-import { useChatsStore } from './stores/chats'
-import { useDialogsStore } from './stores/dialogs'
-import { usePluginsStore } from './stores/plugins'
-import { getMnemonic } from './stores/tauri-store'
+import { until } from "@vueuse/core"
+import { storeToRefs } from "pinia"
+import { useQuasar } from "quasar"
+import { useUserStore } from "src/stores/user"
+import { computed, onMounted, provide, watch } from "vue"
+import { useI18n } from "vue-i18n"
+import { useRouter } from "vue-router"
+import PinModal from "./components/PinModal.vue"
+import { useFirstVisit } from "./composables/first-visit"
+import { useSetTheme } from "./composables/set-theme"
+import { usePinModal } from "./composables/use-pin-modal"
+import { createCosmosSigner } from "./services/cosmos/CosmosWallet"
+import type { CosmosWallet } from "./services/cosmos/CosmosWallet"
+import { EncryptionService } from "./services/encryption/EncryptionService"
+import { createKeplerWallet } from "./services/kepler/KeplerWallet"
+import { useAssistantsStore } from "./stores/assistants"
+import { useAuthStore } from "./stores/auth"
+import { useChatMessagesStore } from "./stores/chat-messages"
+import { useChatsStore } from "./stores/chats"
+import { useDialogsStore } from "./stores/dialogs"
+import { usePluginsStore } from "./stores/plugins"
+import { getMnemonic } from "./stores/tauri-store"
 
-import { useUserDataStore } from './stores/user-data'
-import { useUserPerfsStore } from './stores/user-perfs'
+import { useUserDataStore } from "./stores/user-data"
+import { useUserPerfsStore } from "./stores/user-perfs"
+import { IsTauri, IsWeb } from "./utils/platform-api"
+import { checkUpdate, ready } from "./utils/update"
 defineOptions({
-  name: 'App'
+  name: "App",
 })
 const { t } = useI18n()
 const $q = useQuasar()
@@ -56,21 +56,26 @@ const { isLoaded: pluginsLoaded } = storeToRefs(usePluginsStore())
 const { ready: perfsLoaded } = storeToRefs(useUserPerfsStore())
 const { ready: userDataLoaded } = storeToRefs(useUserDataStore())
 
-const isAppReady = computed(() =>
-  userInitialized.value &&
-  assistantsLoaded.value &&
-  chatsLoaded.value &&
-  dialogsLoaded.value &&
-  pluginsLoaded.value &&
-  perfsLoaded.value &&
-  userDataLoaded.value
+const isAppReady = computed(
+  () =>
+    userInitialized.value &&
+    assistantsLoaded.value &&
+    chatsLoaded.value &&
+    dialogsLoaded.value &&
+    pluginsLoaded.value &&
+    perfsLoaded.value &&
+    userDataLoaded.value
 )
 
-watch(isAppReady, (isReady) => {
-  if (isReady) {
-    $q.loading.hide()
-  }
-}, { immediate: true })
+watch(
+  isAppReady,
+  (isReady) => {
+    if (isReady) {
+      $q.loading.hide()
+    }
+  },
+  { immediate: true }
+)
 
 // Subscribes to chat messages
 useChatMessagesStore()
@@ -80,21 +85,23 @@ const { showPinModal, checkEncryptedMnemonic } = usePinModal()
 
 // Create and provide wallets
 const keplerWallet = createKeplerWallet()
-provide('kepler', keplerWallet)
+provide("kepler", keplerWallet)
 
 let cosmosWallet: CosmosWallet | null = null
+
 if (IsTauri) {
   cosmosWallet = createCosmosSigner()
-  provide('cosmos', cosmosWallet)
+  provide("cosmos", cosmosWallet)
 }
+
 // provide('db', createDbService())
 // Provide Kepler wallet
-provide('kepler', createKeplerWallet())
+provide("kepler", createKeplerWallet())
 
 useSetTheme()
 useFirstVisit()
 
-router.afterEach(to => {
+router.afterEach((to) => {
   if (to.meta.title) {
     document.title = `${to.meta.title} - AI as Workspace`
   }
@@ -104,12 +111,14 @@ router.afterEach(to => {
 router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
     await until(() => userInitialized.value).toBeTruthy()
+
     if (!userInitialized.value) {
       $q.notify({
-        message: t('common.pleaseLogin'),
-        color: 'negative'
+        message: t("common.pleaseLogin"),
+        color: "negative",
       })
-      return next('/')
+
+      return next("/")
     }
   }
 
@@ -119,14 +128,19 @@ router.beforeEach(async (to, from, next) => {
 const handlePinSubmit = async (pin: string) => {
   try {
     const authStore = useAuthStore()
+
     if (IsTauri) {
       if (!cosmosWallet) {
-        throw new Error('Cosmos wallet not initialized')
+        throw new Error("Cosmos wallet not initialized")
       }
 
       const encryptedMnemonic = await getMnemonic()
+
       if (encryptedMnemonic) {
-        const mnemonic = await EncryptionService.decryptMnemonic(encryptedMnemonic, pin)
+        const mnemonic = await EncryptionService.decryptMnemonic(
+          encryptedMnemonic,
+          pin
+        )
         await cosmosWallet.connectWithMnemonic(mnemonic, pin)
 
         // Initialize AuthStore: connect granter (CosmosWallet) and then grantee if info exists
@@ -145,23 +159,32 @@ const handlePinSubmit = async (pin: string) => {
         try {
           await keplerWallet.connect() // Ensure connection
           const keplerSigner = keplerWallet.getOfflineSigner()
+
           if (keplerSigner) {
             await authStore.connectWithExternalSigner(keplerSigner)
           } else {
-            throw new Error('Kepler signer not available after connect attempt.')
+            throw new Error(
+              "Kepler signer not available after connect attempt."
+            )
           }
         } catch (keplerError) {
-          console.error('[App] Kepler connection failed during PIN submit for Web:', keplerError)
+          console.error(
+            "[App] Kepler connection failed during PIN submit for Web:",
+            keplerError
+          )
           $q.notify({
-            message: 'Kepler connection failed. Please try connecting Kepler first.',
-            color: 'negative'
+            message:
+              "Kepler connection failed. Please try connecting Kepler first.",
+            color: "negative",
           })
+
           return // Stop if Kepler connection fails
         }
       }
 
       // Now, with granter (Kepler) signer in authStore, proceed with grantee connection if mnemonic exists.
       const encryptedMnemonic = authStore.walletInfo?.mnemonic
+
       if (encryptedMnemonic) {
         // connectGranteeWallet expects the encrypted mnemonic and PIN to derive the grantee signer.
         // authStore.initializeFromStorage could also be used if we consider this an initialization path.
@@ -170,16 +193,21 @@ const handlePinSubmit = async (pin: string) => {
       } else {
         // If no grantee mnemonic, PIN might have been for something else or flow is incorrect.
         // For now, we assume PIN here is primarily for grantee if one exists.
-        console.log('[App] PIN submitted on Web, but no encrypted grantee mnemonic found in authStore.')
+        console.log(
+          "[App] PIN submitted on Web, but no encrypted grantee mnemonic found in authStore."
+        )
       }
 
       showPinModal.value = false
     }
   } catch (error) {
-    console.error('[App] Error during PIN verification or wallet connection:', error)
+    console.error(
+      "[App] Error during PIN verification or wallet connection:",
+      error
+    )
     $q.notify({
-      message: 'Invalid PIN code',
-      color: 'negative'
+      message: "Invalid PIN code",
+      color: "negative",
     })
   }
 }
@@ -201,22 +229,30 @@ onMounted(async () => {
   if (IsWeb) {
     try {
       // Listen for Kepler account changes
-      window.addEventListener('keplr_keystorechange', async () => {
-        console.log('[App] Kepler keystore changed. Re-evaluating connection.')
+      window.addEventListener("keplr_keystorechange", async () => {
+        console.log("[App] Kepler keystore changed. Re-evaluating connection.")
         authStore.disconnect() // Disconnect current granter/grantee
-        if (window.keplr) { // Check if Keplr is still available
+
+        if (window.keplr) {
+          // Check if Keplr is still available
           try {
             await keplerWallet.connect() // Attempt to reconnect or get new account
             const signer = keplerWallet.getOfflineSigner()
+
             if (signer) {
               await authStore.connectWithExternalSigner(signer)
             }
           } catch (e) {
-            console.error('[App] Error reconnecting Kepler after keystore change:', e)
+            console.error(
+              "[App] Error reconnecting Kepler after keystore change:",
+              e
+            )
             authStore.setGranterSigner(null) // Ensure signer is cleared on error
           }
         } else {
-          console.log('[App] Kepler extension not available after keystore change.')
+          console.log(
+            "[App] Kepler extension not available after keystore change."
+          )
           authStore.setGranterSigner(null) // Clear signer if Keplr is gone
         }
       })
@@ -224,22 +260,28 @@ onMounted(async () => {
       // Initial connection attempt only if Keplr extension is detected
       if (window.keplr) {
         await keplerWallet.connect() // connect() will get signer and update its own state
+
         if (keplerWallet.state.value.isConnected) {
           const signer = keplerWallet.getOfflineSigner()
+
           if (signer) {
             await authStore.connectWithExternalSigner(signer)
-            console.log('[App] Kepler connected on mount, signer set in authStore.')
+            console.log(
+              "[App] Kepler connected on mount, signer set in authStore."
+            )
           }
         } else {
-          console.log('[App] Kepler failed to connect on mount or no accounts found.')
+          console.log(
+            "[App] Kepler failed to connect on mount or no accounts found."
+          )
           authStore.setGranterSigner(null) // Explicitly set to null if not connected
         }
       } else {
-        console.log('[App] Kepler extension not detected on mount.')
+        console.log("[App] Kepler extension not detected on mount.")
         authStore.setGranterSigner(null) // Ensure state reflects no Keplr
       }
     } catch (error) {
-      console.error('[App] Error initializing Kepler on mount:', error)
+      console.error("[App] Error initializing Kepler on mount:", error)
       authStore.setGranterSigner(null) // Ensure state reflects no connection
     }
   }
@@ -252,10 +294,9 @@ onMounted(async () => {
   // If PIN is submitted, initializeFromStorage will be called in handlePinSubmit.
   // No automatic connection here for Tauri based on stored mnemonic without PIN.
 
-  console.log('[App MOUNT] Initial authStore state:', authStore)
+  console.log("[App MOUNT] Initial authStore state:", authStore)
   // WalletService instance is stateless, no need to log it here for connection status.
   // console.log('[MOUNT] WALLET SERVICE', WalletService.getInstance())
   await userStore.init()
 })
-
 </script>

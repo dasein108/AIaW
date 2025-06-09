@@ -1,9 +1,7 @@
 <template>
-  <view-common-header
-    @toggle-drawer="$emit('toggle-drawer')"
-  >
+  <view-common-header @toggle-drawer="$emit('toggle-drawer')">
     <q-toolbar-title>
-      {{ $t('chatsPage.chatSettings') }}
+      {{ $t("chatsPage.chatSettings") }}
       <q-chip
         size="md"
         v-if="workspace"
@@ -39,7 +37,7 @@
       <q-list v-else-if="currentChat">
         <q-item>
           <q-item-section>
-            {{ $t('chatsPage.isPublic') }}
+            {{ $t("chatsPage.isPublic") }}
           </q-item-section>
           <q-item-section side>
             <q-toggle v-model="chatPublic" />
@@ -47,7 +45,7 @@
         </q-item>
         <q-item>
           <q-item-section>
-            {{ $t('chatsPage.name') }}
+            {{ $t("chatsPage.name") }}
           </q-item-section>
           <q-item-section>
             <q-input
@@ -61,7 +59,7 @@
         </q-item>
         <q-item>
           <q-item-section>
-            {{ $t('chatsPage.description') }}
+            {{ $t("chatsPage.description") }}
           </q-item-section>
           <q-item-section>
             <q-input
@@ -79,7 +77,7 @@
           @click="pickAvatar"
         >
           <q-item-section>
-            {{ $t('chatsPage.avatar') }}
+            {{ $t("chatsPage.avatar") }}
           </q-item-section>
           <q-item-section side>
             <a-avatar :avatar="chat.avatar" />
@@ -92,23 +90,21 @@
 </template>
 
 <script setup lang="ts">
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
+import { QPageContainer, QPage, useQuasar } from "quasar"
+import AAvatar from "src/components/AAvatar.vue"
+import NotificationPanel from "src/components/common/NotificationPanel.vue"
+import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
+import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
 
-import { QPageContainer, QPage, useQuasar } from 'quasar'
-import { pageFhStyle } from 'src/utils/functions'
-import { useChatsStore } from 'src/stores/chats'
-import { computed, ref, toRaw, toRef, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useWorkspacesStore } from 'src/stores/workspaces'
-import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
-import { syncRef } from 'src/composables/sync-ref'
-import AAvatar from 'src/components/AAvatar.vue'
-import NotificationPanel from 'src/components/common/NotificationPanel.vue'
-import { useIsChatAdmin } from 'src/composables/chats/useChatAdmin'
-const { t } = useI18n()
+import { useIsChatAdmin } from "src/composables/chats/useChatAdmin"
+import { syncRef } from "src/composables/sync-ref"
+import { useChatsStore } from "src/stores/chats"
+import { useWorkspacesStore } from "src/stores/workspaces"
+import { pageFhStyle } from "src/utils/functions"
+import { computed, ref, toRaw, watch } from "vue"
 const $q = useQuasar()
 
-defineEmits(['toggle-drawer'])
+defineEmits(["toggle-drawer"])
 
 const props = defineProps<{
   id: string
@@ -117,33 +113,41 @@ const props = defineProps<{
 const chatsStore = useChatsStore()
 const workspaceStore = useWorkspacesStore()
 
-const workspace = computed(() => workspaceStore.workspaces.find(workspace => workspace.id === chat.value?.workspace_id))
-const currentChat = computed(() => chatsStore.chats.find(chat => chat.id === props.id))
+const workspace = computed(() =>
+  workspaceStore.workspaces.find(
+    (workspace) => workspace.id === chat.value?.workspace_id
+  )
+)
+const currentChat = computed(() =>
+  chatsStore.chats.find((chat) => chat.id === props.id)
+)
 const isPageLoaded = computed(() => currentChat.value !== undefined)
 
 const { isAdmin } = useIsChatAdmin(currentChat)
 
 const chat = syncRef(
   currentChat,
-  val => { chatsStore.putItem(toRaw(val)) },
+  (val) => {
+    chatsStore.putItem(toRaw(val))
+  },
   { valueDeep: true }
 )
 
-const chatPublic = ref(chat.value?.type === 'workspace')
+const chatPublic = ref(chat.value?.type === "workspace")
 
 watch(chatPublic, (newVal) => {
   if (newVal) {
-    chatsStore.update(currentChat.value!.id, { type: 'workspace' })
+    chatsStore.update(currentChat.value!.id, { type: "workspace" })
   } else {
-    chatsStore.update(currentChat.value!.id, { type: 'group' })
+    chatsStore.update(currentChat.value!.id, { type: "group" })
   }
 })
 
-function pickAvatar() {
+function pickAvatar () {
   $q.dialog({
     component: PickAvatarDialog,
-    componentProps: { model: chat.value?.avatar, defaultTab: 'icon' }
-  }).onOk(avatar => {
+    componentProps: { model: chat.value?.avatar, defaultTab: "icon" },
+  }).onOk((avatar) => {
     chatsStore.update(currentChat.value!.id, { avatar })
   })
 }

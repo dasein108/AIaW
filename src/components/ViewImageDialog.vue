@@ -14,15 +14,13 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
+import { useDialogPluginComponent } from "quasar"
 
 defineProps<{
   url: string
 }>()
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent()
 </script>

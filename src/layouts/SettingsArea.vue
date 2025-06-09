@@ -6,9 +6,7 @@
     items-center
   >
     <dark-switch-btn />
-    <q-space
-      w-3
-    />
+    <q-space w-3 />
     <q-btn
       flat
       dense
@@ -32,7 +30,7 @@
                 <q-icon name="sym_o_robot_2" />
               </q-item-section>
               <q-item-section>
-                {{ t('mainLayout.assistants') }}
+                {{ t("mainLayout.assistants") }}
               </q-item-section>
             </q-item>
             <q-item
@@ -49,7 +47,7 @@
                 <q-icon name="sym_o_extension" />
               </q-item-section>
               <q-item-section>
-                {{ t('mainLayout.plugins') }}
+                {{ t("mainLayout.plugins") }}
               </q-item-section>
             </q-item>
             <q-item
@@ -66,7 +64,7 @@
                 <q-icon name="sym_o_settings" />
               </q-item-section>
               <q-item-section>
-                {{ t('mainLayout.settings') }}
+                {{ t("mainLayout.settings") }}
               </q-item-section>
             </q-item>
             <q-separator spaced />
@@ -122,13 +120,13 @@
 </template>
 
 <script setup>
-import AccountBtn from 'src/components/AccountBtn.vue'
-import DarkSwitchBtn from 'src/components/DarkSwitchBtn.vue'
-import MenuItem from 'src/components/MenuItem.vue'
-import { useI18n } from 'vue-i18n'
-import { IsWeb } from 'src/utils/platform-api'
-import { storeToRefs } from 'pinia'
-import { useUserStore } from 'src/stores/user'
+import { storeToRefs } from "pinia"
+import AccountBtn from "src/components/AccountBtn.vue"
+import DarkSwitchBtn from "src/components/DarkSwitchBtn.vue"
+import MenuItem from "src/components/MenuItem.vue"
+import { useUserStore } from "src/stores/user"
+import { IsWeb } from "src/utils/platform-api"
+import { useI18n } from "vue-i18n"
 
 const { isLoggedIn } = storeToRefs(useUserStore())
 

@@ -37,11 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
-import { PluginSchema } from '@lobehub/chat-plugin-sdk'
-import JsonInput from './JsonInput.vue'
-import { computed, ref } from 'vue'
-import { Schema, Validator } from '@cfworker/json-schema'
+import { Schema, Validator } from "@cfworker/json-schema"
+import { PluginSchema } from "@lobehub/chat-plugin-sdk"
+import { useDialogPluginComponent } from "quasar"
+import { computed, ref } from "vue"
+import JsonInput from "./JsonInput.vue"
 
 const props = defineProps<{
   title: string
@@ -50,11 +50,12 @@ const props = defineProps<{
 }>()
 
 const value = ref(props.model)
-const valid = computed(() => new Validator(props.schema as Schema).validate(value.value).valid)
+const valid = computed(
+  () => new Validator(props.schema as Schema).validate(value.value).valid
+)
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent()
 </script>

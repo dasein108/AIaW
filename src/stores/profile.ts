@@ -1,48 +1,68 @@
 /* eslint-disable camelcase */
-import { defineStore } from 'pinia'
-import { supabase } from 'src/services/supabase/client'
-import { ProfileMapped } from '@/services/supabase/types'
-import { computed, ref } from 'vue'
-import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
-import { throttle } from 'lodash'
-import { defaultTextAvatar } from 'src/utils/functions'
-import { useUserStore } from './user'
-import { Avatar } from 'src/utils/types'
+import { throttle } from "lodash"
+import { defineStore } from "pinia"
+import { useUserLoginCallback } from "src/composables/auth/useUserLoginCallback"
+import { supabase } from "src/services/supabase/client"
+import { defaultTextAvatar } from "src/utils/functions"
+import { Avatar } from "src/utils/types"
+import { computed, ref } from "vue"
+import { useUserStore } from "./user"
+import { ProfileMapped } from "@/services/supabase/types"
 
-function mapProfileTypes(item: any): ProfileMapped {
+function mapProfileTypes (item: any): ProfileMapped {
   const { avatar, ...rest } = item
+
   return {
     avatar: (avatar ?? defaultTextAvatar(item.name)) as Avatar,
-    ...rest
+    ...rest,
   } as ProfileMapped
 }
 
-export const useProfileStore = defineStore('profile', () => {
+export const useProfileStore = defineStore("profile", () => {
   const profiles = ref<Record<string, ProfileMapped>>({})
   const user = useUserStore()
   const myProfile = computed(() => profiles.value[user.currentUserId])
   const isInitialized = ref(false)
 
   const fetchProfiles = async () => {
-    const { data, error } = await supabase.from('profiles').select('*').throwOnError()
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .throwOnError()
+
     if (error) {
-      console.error('Error fetching profiles:', error)
+      console.error("Error fetching profiles:", error)
     }
-    profiles.value = data.reduce((acc, profile) => {
-      acc[profile.id] = mapProfileTypes(profile)
-      return acc
-    }, {} as Record<string, ProfileMapped>)
+
+    profiles.value = data.reduce(
+      (acc, profile) => {
+        acc[profile.id] = mapProfileTypes(profile)
+
+        return acc
+      },
+      {} as Record<string, ProfileMapped>
+    )
   }
 
   const fetchProfile = async (id: string) => {
     if (profiles.value[id]) {
       return profiles.value[id]
     }
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', id).select().single().throwOnError()
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", id)
+      .select()
+      .single()
+      .throwOnError()
+
     if (error) {
-      console.error('Error fetching profile:', error)
+      console.error("Error fetching profile:", error)
     }
+
     profiles.value[id] = mapProfileTypes(data)
+
     return profiles.value[id]
   }
 
@@ -54,21 +74,30 @@ export const useProfileStore = defineStore('profile', () => {
 
   useUserLoginCallback(init)
 
-  async function update(id: string, changes) {
-    const { data, error } = await supabase.from('profiles').update(changes).eq('id', id).select().single()
+  async function update (id: string, changes) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(changes)
+      .eq("id", id)
+      .select()
+      .single()
+
     if (error) {
-      console.error('Error updating profile:', error)
+      console.error("Error updating profile:", error)
+
       return null
     }
+
     profiles.value[id] = mapProfileTypes(data)
+
     return data
   }
 
-  const throttledUpdate = throttle(async(profile: ProfileMapped) => {
+  const throttledUpdate = throttle(async (profile: ProfileMapped) => {
     await update(profile.id, profile)
   }, 2000)
 
-  async function put(profile: ProfileMapped) {
+  async function put (profile: ProfileMapped) {
     if (profile.id) {
       return throttledUpdate(profile)
     }
@@ -81,6 +110,6 @@ export const useProfileStore = defineStore('profile', () => {
     fetchProfile,
     fetchProfiles,
     myProfile,
-    isInitialized
+    isInitialized,
   }
 })

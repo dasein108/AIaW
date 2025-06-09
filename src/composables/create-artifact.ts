@@ -1,27 +1,34 @@
-import { ArtifactMapped } from '@/services/supabase/types'
-import { Ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useArtifactsStore } from 'src/stores/artifacts'
-import { useUserDataStore } from 'src/stores/user-data'
-export function useCreateArtifact(workspaceId: Ref<string>) {
+import { useArtifactsStore } from "src/stores/artifacts"
+import { useUserDataStore } from "src/stores/user-data"
+import { Ref } from "vue"
+import { useRouter } from "vue-router"
+import { ArtifactMapped } from "@/services/supabase/types"
+export function useCreateArtifact (workspaceId: Ref<string>) {
   const router = useRouter()
   const artifactsStore = useArtifactsStore()
   const userDataStore = useUserDataStore()
-  async function createArtifact(props: Partial<ArtifactMapped> = {}) {
+
+  async function createArtifact (props: Partial<ArtifactMapped> = {}) {
     const artifact = await artifactsStore.add({
-      name: 'new_artifact',
-      versions: [{ date: new Date().toISOString(), text: '' }],
+      name: "new_artifact",
+      versions: [{ date: new Date().toISOString(), text: "" }],
       curr_index: 0,
       readable: true,
       writable: true,
       workspace_id: workspaceId.value,
-      tmp: '',
-      ...props
+      tmp: "",
+      ...props,
     })
     router.push({ query: { artifactId: artifact.id } })
     userDataStore.data.openedArtifacts.push(artifact.id)
-    console.log('created artifact', artifact, userDataStore.data.openedArtifacts)
+    console.log(
+      "created artifact",
+      artifact,
+      userDataStore.data.openedArtifacts
+    )
+
     return artifact.id
   }
+
   return { createArtifact }
 }

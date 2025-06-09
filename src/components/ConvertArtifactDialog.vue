@@ -6,7 +6,7 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          {{ $t('convertArtifactDialog.title') }}
+          {{ $t("convertArtifactDialog.title") }}
         </div>
       </q-card-section>
       <q-card-section
@@ -66,10 +66,10 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { ConvertArtifactOptions } from 'src/utils/types'
-import { ref } from 'vue'
+import { useDialogPluginComponent } from "quasar"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { ConvertArtifactOptions } from "src/utils/types"
+import { ref } from "vue"
 
 const props = defineProps<{
   lang: string
@@ -78,12 +78,11 @@ const props = defineProps<{
 const { data: perfs } = useUserPerfsStore()
 const options = ref<ConvertArtifactOptions>({
   lang: props.lang,
-  reserveOriginal: perfs.artifactsReserveOriginal
+  reserveOriginal: perfs.artifactsReserveOriginal,
 })
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent<ConvertArtifactOptions>()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent<ConvertArtifactOptions>()
 </script>

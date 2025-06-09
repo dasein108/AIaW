@@ -1,6 +1,6 @@
-import { boot } from 'quasar/wrappers'
-import AInput from 'src/components/global/AInput.js'
+import { boot } from "quasar/wrappers"
+import AInput from "src/components/global/AInput.js"
 
 export default boot(({ app }) => {
-  app.component('AInput', AInput)
+  app.component("AInput", AInput)
 })

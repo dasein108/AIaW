@@ -2,12 +2,12 @@
   <q-list>
     <q-item
       v-if="accept === 'folder'"
-      :class="{ 'route-active': !selected}"
+      :class="{ 'route-active': !selected }"
       clickable
       dense
       @click="selected = null"
     >
-      <q-item-section>[{{ $t('workspaceListSelect.root') }}]</q-item-section>
+      <q-item-section>[{{ $t("workspaceListSelect.root") }}]</q-item-section>
     </q-item>
     <workspace-list-item
       v-for="item in rootItems"
@@ -20,11 +20,11 @@
 </template>
 
 <script setup lang="ts">
-import WorkspaceListItem from './WorkspaceListItem.vue'
-import { useRootWorkspace } from '../composables/workspaces/useRootWorkspaces'
+import { useRootWorkspace } from "../composables/workspaces/useRootWorkspaces"
+import WorkspaceListItem from "./WorkspaceListItem.vue"
 
 defineProps<{
-  accept: 'workspace' | 'folder'
+  accept: "workspace" | "folder"
 }>()
 
 const selected = defineModel<string>()

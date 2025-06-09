@@ -8,7 +8,7 @@
         tip-key="mcp-stdio-platform"
         v-if="!IsTauri"
       >
-        {{ $t('addMcpPluginDialog.stdioPlatformTip') }}
+        {{ $t("addMcpPluginDialog.stdioPlatformTip") }}
       </a-tip>
       <q-card-section p-0>
         <q-tabs
@@ -42,10 +42,10 @@
               <q-item>
                 <q-item-section>
                   <q-item-label>
-                    {{ $t('addMcpPluginDialog.pluginName') }}
+                    {{ $t("addMcpPluginDialog.pluginName") }}
                   </q-item-label>
                   <q-item-label caption>
-                    {{ $t('addMcpPluginDialog.pluginNameCaption') }}
+                    {{ $t("addMcpPluginDialog.pluginNameCaption") }}
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -59,10 +59,10 @@
               <q-item>
                 <q-item-section>
                   <q-item-label>
-                    {{ $t('addMcpPluginDialog.command') }}
+                    {{ $t("addMcpPluginDialog.command") }}
                   </q-item-label>
                   <q-item-label caption>
-                    {{ $t('addMcpPluginDialog.commandCaption') }}
+                    {{ $t("addMcpPluginDialog.commandCaption") }}
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -76,10 +76,10 @@
               <q-item>
                 <q-item-section>
                   <q-item-label>
-                    {{ $t('addMcpPluginDialog.workDir') }}
+                    {{ $t("addMcpPluginDialog.workDir") }}
                   </q-item-label>
                   <q-item-label caption>
-                    {{ $t('addMcpPluginDialog.workDirCaption') }}
+                    {{ $t("addMcpPluginDialog.workDirCaption") }}
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -95,14 +95,14 @@
                 header
                 py-2
               >
-                {{ $t('addMcpPluginDialog.envVars') }}
+                {{ $t("addMcpPluginDialog.envVars") }}
               </q-item-label>
               <vars-input
                 v-model="stdioOptions.env"
                 :input-props="{
                   dense: true,
                   clearale: true,
-                  placeholder: $t('addMcpPluginDialog.inputVarsPlaceholder')
+                  placeholder: $t('addMcpPluginDialog.inputVarsPlaceholder'),
                 }"
               />
             </q-list>
@@ -116,10 +116,10 @@
               <q-item>
                 <q-item-section>
                   <q-item-label>
-                    {{ $t('addMcpPluginDialog.pluginName') }}
+                    {{ $t("addMcpPluginDialog.pluginName") }}
                   </q-item-label>
                   <q-item-label caption>
-                    {{ $t('addMcpPluginDialog.pluginNameCaption') }}
+                    {{ $t("addMcpPluginDialog.pluginNameCaption") }}
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -131,7 +131,7 @@
               </q-item>
               <q-item>
                 <q-item-section>
-                  {{ $t('addMcpPluginDialog.url') }}
+                  {{ $t("addMcpPluginDialog.url") }}
                 </q-item-section>
                 <q-item-section side>
                   <a-input
@@ -165,60 +165,68 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent, useQuasar } from 'quasar'
-import { computed, reactive, ref, toRaw } from 'vue'
-import VarsInput from 'src/components/VarsInput.vue'
-import { useInstallPlugin } from 'src/composables/install-plugin'
-import { McpPluginManifest } from 'src/utils/types'
-import { hash53 } from 'src/utils/functions'
-import { useI18n } from 'vue-i18n'
-import { IsTauri } from 'src/utils/platform-api'
-import ATip from './ATip.vue'
+import { useDialogPluginComponent, useQuasar } from "quasar"
+import VarsInput from "src/components/VarsInput.vue"
+import { useInstallPlugin } from "src/composables/install-plugin"
+import { hash53 } from "src/utils/functions"
+import { IsTauri } from "src/utils/platform-api"
+import { McpPluginManifest } from "src/utils/types"
+import { computed, reactive, ref, toRaw } from "vue"
+import { useI18n } from "vue-i18n"
+import ATip from "./ATip.vue"
 
 const { t } = useI18n()
 
-const type = ref<'stdio' | 'sse'>(IsTauri ? 'stdio' : 'sse')
-const title = ref('')
+const type = ref<"stdio" | "sse">(IsTauri ? "stdio" : "sse")
+const title = ref("")
 const stdioOptions = reactive({
-  command: '',
+  command: "",
   cwd: undefined,
-  env: {}
+  env: {},
 })
 const sseOptions = reactive({
-  url: ''
+  url: "",
 })
 
-const valid = computed(() => type.value === 'stdio' ? stdioOptions.command : sseOptions.url)
+const valid = computed(() =>
+  type.value === "stdio" ? stdioOptions.command : sseOptions.url
+)
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
 const loading = ref(false)
 const { install } = useInstallPlugin()
 const $q = useQuasar()
-function add() {
+
+function add () {
   loading.value = true
+
   if (!stdioOptions.cwd) delete stdioOptions.cwd
+
   const manifest: McpPluginManifest = {
-    id: hash53(type.value === 'stdio' ? stdioOptions.command : sseOptions.url),
+    id: hash53(type.value === "stdio" ? stdioOptions.command : sseOptions.url),
     title: title.value,
-    transport: type.value === 'stdio'
-      ? { type: 'stdio', ...toRaw(stdioOptions) }
-      : { type: 'sse', ...toRaw(sseOptions) }
+    transport:
+      type.value === "stdio"
+        ? { type: "stdio", ...toRaw(stdioOptions) }
+        : { type: "sse", ...toRaw(sseOptions) },
   }
-  install(manifest).then(() => {
-    onDialogOK()
-  }).catch(err => {
-    console.error(err)
-    $q.notify({
-      message: `${t('addMcpPluginDialog.installFailed')}: ${err.message}`,
-      color: 'negative'
+  install(manifest)
+    .then(() => {
+      onDialogOK()
     })
-  }).finally(() => {
-    loading.value = false
-  })
+    .catch((err) => {
+      console.error(err)
+      $q.notify({
+        message: `${t("addMcpPluginDialog.installFailed")}: ${err.message}`,
+        color: "negative",
+      })
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent()
 </script>

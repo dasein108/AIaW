@@ -28,9 +28,7 @@
         </div>
       </div>
     </div>
-    <div
-      min-w-0
-    >
+    <div min-w-0>
       <div
         position-relative
         :class="'min-h-24px min-w-100px'"
@@ -90,33 +88,35 @@
 </template>
 
 <script setup lang="ts">
-import { MdPreview } from 'md-editor-v3'
-import { computed, inject, reactive, ref } from 'vue'
-import { ApiResultItem, TextAvatar } from 'src/utils/types'
-import AAvatar from 'src/components/AAvatar.vue'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { copyToClipboard, useQuasar } from 'quasar'
-import { genId, textBeginning } from 'src/utils/functions'
-import { useMdPreviewProps } from 'src/composables/md-preview-props'
-import { ChatMessageWithProfile } from '@/services/supabase/types'
-import { useUserStore } from 'src/stores/user'
+import { MdPreview } from "md-editor-v3"
+import { copyToClipboard, useQuasar } from "quasar"
+import AAvatar from "src/components/AAvatar.vue"
+import { useMdPreviewProps } from "src/composables/md-preview-props"
+import { useUserStore } from "src/stores/user"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { genId } from "src/utils/functions"
+import { ApiResultItem, TextAvatar } from "src/utils/types"
+import { computed, reactive, ref } from "vue"
+import { ChatMessageWithProfile } from "@/services/supabase/types"
 
 const props = defineProps<{
-  message: ChatMessageWithProfile,
+  message: ChatMessageWithProfile
   scrollContainer: HTMLElement
 }>()
 
 const userStore = useUserStore()
-const isMine = computed(() => props.message.sender_id === userStore.currentUserId)
+const isMine = computed(
+  () => props.message.sender_id === userStore.currentUserId
+)
 const mdId = `md-${genId()}`
 
 const $q = useQuasar()
 
 const emit = defineEmits<{
-  send: [],
-  edit: [],
-  rendered: [],
-  delete: [],
+  send: []
+  edit: []
+  rendered: []
+  delete: []
   quote: [ApiResultItem]
   stream: [string]
 }>()
@@ -128,30 +128,34 @@ const colMode = computed(() => denseMode.value && !isMine.value)
 const avatar = computed(() =>
   isMine.value
     ? perfs.userAvatar
-    : { type: 'text', text: props.message.sender?.name.slice(0, 1), hue: 100 } as TextAvatar
+    : ({
+        type: "text",
+        text: props.message.sender?.name.slice(0, 1),
+        hue: 100,
+      } as TextAvatar)
 )
 
 // const router = useRouter()
-function onAvatarClick() {
-  console.log('onAvatarClick', props.message)
+function onAvatarClick () {
+  console.log("onAvatarClick", props.message)
 }
 
 const showFloatBtns = ref(false)
 const floatBtnStyle = reactive({
   top: undefined,
-  left: undefined
+  left: undefined,
 })
 const textDiv = ref()
 const selected = reactive({
   text: null,
-  original: false
+  original: false,
 })
 
-function quote(text: string) {
-  emit('quote', {
-    type: 'quote',
+function quote (text: string) {
+  emit("quote", {
+    type: "quote",
     name: `${props.message.sender?.name}`,
-    contentText: text
+    contentText: text,
   })
 }
 
@@ -160,7 +164,7 @@ const mdPreviewProps = useMdPreviewProps()
 
 <style lang="scss">
 .md-editor-preview-wrapper {
-  --at-apply: 'py-0';
+  --at-apply: "py-0";
 }
 .content-reasoning {
   code {

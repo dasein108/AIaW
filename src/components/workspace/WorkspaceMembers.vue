@@ -1,7 +1,7 @@
 <template>
   <div>
     <q-item-label header>
-      {{ $t('workspacePage.members') }}
+      {{ $t("workspacePage.members") }}
     </q-item-label>
     <q-item>
       <q-item-section avatar>
@@ -20,7 +20,6 @@
       <q-item>
         <q-item-section
           avatar
-
           class="row items-center justify-between"
         >
           <div>{{ member.profile.name }}</div>
@@ -48,12 +47,16 @@
 </template>
 
 <script setup lang="ts">
-import type { ProfileMapped, WorkspaceMember, WorkspaceMemberMapped, WorkspaceMemberRole } from '@/services/supabase/types'
-import { onMounted, ref } from 'vue'
-import { useWorkspacesStore } from 'src/stores/workspaces'
-import { useUserStore } from 'src/stores/user'
-import UserListDialog from 'src/components/chats/UserListDialog.vue'
-import { useQuasar } from 'quasar'
+import { useQuasar } from "quasar"
+import UserListDialog from "src/components/chats/UserListDialog.vue"
+import { useUserStore } from "src/stores/user"
+import { useWorkspacesStore } from "src/stores/workspaces"
+import { onMounted, ref } from "vue"
+import type {
+  ProfileMapped,
+  WorkspaceMemberMapped,
+  WorkspaceMemberRole,
+} from "@/services/supabase/types"
 
 const props = defineProps<{
   workspaceId: string
@@ -67,28 +70,37 @@ const showUserSelectDialog = () => {
   $q.dialog({
     component: UserListDialog,
     componentProps: {
-      currentUserId: userStore.currentUserId
-    }
+      currentUserId: userStore.currentUserId,
+    },
   }).onOk((user) => {
     onAddMember(user)
   })
 }
 const onUpdateMemberRole = async (member: WorkspaceMemberMapped) => {
-  await workspacesStore.updateWorkspaceMember(props.workspaceId, member.user_id, member.role as WorkspaceMemberRole)
+  await workspacesStore.updateWorkspaceMember(
+    props.workspaceId,
+    member.user_id,
+    member.role as WorkspaceMemberRole
+  )
 }
 
 const onRemoveMember = async (member: WorkspaceMemberMapped) => {
   await workspacesStore.removeWorkspaceMember(props.workspaceId, member.user_id)
-  members.value = members.value.filter(m => m.user_id !== member.user_id)
+  members.value = members.value.filter((m) => m.user_id !== member.user_id)
 }
 
 const onAddMember = async (user: ProfileMapped) => {
-  const member = await workspacesStore.addWorkspaceMember(props.workspaceId, user.id, 'member')
+  const member = await workspacesStore.addWorkspaceMember(
+    props.workspaceId,
+    user.id,
+    "member"
+  )
   members.value = [...members.value, member]
 }
 
 onMounted(async () => {
-  members.value = (await workspacesStore.getWorkspaceMembers(props.workspaceId)).filter(member => member.user_id !== userStore.currentUser.id)
+  members.value = (
+    await workspacesStore.getWorkspaceMembers(props.workspaceId)
+  ).filter((member) => member.user_id !== userStore.currentUser.id)
 })
-
 </script>

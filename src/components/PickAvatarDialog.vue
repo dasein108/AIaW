@@ -96,7 +96,9 @@
           mt-2
         >
           <q-item>
-            <q-item-section>{{ $t('pickAvatarDialog.preview') }}</q-item-section>
+            <q-item-section>
+              {{ $t("pickAvatarDialog.preview") }}
+            </q-item-section>
             <q-item-section
               side
               text-on-sur
@@ -108,7 +110,9 @@
             </q-item-section>
           </q-item>
           <q-item>
-            <q-item-section>{{ $t('pickAvatarDialog.showBackground') }}</q-item-section>
+            <q-item-section>
+              {{ $t("pickAvatarDialog.showBackground") }}
+            </q-item-section>
             <q-item-section side>
               <q-toggle
                 :model-value="typeof selected.hue === 'number'"
@@ -118,7 +122,7 @@
           </q-item>
           <q-item v-if="typeof selected.hue === 'number'">
             <q-item-section avatar>
-              {{ $t('pickAvatarDialog.backgroundColor') }}
+              {{ $t("pickAvatarDialog.backgroundColor") }}
             </q-item-section>
             <q-item-section>
               <hue-slider v-model="selected.hue" />
@@ -154,27 +158,25 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
-import { Avatar } from 'src/utils/types'
-import { ref, watch, toRaw } from 'vue'
-import AvatarPanel from './AvatarPanel.vue'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import AAvatar from './AAvatar.vue'
-import HueSlider from './HueSlider.vue'
-import ImageInputArea from './ImageInputArea.vue'
-import { genId } from 'src/utils/functions'
-import { cropSquareBlob } from 'src/utils/image-process'
-import { materialSymbols } from 'src/utils/values'
-import { useStorage } from 'src/composables/storage/useStorage'
+import { useDialogPluginComponent } from "quasar"
+import { useStorage } from "src/composables/storage/useStorage"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { genId } from "src/utils/functions"
+import { cropSquareBlob } from "src/utils/image-process"
+import { Avatar } from "src/utils/types"
+import { materialSymbols } from "src/utils/values"
+import { ref, toRaw } from "vue"
+import AAvatar from "./AAvatar.vue"
+import AvatarPanel from "./AvatarPanel.vue"
+import HueSlider from "./HueSlider.vue"
+import ImageInputArea from "./ImageInputArea.vue"
 
 const props = defineProps<{
-  defaultTab: string,
+  defaultTab: string
   model: Avatar
 }>()
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
 const tab = ref(props.defaultTab)
 
@@ -183,7 +185,7 @@ const storage = useStorage()
 const selected = ref<Avatar>({ ...props.model })
 const initialAvatar = toRaw(selected.value)
 
-function select(avatar: Avatar, addColor: boolean = false) {
+function select (avatar: Avatar, addColor: boolean = false) {
   if (addColor) {
     selected.value = { ...avatar, hue: perfs.themeHue }
   } else {
@@ -193,80 +195,88 @@ function select(avatar: Avatar, addColor: boolean = false) {
 
 const presetAvatars = {
   monoSvgs: [
-    { type: 'svg', name: 'openai' },
-    { type: 'svg', name: 'claude' },
-    { type: 'svg', name: 'gemini' },
-    { type: 'svg', name: 'qwen' },
-    { type: 'svg', name: 'grok' },
-    { type: 'svg', name: 'gemma' },
-    { type: 'svg', name: 'meta' },
-    { type: 'svg', name: 'mistral' },
-    { type: 'svg', name: 'deepseek' },
-    { type: 'svg', name: 'anthropic' },
-    { type: 'svg', name: 'google' },
-    { type: 'svg', name: 'alibaba' },
-    { type: 'svg', name: 'huggingface' },
-    { type: 'svg', name: 'aiaw' }
+    { type: "svg", name: "openai" },
+    { type: "svg", name: "claude" },
+    { type: "svg", name: "gemini" },
+    { type: "svg", name: "qwen" },
+    { type: "svg", name: "grok" },
+    { type: "svg", name: "gemma" },
+    { type: "svg", name: "meta" },
+    { type: "svg", name: "mistral" },
+    { type: "svg", name: "deepseek" },
+    { type: "svg", name: "anthropic" },
+    { type: "svg", name: "google" },
+    { type: "svg", name: "alibaba" },
+    { type: "svg", name: "huggingface" },
+    { type: "svg", name: "aiaw" },
   ] as Avatar[],
   colorSvgs: [
-    { type: 'svg', name: 'claude-c' },
-    { type: 'svg', name: 'gemini-c' },
-    { type: 'svg', name: 'qwen-c' },
-    { type: 'svg', name: 'gemma-c' },
-    { type: 'svg', name: 'meta-c' },
-    { type: 'svg', name: 'mistral-c' },
-    { type: 'svg', name: 'deepseek-c' },
-    { type: 'svg', name: 'google-c' },
-    { type: 'svg', name: 'alibaba-c' },
-    { type: 'svg', name: 'huggingface-c' },
-    { type: 'svg', name: 'microsoft-c' },
-    { type: 'svg', name: 'togetherai-c' },
-    { type: 'svg', name: 'cohere-c' }
+    { type: "svg", name: "claude-c" },
+    { type: "svg", name: "gemini-c" },
+    { type: "svg", name: "qwen-c" },
+    { type: "svg", name: "gemma-c" },
+    { type: "svg", name: "meta-c" },
+    { type: "svg", name: "mistral-c" },
+    { type: "svg", name: "deepseek-c" },
+    { type: "svg", name: "google-c" },
+    { type: "svg", name: "alibaba-c" },
+    { type: "svg", name: "huggingface-c" },
+    { type: "svg", name: "microsoft-c" },
+    { type: "svg", name: "togetherai-c" },
+    { type: "svg", name: "cohere-c" },
   ] as Avatar[],
   definitelyAIs: [
-    { type: 'url', url: '/ai-avatars/alice.webp', title: 'AL-1S' },
-    { type: 'url', url: '/ai-avatars/arona.webp', title: 'Arona' },
-    { type: 'url', url: '/ai-avatars/ptilopsis.webp', title: '白面鸮' },
-    { type: 'url', url: '/ai-avatars/atri.webp', title: 'ATRI' },
-    { type: 'url', url: '/ai-avatars/glados.webp', title: 'GLaDOS' },
-    { type: 'url', url: '/ai-avatars/neuro.webp', title: 'Neuro' },
-    { type: 'url', url: '/ai-avatars/evil.webp', title: 'Evil' },
-    { type: 'url', url: '/ai-avatars/win11.webp', title: 'Win11' },
-    { type: 'url', url: '/ai-avatars/delamain.webp', title: 'Delamain' },
-    { type: 'svg', name: 'aperture', title: 'Aperture' },
-    { type: 'url', url: '/ai-avatars/cyberlife.png', title: 'CyberLife' },
-    { type: 'url', url: '/ai-avatars/android.webp', title: 'Android' },
-    { type: 'url', url: '/ai-avatars/detroit.webp', title: 'Detroit' },
-    { type: 'url', url: '/ai-avatars/33.avif', title: '33' }
+    { type: "url", url: "/ai-avatars/alice.webp", title: "AL-1S" },
+    { type: "url", url: "/ai-avatars/arona.webp", title: "Arona" },
+    { type: "url", url: "/ai-avatars/ptilopsis.webp", title: "白面鸮" },
+    { type: "url", url: "/ai-avatars/atri.webp", title: "ATRI" },
+    { type: "url", url: "/ai-avatars/glados.webp", title: "GLaDOS" },
+    { type: "url", url: "/ai-avatars/neuro.webp", title: "Neuro" },
+    { type: "url", url: "/ai-avatars/evil.webp", title: "Evil" },
+    { type: "url", url: "/ai-avatars/win11.webp", title: "Win11" },
+    { type: "url", url: "/ai-avatars/delamain.webp", title: "Delamain" },
+    { type: "svg", name: "aperture", title: "Aperture" },
+    { type: "url", url: "/ai-avatars/cyberlife.png", title: "CyberLife" },
+    { type: "url", url: "/ai-avatars/android.webp", title: "Android" },
+    { type: "url", url: "/ai-avatars/detroit.webp", title: "Detroit" },
+    { type: "url", url: "/ai-avatars/33.avif", title: "33" },
   ] as Avatar[],
-  icons: materialSymbols.map(icon => ({ type: 'icon', icon: `sym_o_${icon}`, title: icon })) as Avatar[]
+  icons: materialSymbols.map((icon) => ({
+    type: "icon",
+    icon: `sym_o_${icon}`,
+    title: icon,
+  })) as Avatar[],
 }
 
-function toggleHue(value: boolean) {
+function toggleHue (value: boolean) {
   selected.value.hue = value ? perfs.themeHue : undefined
 }
-function setText(text: string) {
-  selected.value = { type: 'text', text, hue: perfs.themeHue }
+
+function setText (text: string) {
+  selected.value = { type: "text", text, hue: perfs.themeHue }
 }
-async function prunePreviousFile() {
-  if (initialAvatar.type === 'image') {
+
+async function prunePreviousFile () {
+  if (initialAvatar.type === "image") {
     await storage.deleteFile(initialAvatar.imageId)
   }
 }
-async function onImageInput(file: File) {
+
+async function onImageInput (file: File) {
   const blob = await cropSquareBlob(file, 96)
-  const ext = file.name.split('.').pop() || 'png'
+  const ext = file.name.split(".").pop() || "png"
 
   const id = genId()
   const newFile = new File([blob], `${id}.${ext}`, { type: file.type })
   const path = await storage.uploadFile(newFile)
-  selected.value = { type: 'image', imageId: path }
+  selected.value = { type: "image", imageId: path }
 }
 
-async function onConfirm() {
+async function onConfirm () {
   await prunePreviousFile()
   onDialogOK(toRaw(selected.value))
 }
 
-const { dialogRef, onDialogCancel, onDialogHide, onDialogOK } = useDialogPluginComponent()
+const { dialogRef, onDialogCancel, onDialogHide, onDialogOK } =
+  useDialogPluginComponent()
 </script>

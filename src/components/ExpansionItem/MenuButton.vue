@@ -9,14 +9,14 @@
 </template>
 
 <script setup lang="ts">
-import { QMenu } from 'quasar'
-import { Ref } from 'vue'
+import { QMenu } from "quasar"
+import { Ref } from "vue"
 
 const props = defineProps<{
   menuRef: Ref<QMenu | null>
 }>()
 
-function showMenu(e: Event) {
+function showMenu (e: Event) {
   props.menuRef?.value?.show(e)
 }
 </script>

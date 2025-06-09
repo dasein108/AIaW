@@ -3,9 +3,9 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
-import { configure } from 'quasar/wrappers'
-import { fileURLToPath } from 'node:url'
 import { copyFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { configure } from 'quasar/wrappers'
 
 export default configure((ctx) => {
   return {

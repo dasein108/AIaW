@@ -35,17 +35,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import DialogList from 'src/components/DialogList.vue'
-import ChatList from 'src/components/chats/ChatList.vue'
-import { useActiveWorkspace } from 'src/composables/workspaces/useActiveWorkspace'
+import ChatList from "src/components/chats/ChatList.vue"
+import DialogList from "src/components/DialogList.vue"
+import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
+import { computed, ref } from "vue"
 
 const { workspace } = useActiveWorkspace()
 const workspaceId = computed(() => workspace.value?.id as string)
 
-const tabs = ref(['chats', 'dialogs'])
-
-const activeTab = ref('dialogs')
-
+const activeTab = ref("dialogs")
 </script>

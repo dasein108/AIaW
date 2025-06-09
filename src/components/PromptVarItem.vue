@@ -49,7 +49,7 @@
         v-model="model.default"
         :input-props="{
           dense: true,
-          filled: true
+          filled: true,
         }"
         class="prompt-var-input-item"
         component="input"
@@ -68,21 +68,21 @@
 </template>
 
 <script setup lang="ts">
-import { PromptVar } from 'src/utils/types'
-import PromptVarInput from './PromptVarInput.vue'
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
+import { PromptVar } from "src/utils/types"
+import { computed } from "vue"
+import { useI18n } from "vue-i18n"
+import PromptVarInput from "./PromptVarInput.vue"
 
 const model = defineModel<PromptVar>()
 
-defineEmits(['remove'])
+defineEmits(["remove"])
 const { t } = useI18n()
 const options = computed(() => [
-  { label: t('promptVarItem.text'), value: 'text' },
-  { label: t('promptVarItem.number'), value: 'number' },
-  { label: t('promptVarItem.toggle'), value: 'toggle' },
-  { label: t('promptVarItem.select'), value: 'select' },
-  { label: t('promptVarItem.multiSelect'), value: 'multi-select' }
+  { label: t("promptVarItem.text"), value: "text" },
+  { label: t("promptVarItem.number"), value: "number" },
+  { label: t("promptVarItem.toggle"), value: "toggle" },
+  { label: t("promptVarItem.select"), value: "select" },
+  { label: t("promptVarItem.multiSelect"), value: "multi-select" },
 ])
 </script>
 <style lang="scss">

@@ -33,9 +33,7 @@
     p-2
   >
     <div>
-      <div
-        text-out
-      >
+      <div text-out>
         {{ artifact.versions[artifact.curr_index].date.toLocaleString() }}
       </div>
       <q-pagination
@@ -98,46 +96,53 @@
 </template>
 
 <script setup lang="ts">
-import CodeJar from 'src/components/CodeJar.vue'
-import { useListenKey } from 'src/composables/listen-key'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { artifactUnsaved, saveArtifactChanges } from 'src/utils/functions'
-import { ArtifactMapped } from '@/services/supabase/types'
-import { computed, ref, toRef, watchEffect } from 'vue'
-import { useMdPreviewProps } from 'src/composables/md-preview-props'
-import { MdPreview } from 'md-editor-v3'
-import { useArtifactsStore } from 'src/stores/artifacts'
+import { MdPreview } from "md-editor-v3"
+import CodeJar from "src/components/CodeJar.vue"
+import { useListenKey } from "src/composables/listen-key"
+import { useMdPreviewProps } from "src/composables/md-preview-props"
+import { useArtifactsStore } from "src/stores/artifacts"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { artifactUnsaved, saveArtifactChanges } from "src/utils/functions"
+import { computed, ref, toRef, watchEffect } from "vue"
+import { ArtifactMapped } from "@/services/supabase/types"
 
 const props = defineProps<{
   artifact: ArtifactMapped
 }>()
 
 const artifactsStore = useArtifactsStore()
-function update(changes: Partial<ArtifactMapped>) {
+
+function update (changes: Partial<ArtifactMapped>) {
   artifactsStore.update({
     ...changes,
     id: props.artifact.id,
-    workspace_id: props.artifact.workspace_id
+    workspace_id: props.artifact.workspace_id,
   })
 }
-function setIndex(index: number) {
+
+function setIndex (index: number) {
   update({
     curr_index: index,
-    tmp: props.artifact.versions[index].text
+    tmp: props.artifact.versions[index].text,
   })
 }
-function save() {
+
+function save () {
   const { artifact } = props
+
   if (!artifactUnsaved(artifact)) return
+
   artifactsStore.update(saveArtifactChanges(artifact))
 }
 const { data: perfs } = useUserPerfsStore()
-useListenKey(toRef(perfs, 'saveArtifactKey'), save)
+useListenKey(toRef(perfs, "saveArtifactKey"), save)
 
-const mode = ref<'edit' | 'view'>('edit')
-const viewable = computed(() => ['markdown', 'md', 'svg', 'txt'].includes(props.artifact.language))
+const mode = ref<"edit" | "view">("edit")
+const viewable = computed(() =>
+  ["markdown", "md", "svg", "txt"].includes(props.artifact.language)
+)
 watchEffect(() => {
-  mode.value = viewable.value ? 'view' : 'edit'
+  mode.value = viewable.value ? "view" : "edit"
 })
 
 const mdPreviewProps = useMdPreviewProps()

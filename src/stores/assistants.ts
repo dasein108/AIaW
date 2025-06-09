@@ -1,32 +1,35 @@
 /* eslint-disable camelcase */
-import { defineStore } from 'pinia'
-import { defaultModelSettings } from 'src/common/consts'
-import { defaultAvatar, defaultTextAvatar } from 'src/utils/functions'
-import { AssistantDefaultPrompt } from 'src/utils/templates'
-import { useI18n } from 'vue-i18n'
-import { supabase } from 'src/services/supabase/client'
-import { AssistantMapped, Assistant } from '@/services/supabase/types'
-import { ref } from 'vue'
-import { useUserLoginCallback } from 'src/composables/auth/useUserLoginCallback'
-import { throttle } from 'lodash'
+import { throttle } from "lodash"
+import { defineStore } from "pinia"
+import { defaultModelSettings } from "src/common/consts"
+import { useUserLoginCallback } from "src/composables/auth/useUserLoginCallback"
+import { supabase } from "src/services/supabase/client"
+import { defaultAvatar, defaultTextAvatar } from "src/utils/functions"
+import { AssistantDefaultPrompt } from "src/utils/templates"
+import { ref } from "vue"
+import { useI18n } from "vue-i18n"
+import { AssistantMapped, Assistant } from "@/services/supabase/types"
 
-function mapAssistantTypes(item: Assistant): AssistantMapped {
+function mapAssistantTypes (item: Assistant): AssistantMapped {
   const { avatar, ...rest } = item
+
   return {
-    avatar: (avatar ?? defaultTextAvatar(item.name)),
-    ...rest
+    avatar: avatar ?? defaultTextAvatar(item.name),
+    ...rest,
   } as AssistantMapped
 }
 
-export const useAssistantsStore = defineStore('assistants', () => {
+export const useAssistantsStore = defineStore("assistants", () => {
   const assistants = ref<AssistantMapped[]>([])
   const isLoaded = ref(false)
   const fetchAssistants = async () => {
-    const { data, error } = await supabase.from('user_assistants').select('*')
+    const { data, error } = await supabase.from("user_assistants").select("*")
+
     if (error) {
-      console.error('Error fetching assistants:', error)
+      console.error("Error fetching assistants:", error)
     }
-    console.log('[DEBUG] Fetch assistants', data)
+
+    console.log("[DEBUG] Fetch assistants", data)
 
     assistants.value = data.map(mapAssistantTypes)
     isLoaded.value = true
@@ -41,37 +44,55 @@ export const useAssistantsStore = defineStore('assistants', () => {
   useUserLoginCallback(init)
 
   const { t } = useI18n()
-  async function add(props: Partial<Assistant> = {}) {
-    const { data, error } = await supabase.from('user_assistants').insert({
-      name: t('stores.assistants.newAssistant'),
-      avatar: defaultAvatar('AI'),
-      workspace_id: null,
-      prompt: '',
-      prompt_template: AssistantDefaultPrompt,
-      prompt_vars: [],
-      provider: null,
-      model: null,
-      model_settings: { ...defaultModelSettings },
-      plugins: {},
-      prompt_role: 'system',
-      stream: true,
-      ...props
-    }).select().single()
+
+  async function add (props: Partial<Assistant> = {}) {
+    const { data, error } = await supabase
+      .from("user_assistants")
+      .insert({
+        name: t("stores.assistants.newAssistant"),
+        avatar: defaultAvatar("AI"),
+        workspace_id: null,
+        prompt: "",
+        prompt_template: AssistantDefaultPrompt,
+        prompt_vars: [],
+        provider: null,
+        model: null,
+        model_settings: { ...defaultModelSettings },
+        plugins: {},
+        prompt_role: "system",
+        stream: true,
+        ...props,
+      })
+      .select()
+      .single()
 
     if (error) {
-      console.error('Error adding assistant:', error)
+      console.error("Error adding assistant:", error)
     }
+
     assistants.value.push(mapAssistantTypes(data))
+
     return data
   }
 
-  async function update(id: string, changes) {
-    const { data, error } = await supabase.from('user_assistants').update(changes).eq('id', id).select().single()
+  async function update (id: string, changes) {
+    const { data, error } = await supabase
+      .from("user_assistants")
+      .update(changes)
+      .eq("id", id)
+      .select()
+      .single()
+
     if (error) {
-      console.error('Error updating assistant:', error)
+      console.error("Error updating assistant:", error)
+
       return null
     }
-    assistants.value = assistants.value.map(a => a.id === id ? mapAssistantTypes(data) : a)
+
+    assistants.value = assistants.value.map((a) =>
+      a.id === id ? mapAssistantTypes(data) : a
+    )
+
     return data
   }
 
@@ -79,20 +100,29 @@ export const useAssistantsStore = defineStore('assistants', () => {
     await update(assistant.id, assistant)
   }, 2000)
 
-  async function put(assistant: Assistant) {
+  async function put (assistant: Assistant) {
     if (assistant.id) {
       return throttledUpdate(assistant)
     }
+
     return add(assistant)
   }
 
-  async function delete_(id: string) {
-    const { data, error } = await supabase.from('user_assistants').delete().eq('id', id).select().single()
+  async function delete_ (id: string) {
+    const { error } = await supabase
+      .from("user_assistants")
+      .delete()
+      .eq("id", id)
+      .select()
+      .single()
+
     if (error) {
-      console.error('Error deleting assistant:', error)
+      console.error("Error deleting assistant:", error)
+
       return null
     }
-    assistants.value = assistants.value.filter(a => a.id !== id)
+
+    assistants.value = assistants.value.filter((a) => a.id !== id)
   }
 
   return {
@@ -102,6 +132,6 @@ export const useAssistantsStore = defineStore('assistants', () => {
     update,
     put,
     delete: delete_,
-    isLoaded
+    isLoaded,
   }
 })

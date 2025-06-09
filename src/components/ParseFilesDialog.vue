@@ -6,7 +6,7 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          {{ $t('parseFilesDialog.parseFiles') }}
+          {{ $t("parseFilesDialog.parseFiles") }}
         </div>
       </q-card-section>
       <q-card-section :class="{ 'px-0': $q.screen.xs }">
@@ -71,7 +71,7 @@
                 v-else
                 text-err
               >
-                {{ $t('parseFilesDialog.noParserAvailable') }}
+                {{ $t("parseFilesDialog.noParserAvailable") }}
               </div>
             </q-item-section>
           </q-item>
@@ -88,7 +88,7 @@
           flat
           color="primary"
           :loading="loading"
-          :disable="!selected.some(x => x)"
+          :disable="!selected.some((x) => x)"
           :label="$t('parseFilesDialog.parse')"
           @click="parse"
         />
@@ -98,11 +98,11 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent, useQuasar } from 'quasar'
-import { usePluginsStore } from 'src/stores/plugins'
-import { mimeTypeMatch } from 'src/utils/functions'
-import { computed, reactive, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { useDialogPluginComponent, useQuasar } from "quasar"
+import { usePluginsStore } from "src/stores/plugins"
+import { mimeTypeMatch } from "src/utils/functions"
+import { computed, reactive, ref } from "vue"
+import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()
 
@@ -110,67 +110,87 @@ const props = defineProps<{
   files: File[]
 }>()
 
-defineEmits([
-  ...useDialogPluginComponent.emits
-])
+defineEmits([...useDialogPluginComponent.emits])
 
 const pluginsStore = usePluginsStore()
 const fileparsers = computed(() => {
   const val = []
-  pluginsStore.plugins.filter(p => p.available).forEach(p => {
-    const data = pluginsStore.data[p.id]
-    p.fileparsers.forEach(fp => {
-      data.fileparsers[fp.name].enabled && val.push({
-        id: `${p.id}-${fp.name}`,
-        pluginTitle: p.title,
-        name: fp.name,
-        mimeTypes: data.fileparsers[fp.name].mimeTypes,
-        rangeInput: fp.rangeInput,
-        execute: fp.execute,
-        settings: data.settings,
-        avatar: data.avatar
+  pluginsStore.plugins
+    .filter((p) => p.available)
+    .forEach((p) => {
+      const data = pluginsStore.data[p.id]
+      p.fileparsers.forEach((fp) => {
+        data.fileparsers[fp.name].enabled &&
+          val.push({
+            id: `${p.id}-${fp.name}`,
+            pluginTitle: p.title,
+            name: fp.name,
+            mimeTypes: data.fileparsers[fp.name].mimeTypes,
+            rangeInput: fp.rangeInput,
+            execute: fp.execute,
+            settings: data.settings,
+            avatar: data.avatar,
+          })
       })
     })
-  })
+
   return val
 })
-const allOptions = computed(() => props.files.map(file => {
-  return fileparsers.value.filter(fp => mimeTypeMatch(file.type, fp.mimeTypes)).map(fp => ({
-    label: fp.pluginTitle,
-    value: fp.id,
-    avatar: fp.avatar,
-    caption: fp.name,
-    rangeInput: fp.rangeInput
-  }))
-}
-))
+const allOptions = computed(() =>
+  props.files.map((file) => {
+    return fileparsers.value
+      .filter((fp) => mimeTypeMatch(file.type, fp.mimeTypes))
+      .map((fp) => ({
+        label: fp.pluginTitle,
+        value: fp.id,
+        avatar: fp.avatar,
+        caption: fp.name,
+        rangeInput: fp.rangeInput,
+      }))
+  })
+)
 
 const loading = ref(false)
 const $q = useQuasar()
-async function parse() {
+
+async function parse () {
   loading.value = true
-  const results = await Promise.all(selected.map(async ({ value }, index) => {
-    if (!value) return []
-    const file = props.files[index]
-    const fp = fileparsers.value.find(fp => fp.id === value)
-    try {
-      const result = await fp.execute({ file, range: ranges[index] }, fp.settings)
-      return result.map(r => ({ ...r, name: file.name }))
-    } catch (e) {
-      console.error(e)
-      $q.notify({
-        message: t('parseFilesDialog.parseFailed', { file: file.name, error: e }),
-        color: 'negative'
-      })
-      return []
-    }
-  }))
+  const results = await Promise.all(
+    selected.map(async ({ value }, index) => {
+      if (!value) return []
+
+      const file = props.files[index]
+      const fp = fileparsers.value.find((fp) => fp.id === value)
+      try {
+        const result = await fp.execute(
+          { file, range: ranges[index] },
+          fp.settings
+        )
+
+        return result.map((r) => ({ ...r, name: file.name }))
+      } catch (e) {
+        console.error(e)
+        $q.notify({
+          message: t("parseFilesDialog.parseFailed", {
+            file: file.name,
+            error: e,
+          }),
+          color: "negative",
+        })
+
+        return []
+      }
+    })
+  )
   loading.value = false
   onDialogOK(results.flat())
 }
 
 const ranges = reactive(props.files.map(() => null))
-const selected = reactive(props.files.map((val, index) => allOptions.value[index][0]))
+const selected = reactive(
+  props.files.map((val, index) => allOptions.value[index][0])
+)
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent()
 </script>

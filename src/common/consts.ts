@@ -4,5 +4,5 @@ export const defaultModelSettings = {
   presencePenalty: 0,
   frequencyPenalty: 0,
   maxSteps: 4,
-  maxRetries: 1
+  maxRetries: 1,
 }

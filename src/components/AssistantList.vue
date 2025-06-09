@@ -20,32 +20,39 @@
       <q-icon name="sym_o_add" />
     </q-item-section>
     <q-item-section>
-      {{ $t('assistantsExpansion.createAssistant') }}
+      {{ $t("assistantsExpansion.createAssistant") }}
     </q-item-section>
   </q-item>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useAssistantsStore } from 'src/stores/assistants'
-import { useRouter } from 'vue-router'
-import { defaultAvatar } from 'src/utils/functions'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import AssistantListItem from './AssistantListItem.vue'
+import { storeToRefs } from "pinia"
+import { useAssistantsStore } from "src/stores/assistants"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import { defaultAvatar } from "src/utils/functions"
+import { computed } from "vue"
+import { useRouter } from "vue-router"
+import AssistantListItem from "./AssistantListItem.vue"
 
 const { workspaceId } = defineProps<{ workspaceId: string }>()
 const assistantsStore = useAssistantsStore()
 const { data: perfs } = storeToRefs(useUserPerfsStore())
-const assistants = computed(() => assistantsStore.assistants.filter(a => a.workspace_id === workspaceId || a.workspace_id == null))
+const assistants = computed(() =>
+  assistantsStore.assistants.filter(
+    (a) => a.workspace_id === workspaceId || a.workspace_id == null
+  )
+)
 const router = useRouter()
 
-function getLink(id) {
-  return workspaceId ? `/workspaces/${workspaceId}/assistants/${id}` : `/assistants/${id}`
+function getLink (id) {
+  return workspaceId
+    ? `/workspaces/${workspaceId}/assistants/${id}`
+    : `/assistants/${id}`
 }
-async function addItem() {
+
+async function addItem () {
   const assistant = await assistantsStore.add({
-    name: 'New Assistant',
+    name: "New Assistant",
     workspace_id: workspaceId,
     avatar: defaultAvatar("AI"),
     provider: perfs.value.provider,
@@ -53,5 +60,4 @@ async function addItem() {
   })
   router.push(getLink(assistant.id))
 }
-
 </script>

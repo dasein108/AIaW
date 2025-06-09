@@ -1,7 +1,10 @@
 <template>
   <div
     flex
-    :class="{ 'flex-row-reverse': message.type === 'user', 'flex-col': colMode }"
+    :class="{
+      'flex-row-reverse': message.type === 'user',
+      'flex-col': colMode,
+    }"
     relative
   >
     <div>
@@ -9,7 +12,7 @@
         flex
         :class="[
           colMode ? 'flex-row items-center' : 'flex-col pos-sticky top-0',
-          message.type === 'assistant' ? 'pl-2' : ''
+          message.type === 'assistant' ? 'pl-2' : '',
         ]"
       >
         <a-avatar
@@ -29,12 +32,12 @@
         </div>
       </div>
     </div>
-    <div
-      min-w-0
-    >
+    <div min-w-0>
       <div
         position-relative
-        :class="message.type === 'user' ? 'min-h-48px' : 'min-h-24px min-w-100px'"
+        :class="
+          message.type === 'user' ? 'min-h-48px' : 'min-h-24px min-w-100px'
+        "
         class="group"
       >
         <div
@@ -60,7 +63,11 @@
             @touchend="onSelect('touch')"
             pos-relative
             overflow-visible
-            v-if="(content.type === 'assistant-message' || content.type === 'user-message') && content.text"
+            v-if="
+              (content.type === 'assistant-message' ||
+                content.type === 'user-message') &&
+                content.text
+            "
           >
             <md-preview
               :class="message.type === 'user' ? 'bg-sur-c-low' : 'bg-sur'"
@@ -113,7 +120,9 @@
             </transition>
           </div>
           <div
-            v-if="content.type === 'user-message' && content.stored_items.length"
+            v-if="
+              content.type === 'user-message' && content.stored_items.length
+            "
             flex
             flex-wrap
             px-4
@@ -121,13 +130,17 @@
             gap-2
           >
             <message-image
-              v-for="image in content.stored_items.filter(i => i.mime_type?.startsWith('image/'))"
+              v-for="image in content.stored_items.filter((i) =>
+                i.mime_type?.startsWith('image/')
+              )"
               :key="image.id"
               :image="image"
               h="100px"
             />
             <message-file
-              v-for="file in content.stored_items.filter(i => !i.mime_type?.startsWith('image/'))"
+              v-for="file in content.stored_items.filter(
+                (i) => !i.mime_type?.startsWith('image/')
+              )"
               :key="file.id"
               :file="file"
             />
@@ -139,7 +152,12 @@
             :class="colMode ? 'mx-4' : 'mx-2'"
           />
           <CyberlinkResult
-            v-if="message.status !== 'processed' && content.type === 'assistant-tool' && content.name === 'create_cyberlink' && content.status === 'completed'"
+            v-if="
+              message.status !== 'processed' &&
+                content.type === 'assistant-tool' &&
+                content.name === 'create_cyberlink' &&
+                content.status === 'completed'
+            "
             :result="content.stored_items"
             :message="message"
             :key="'cyberlink-' + index"
@@ -197,13 +215,13 @@
         :class="colMode ? 'mx-4' : 'mx-2'"
         v-if="['pending', 'streaming'].includes(message.status)"
       >
-        <q-linear-progress
-          indeterminate
-        />
+        <q-linear-progress indeterminate />
       </div>
       <div
         text-on-sur-var
-        :class="message.type === 'assistant' ? (colMode ? 'mx-4' : 'mx-2') : 'mt-1'"
+        :class="
+          message.type === 'assistant' ? (colMode ? 'mx-4' : 'mx-2') : 'mt-1'
+        "
         flex
         items-center
       >
@@ -226,9 +244,7 @@
             @click="deleteBranch"
           />
         </template>
-        <template
-          v-if="['default', 'failed'].includes(message.status)"
-        >
+        <template v-if="['default', 'failed'].includes(message.status)">
           <copy-btn
             round
             flat
@@ -317,59 +333,86 @@
 </template>
 
 <script setup lang="ts">
-import { MdPreview, MdCatalog } from 'md-editor-v3'
-import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watchEffect } from 'vue'
-import sessions from 'src/utils/sessions'
-import { ApiResultItem, ConvertArtifactOptions } from 'src/utils/types'
-import { UserMessageContent, AssistantMessageContent, AssistantToolContent } from '@/common/types/dialogs'
-import CopyBtn from './CopyBtn.vue'
-import AAvatar from './AAvatar.vue'
-import { useAssistantsStore } from 'src/stores/assistants'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
-import MessageImage from './MessageImage.vue'
-import ToolContent from './ToolContent.vue'
-import CyberlinkResult from './CyberlinkResult.vue'
-import { copyToClipboard, useQuasar } from 'quasar'
-import { useRouter } from 'vue-router'
-import PickAvatarDialog from './PickAvatarDialog.vue'
-import MessageFile from './MessageFile.vue'
-import { escapeRegex, genId, idDateString, isPlatformEnabled, textBeginning, wrapCode } from 'src/utils/functions'
-import MenuItem from './MenuItem.vue'
-import MessageInfoDialog from './MessageInfoDialog.vue'
-import TextareaDialog from './TextareaDialog.vue'
-import { useMdPreviewProps } from 'src/composables/md-preview-props'
-import ConvertArtifactDialog from './ConvertArtifactDialog.vue'
-import { useI18n } from 'vue-i18n'
-import { dialogOptions } from 'src/utils/values'
-import { DialogMessageMapped, MessageContentMapped, StoredItem, StoredItemMapped } from '@/services/supabase/types'
-import { useDialogsStore } from 'src/stores/dialogs'
+import { MdPreview, MdCatalog } from "md-editor-v3"
+import { copyToClipboard, useQuasar } from "quasar"
+import { useMdPreviewProps } from "src/composables/md-preview-props"
+import { useAssistantsStore } from "src/stores/assistants"
+import { useDialogsStore } from "src/stores/dialogs"
+import { useUserPerfsStore } from "src/stores/user-perfs"
+import {
+  escapeRegex,
+  genId,
+  idDateString,
+  isPlatformEnabled,
+  textBeginning,
+  wrapCode,
+} from "src/utils/functions"
+import sessions from "src/utils/sessions"
+import { ApiResultItem, ConvertArtifactOptions } from "src/utils/types"
+import { dialogOptions } from "src/utils/values"
+import {
+  computed,
+  ComputedRef,
+  inject,
+  nextTick,
+  onUnmounted,
+  reactive,
+  ref,
+  watchEffect,
+} from "vue"
+import { useI18n } from "vue-i18n"
+import { useRouter } from "vue-router"
+import AAvatar from "./AAvatar.vue"
+import ConvertArtifactDialog from "./ConvertArtifactDialog.vue"
+import CopyBtn from "./CopyBtn.vue"
+import CyberlinkResult from "./CyberlinkResult.vue"
+import MenuItem from "./MenuItem.vue"
+import MessageFile from "./MessageFile.vue"
+import MessageImage from "./MessageImage.vue"
+import MessageInfoDialog from "./MessageInfoDialog.vue"
+import PickAvatarDialog from "./PickAvatarDialog.vue"
+import TextareaDialog from "./TextareaDialog.vue"
+import ToolContent from "./ToolContent.vue"
+import {
+  UserMessageContent,
+  AssistantMessageContent,
+  AssistantToolContent,
+} from "@/common/types/dialogs"
+import {
+  DialogMessageMapped,
+  MessageContentMapped,
+} from "@/services/supabase/types"
 
 const props = defineProps<{
-  message: DialogMessageMapped,
-  childNum: number,
+  message: DialogMessageMapped
+  childNum: number
   scrollContainer: HTMLElement
 }>()
 const mdId = `md-${genId()}`
 const dialogsStore = useDialogsStore()
 const $q = useQuasar()
-function moreInfo() {
+
+function moreInfo () {
   $q.dialog({
     component: MessageInfoDialog,
-    componentProps: { message: props.message }
+    componentProps: { message: props.message },
   })
 }
 const sourceCodeMode = ref(false)
 // console.log('---messageItem contents', props.message)
-const contents = computed(() => props.message.message_contents.map(x => {
-  if (x.type === 'assistant-message' || x.type === 'user-message') {
-    return {
-      ...x,
-      text: sourceCodeMode.value ? wrapCode(x.text, 'markdown', 5) : x.text
+const contents = computed(() =>
+  props.message.message_contents.map((x) => {
+    if (x.type === "assistant-message" || x.type === "user-message") {
+      return {
+        ...x,
+        text: sourceCodeMode.value ? wrapCode(x.text, "markdown", 5) : x.text,
+      }
     }
-  }
-  // Vue 3.4 computed is lazy. Force it to trigger.
-  return { ...x }
-}))
+
+    // Vue 3.4 computed is lazy. Force it to trigger.
+    return { ...x }
+  })
+)
 
 const model = defineModel<number>()
 
@@ -377,203 +420,269 @@ const emit = defineEmits<{
   regenerate: []
   edit: []
   quote: [ApiResultItem]
-  'extract-artifact': [[string, RegExp | string, ConvertArtifactOptions]],
+  "extract-artifact": [[string, RegExp | string, ConvertArtifactOptions]]
   rendered: []
   delete: []
 }>()
 
 watchEffect(async () => {
   const sessionId = props.message.generating_session
+
   if (sessionId) {
-    !await sessions.ping(sessionId) && dialogsStore.updateDialogMessage(props.message.dialog_id, props.message.id, {
-      generating_session: null,
-      status: 'failed',
-      error: 'aborted',
-      message_contents: props.message.message_contents.map(content => {
-        if (content.type === 'assistant-tool' && content.status === 'calling') {
-          return {
-            ...content,
-            status: 'failed',
-            error: 'Tool call aborted'
-          }
+    !(await sessions.ping(sessionId)) &&
+      dialogsStore.updateDialogMessage(
+        props.message.dialog_id,
+        props.message.id,
+        {
+          generating_session: null,
+          status: "failed",
+          error: "aborted",
+          message_contents: props.message.message_contents.map((content) => {
+            if (
+              content.type === "assistant-tool" &&
+              content.status === "calling"
+            ) {
+              return {
+                ...content,
+                status: "failed",
+                error: "Tool call aborted",
+              }
+            }
+
+            return content
+          }) as MessageContentMapped[],
         }
-        return content
-      }) as MessageContentMapped[]
-    })
+      )
   }
 })
 
-const textIndex = computed(() => props.message.message_contents.findIndex(c => ['user-message', 'assistant-message'].includes(c.type)))
-const textContent = computed(() => (props.message.message_contents[textIndex.value] as UserMessageContent | AssistantMessageContent))
+const textIndex = computed(() =>
+  props.message.message_contents.findIndex((c) =>
+    ["user-message", "assistant-message"].includes(c.type)
+  )
+)
+const textContent = computed(
+  () =>
+    props.message.message_contents[textIndex.value] as
+      | UserMessageContent
+      | AssistantMessageContent
+)
 
 const { data: perfs } = useUserPerfsStore()
 const assistantsStore = useAssistantsStore()
 const avatar = computed(() =>
-  props.message.type === 'user'
+  props.message.type === "user"
     ? perfs.userAvatar
-    : assistantsStore.assistants.find(a => a.id === props.message.assistant_id)?.avatar
+    : assistantsStore.assistants.find(
+      (a) => a.id === props.message.assistant_id
+    )?.avatar
 )
 
 const name = computed(() =>
-  props.message.type === 'user'
+  props.message.type === "user"
     ? null
-    : assistantsStore.assistants.find(a => a.id === props.message.assistant_id)?.name
+    : assistantsStore.assistants.find(
+      (a) => a.id === props.message.assistant_id
+    )?.name
 )
 
-const showArtifacts = inject<ComputedRef>('showArtifacts')
+const showArtifacts = inject<ComputedRef>("showArtifacts")
 const denseMode = computed(() => showArtifacts.value || $q.screen.lt.md)
-const colMode = computed(() => denseMode.value && props.message.type === 'assistant')
+const colMode = computed(
+  () => denseMode.value && props.message.type === "assistant"
+)
 
 const router = useRouter()
-function onAvatarClick() {
-  if (props.message.type === 'assistant') {
+
+function onAvatarClick () {
+  if (props.message.type === "assistant") {
     router.push(`../assistants/${props.message.assistant_id}`)
-  } else if (props.message.type === 'user') {
+  } else if (props.message.type === "user") {
     $q.dialog({
       component: PickAvatarDialog,
-      componentProps: { model: perfs.userAvatar, defaultTab: 'text' }
-    }).onOk(avatar => { perfs.userAvatar = avatar })
+      componentProps: { model: perfs.userAvatar, defaultTab: "text" },
+    }).onOk((avatar) => {
+      perfs.userAvatar = avatar
+    })
   }
 }
 
 const showFloatBtns = ref(false)
 const floatBtnStyle = reactive({
   top: undefined,
-  left: undefined
+  left: undefined,
 })
 const textDiv = ref()
 const selected = reactive({
   text: null,
-  original: false
+  original: false,
 })
-function getDataLine(node: Node, ttl = 3) {
+
+function getDataLine (node: Node, ttl = 3) {
   if (ttl === 0) return -1
-  if (node.nodeType !== Node.ELEMENT_NODE) return getDataLine(node.parentElement, ttl - 1)
-  const val = (node as Element).getAttribute('data-line')
+
+  if (node.nodeType !== Node.ELEMENT_NODE) {
+    return getDataLine(node.parentElement, ttl - 1)
+  }
+
+  const val = (node as Element).getAttribute("data-line")
+
   return val ? parseInt(val) : getDataLine(node.parentElement, ttl - 1)
 }
-function onSelect(mode: 'mouse' | 'touch') {
+
+function onSelect (mode: "mouse" | "touch") {
   if (!perfs.messageSelectionBtn) return
+
   const selection = document.getSelection()
   const text = selection.toString()
+
   if (!text) return
+
   const start = getDataLine(selection.anchorNode)
   const end = getDataLine(selection.focusNode)
+
   if (start === -1 || end === -1 || start === end) {
     selected.text = text
     selected.original = false
   } else {
-    selected.text = textContent.value.text.split('\n').slice(start, end + 1).join('\n')
+    selected.text = textContent.value.text
+      .split("\n")
+      .slice(start, end + 1)
+      .join("\n")
     selected.original = true
   }
+
   const range = selection.getRangeAt(0)
   const targetRects = range.getBoundingClientRect()
   const baseRects = textDiv.value[0].getBoundingClientRect()
-  floatBtnStyle.top = targetRects.top < 48 || mode === 'touch'
-    ? targetRects.bottom - baseRects.top + 12 + 'px'
-    : targetRects.top - baseRects.top - 48 + 'px'
-  floatBtnStyle.left = targetRects.left - baseRects.left + 'px'
+  floatBtnStyle.top =
+    targetRects.top < 48 || mode === "touch"
+      ? targetRects.bottom - baseRects.top + 12 + "px"
+      : targetRects.top - baseRects.top - 48 + "px"
+  floatBtnStyle.left = targetRects.left - baseRects.left + "px"
   showFloatBtns.value = true
 }
+
 if (perfs.messageSelectionBtn) {
   const listener = () => {
     showFloatBtns.value = false
     selected.text = null
   }
-  document.addEventListener('selectionchange', listener)
-  onUnmounted(() => document.removeEventListener('selectionchange', listener))
+  document.addEventListener("selectionchange", listener)
+  onUnmounted(() => document.removeEventListener("selectionchange", listener))
 }
-function quote(text: string) {
-  const name = props.message.type === 'assistant' ? t('messageItem.assistantMessageQuote') : t('messageItem.userMessageQuote')
-  emit('quote', {
-    type: 'quote',
+
+function quote (text: string) {
+  const name =
+    props.message.type === "assistant"
+      ? t("messageItem.assistantMessageQuote")
+      : t("messageItem.userMessageQuote")
+  emit("quote", {
+    type: "quote",
     name: `${name}：${textBeginning(text, 10)}`,
-    contentText: text
-  })
-}
-function edit() {
-  $q.dialog({
-    component: TextareaDialog,
-    componentProps: {
-      title: t('messageItem.editMessage'),
-      model: textContent.value.text
-    }
-  }).onOk(text => {
-    // db.messages.update(props.message.id, {
-    //   [`contents.${textIndex.value}.text`]: text
-    // })
-  })
-}
-function deleteBranch() {
-  if (['inputing', 'failed'].includes(props.message.status)) {
-    emit('delete')
-    return
-  }
-  $q.dialog({
-    title: t('messageItem.deleteBranch'),
-    message: t('messageItem.deleteBranchMessage'),
-    cancel: true,
-    ok: {
-      label: t('messageItem.delete'),
-      color: 'err',
-      flat: true
-    },
-    ...dialogOptions
-  }).onOk(() => {
-    emit('delete')
+    contentText: text,
   })
 }
 
-function convertArtifact(text: string, pattern, lang: string) {
+function edit () {
+  $q.dialog({
+    component: TextareaDialog,
+    componentProps: {
+      title: t("messageItem.editMessage"),
+      model: textContent.value.text,
+    },
+  })// .onOk((text) => {
+  // db.messages.update(props.message.id, {
+  //   [`contents.${textIndex.value}.text`]: text
+  // })
+  // })
+}
+
+function deleteBranch () {
+  if (["inputing", "failed"].includes(props.message.status)) {
+    emit("delete")
+
+    return
+  }
+
+  $q.dialog({
+    title: t("messageItem.deleteBranch"),
+    message: t("messageItem.deleteBranchMessage"),
+    cancel: true,
+    ok: {
+      label: t("messageItem.delete"),
+      color: "err",
+      flat: true,
+    },
+    ...dialogOptions,
+  }).onOk(() => {
+    emit("delete")
+  })
+}
+
+function convertArtifact (text: string, pattern, lang: string) {
   if (perfs.artifactsAutoName) {
-    emit('extract-artifact', [text, pattern, {
-      lang,
-      reserveOriginal: perfs.artifactsReserveOriginal
-    }])
+    emit("extract-artifact", [
+      text,
+      pattern,
+      {
+        lang,
+        reserveOriginal: perfs.artifactsReserveOriginal,
+      },
+    ])
   } else {
     $q.dialog({
       component: ConvertArtifactDialog,
       componentProps: {
-        lang
-      }
+        lang,
+      },
     }).onOk(async (options: ConvertArtifactOptions) => {
-      emit('extract-artifact', [text, pattern, options])
+      emit("extract-artifact", [text, pattern, options])
     })
   }
 }
 
-function selectedConvertArtifact() {
+function selectedConvertArtifact () {
   const text = selected.text
-  convertArtifact(text, text, 'markdown')
+  convertArtifact(text, text, "markdown")
 }
 
-function onHtmlChanged(inject = false) {
+function onHtmlChanged (inject = false) {
   nextTick(() => {
     inject && injectConvertArtifact()
-    emit('rendered')
+    emit("rendered")
   })
 }
-function injectConvertArtifact() {
+
+function injectConvertArtifact () {
   if (!isPlatformEnabled(perfs.artifactsEnabled)) return
+
   const el: HTMLElement = textDiv.value[0]
-  el.querySelectorAll('.md-editor-code').forEach(code => {
-    if (code.querySelector('.md-editor-convert-artifact')) return
-    const anchor = code.querySelector('.md-editor-collapse-tips')
-    const btn = document.createElement('span')
-    btn.innerHTML = 'convert_to_text'
-    btn.classList.add('md-editor-convert-artifact')
-    btn.addEventListener('click', (ev) => {
+  el.querySelectorAll(".md-editor-code").forEach((code) => {
+    if (code.querySelector(".md-editor-convert-artifact")) return
+
+    const anchor = code.querySelector(".md-editor-collapse-tips")
+    const btn = document.createElement("span")
+    btn.innerHTML = "convert_to_text"
+    btn.classList.add("md-editor-convert-artifact")
+    btn.addEventListener("click", (ev) => {
       ev.preventDefault()
       ev.stopPropagation()
-      const text = code.querySelector('pre code').textContent
-      const lang = code.querySelector('pre code').getAttribute('language')
-      const pattern = new RegExp(`\`{3,}.*\\n${escapeRegex(text)}\\s*\`{3,}`, 'g')
+      const text = code.querySelector("pre code").textContent
+      const lang = code.querySelector("pre code").getAttribute("language")
+      const pattern = new RegExp(
+        `\`{3,}.*\\n${escapeRegex(text)}\\s*\`{3,}`,
+        "g"
+      )
       convertArtifact(text, pattern, lang)
     })
-    btn.title = t('messageItem.convertToArtifactBtn')
-    code.querySelector('.md-editor-code-action').insertBefore(btn, anchor)
-    code.querySelector<HTMLElement>('.md-editor-copy-button').title = t('messageItem.copyCode')
-    code.querySelector<HTMLElement>('.md-editor-collapse-tips').title = t('messageItem.fold')
+    btn.title = t("messageItem.convertToArtifactBtn")
+    code.querySelector(".md-editor-code-action").insertBefore(btn, anchor)
+    code.querySelector<HTMLElement>(".md-editor-copy-button").title = t(
+      "messageItem.copyCode"
+    )
+    code.querySelector<HTMLElement>(".md-editor-collapse-tips").title =
+      t("messageItem.fold")
   })
 }
 const mdPreviewProps = useMdPreviewProps()
@@ -582,7 +691,7 @@ const { t } = useI18n()
 
 <style lang="scss">
 .md-editor-preview-wrapper {
-  --at-apply: 'py-0';
+  --at-apply: "py-0";
 }
 .content-reasoning {
   code {

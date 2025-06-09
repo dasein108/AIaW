@@ -1,7 +1,5 @@
 <template>
-  <q-list
-    class="q-pa-none"
-  >
+  <q-list class="q-pa-none">
     <q-item
       v-for="chat in lastChatsWithWorkspace"
       :key="chat.id"
@@ -21,9 +19,7 @@
           size="xs"
         />
       </q-item-section>
-      <q-item-section
-        class="q-pa-none q-pt-xs q-pl-xs"
-      >
+      <q-item-section class="q-pa-none q-pt-xs q-pl-xs">
         <div class="text-body2 ellipsis">
           {{ chat.name }}
         </div>
@@ -33,12 +29,12 @@
 </template>
 
 <script setup lang="ts">
-import { useWorkspacesStore } from 'src/stores/workspaces'
-import { computed, watch } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useRouter } from 'vue-router'
-import AAvatar from 'src/components/AAvatar.vue'
-import { useChatsStore } from 'src/stores/chats'
+import { storeToRefs } from "pinia"
+import AAvatar from "src/components/AAvatar.vue"
+import { useChatsStore } from "src/stores/chats"
+import { useWorkspacesStore } from "src/stores/workspaces"
+import { computed } from "vue"
+import { useRouter } from "vue-router"
 
 const MAX_LAST_CHATS = 3
 const router = useRouter()
@@ -47,19 +43,33 @@ const { chats } = storeToRefs(useChatsStore())
 
 const lastChats = computed(() => {
   return [...chats.value]
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
     .slice(0, MAX_LAST_CHATS)
 })
 
-const lastChatsWithWorkspace = computed(() => workspacesStore.workspaces.length > 0 ? lastChats.value.map(d => {
-  const workspace = workspacesStore.workspaces?.find(w => w.id === d.workspace_id)
-  return {
-    ...d,
-    workspace
-  }
-}) : [])
+const lastChatsWithWorkspace = computed(() =>
+  workspacesStore.workspaces.length > 0
+    ? lastChats.value.map((d) => {
+      const workspace = workspacesStore.workspaces?.find(
+        (w) => w.id === d.workspace_id
+      )
 
-function goToChat(workspaceId: string, chatId: string) {
-  router.push(workspaceId ? `/workspaces/${workspaceId}/chats/${chatId}` : `/chats/${chatId}`)
+      return {
+        ...d,
+        workspace,
+      }
+    })
+    : []
+)
+
+function goToChat (workspaceId: string, chatId: string) {
+  router.push(
+    workspaceId
+      ? `/workspaces/${workspaceId}/chats/${chatId}`
+      : `/chats/${chatId}`
+  )
 }
 </script>

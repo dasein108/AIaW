@@ -1,38 +1,49 @@
-import { ref } from 'vue'
-import { SigningCosmWasmClient, CosmWasmClient } from '@cosmjs/cosmwasm-stargate'
-import { GasPrice } from '@cosmjs/stargate'
-import { AccountData, DirectSecp256k1HdWallet, OfflineDirectSigner } from '@cosmjs/proto-signing'
-import type { OfflineAminoSigner, StdSignDoc } from '@cosmjs/amino'
-import type { TxStatusResponse } from '../kepler/types'
-import { parseTxStatus } from '../kepler/utils'
-import { CYBER_CONTRACT_ADDRESS } from '../kepler/KeplerWallet'
-import { saveMnemonic, getMnemonic, removeMnemonic } from 'src/stores/tauri-store'
-import { IsTauri } from 'src/utils/platform-api'
-import { EncryptionService } from '../encryption/EncryptionService'
-import { config } from '../constants'
+import type { OfflineAminoSigner, StdSignDoc } from "@cosmjs/amino"
+import {
+  SigningCosmWasmClient,
+  CosmWasmClient,
+} from "@cosmjs/cosmwasm-stargate"
+import {
+  AccountData,
+  DirectSecp256k1HdWallet,
+  OfflineDirectSigner,
+} from "@cosmjs/proto-signing"
+import { GasPrice } from "@cosmjs/stargate"
+import {
+  saveMnemonic,
+  getMnemonic,
+  removeMnemonic,
+} from "src/stores/tauri-store"
+import { IsTauri } from "src/utils/platform-api"
+import { ref } from "vue"
+import { config } from "../constants"
+import { EncryptionService } from "../encryption/EncryptionService"
+import { CYBER_CONTRACT_ADDRESS } from "../kepler/KeplerWallet"
+import type { TxStatusResponse } from "../kepler/types"
+import { parseTxStatus } from "../kepler/utils"
 
 export interface CosmosSignerState {
   isConnected: boolean
   address: string | null
-  type: 'keplr' | 'mnemonic' | null
+  type: "keplr" | "mnemonic" | null
 }
 
 type CyberOfflineSigner = (OfflineDirectSigner | OfflineAminoSigner) & {
-  getAccounts: () => Promise<readonly AccountData[]>;
+  getAccounts: () => Promise<readonly AccountData[]>
 }
 
-export function createCosmosSigner() {
-  console.log('createCosmosSigner')
+export function createCosmosSigner () {
+  console.log("createCosmosSigner")
   const state = ref<CosmosSignerState>({
     isConnected: false,
     address: null,
-    type: null
+    type: null,
   })
   const client = ref<CosmWasmClient | null>(null)
   let offlineSigner: CyberOfflineSigner | null = null
 
   // Initialize CosmWasmClient
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     CosmWasmClient.connect(config.NODE_RPC_URL)
       .then((cosmWasmClient) => {
         client.value = cosmWasmClient
@@ -44,7 +55,7 @@ export function createCosmosSigner() {
   if (IsTauri) {
     getMnemonic().then(async (encryptedMnemonic) => {
       if (encryptedMnemonic) {
-        console.log('Encrypted mnemonic found in store')
+        console.log("Encrypted mnemonic found in store")
         // Note: We can't auto-connect here as we need the PIN
         // The PIN will be requested by the PIN modal when needed
       }
@@ -54,7 +65,7 @@ export function createCosmosSigner() {
   const connectWithKeplr = async () => {
     try {
       if (!window.keplr) {
-        throw new Error('Keplr extension not installed')
+        throw new Error("Keplr extension not installed")
       }
 
       // Enable access to chain
@@ -67,9 +78,9 @@ export function createCosmosSigner() {
       const accounts = await offlineSigner.getAccounts()
       const address = accounts[0].address
 
-      state.value = { isConnected: true, address, type: 'keplr' }
+      state.value = { isConnected: true, address, type: "keplr" }
     } catch (error) {
-      console.error('Failed to connect with Keplr:', error)
+      console.error("Failed to connect with Keplr:", error)
       throw error
     }
   }
@@ -78,7 +89,7 @@ export function createCosmosSigner() {
     try {
       // Create wallet from mnemonic
       const wallet = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, {
-        prefix: 'cyber'
+        prefix: "cyber",
       })
 
       // Get accounts
@@ -86,15 +97,18 @@ export function createCosmosSigner() {
       const address = accounts[0].address
 
       offlineSigner = wallet
-      state.value = { isConnected: true, address, type: 'mnemonic' }
+      state.value = { isConnected: true, address, type: "mnemonic" }
 
       // Save encrypted mnemonic in tauri-store
       if (IsTauri) {
-        const encryptedMnemonic = await EncryptionService.encryptMnemonic(mnemonic, pin)
+        const encryptedMnemonic = await EncryptionService.encryptMnemonic(
+          mnemonic,
+          pin
+        )
         await saveMnemonic(encryptedMnemonic)
       }
     } catch (error) {
-      console.error('Failed to connect with mnemonic:', error)
+      console.error("Failed to connect with mnemonic:", error)
       throw error
     }
   }
@@ -102,6 +116,7 @@ export function createCosmosSigner() {
   const disconnect = () => {
     state.value = { isConnected: false, address: null, type: null }
     offlineSigner = null
+
     // Remove mnemonic from tauri-store
     if (IsTauri) {
       removeMnemonic()
@@ -111,7 +126,7 @@ export function createCosmosSigner() {
   const signTransaction = async (signDoc: StdSignDoc) => {
     try {
       if (!offlineSigner) {
-        throw new Error('No signer available')
+        throw new Error("No signer available")
       }
 
       const accounts = await offlineSigner.getAccounts()
@@ -122,35 +137,40 @@ export function createCosmosSigner() {
         chain_id: config.CHAIN_ID,
         fee: {
           ...signDoc.fee,
-          amount: signDoc.fee.amount.map(coin => ({
+          amount: signDoc.fee.amount.map((coin) => ({
             ...coin,
-            denom: config.FEE_DENOM
-          }))
-        }
+            denom: config.FEE_DENOM,
+          })),
+        },
       }
 
-      if ('signAmino' in offlineSigner) {
+      if ("signAmino" in offlineSigner) {
         return await offlineSigner.signAmino(accounts[0].address, newSignDoc)
       } else {
-        throw new Error('Signer does not support amino signing')
+        throw new Error("Signer does not support amino signing")
       }
     } catch (error) {
-      console.error('Failed to sign transaction:', error)
+      console.error("Failed to sign transaction:", error)
       throw error
     }
   }
 
-  const executeTransaction = async (msg: Record<string, any>, contractAddress: string = CYBER_CONTRACT_ADDRESS) => {
+  const executeTransaction = async (
+    msg: Record<string, any>,
+    contractAddress: string = CYBER_CONTRACT_ADDRESS
+  ) => {
     try {
       if (!offlineSigner) {
-        throw new Error('No signer available')
+        throw new Error("No signer available")
       }
 
       const accounts = await offlineSigner.getAccounts()
       const sender = accounts[0]
 
       // Create signing client
-      const gasPrice = GasPrice.fromString(`${config.GAS_PRICE_AMOUNT}${config.FEE_DENOM}`)
+      const gasPrice = GasPrice.fromString(
+        `${config.GAS_PRICE_AMOUNT}${config.FEE_DENOM}`
+      )
       const signingClient = await SigningCosmWasmClient.connectWithSigner(
         config.NODE_RPC_URL,
         offlineSigner,
@@ -162,20 +182,23 @@ export function createCosmosSigner() {
         sender.address,
         contractAddress,
         msg,
-        'auto'
+        "auto"
       )
 
       return result
     } catch (error) {
-      console.error('Failed to execute transaction:', error)
+      console.error("Failed to execute transaction:", error)
       throw error
     }
   }
 
-  const getTx = async (transactionHash: string): Promise<TxStatusResponse | null> => {
+  const getTx = async (
+    transactionHash: string
+  ): Promise<TxStatusResponse | null> => {
     if (!client.value) {
-      throw new Error('CosmWasm client not initialized')
+      throw new Error("CosmWasm client not initialized")
     }
+
     const tx = await client.value.getTx(transactionHash)
 
     if (!tx) {
@@ -195,6 +218,7 @@ export function createCosmosSigner() {
     while (Date.now() - startTime < timeoutMs) {
       try {
         const result = await getTx(txHash)
+
         if (result) return result
       } catch (error) {
         console.error(`Error while polling transaction ${txHash}:`, error)
@@ -217,7 +241,7 @@ export function createCosmosSigner() {
     signTransaction,
     executeTransaction,
     getTx: waitForTransaction,
-    getOfflineSigner
+    getOfflineSigner,
   }
 }
 

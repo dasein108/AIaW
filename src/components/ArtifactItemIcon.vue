@@ -3,15 +3,17 @@
 </template>
 
 <script setup lang="ts">
-import { ArtifactMapped } from '@/services/supabase/types'
-import { codeExtensions } from 'src/utils/values'
-import { computed } from 'vue'
+import { codeExtensions } from "src/utils/values"
+import { computed } from "vue"
+import { ArtifactMapped } from "@/services/supabase/types"
 
 const props = defineProps<{
   artifact: ArtifactMapped
 }>()
 
 const icon = computed(() =>
-  codeExtensions.includes(props.artifact.name.split('.').pop()) ? 'sym_o_code' : 'sym_o_description'
+  codeExtensions.includes(props.artifact.name.split(".").pop())
+    ? "sym_o_code"
+    : "sym_o_description"
 )
 </script>

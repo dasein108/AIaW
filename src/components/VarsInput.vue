@@ -37,9 +37,9 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
-import { dialogOptions } from 'src/utils/values'
-import { useI18n } from 'vue-i18n'
+import { useQuasar } from "quasar"
+import { dialogOptions } from "src/utils/values"
+import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()
 
@@ -51,18 +51,18 @@ defineProps<{
 
 const $q = useQuasar()
 
-function add() {
+function add () {
   $q.dialog({
-    title: t('varsInput.addVariable'),
+    title: t("varsInput.addVariable"),
     prompt: {
-      model: '',
-      type: 'text',
-      label: t('varsInput.variableName')
+      model: "",
+      type: "text",
+      label: t("varsInput.variableName"),
     },
     cancel: true,
-    ...dialogOptions
-  }).onOk(name => {
-    model.value[name] = ''
+    ...dialogOptions,
+  }).onOk((name) => {
+    model.value[name] = ""
   })
 }
 </script>

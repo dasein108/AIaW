@@ -1,7 +1,5 @@
 <template>
-  <view-common-header
-    back-to=".."
-  >
+  <view-common-header back-to="..">
     <q-toolbar-title v-if="plugin">
       {{ plugin.title }}
     </q-toolbar-title>
@@ -19,14 +17,14 @@
               text-sec
               w="xs:120px sm:200px"
             >
-              {{ $t('pluginAdjust.infoProvider') }}
+              {{ $t("pluginAdjust.infoProvider") }}
             </q-item-section>
             <q-item-section text-on-sur-var>
-              {{ $t('pluginAdjust.parameters') }}
+              {{ $t("pluginAdjust.parameters") }}
             </q-item-section>
             <q-item-section side>
               <div>
-                {{ $t('pluginAdjust.enable') }}
+                {{ $t("pluginAdjust.enable") }}
               </div>
             </q-item-section>
           </q-item>
@@ -40,7 +38,7 @@
             >
               <q-item-label>{{ info.name }}</q-item-label>
               <q-item-label caption>
-                {{ apiMap[info.name]?.description ?? '' }}
+                {{ apiMap[info.name]?.description ?? "" }}
               </q-item-label>
             </q-item-section>
             <q-item-section>
@@ -59,11 +57,11 @@
         <template v-if="assistantPlugin.tools.length">
           <q-item>
             <q-item-section text-sec>
-              {{ $t('pluginAdjust.toolCall') }}
+              {{ $t("pluginAdjust.toolCall") }}
             </q-item-section>
             <q-item-section side>
               <div>
-                {{ $t('pluginAdjust.enable') }}
+                {{ $t("pluginAdjust.enable") }}
               </div>
             </q-item-section>
           </q-item>
@@ -74,7 +72,7 @@
             <q-item-section>
               <q-item-label>{{ tool.name }}</q-item-label>
               <q-item-label caption>
-                {{ apiMap[tool.name]?.description ?? '' }}
+                {{ apiMap[tool.name]?.description ?? "" }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -86,7 +84,7 @@
         <template v-if="plugin.promptVars?.length">
           <q-item>
             <q-item-section text-sec>
-              {{ $t('pluginAdjust.variables') }}
+              {{ $t("pluginAdjust.variables") }}
             </q-item-section>
           </q-item>
           <prompt-var-input
@@ -102,18 +100,23 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          {{ $t('pluginAdjust.globalSettingsTip') }}
+          {{ $t("pluginAdjust.globalSettingsTip") }}
           <router-link
             :to="`/plugins/${plugin.id}`"
             pri-link
           >
-            {{ $t('pluginAdjust.pluginSettings') }}
+            {{ $t("pluginAdjust.pluginSettings") }}
           </router-link>
         </q-item-label>
       </q-list>
       <hint-card
         mt="250px"
-        v-if="!assistantPlugin.infos.length && !assistantPlugin.tools.length && !assistantPlugin.resources.length && !plugin.promptVars?.length"
+        v-if="
+          !assistantPlugin.infos.length &&
+            !assistantPlugin.tools.length &&
+            !assistantPlugin.resources.length &&
+            !plugin.promptVars?.length
+        "
         img-url="/emotions/nachoneko/7.webp"
         :message="$t('pluginAdjust.noConfigurableItems')"
       />
@@ -123,44 +126,55 @@
 </template>
 
 <script setup lang="ts">
-import { syncRef } from 'src/composables/sync-ref'
-import { useAssistantsStore } from 'src/stores/assistants'
-import { computed, toRaw } from 'vue'
-import { usePluginsStore } from 'src/stores/plugins'
-import { PluginApi } from 'src/utils/types'
-import JsonInput from 'src/components/JsonInput.vue'
-import PromptVarInput from 'src/components/PromptVarInput.vue'
-import HintCard from 'src/components/HintCard.vue'
-import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
-import { useSetTitle } from 'src/composables/set-title'
-import { useI18n } from 'vue-i18n'
-import { AssistantMapped } from '@/services/supabase/types'
+import HintCard from "src/components/HintCard.vue"
+import JsonInput from "src/components/JsonInput.vue"
+import PromptVarInput from "src/components/PromptVarInput.vue"
+import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
+import { useSetTitle } from "src/composables/set-title"
+import { syncRef } from "src/composables/sync-ref"
+import ErrorNotFound from "src/pages/ErrorNotFound.vue"
+import { useAssistantsStore } from "src/stores/assistants"
+import { usePluginsStore } from "src/stores/plugins"
+import { PluginApi } from "src/utils/types"
+import { computed, toRaw } from "vue"
+import { useI18n } from "vue-i18n"
+import { AssistantMapped } from "@/services/supabase/types"
 
-defineEmits(['toggle-drawer'])
+defineEmits(["toggle-drawer"])
 
 const assistantsStore = useAssistantsStore()
 const props = defineProps<{
-  id: string,
+  id: string
   assistantId: string
 }>()
 const assistant = syncRef<AssistantMapped>(
-  () => assistantsStore.assistants.find(a => a.id === props.assistantId),
-  val => { assistantsStore.put(toRaw(val)) },
+  () => assistantsStore.assistants.find((a) => a.id === props.assistantId),
+  (val) => {
+    assistantsStore.put(toRaw(val))
+  },
   { valueDeep: true }
 )
 
 const pluginsStore = usePluginsStore()
-const plugin = computed(() => pluginsStore.plugins.find(p => p.id === props.id))
+const plugin = computed(() =>
+  pluginsStore.plugins.find((p) => p.id === props.id)
+)
 const assistantPlugin = computed(() => assistant.value.plugins[props.id])
 const apiMap = computed(() => {
   const val: Record<string, PluginApi> = {}
-  plugin.value.apis.forEach(a => {
+  plugin.value.apis.forEach((a) => {
     val[a.name] = a
   })
+
   return val
 })
 
 const { t } = useI18n()
-useSetTitle(computed(() => plugin.value && `${t('pluginAdjust.pluginFunction')} - ${plugin.value.title}`))
+useSetTitle(
+  computed(
+    () =>
+      plugin.value &&
+      `${t("pluginAdjust.pluginFunction")} - ${plugin.value.title}`
+  )
+)
 </script>

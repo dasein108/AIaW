@@ -1,17 +1,27 @@
-import { ref } from 'vue'
-import { EncryptionService } from '../services/encryption/EncryptionService'
-import { getMnemonic, saveMnemonic, removeMnemonic } from 'src/stores/tauri-store'
+import {
+  getMnemonic,
+  saveMnemonic,
+  removeMnemonic,
+} from "src/stores/tauri-store"
+import { ref } from "vue"
+import { EncryptionService } from "../services/encryption/EncryptionService"
 
-export function useMnemonic() {
+export function useMnemonic () {
   const isMnemonicLocked = ref(false)
 
-  const encryptAndSaveMnemonic = async (mnemonic: string, pin: string): Promise<void> => {
+  const encryptAndSaveMnemonic = async (
+    mnemonic: string,
+    pin: string
+  ): Promise<void> => {
     try {
-      const encryptedMnemonic = await EncryptionService.encryptMnemonic(mnemonic, pin)
+      const encryptedMnemonic = await EncryptionService.encryptMnemonic(
+        mnemonic,
+        pin
+      )
       await saveMnemonic(encryptedMnemonic)
       isMnemonicLocked.value = true
     } catch (error) {
-      console.error('Failed to encrypt and save mnemonic:', error)
+      console.error("Failed to encrypt and save mnemonic:", error)
       throw error
     }
   }
@@ -19,12 +29,14 @@ export function useMnemonic() {
   const decryptMnemonic = async (pin: string): Promise<string> => {
     try {
       const encryptedMnemonic = await getMnemonic()
+
       if (!encryptedMnemonic) {
-        throw new Error('No encrypted mnemonic found')
+        throw new Error("No encrypted mnemonic found")
       }
+
       return await EncryptionService.decryptMnemonic(encryptedMnemonic, pin)
     } catch (error) {
-      console.error('Failed to decrypt mnemonic:', error)
+      console.error("Failed to decrypt mnemonic:", error)
       throw error
     }
   }
@@ -32,6 +44,7 @@ export function useMnemonic() {
   const checkMnemonicLock = async (): Promise<boolean> => {
     const encryptedMnemonic = await getMnemonic()
     isMnemonicLocked.value = !!encryptedMnemonic
+
     return isMnemonicLocked.value
   }
 
@@ -45,6 +58,6 @@ export function useMnemonic() {
     encryptAndSaveMnemonic,
     decryptMnemonic,
     checkMnemonicLock,
-    clearMnemonic
+    clearMnemonic,
   }
 }

@@ -22,18 +22,24 @@
 </template>
 
 <script setup lang="ts">
-import { CosmosWallet } from '@/services/cosmos/CosmosWallet'
-import { KeplerWallet } from 'src/services/kepler/KeplerWallet'
-import { parseEvents } from 'src/services/kepler/utils'
-import { IsTauri } from 'src/utils/platform-api'
-import { computed, ComputedRef, inject } from 'vue'
+import { KeplerWallet } from "src/services/kepler/KeplerWallet"
+import { parseEvents } from "src/services/kepler/utils"
+import { useDialogsStore } from "src/stores/dialogs"
+import { IsTauri } from "src/utils/platform-api"
+import { computed, inject } from "vue"
 
-import { DialogMessageMapped, StoredItemMapped } from '@/services/supabase/types'
-import { useDialogsStore } from 'src/stores/dialogs'
+import { CosmosWallet } from "@/services/cosmos/CosmosWallet"
+import {
+  DialogMessageMapped,
+  StoredItemMapped,
+} from "@/services/supabase/types"
 
-const props = defineProps<{ result: StoredItemMapped[], message: DialogMessageMapped }>()
-const keplrWallet = inject<KeplerWallet>('kepler')
-const cosmosWallet = inject<CosmosWallet>('cosmos')
+const props = defineProps<{
+  result: StoredItemMapped[]
+  message: DialogMessageMapped
+}>()
+const keplrWallet = inject<KeplerWallet>("kepler")
+const cosmosWallet = inject<CosmosWallet>("cosmos")
 const transactionBody = computed(() => JSON.parse(props.result[0].content_text))
 const dialogsStore = useDialogsStore()
 const handleAccept = async () => {
@@ -82,6 +88,7 @@ const handleDecline = async () => {
           error: "Transaction Declined",
         }
       }
+
       return content
     }),
   })

@@ -4,7 +4,7 @@
     back-to="."
   >
     <q-toolbar-title>
-      {{ $t('pluginSettings.title') }}
+      {{ $t("pluginSettings.title") }}
     </q-toolbar-title>
   </view-common-header>
   <q-page-container v-if="plugin">
@@ -14,17 +14,17 @@
     >
       <q-list v-if="pluginsStore.isLoaded">
         <q-item-label header>
-          {{ $t('pluginSettings.info') }}
+          {{ $t("pluginSettings.info") }}
         </q-item-label>
         <q-item>
-          <q-item-section>{{ $t('pluginSettings.name') }}</q-item-section>
+          <q-item-section>{{ $t("pluginSettings.name") }}</q-item-section>
           <q-item-section side>
             {{ plugin.title }}
           </q-item-section>
         </q-item>
         <q-item>
           <q-item-section min-w="fit">
-            {{ $t('pluginSettings.description') }}
+            {{ $t("pluginSettings.description") }}
           </q-item-section>
           <q-item-section side>
             <q-item-label caption>
@@ -33,13 +33,13 @@
           </q-item-section>
         </q-item>
         <q-item v-if="plugin.author">
-          <q-item-section>{{ $t('pluginSettings.author') }}</q-item-section>
+          <q-item-section>{{ $t("pluginSettings.author") }}</q-item-section>
           <q-item-section side>
             {{ plugin.author }}
           </q-item-section>
         </q-item>
         <q-item v-if="plugin.homepage">
-          <q-item-section>{{ $t('pluginSettings.homepage') }}</q-item-section>
+          <q-item-section>{{ $t("pluginSettings.homepage") }}</q-item-section>
           <q-item-section side>
             <a
               pri-link
@@ -54,7 +54,7 @@
           clickable
           @click="pickAvatar"
         >
-          <q-item-section>{{ $t('pluginSettings.icon') }}</q-item-section>
+          <q-item-section>{{ $t("pluginSettings.icon") }}</q-item-section>
           <q-item-section
             side
             text-on-sur
@@ -66,11 +66,11 @@
           <q-separator spaced />
           <q-item>
             <q-item-section text-sec>
-              {{ $t('pluginSettings.fileParsing') }}
+              {{ $t("pluginSettings.fileParsing") }}
             </q-item-section>
             <q-item-section side>
               <div>
-                {{ $t('pluginSettings.enable') }}
+                {{ $t("pluginSettings.enable") }}
               </div>
             </q-item-section>
           </q-item>
@@ -101,7 +101,7 @@
         </template>
         <q-separator spaced />
         <q-item-label header>
-          {{ $t('pluginSettings.settings') }}
+          {{ $t("pluginSettings.settings") }}
         </q-item-label>
         <json-input
           :schema="plugin.settings"
@@ -116,43 +116,50 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { usePluginsStore } from 'src/stores/plugins'
-import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
-import AAvatar from 'src/components/AAvatar.vue'
-import { useQuasar } from 'quasar'
-import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
-import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
-import ListInput from 'src/components/ListInput.vue'
-import JsonInput from 'src/components/JsonInput.vue'
-import { useSetTitle } from 'src/composables/set-title'
-import { storeToRefs } from 'pinia'
+import { storeToRefs } from "pinia"
+import { useQuasar } from "quasar"
+import AAvatar from "src/components/AAvatar.vue"
+import JsonInput from "src/components/JsonInput.vue"
+import ListInput from "src/components/ListInput.vue"
+import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
+import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
+import { useSetTitle } from "src/composables/set-title"
+import ErrorNotFound from "src/pages/ErrorNotFound.vue"
+import { usePluginsStore } from "src/stores/plugins"
+import { computed } from "vue"
 
 const props = defineProps<{
   id: string
 }>()
 
-defineEmits(['toggle-drawer'])
+defineEmits(["toggle-drawer"])
 
 const pluginsStore = usePluginsStore()
 const { data } = storeToRefs(pluginsStore)
 
-const plugin = computed(() => pluginsStore.plugins.find(p => p.id === props.id))
+const plugin = computed(() =>
+  pluginsStore.plugins.find((p) => p.id === props.id)
+)
 
 const $q = useQuasar()
-function pickAvatar() {
+
+function pickAvatar () {
   $q.dialog({
     component: PickAvatarDialog,
     componentProps: {
       model: data[props.id].avatar,
-      defaultTab: 'icon'
-    }
-  }).onOk(avatar => {
+      defaultTab: "icon",
+    },
+  }).onOk((avatar) => {
     data[props.id].avatar = avatar
   })
 }
 
-import { useI18n } from 'vue-i18n'
+import { useI18n } from "vue-i18n"
 const { t } = useI18n()
-useSetTitle(computed(() => plugin.value && `${t('pluginSettings.title')} - ${plugin.value.title}`))
+useSetTitle(
+  computed(
+    () => plugin.value && `${t("pluginSettings.title")} - ${plugin.value.title}`
+  )
+)
 </script>

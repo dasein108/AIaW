@@ -5,17 +5,17 @@
     href="javascript:void(0)"
     @click="getModelList"
   >
-    {{ $t('getModelList.getModelList') }}
+    {{ $t("getModelList.getModelList") }}
   </a>
 </template>
 
 <script setup lang="ts">
-import { Provider } from 'src/utils/types'
-import { dialogOptions } from 'src/utils/values'
-import { useQuasar } from 'quasar'
-import { useI18n } from 'vue-i18n'
-import { useProvidersStore } from 'src/stores/providers'
-import { computed } from 'vue'
+import { useQuasar } from "quasar"
+import { useProvidersStore } from "src/stores/providers"
+import { Provider } from "src/utils/types"
+import { dialogOptions } from "src/utils/values"
+import { computed } from "vue"
+import { useI18n } from "vue-i18n"
 
 const props = defineProps<{
   provider: Provider
@@ -28,28 +28,33 @@ const { t } = useI18n()
 
 const providersStore = useProvidersStore()
 
-const providerType = computed(() => providersStore.providerTypes.find(pt => pt.name === props.provider?.type))
+const providerType = computed(() =>
+  providersStore.providerTypes.find((pt) => pt.name === props.provider?.type)
+)
 
-function getModelList() {
-  providerType.value.getModelList(props.provider.settings).then(modelList => {
-    $q.dialog({
-      title: t('getModelList.selectModels'),
-      options: {
-        type: 'checkbox',
-        model: models.value.filter(m => modelList.includes(m)),
-        items: modelList.sort().map(m => ({ label: m, value: m }))
-      },
-      cancel: true,
-      ...dialogOptions
-    }).onOk(val => {
-      models.value = val
+function getModelList () {
+  providerType.value
+    .getModelList(props.provider.settings)
+    .then((modelList) => {
+      $q.dialog({
+        title: t("getModelList.selectModels"),
+        options: {
+          type: "checkbox",
+          model: models.value.filter((m) => modelList.includes(m)),
+          items: modelList.sort().map((m) => ({ label: m, value: m })),
+        },
+        cancel: true,
+        ...dialogOptions,
+      }).onOk((val) => {
+        models.value = val
+      })
     })
-  }).catch(err => {
-    console.error(err)
-    $q.notify({
-      message: t('getModelList.getModelListFailed'),
-      color: 'negative'
+    .catch((err) => {
+      console.error(err)
+      $q.notify({
+        message: t("getModelList.getModelListFailed"),
+        color: "negative",
+      })
     })
-  })
 }
 </script>

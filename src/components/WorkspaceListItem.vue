@@ -22,9 +22,7 @@
       <q-item-section>
         {{ item.name }}
       </q-item-section>
-      <menu-button
-        :menu-ref="toRef(menuFolderRef)"
-      />
+      <menu-button :menu-ref="toRef(menuFolderRef)" />
       <q-menu
         ref="menuFolderRef"
         context-menu
@@ -91,9 +89,7 @@
       />
     </q-item-section>
     <q-item-section>{{ item.name }}</q-item-section>
-    <menu-button
-      :menu-ref="toRef(menuWorkspaceRef)"
-    />
+    <menu-button :menu-ref="toRef(menuWorkspaceRef)" />
     <q-menu
       ref="menuWorkspaceRef"
       context-menu
@@ -122,34 +118,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, toRef } from 'vue'
-import type { WorkspaceMapped } from '@/services/supabase/types'
-import AAvatar from './AAvatar.vue'
-import { useWorkspaceActions } from 'src/composables/workspaces/workspace-actions'
-import MenuItem from './MenuItem.vue'
-import { useRootWorkspace } from '../composables/workspaces/useRootWorkspaces'
-import { QMenu } from 'quasar'
-import MenuButton from './ExpansionItem/MenuButton.vue'
+import { QMenu } from "quasar"
+import { useWorkspaceActions } from "src/composables/workspaces/workspace-actions"
+import { ref, watch, toRef } from "vue"
+import { useRootWorkspace } from "../composables/workspaces/useRootWorkspaces"
+import AAvatar from "./AAvatar.vue"
+import MenuButton from "./ExpansionItem/MenuButton.vue"
+import MenuItem from "./MenuItem.vue"
+import type { WorkspaceMapped } from "@/services/supabase/types"
 // import { Folder, Workspace } from 'src/utils/types'
 
 const props = defineProps<{
   item: WorkspaceMapped
-  accept: 'workspace' | 'folder'
+  accept: "workspace" | "folder"
 }>()
 
 const { addWorkspace, addFolder, moveItem, deleteItem } = useWorkspaceActions()
 const workspaces = useRootWorkspace(props.item.id)
 
-const selected = defineModel<string>('selected')
+const selected = defineModel<string>("selected")
 const expanded = ref(false)
 
 const menuFolderRef = ref<QMenu | null>(null)
 const menuWorkspaceRef = ref<QMenu | null>(null)
 
-watch(selected, () => {
-  if (workspaces.value.some(c => c.id === selected.value)) {
-    expanded.value = true
-  }
-}, { immediate: true })
-
+watch(
+  selected,
+  () => {
+    if (workspaces.value.some((c) => c.id === selected.value)) {
+      expanded.value = true
+    }
+  },
+  { immediate: true }
+)
 </script>

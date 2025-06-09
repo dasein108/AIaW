@@ -1,7 +1,5 @@
 <template>
-  <q-dialog
-    ref="dialogRef"
-  >
+  <q-dialog ref="dialogRef">
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
@@ -53,7 +51,11 @@
           :label="buttonCaption"
           :loading
           :disable="!valid"
-          @click="authType === 'sign-in' ? signIn(email, password) : signUp(email, password)"
+          @click="
+            authType === 'sign-in'
+              ? signIn(email, password)
+              : signUp(email, password)
+          "
         />
       </q-card-actions>
     </q-card>
@@ -61,25 +63,33 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
-import { computed, ref } from 'vue'
-import { useAuth } from '../../composables/auth/useAuth'
+import { useDialogPluginComponent } from "quasar"
+import { computed, ref } from "vue"
+import { useAuth } from "../../composables/auth/useAuth"
 
-const authType = ref<'sign-in' | 'sign-up'>('sign-in')
+const authType = ref<"sign-in" | "sign-up">("sign-in")
 const authTypeOptions = [
-  { label: 'Sign In', value: 'sign-in' },
-  { label: 'Sign Up', value: 'sign-up' }
+  { label: "Sign In", value: "sign-in" },
+  { label: "Sign Up", value: "sign-up" },
 ]
-const buttonCaption = computed(() => authType.value === 'sign-in' ? 'Sign In' : 'Sign Up')
+const buttonCaption = computed(() =>
+  authType.value === "sign-in" ? "Sign In" : "Sign Up"
+)
 
 const loading = ref(false)
-const password = ref('')
-const email = ref('')
-const valid = computed(() => email.value.length > 0 && password.value.length > 0 && emailRule(email.value))
+const password = ref("")
+const email = ref("")
+const valid = computed(
+  () =>
+    email.value.length > 0 &&
+    password.value.length > 0 &&
+    emailRule(email.value)
+)
 
-const emailRule = val => {
+const emailRule = (val) => {
   const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return pattern.test(val) || 'Please enter a valid email'
+
+  return pattern.test(val) || "Please enter a valid email"
 }
 const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 

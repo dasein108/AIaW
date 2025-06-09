@@ -6,33 +6,33 @@
 // 1. invoke('stream_fetch', {url, method, headers, body}), get response with headers.
 // 2. listen event: `stream-response` multi times to get body
 
-import { listen } from '@tauri-apps/api/event'
-import { invoke } from '@tauri-apps/api/core'
-import { IsTauri } from './platform-api'
+import { listen } from "@tauri-apps/api/event"
+import { invoke } from "@tauri-apps/api/core"
+import { IsTauri } from "./platform-api"
 
 type ResponseEvent = {
-  id: number;
+  id: number
   payload: {
-    request_id: number;
-    status?: number;
-    chunk?: number[];
-  };
-};
+    request_id: number
+    status?: number
+    chunk?: number[]
+  }
+}
 
 type StreamResponse = {
-  request_id: number;
-  status: number;
-  status_text: string;
-  headers: Record<string, string>;
-};
+  request_id: number
+  status: number
+  status_text: string
+  headers: Record<string, string>
+}
 
 export function fetch(url: string, options?: RequestInit): Promise<Response> {
   if (!IsTauri) return window.fetch(url, options)
   const {
     signal,
-    method = 'GET',
+    method = "GET",
     headers: _headers = {},
-    body = []
+    body = [],
   } = options || {}
   let unlisten: Function | undefined
   let setRequestId: Function | undefined
@@ -51,10 +51,10 @@ export function fetch(url: string, options?: RequestInit): Promise<Response> {
   }
 
   if (signal) {
-    signal.addEventListener('abort', () => close())
+    signal.addEventListener("abort", () => close())
   }
   // @ts-ignore 2. listen response multi times, and write to Response.body
-  listen('stream-response', (e: ResponseEvent) =>
+  listen("stream-response", (e: ResponseEvent) =>
     requestIdPromise.then((request_id) => {
       const { request_id: rid, chunk, status } = e?.payload || {}
       if (request_id != rid) {
@@ -69,26 +69,25 @@ export function fetch(url: string, options?: RequestInit): Promise<Response> {
         close()
       }
     })
-  )
-    .then((u: Function) => (unlisten = u))
+  ).then((u: Function) => (unlisten = u))
 
   const headers: Record<string, string> = {
-    Accept: 'application/json, text/plain, */*',
-    'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
-    'User-Agent': navigator.userAgent
+    Accept: "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
+    "User-Agent": navigator.userAgent,
   }
   for (const item of new Headers(_headers || {})) {
     headers[item[0]] = item[1]
   }
-  return invoke('stream_fetch', {
+  return invoke("stream_fetch", {
     method: method.toUpperCase(),
     url,
     headers,
     // TODO FormData
     body:
-          typeof body === 'string'
-            ? Array.from(new TextEncoder().encode(body))
-            : []
+      typeof body === "string"
+        ? Array.from(new TextEncoder().encode(body))
+        : [],
   })
     .then((res: StreamResponse) => {
       const { request_id, status, status_text: statusText, headers } = res
@@ -96,14 +95,14 @@ export function fetch(url: string, options?: RequestInit): Promise<Response> {
       const response = new Response(ts.readable, {
         status,
         statusText,
-        headers
+        headers,
       })
       if (status >= 300) {
         setTimeout(close, 100)
       }
       return response
     })
-    .catch(msg => {
+    .catch((msg) => {
       throw new Error(msg)
     })
 }

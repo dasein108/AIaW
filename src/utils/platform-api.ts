@@ -1,21 +1,25 @@
-import { Capacitor } from '@capacitor/core'
-import { fetch as tauriFetch } from './tauri-stream'
-import { readText } from '@tauri-apps/plugin-clipboard-manager'
-import { Clipboard } from '@capacitor/clipboard'
-import { platform } from '@tauri-apps/plugin-os'
-import { fetch as capFetch } from 'capacitor-stream-fetch'
-import { exportFile as webExportFile } from 'quasar'
-import { blobToBase64 } from './functions'
-import { Directory, Filesystem } from '@capacitor/filesystem'
-import { ExportFile } from 'capacitor-export-file'
-export const IsTauri = '__TAURI_INTERNALS__' in window
+import { Clipboard } from "@capacitor/clipboard"
+import { Capacitor } from "@capacitor/core"
+import { Directory, Filesystem } from "@capacitor/filesystem"
+import { readText } from "@tauri-apps/plugin-clipboard-manager"
+import { platform } from "@tauri-apps/plugin-os"
+import { ExportFile } from "capacitor-export-file"
+import { fetch as capFetch } from "capacitor-stream-fetch"
+import { exportFile as webExportFile } from "quasar"
+import { blobToBase64 } from "./functions"
+import { fetch as tauriFetch } from "./tauri-stream"
+export const IsTauri = "__TAURI_INTERNALS__" in window
 export const IsCapacitor = Capacitor.isNativePlatform()
 export const IsWeb = !IsTauri && !IsCapacitor
 export const TauriPlatform = IsTauri ? platform() : undefined
 
-export const fetch = IsTauri ? tauriFetch : IsCapacitor ? capFetch : window.fetch.bind(window)
+export const fetch = IsTauri
+  ? tauriFetch
+  : IsCapacitor
+    ? capFetch
+    : window.fetch.bind(window)
 
-export async function clipboardReadText(): Promise<string> {
+export async function clipboardReadText (): Promise<string> {
   if (IsTauri) {
     return await readText()
   } else if (IsCapacitor) {
@@ -25,21 +29,23 @@ export async function clipboardReadText(): Promise<string> {
   }
 }
 
-export const PublicOrigin = IsTauri || IsCapacitor ? 'https://aiaw.app' : location.origin
+export const PublicOrigin =
+  IsTauri || IsCapacitor ? "https://aiaw.app" : location.origin
 
-export async function exportFile(filename, data: Blob | string | ArrayBuffer) {
+export async function exportFile (filename, data: Blob | string | ArrayBuffer) {
   if (!IsCapacitor) return webExportFile(filename, data)
+
   const { uri } = await Filesystem.writeFile({
     path: filename,
-    data: (await blobToBase64(new Blob([data]))).replace(/^data:.*,/, ''),
-    directory: Directory.Cache
+    data: (await blobToBase64(new Blob([data]))).replace(/^data:.*,/, ""),
+    directory: Directory.Cache,
   })
   await ExportFile.exportFile({
     uri,
-    filename
+    filename,
   })
   await Filesystem.deleteFile({
     path: filename,
-    directory: Directory.Cache
+    directory: Directory.Cache,
   })
 }

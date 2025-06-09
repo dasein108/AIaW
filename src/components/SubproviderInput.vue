@@ -1,11 +1,9 @@
 <template>
-  <provider-input-items
-    v-model="subprovider.provider"
-  />
+  <provider-input-items v-model="subprovider.provider" />
   <q-item>
     <q-item-section>
       <q-item-label>
-        {{ $t('subproviderInput.modelList') }}
+        {{ $t("subproviderInput.modelList") }}
       </q-item-label>
       <q-item-label caption>
         <get-model-list
@@ -26,19 +24,23 @@
 </template>
 
 <script setup lang="ts">
-import { SubproviderMapped } from 'src/services/supabase/types'
-import ProviderInputItems from './ProviderInputItems.vue'
-import ModelsInput from './ModelsInput.vue'
-import GetModelList from './GetModelList.vue'
-import { computed } from 'vue'
+import { SubproviderMapped } from "src/services/supabase/types"
+import { computed } from "vue"
+import GetModelList from "./GetModelList.vue"
+import ModelsInput from "./ModelsInput.vue"
+import ProviderInputItems from "./ProviderInputItems.vue"
 
 const subprovider = defineModel<SubproviderMapped>()
 
 const models = computed({
   get: () =>
-    Object.entries(subprovider.value.model_map).map(([key, value]) => key === value ? key : `${key}::${value}`),
+    Object.entries(subprovider.value.model_map).map(([key, value]) =>
+      key === value ? key : `${key}::${value}`
+    ),
   set: (value: string[]) => {
-    subprovider.value.model_map = Object.fromEntries(value.map(v => v.includes('::') ? v.split('::', 2) : [v, v]))
-  }
+    subprovider.value.model_map = Object.fromEntries(
+      value.map((v) => (v.includes("::") ? v.split("::", 2) : [v, v]))
+    )
+  },
 })
 </script>
