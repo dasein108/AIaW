@@ -39,10 +39,8 @@
 import { useBack } from "src/composables/back"
 import SettingsArea from "src/layouts/SettingsArea.vue"
 import { useUiStateStore } from "src/stores/ui-state"
-import { inject } from "vue"
 
 const uiStore = useUiStateStore()
-const rightDrawerAbove = inject("rightDrawerAbove")
 
 defineEmits(["toggle-drawer", "contextmenu"])
 

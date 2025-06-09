@@ -97,7 +97,7 @@ module.exports = {
     "no-unused-vars": "warn",
     "@typescript-eslint/no-unused-vars": "off",
 
-    "space-before-function-paren": "warn",
+    "space-before-function-paren": "off",
     "space-before-blocks": "warn",
     "no-prototype-builtins": "off",
 

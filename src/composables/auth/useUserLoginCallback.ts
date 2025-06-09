@@ -8,7 +8,7 @@ export function useUserLoginCallback (onLogin: () => Promise<void>) {
   watch(
     () => [currentUserId.value, isInitialized.value],
     ([newId, newInit], old) => {
-      const [oldId, oldInit] = old ?? []
+      const [oldId] = old ?? []
 
       if (newId !== oldId || !oldId) {
         if (newInit) {

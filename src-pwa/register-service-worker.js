@@ -46,13 +46,16 @@ register(process.env.SERVICE_WORKER_FILE, {
   updated(/* registration */) {
     // console.log('New content is available; please refresh.')
     if (!newVersion) return
+
     if (version.versionCode > newVersion.forceUpdateFrom) return
 
     const lastReload = localData.lastReloadTimestamp
+
     if (lastReload && Date.now() - lastReload < 5000) {
       // Prevent infinite reloads
       return
     }
+
     localData.lastReloadTimestamp = Date.now()
     // if directly reload without timeout, the content won't be updated. I don't know why.
     setTimeout(() => {

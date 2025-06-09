@@ -18,7 +18,7 @@
     "test": "jest",
     "supabase:export-types:patch": "node scripts/generate-types.js",
     "supabase:export-sql": "supabase db dump --data-only=false --file ./scripts/supabase_schema.sql",
-    "eslint:fix": "eslint --ext .ts,.js,.vue src --fix"
+    "eslint:fix": "eslint --ext .ts,.js,.vue . --fix"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.13",

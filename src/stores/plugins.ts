@@ -81,17 +81,17 @@ export const usePluginsStore = defineStore("plugins", () => {
     return data.id
   }
 
-  async function deletePlugin (id: string) {
-    const { error } = await supabase.from("user_plugins").delete().eq("id", id)
+  // async function deletePlugin (id: string) {
+  //   const { error } = await supabase.from("user_plugins").delete().eq("id", id)
 
-    if (error) {
-      console.error("❌ Failed to delete plugin:", error.message)
+  //   if (error) {
+  //     console.error("❌ Failed to delete plugin:", error.message)
 
-      return
-    }
+  //     return
+  //   }
 
-    installedPlugins.value = installedPlugins.value.filter((i) => i.id !== id)
-  }
+  //   installedPlugins.value = installedPlugins.value.filter((i) => i.id !== id)
+  // }
 
   const availableKeys = computed(() =>
     installedPlugins.value.filter((i) => i.available).map((i) => i.key)

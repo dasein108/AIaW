@@ -78,6 +78,7 @@ export default defineConfig({
     })],
     [/^bg-gradient-(top|bottom|left|right)-(w|b)$/, ([, pos, color]) => {
       const rgb = color === 'w' ? '255 255 255' : '0 0 0'
+
       return {
         background: `linear-gradient(to ${pos}, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 5%) 20%, rgb(${rgb} / 30%) 100%)`
       }

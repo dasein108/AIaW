@@ -644,13 +644,13 @@ function sortModels () {
 
 useLocateId(ref(true))
 
-const showPinModal = ref(false)
+// const showPinModal = ref(false)
 const authStore = useAuthStore()
-const walletInfo = ref(authStore.walletInfo)
-const handlePinSubmit = async (pin: string) => {
-  walletInfo.value = await authStore.createGranteeWallet(pin)
-  showPinModal.value = false
-}
+// const walletInfo = ref(authStore.walletInfo)
+// const handlePinSubmit = async (pin: string) => {
+//   walletInfo.value = await authStore.createGranteeWallet(pin)
+//   showPinModal.value = false
+// }
 
 const showAuthzModal = ref(false)
 
