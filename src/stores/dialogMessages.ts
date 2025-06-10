@@ -85,13 +85,13 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
   ) {
     const { message_contents, ...messageInput } = message
 
-    console.log("-- addDialogMessage", message)
     // 1. create dialog message
     const { data: dialogMessage, error } = await supabase
       .from("dialog_messages")
       .insert({ ...messageInput, dialog_id: dialogId, parent_id: parentId })
       .select(SELECT_DIALOG_MESSAGES)
       .single<DialogMessageMapped>()
+    console.log("-- addDialogMessage", dialogMessage)
 
     if (error) {
       console.error(error)

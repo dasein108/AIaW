@@ -1,4 +1,4 @@
-import { computed, Ref } from "vue"
+import { computed, Ref, watch } from "vue"
 import { useStorage } from "../storage/useStorage"
 import { FILES_BUCKET } from "../storage/utils"
 import { useDialogMessages } from "./useDialogMessages"
@@ -12,7 +12,7 @@ import { ApiResultItem } from "@/utils/types"
 export const useDialogInput = (
   dialogId: Ref<string>,
 ) => {
-  const { messageMap, updateMessage, lastMessageId } = useDialogMessages(dialogId)
+  const { updateMessage, lastMessageId, lastMessage } = useDialogMessages(dialogId)
   const storage = useStorage(FILES_BUCKET)
 
   async function updateInputText (text) {
@@ -54,8 +54,7 @@ export const useDialogInput = (
 
   const inputMessageContent = computed(
     () =>
-      messageMap.value[lastMessageId.value]
-        ?.message_contents[0] as UserMessageContent
+      lastMessage.value?.message_contents[0] as UserMessageContent
   )
   const inputContentItems = computed(
     () => inputMessageContent.value.stored_items
@@ -65,6 +64,10 @@ export const useDialogInput = (
       !inputMessageContent.value?.text &&
       !inputMessageContent.value?.stored_items.length
   )
+
+  watch(lastMessage, (newMessage) => {
+    console.log("-----useDialogInput lastMessage", newMessage)
+  })
 
   return {
     updateInputText,

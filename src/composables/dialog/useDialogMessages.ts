@@ -3,7 +3,7 @@ import { useStorage } from "src/composables/storage/useStorage"
 import { useDialogMessagesStore } from "src/stores/dialogMessages"
 import { useDialogsStore } from "src/stores/dialogs"
 import { useWorkspacesStore } from "src/stores/workspaces"
-import { computed, Ref } from "vue"
+import { computed, Ref, watch } from "vue"
 import { FILES_BUCKET } from "../storage/utils"
 import { getBranchList, getDialogItemList, TreeListItem } from "./utils/dialogTreeUtils"
 import { DialogMessageInput, DialogMessageMapped, StoredItemMapped } from "@/services/supabase/types"
@@ -37,10 +37,11 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   const branchList = computed(() => getBranchList(messageMap.value))
   const dialogItems = computed<TreeListItem<DialogMessageMapped>[]>(() => getDialogItemList(null, messageMap.value, branchList.value, []))
 
-  // watch(dialogItems, () => {
-  //   console.log("-----useDialogMessages dialogItems", dialogItems.value)
-  // })
+  watch(dialogItems, () => {
+    console.log("-----useDialogMessages dialogItems", dialogItems.value)
+  })
   const lastMessageId = computed(() => dialogItems.value.length > 0 ? dialogItems.value[dialogItems.value.length - 1].message.id : null)
+  const lastMessage = computed(() => dialogItems.value.length > 0 ? dialogItems.value[dialogItems.value.length - 1].message : null)
 
   const addMessage = async (parentId: string | null, message: DialogMessageInput) => {
     const newMessage = await addDialogMessage(
@@ -85,11 +86,13 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
     const { type, message_contents, parent_id } = message
 
     console.log("-----createBranch", message)
-    await addMessage(parent_id, {
+    const { id } = await addMessage(parent_id, {
       type,
       message_contents,
       status: "inputing",
     })
+
+    await switchActiveMessage(id)
   }
 
   const deleteBranch = async (messageId: string) => {
@@ -115,6 +118,7 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
     workspaceId,
     workspace,
     lastMessageId,
+    lastMessage,
     dialogItems,
     addMessage,
     updateMessage,
