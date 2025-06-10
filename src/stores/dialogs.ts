@@ -113,8 +113,7 @@ export const useDialogsStore = defineStore("dialogs", () => {
         dialog_id,
         dialog:dialogs(
           workspace_id,
-          name,
-          msg_tree
+          name
         )
       )
     `)
