@@ -22,7 +22,7 @@ import ShortcutKeys from "src/views/ShortcutKeys.vue"
 import WorkspaceIndex from "src/views/WorkspaceIndex.vue"
 import WorkspaceSettings from "src/views/WorkspaceSettings.vue"
 import { RouteRecordRaw } from "vue-router"
-import CyberlinksPage from "../pages/CuberlinksPage.vue"
+import CyberlinksPage from "../pages/CyberlinksPage.vue"
 import SettingsPage from "../pages/SettingsPage.vue"
 
 const { t } = i18n.global

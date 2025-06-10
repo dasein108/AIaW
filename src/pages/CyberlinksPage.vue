@@ -117,8 +117,8 @@ const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
 provide("rightDrawerAbove", rightDrawerAbove)
 
 const pluginsStore = usePluginsStore()
-const { workspace } = useActiveWorkspace()
-const { callApi } = useCallApi(workspace, ref(null))
+const { workspaceId } = useActiveWorkspace()
+const { callApi } = useCallApi(workspaceId, ref(null))
 const authStore = useAuthStore()
 
 onMounted(async () => {

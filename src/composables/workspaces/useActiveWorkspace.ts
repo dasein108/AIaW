@@ -47,5 +47,5 @@ export function useActiveWorkspace () {
     () => userData.value.lastDialogIds[workspaceId.value]
   )
 
-  return { workspace, assistant, lastDialogId }
+  return { workspace, assistant, lastDialogId, workspaceId }
 }
