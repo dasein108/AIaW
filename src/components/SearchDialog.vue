@@ -130,10 +130,13 @@ async function search () {
     workspaceId: d.dialog_message.dialog.workspace_id,
     dialogId: d.dialog_message.dialog_id,
     title: d.dialog_message.dialog.name,
-    route: getRoute(
-      d.dialog_message.dialog.msg_tree as Record<string, string[]>,
-      d.message_id
-    ),
+    route: [],
+    // TODO: fix relative dialog messages
+    // create search in useDialogMessages
+    // route: getRoute(
+    //   d.dialog_message.dialog.msg_tree as Record<string, string[]>,
+    //   d.message_id
+    // ),
     preview: d.text.match(
       new RegExp(`^.*${escapeRegex(q.value)}.*$`, "im")
     )?.[0],
@@ -168,15 +171,15 @@ watch(open, (val) => {
     })
 })
 
-function getRoute (tree: Record<string, string[]>, target: string, curr = null) {
-  for (const [i, v] of tree[curr].entries()) {
-    if (v === target) return [i]
+// function getRoute (tree: Record<string, string[]>, target: string, curr = null) {
+//   for (const [i, v] of tree[curr].entries()) {
+//     if (v === target) return [i]
 
-    const route = getRoute(tree, target, v)
+//     const route = getRoute(tree, target, v)
 
-    if (route) return [i, ...route]
-  }
-}
+//     if (route) return [i, ...route]
+//   }
+// }
 
 const { dialogRef, onDialogHide } = useDialogPluginComponent()
 </script>

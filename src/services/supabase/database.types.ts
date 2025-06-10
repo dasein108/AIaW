@@ -168,7 +168,9 @@ export type Database = {
           error: string | null
           generating_session: string | null
           id: string
+          is_active: boolean | null
           model_name: string | null
+          parent_id: string | null
           status: string
           type: string
           usage: Json | null
@@ -181,7 +183,9 @@ export type Database = {
           error?: string | null
           generating_session?: string | null
           id?: string
+          is_active?: boolean | null
           model_name?: string | null
+          parent_id?: string | null
           status: string
           type: string
           usage?: Json | null
@@ -194,7 +198,9 @@ export type Database = {
           error?: string | null
           generating_session?: string | null
           id?: string
+          is_active?: boolean | null
           model_name?: string | null
+          parent_id?: string | null
           status?: string
           type?: string
           usage?: Json | null
@@ -217,6 +223,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "dialog_messages_parent_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "dialog_messages"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "dialog_messages_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
@@ -232,8 +245,6 @@ export type Database = {
           id: string
           input_vars: Json
           model_override: Json | null
-          msg_route: number[]
-          msg_tree: Json
           name: string
           user_id: string
           workspace_id: string
@@ -244,8 +255,6 @@ export type Database = {
           id?: string
           input_vars: Json
           model_override?: Json | null
-          msg_route: number[]
-          msg_tree: Json
           name: string
           user_id?: string
           workspace_id: string
@@ -256,8 +265,6 @@ export type Database = {
           id?: string
           input_vars?: Json
           model_override?: Json | null
-          msg_route?: number[]
-          msg_tree?: Json
           name?: string
           user_id?: string
           workspace_id?: string

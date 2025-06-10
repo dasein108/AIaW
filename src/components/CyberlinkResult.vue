@@ -22,11 +22,11 @@
 </template>
 
 <script setup lang="ts">
+import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
 import { KeplerWallet } from "src/services/kepler/KeplerWallet"
 import { parseEvents } from "src/services/kepler/utils"
-import { useDialogsStore } from "src/stores/dialogs"
 import { IsTauri } from "src/utils/platform-api"
-import { computed, inject } from "vue"
+import { computed, inject, toRef } from "vue"
 
 import { CosmosWallet } from "@/services/cosmos/CosmosWallet"
 import {
@@ -41,7 +41,7 @@ const props = defineProps<{
 const keplrWallet = inject<KeplerWallet>("kepler")
 const cosmosWallet = inject<CosmosWallet>("cosmos")
 const transactionBody = computed(() => JSON.parse(props.result[0].content_text))
-const dialogsStore = useDialogsStore()
+const { updateMessage } = useDialogMessages(toRef(props.message, "dialog_id"))
 const handleAccept = async () => {
   const { message_contents } = props.message
   const updatedContents = message_contents.filter(
@@ -67,7 +67,7 @@ const handleAccept = async () => {
       text: `Transaction failed: ${error.message}`,
     })
   }
-  dialogsStore.updateDialogMessage(props.message.dialog_id, props.message.id, {
+  updateMessage(props.message.id, {
     generating_session: null,
     status: "processed",
     message_contents: updatedContents,
@@ -75,7 +75,7 @@ const handleAccept = async () => {
 }
 
 const handleDecline = async () => {
-  dialogsStore.updateDialogMessage(props.message.dialog_id, props.message.id, {
+  updateMessage(props.message.id, {
     generating_session: null,
     status: "processed",
     error: "Transaction Declined",

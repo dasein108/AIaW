@@ -26,10 +26,8 @@ import { useI18n } from "vue-i18n"
 import { useCallApi } from "../call-api"
 import { useCreateArtifact } from "../create-artifact"
 import { useAssistantTools } from "./useAssistantTools"
-import { useDialogChain } from "./useDialogChain"
 import { useDialogMessages } from "./useDialogMessages"
 import { useDialogModel } from "./useDialogModel"
-import { useDialogView } from "./useDialogView"
 import { AssistantMessageContent } from "@/common/types/dialogs"
 import {
   AssistantMapped,
@@ -51,17 +49,13 @@ export const useLlmDialog = (
   const { data: perfs } = useUserPerfsStore()
   const { t, locale } = useI18n()
   const $q = useQuasar()
-  const { messageMap, dialog } = useDialogMessages(dialogId)
+  const { dialog, updateMessage, addMessage, dialogItems, switchActiveMessage, getMessageContents } = useDialogMessages(dialogId)
 
   const { model, sdkModel, systemSdkModel } = useDialogModel(dialog, assistant)
   const { callApi } = useCallApi(workspaceId, dialogId)
   const storage = useStorage(FILES_BUCKET)
   const { getAssistantTools } = useAssistantTools(assistant, workspaceId, dialogId)
   const isStreaming = ref(false)
-
-  const { getDialogContents } = useDialogView(dialogId)
-
-  const { historyChain, chain } = useDialogChain(dialogId)
 
   const genTitle = async (contents: Readonly<MessageContentMapped[]>) => {
     try {
@@ -111,7 +105,7 @@ export const useLlmDialog = (
       ["assistant-message", "user-message"].includes(c.type)
     )
 
-    await dialogsStore.updateDialogMessage(dialog.value.id, message.id, {
+    await updateMessage(message.id, {
       message_contents: message.message_contents.map((c, i) =>
         i === index
           ? { ...c, text: c.text.replace(pattern, to) }
@@ -145,12 +139,13 @@ export const useLlmDialog = (
   }
 
   async function stream(
-    target: string | null,
+    targetId: string,
     insert = false,
     abortController: AbortController | null = null
   ) {
-    if (target) {
-      await dialogsStore.updateDialogMessage(dialog.value.id, target, {
+    // In case if last message in status "inputing"
+    if (targetId) {
+      await updateMessage(targetId, {
         status: "default",
       })
     }
@@ -161,9 +156,8 @@ export const useLlmDialog = (
     }
     const contents: MessageContentMapped[] = [messageContent]
 
-    const { id } = await dialogsStore.addDialogMessage(
-      dialog.value.id,
-      target,
+    const { id } = await addMessage(
+      targetId,
       {
         type: "assistant",
         assistant_id: assistant.value.id,
@@ -172,10 +166,16 @@ export const useLlmDialog = (
         generating_session: sessions.id,
         model_name: model.value.name,
       },
-      insert
     )
+
+    // In case of "regenerate action"
+    if (targetId) {
+      await switchActiveMessage(id)
+    }
+
+    // In case of "send action with empty input"
     !insert &&
-      (await dialogsStore.addDialogMessage(dialog.value.id, id, {
+      (await addMessage(id, {
         type: "user",
         message_contents: [
           {
@@ -189,9 +189,8 @@ export const useLlmDialog = (
 
     isStreaming.value = true
 
-    // const update = throttle(() => dialogsStore.updateDialogMessage(props.id, id, { message_contents: contents }), 50)
     const update = async () =>
-      await dialogsStore.updateDialogMessage(dialog.value.id, id, {
+      await updateMessage(id, {
         message_contents: contents,
       })
 
@@ -270,7 +269,7 @@ export const useLlmDialog = (
 
       if (assistant.value.stream) {
         result = streamText(params)
-        await dialogsStore.updateDialogMessage(dialog.value.id, id, {
+        await updateMessage(id, {
           status: "streaming",
         })
         for await (const part of result.fullStream) {
@@ -297,7 +296,7 @@ export const useLlmDialog = (
           ? w.details
           : w.message
       )
-      await dialogsStore.updateDialogMessage(dialog.value.id, id, {
+      await updateMessage(id, {
         message_contents: contents,
         status: "default",
         generating_session: null,
@@ -314,31 +313,33 @@ export const useLlmDialog = (
       //     actions: [{ label: t('dialogView.recharge'), color: 'on-sur', handler() { router.push('/account') } }]
       //   })
       // }
-      await dialogsStore.updateDialogMessage(dialog.value.id, id, {
+      await updateMessage(id, {
         message_contents: contents,
         error: e.message || e.toString(),
         status: "failed",
         generating_session: null,
       })
     }
-    const message = messageMap.value[chain.value.at(-2)]
+    const message = dialogItems.value.at(-2).message // last non-inputing = NOT EMPTY message
 
     perfs.artifactsAutoExtract &&
-      autoExtractArtifact(message, getDialogContents(-3, -1))
+      autoExtractArtifact(message, getMessageContents(-3, -1))
     perfs.autoGenTitle &&
-      chain.value.length === 4 &&
-      genTitle(getDialogContents())
+    dialogItems.value.length === 4 &&
+      genTitle(getMessageContents())
     isStreaming.value = false
   }
 
   function getChainMessages () {
     const val: CoreMessage[] = []
-    const messages = historyChain.value
-      .slice(1)
+    const messages = dialogItems.value
+      // .slice(1) // TODO: <--- ??? REMOVE THIS
       .slice(-assistant.value.context_num || 0)
-      .filter((id) => messageMap.value[id].status !== "inputing")
-      .map((id) => messageMap.value[id].message_contents)
+      .filter((item) => item.message.status !== "inputing")
+      .map((item) => item.message.message_contents)
       .flat()
+
+    console.log("-----getChainMessages", dialogItems.value, messages)
 
     messages.forEach((content) => {
       if (content.type === "user-message") {

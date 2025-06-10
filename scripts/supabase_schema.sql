@@ -417,6 +417,8 @@ CREATE TABLE IF NOT EXISTS "public"."dialog_messages" (
     "warnings" "jsonb",
     "usage" "jsonb",
     "model_name" "text",
+    "parent_id" "uuid",
+    "is_active" boolean DEFAULT false,
     CONSTRAINT "dialog_messages_status_check" CHECK (("status" = ANY (ARRAY['pending'::"text", 'streaming'::"text", 'failed'::"text", 'default'::"text", 'inputing'::"text", 'processed'::"text"]))),
     CONSTRAINT "dialog_messages_type_check" CHECK (("type" = ANY (ARRAY['user'::"text", 'assistant'::"text"])))
 );
@@ -431,8 +433,6 @@ CREATE TABLE IF NOT EXISTS "public"."dialogs" (
     "workspace_id" "uuid" NOT NULL,
     "assistant_id" "uuid",
     "user_id" "uuid" DEFAULT "auth"."uid"() NOT NULL,
-    "msg_tree" "jsonb" NOT NULL,
-    "msg_route" integer[] NOT NULL,
     "input_vars" "jsonb" NOT NULL,
     "model_override" "jsonb",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
@@ -754,6 +754,11 @@ ALTER TABLE ONLY "public"."dialog_messages"
 
 ALTER TABLE ONLY "public"."dialog_messages"
     ADD CONSTRAINT "dialog_messages_dialog_id_fkey" FOREIGN KEY ("dialog_id") REFERENCES "public"."dialogs"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."dialog_messages"
+    ADD CONSTRAINT "dialog_messages_parent_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."dialog_messages"("id") ON DELETE CASCADE;
 
 
 

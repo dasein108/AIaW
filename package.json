@@ -18,7 +18,8 @@
     "test": "jest",
     "supabase:export-types:patch": "node scripts/generate-types.js",
     "supabase:export-sql": "supabase db dump --data-only=false --file ./scripts/supabase_schema.sql",
-    "eslint:fix": "eslint --ext .ts,.js,.vue . --fix"
+    "eslint:fix": "eslint --ext .ts,.js,.vue . --fix",
+    "migrate:all": "npx tsx scripts/migrate_messages_tree.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.13",
@@ -117,6 +118,7 @@
     "serve": "^14.2.4",
     "supabase": ">=1.8.1",
     "ts-jest": "^29.3.2",
+    "tsx": "^4.19.4",
     "typescript": "~5.5.4",
     "unocss": "^0.62.3",
     "vite-plugin-checker": "^0.8.0",

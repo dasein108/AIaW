@@ -16,8 +16,6 @@ export function useCreateDialog (workspaceId: string) {
       {
         workspace_id: workspaceId,
         name: t("createDialog.newDialog"),
-        msg_tree: { null: [] },
-        msg_route: [],
         assistant_id: userStore.data.defaultAssistantIds[workspaceId] || null,
         input_vars: {},
         ...props,
