@@ -1,6 +1,7 @@
 import { useDialogsStore } from "src/stores/dialogs"
 import { computed, Ref, toRaw } from "vue"
 import { useStorage } from "../storage/useStorage"
+import { FILES_BUCKET } from "../storage/utils"
 import { useDialogChain } from "./useDialogChain"
 import { useDialogMessages } from "./useDialogMessages"
 import { UserMessageContent } from "@/common/types/dialogs"
@@ -16,7 +17,7 @@ export const useDialogView = (
   const dialogsStore = useDialogsStore()
   const { messageMap, dialog } = useDialogMessages(dialogId)
 
-  const storage = useStorage()
+  const storage = useStorage(FILES_BUCKET)
   const { chain, updateMsgRoute, switchChain } =
     useDialogChain(dialogId)
 
