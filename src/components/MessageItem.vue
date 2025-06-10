@@ -349,6 +349,7 @@ import { copyToClipboard, useQuasar } from "quasar"
 import { useMdPreviewProps } from "src/composables/md-preview-props"
 import { useAssistantsStore } from "src/stores/assistants"
 import { useDialogsStore } from "src/stores/dialogs"
+import { usePluginsStore } from "src/stores/plugins"
 import { useUserPerfsStore } from "src/stores/user-perfs"
 import {
   escapeRegex,
@@ -482,6 +483,7 @@ const textContent = computed(
 
 const { data: perfs } = useUserPerfsStore()
 const assistantsStore = useAssistantsStore()
+const pluginsStore = usePluginsStore()
 const dialog = computed(() => dialogsStore.dialogs[props.message.dialog_id])
 
 const assistant = computed(() => {
@@ -495,13 +497,14 @@ const assistant = computed(() => {
 const canCreateCyberlink = computed(() => {
   if (!assistant.value?.plugins) return false
 
-  const plugins = assistant.value.plugins as Record<
-    string,
-    { enabled: boolean; tools?: { name: string }[] }
-  >
+  const activePlugins = pluginsStore.plugins.filter(
+    (p) => assistant.value.plugins[p.id]?.enabled
+  )
 
-  return Object.values(plugins).some((plugin) =>
-    plugin.tools?.some((tool) => tool.name === "create_cyberlink")
+  return activePlugins.some(
+    (plugin) =>
+      plugin.id === "cosmos-authz" ||
+      plugin.apis.some((api) => api.name === "create_cyberlink")
   )
 })
 const avatar = computed(() =>
