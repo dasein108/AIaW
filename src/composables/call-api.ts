@@ -4,11 +4,10 @@ import { removeUndefinedProps } from "src/utils/functions"
 import { ApiResultItem, Plugin, PluginApi } from "src/utils/types"
 import { Ref, toRaw } from "vue"
 import { useI18n } from "vue-i18n"
-import { DialogMapped, WorkspaceMapped } from "@/services/supabase/types"
 
 export function useCallApi (
-  workspace: Ref<WorkspaceMapped>,
-  dialog: Ref<DialogMapped>
+  workspaceId: Ref<string>,
+  dialogId: Ref<string>
 ) {
   const pluginsStore = usePluginsStore()
   const { t } = useI18n()
@@ -17,11 +16,11 @@ export function useCallApi (
     const settings = toRaw(pluginsStore.data[plugin.id].settings)
 
     if (plugin.settings.properties._workspaceId) {
-      settings._workspaceId = workspace.value.id
+      settings._workspaceId = workspaceId.value
     }
 
     if (plugin.settings.properties._dialogId) {
-      settings._dialogId = dialog.value.id
+      settings._dialogId = dialogId.value
     }
 
     removeUndefinedProps(settings)

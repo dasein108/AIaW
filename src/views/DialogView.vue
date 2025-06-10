@@ -417,14 +417,13 @@ import ModelOptionsBtn from "src/components/ModelOptionsBtn.vue"
 import ParseFilesDialog from "src/components/ParseFilesDialog.vue"
 import PromptVarInput from "src/components/PromptVarInput.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
+import { useDialogChain } from "src/composables/dialog/useDialogChain"
+import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
+import { useDialogModel } from "src/composables/dialog/useDialogModel"
+import { useDialogView } from "src/composables/dialog/useDialogView"
+import { useLlmDialog } from "src/composables/dialog/useLlmDialog"
 import { useListenKey } from "src/composables/listen-key"
-import { useLlmDialog } from "src/composables/llm/useLlmDialog"
 import { useSetTitle } from "src/composables/set-title"
-import {
-  useDialogChain,
-  useDialogModel,
-  useDialogView,
-} from "src/composables/useDialogView"
 import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
 import ErrorNotFound from "src/pages/ErrorNotFound.vue"
 import { useDialogsStore } from "src/stores/dialogs"
@@ -473,11 +472,11 @@ const rightDrawerAbove = inject("rightDrawerAbove")
 const { assistant, workspace } = useActiveWorkspace()
 const dialogsStore = useDialogsStore()
 
-const dialog = computed(() => dialogsStore.dialogs[props.id])
-const { switchChain, updateMsgRoute } = useDialogChain(dialog)
+const dialogId = computed(() => props.id)
+const { messageMap, dialog, workspaceId } = useDialogMessages(dialogId)
+
+const { switchChain, updateMsgRoute, chain } = useDialogChain(dialogId)
 const {
-  chain,
-  messageMap,
   editBranch,
   deleteBranch,
   updateInputText,
@@ -487,7 +486,7 @@ const {
   inputEmpty,
   getDialogContents,
   removeStoredItem,
-} = useDialogView(dialog, assistant)
+} = useDialogView(dialogId)
 
 const pluginsStore = usePluginsStore()
 const { data: perfs } = useUserPerfsStore()
@@ -496,8 +495,8 @@ const { model, sdkModel, modelOptions } = useDialogModel(dialog, assistant)
 
 const $q = useQuasar()
 const { genTitle, extractArtifact, stream, isStreaming } = useLlmDialog(
-  workspace,
-  dialog,
+  workspaceId,
+  dialogId,
   assistant
 )
 
@@ -736,27 +735,10 @@ async function sendCyberlinkPrompt (text: string) {
 async function send () {
   if (!ensureAssistantAndModel()) return
 
-  // TODO: Noob alert - probably not needed
-  // if (!data.noobAlertDismissed && chain.value.length > 10 && dialogs.value.length < 3) {
-  //   $q.dialog({
-  //     title: t('dialogView.noobAlert.title'),
-  //     message: t('dialogView.noobAlert.message'),
-  //     persistent: true,
-  //     ok: t('dialogView.noobAlert.okBtn'),
-  //     cancel: t('dialogView.noobAlert.cancelBtn'),
-  //     ...dialogOptions
-  //   }).onCancel(() => {
-  //     data.noobAlertDismissed = true
-  //     send()
-  //   })
-  //   return
-  // }
-
   showVars.value = false
   nextTick().then(() => {
     scroll("bottom")
   })
-  console.log("-- inputEmpty", inputEmpty.value)
 
   if (inputEmpty.value) {
     await startStream(chain.value.at(-2), true)

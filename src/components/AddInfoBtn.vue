@@ -74,6 +74,9 @@ const props = defineProps<{
 const workspace = inject<Ref<WorkspaceMapped>>("workspace")
 const dialog = inject<Ref<DialogMapped>>("dialog")
 
+const workspaceId = computed(() => workspace.value.id)
+const dialogId = computed(() => dialog.value.id)
+
 const pluginInfos = computed<{ plugin: Plugin; apis: PluginApi[] }[]>(() =>
   props.plugins
     .map((p) => ({
@@ -92,7 +95,7 @@ const pluginInfos = computed<{ plugin: Plugin; apis: PluginApi[] }[]>(() =>
 )
 
 const $q = useQuasar()
-const { callApi } = useCallApi(workspace, dialog)
+const { callApi } = useCallApi(workspaceId, dialogId)
 const { t } = useI18n()
 
 function handleResult (res: Awaited<ReturnType<typeof callApi>>) {

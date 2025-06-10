@@ -3,11 +3,12 @@ import {
   generateText,
   StreamTextResult,
   GenerateTextResult,
+  CoreMessage,
 } from "ai"
 import { pickBy } from "lodash"
 import { useQuasar } from "quasar"
 import { useStorage } from "src/composables/storage/useStorage"
-import { FILES_BUCKET } from "src/composables/storage/utils"
+import { FILES_BUCKET, getFileUrl } from "src/composables/storage/utils"
 import {
   generateTitle,
   generateArtifactName,
@@ -16,45 +17,51 @@ import {
 import { useDialogsStore } from "src/stores/dialogs"
 import { useUserPerfsStore } from "src/stores/user-perfs"
 import { getAssistantModelSettings } from "src/utils/assistant-utils"
+import { storedItemResultContent } from "src/utils/dialog"
+import { genId, mimeTypeMatch } from "src/utils/functions"
 import sessions from "src/utils/sessions"
 import { ExtractArtifactResult } from "src/utils/templates"
-import { ref, Ref, toRef } from "vue"
+import { ref, Ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useCallApi } from "../call-api"
 import { useCreateArtifact } from "../create-artifact"
-import { useDialogModel, useDialogView } from "../useDialogView"
 import { useAssistantTools } from "./useAssistantTools"
+import { useDialogChain } from "./useDialogChain"
+import { useDialogMessages } from "./useDialogMessages"
+import { useDialogModel } from "./useDialogModel"
+import { useDialogView } from "./useDialogView"
 import { AssistantMessageContent } from "@/common/types/dialogs"
 import {
   AssistantMapped,
-  DialogMapped,
   DialogMessageMapped,
   MessageContentMapped,
   MessageContentResult,
   StoredItemMapped,
-  WorkspaceMapped,
 } from "@/services/supabase/types"
 import { ConvertArtifactOptions, Plugin, PluginApi } from "@/utils/types"
 
 export const useLlmDialog = (
-  workspace: Ref<WorkspaceMapped>,
-  dialog: Ref<DialogMapped>,
+  workspaceId: Ref<string>,
+  dialogId: Ref<string>,
   assistant: Ref<AssistantMapped>
 ) => {
   const dialogsStore = useDialogsStore()
-  const { createArtifact } = useCreateArtifact(toRef(workspace.value, "id"))
+  const { createArtifact } = useCreateArtifact(workspaceId)
 
   const { data: perfs } = useUserPerfsStore()
   const { t, locale } = useI18n()
   const $q = useQuasar()
+  const { messageMap, dialog } = useDialogMessages(dialogId)
+
   const { model, sdkModel, systemSdkModel } = useDialogModel(dialog, assistant)
-  const { callApi } = useCallApi(workspace, dialog)
+  const { callApi } = useCallApi(workspaceId, dialogId)
   const storage = useStorage(FILES_BUCKET)
-  const { getAssistantTools } = useAssistantTools(assistant, workspace, dialog)
+  const { getAssistantTools } = useAssistantTools(assistant, workspaceId, dialogId)
   const isStreaming = ref(false)
 
-  const { chain, messageMap, getDialogContents, getChainMessages } =
-    useDialogView(dialog, assistant)
+  const { getDialogContents } = useDialogView(dialogId)
+
+  const { historyChain, chain } = useDialogChain(dialogId)
 
   const genTitle = async (contents: Readonly<MessageContentMapped[]>) => {
     try {
@@ -242,6 +249,7 @@ export const useLlmDialog = (
         noRoundtrip ? { maxSteps: 1 } : {}
       )
       const messages = getChainMessages()
+      // console.log("--c messages", messages)
 
       if (systemPrompt) {
         messages.unshift({
@@ -321,6 +329,96 @@ export const useLlmDialog = (
       chain.value.length === 4 &&
       genTitle(getDialogContents())
     isStreaming.value = false
+  }
+
+  function getChainMessages () {
+    const val: CoreMessage[] = []
+    const messages = historyChain.value
+      .slice(1)
+      .slice(-assistant.value.context_num || 0)
+      .filter((id) => messageMap.value[id].status !== "inputing")
+      .map((id) => messageMap.value[id].message_contents)
+      .flat()
+
+    messages.forEach((content) => {
+      if (content.type === "user-message") {
+        val.push({
+          role: "user",
+          content: [
+            { type: "text", text: content.text },
+            ...content.stored_items.map((i) => {
+              if (i.content_text != null) {
+                if (i.type === "file") {
+                  return {
+                    type: "text" as const,
+                    text: `<file_content filename="${i.name}">\n${i.content_text}\n</file_content>`,
+                  }
+                } else if (i.type === "quote") {
+                  return {
+                    type: "text" as const,
+                    text: `<quote name="${i.name}">${i.content_text}</quote>`,
+                  }
+                } else {
+                  return { type: "text" as const, text: i.content_text }
+                }
+              } else {
+                if (!mimeTypeMatch(i.mime_type, model.value.inputTypes.user)) {
+                  return null
+                } else if (i.mime_type.startsWith("image/")) {
+                  return {
+                    type: "image" as const,
+                    image: getFileUrl(i.file_url),
+                    mimeType: i.mime_type,
+                  }
+                } else {
+                  return {
+                    type: "file" as const,
+                    mimeType: i.mime_type,
+                    data: getFileUrl(i.file_url),
+                  }
+                }
+              }
+            }),
+          ],
+        })
+      } else if (content.type === "assistant-message") {
+        val.push({
+          role: "assistant",
+          content: [{ type: "text", text: content.text }],
+        })
+      } else if (content.type === "assistant-tool") {
+        if (content.status !== "completed") return
+
+        const { name, args, result, plugin_id } = content
+        const id = genId()
+        val.push({
+          role: "assistant",
+          content: [
+            {
+              type: "tool-call",
+              toolName: `${plugin_id}-${name}`,
+              toolCallId: id,
+              args,
+            },
+          ],
+        })
+        const resultContent = result.map((i) => storedItemResultContent(i))
+        val.push({
+          role: "tool",
+          content: [
+            {
+              type: "tool-result",
+              toolName: `${plugin_id}-${name}`,
+              toolCallId: id,
+              result: resultContent,
+              // experimental_content: resultContent
+            },
+          ],
+        })
+      }
+    })
+
+    return val
   }
 
   return {

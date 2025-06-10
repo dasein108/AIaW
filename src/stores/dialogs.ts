@@ -121,7 +121,7 @@ export const useDialogsStore = defineStore("dialogs", () => {
   }
 
   async function updateDialog (dialog: Partial<DialogMapped>) {
-    console.log("-- updateDialog", dialog)
+    // console.log("--updateDialog", dialog)
     const { data, error } = await supabase
       .from("dialogs")
       .update(dialog)
@@ -264,7 +264,7 @@ export const useDialogsStore = defineStore("dialogs", () => {
         .eq("dialog_id", dialogId)
         .select(SELECT_DIALOG_MESSAGES)
         .single()
-      console.log("-- updateDialogMessage shouldSave", messageInput, data)
+      // console.log("--updateDialogMessage shouldSave", messageInput, data)
 
       if (error) {
         console.error(error)

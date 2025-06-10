@@ -7,9 +7,7 @@ import { getSystemPrompt } from "src/services/llm/utils"
 import {
   ArtifactMapped,
   AssistantMapped,
-  DialogMapped,
   StoredItem,
-  WorkspaceMapped,
 } from "src/services/supabase/types"
 import { usePluginsStore } from "src/stores/plugins"
 import { useUserDataStore } from "src/stores/user-data"
@@ -26,6 +24,7 @@ import {
 } from "src/utils/types"
 import { Ref, computed, inject } from "vue"
 import { useI18n } from "vue-i18n"
+import { useDialogMessages } from "./useDialogMessages"
 
 type CallTool = (
   plugin: Plugin,
@@ -35,12 +34,13 @@ type CallTool = (
 
 export const useAssistantTools = (
   assistant: Ref<AssistantMapped>,
-  workspace: Ref<WorkspaceMapped>,
-  dialog: Ref<DialogMapped>
+  workspaceId: Ref<string>,
+  dialogId: Ref<string>
 ) => {
   const pluginsStore = usePluginsStore()
   const { data: perfs } = storeToRefs(useUserPerfsStore())
   const { data: userData } = storeToRefs(useUserDataStore())
+  const { dialog, workspace } = useDialogMessages(dialogId)
 
   const { getModel } = useGetModel()
 
@@ -48,7 +48,7 @@ export const useAssistantTools = (
     getModel(dialog.value?.model_override || assistant.value?.model)
   )
 
-  const { callApi } = useCallApi(workspace, dialog)
+  const { callApi } = useCallApi(workspaceId, dialogId)
   const activePlugins = computed<Plugin[]>(() =>
     assistant.value
       ? pluginsStore.plugins.filter(
