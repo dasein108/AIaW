@@ -1,8 +1,10 @@
 import { storeToRefs } from "pinia"
+import { useStorage } from "src/composables/storage/useStorage"
 import { useDialogMessagesStore } from "src/stores/dialogMessages"
 import { useDialogsStore } from "src/stores/dialogs"
 import { useWorkspacesStore } from "src/stores/workspaces"
 import { computed, Ref } from "vue"
+import { FILES_BUCKET } from "../storage/utils"
 import { getBranchList, getDialogItemList, TreeListItem } from "./utils/dialogTreeUtils"
 import { DialogMessageInput, DialogMessageMapped, StoredItemMapped } from "@/services/supabase/types"
 
@@ -11,6 +13,7 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   const { addDialogMessage, updateDialogMessage, switchActiveDialogMessage, removeDialogMessage, removeStoredItem, fetchDialogMessages } = useDialogMessagesStore()
   const { dialogMessages: allDialogMessages } = storeToRefs(useDialogMessagesStore())
   const { workspaces } = storeToRefs(useWorkspacesStore())
+  const { deleteFile } = useStorage(FILES_BUCKET)
   const dialog = computed(() => dialogs.value[dialogId.value])
   const workspaceId = computed(() => dialog.value.workspace_id)
   const workspace = computed(() => workspaces.value.find(ws => ws.id === dialog.value.workspace_id))
@@ -95,7 +98,14 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   }
 
   const deleteStoredItem = async (stored_item: StoredItemMapped) => {
+    console.log("-----deleteStoredItem", stored_item)
+    await deleteFile(stored_item.file_url)
     await removeStoredItem(stored_item)
+  }
+
+  function switchBranch (item: TreeListItem<DialogMessageMapped>, index: number) {
+    console.log("----switchBranch", item, index)
+    switchActiveMessage(item.siblingMessageIds[index - 1])
   }
 
   return {
@@ -112,6 +122,7 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
     getMessageContents,
     createBranch,
     deleteBranch,
+    switchBranch,
     deleteStoredItem,
     fetchMessages
   }

@@ -333,7 +333,7 @@ export const useLlmDialog = (
   function getChainMessages () {
     const val: CoreMessage[] = []
     const messages = dialogItems.value
-      .slice(1) // TODO: <--- ???
+      // .slice(1) // TODO: <--- ??? REMOVE THIS
       .slice(-assistant.value.context_num || 0)
       .filter((item) => item.message.status !== "inputing")
       .map((item) => item.message.message_contents)

@@ -195,6 +195,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     }
 
     const { message_contents, ...messageInput } = dialogMessage
+    console.log("-----updateDialogMessage: 1. message_contents", message_contents)
 
     if (Object.keys(messageInput).length > 0) {
       const { data, error } = await supabase
@@ -212,6 +213,8 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
 
       dialogMessage = merge(mapDialogMessage(data), dialogMessage)
     }
+
+    console.log("-----updateDialogMessage: 2. message_contents", dialogMessage.message_contents)
 
     for (const content of dialogMessage.message_contents) {
       const { stored_items = [], ...contentInput } = content
@@ -264,6 +267,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
             throw itemError
           }
 
+          console.log("-----updateDialogMessage: update stored item", itemData)
           messageContent.stored_items.map((i) =>
             i.id === item.id ? (itemData as StoredItemMapped) : i
           )
@@ -283,6 +287,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
             throw itemError
           }
 
+          console.log("-----updateDialogMessage: add stored item", itemData)
           messageContent.stored_items.push(itemData as StoredItemMapped)
         }
       }

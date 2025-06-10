@@ -1,113 +1,10 @@
 <template>
   <view-common-header @toggle-drawer="$emit('toggle-drawer')">
-    <div
-      v-if="model && assistant && dialog"
-      text-on-sur-var
-      my-2
-      of-hidden
-      whitespace-nowrap
-      text-ellipsis
-      cursor-pointer
-    >
-      <q-icon
-        name="sym_o_neurology"
-        size="24px"
-      />
-      <code
-        bg-sur-c-high
-        px="6px"
-        py="3px"
-        text="xs"
-      >{{ model.name }}</code>
-      <!-- <q-icon
-        name="sym_o_expand_more"
-        size="sm"
-      /> -->
-      <!-- TODO: Refactor/remove model menu -->
-      <q-menu important:max-w="300px">
-        <q-list>
-          <template v-if="assistant.model">
-            <q-item-label
-              header
-              pb-2
-            >
-              {{ $t("dialogView.assistantModel") }}
-            </q-item-label>
-            <model-item
-              v-if="assistant.model"
-              :model="assistant.model.name"
-              @click="
-                dialogsStore.updateDialog({
-                  id: dialog.id,
-                  model_override: null,
-                })
-              "
-              :selected="!dialog.model_override"
-              clickable
-              v-close-popup
-            />
-          </template>
-          <template v-else-if="perfs.model">
-            <q-item-label
-              header
-              pb-2
-            >
-              {{ $t("dialogView.globalDefault") }}
-            </q-item-label>
-            <model-item
-              v-if="perfs.model"
-              :model="perfs.model.name"
-              @click="
-                dialogsStore.updateDialog({
-                  id: dialog.id,
-                  model_override: null,
-                })
-              "
-              :selected="!dialog.model_override"
-              clickable
-              v-close-popup
-            />
-          </template>
-          <q-separator spaced />
-          <q-item-label
-            header
-            py-2
-          >
-            {{ $t("dialogView.commonModels") }}
-          </q-item-label>
-          <a-tip
-            tip-key="configure-common-models"
-            rd-0
-          >
-            {{ $t("dialogView.modelsConfigGuide1")
-            }}<router-link
-              to="/settings"
-              pri-link
-            >
-              {{ $t("dialogView.settings") }}
-            </router-link>
-            {{ $t("dialogView.modelsConfigGuide2") }}
-          </a-tip>
-          <model-item
-            v-for="m of perfs.commonModelOptions"
-            :key="m"
-            clickable
-            :model="m"
-            @click="
-              dialogsStore.updateDialog({
-                id: dialog.id,
-                model_override: models.find((model) => model.name === m) || {
-                  name: m,
-                  inputTypes: InputTypes.default,
-                },
-              })
-            "
-            :selected="dialog.model_override?.name === m"
-            v-close-popup
-          />
-        </q-list>
-      </q-menu>
-    </div>
+    <model-override-menu
+      :model="model"
+      :assistant="assistant"
+      :dialog="dialog"
+    />
     <q-space />
   </view-common-header>
   <q-page-container
@@ -361,6 +258,7 @@
             "
             ml-4
             min-h="40px"
+            :disabled="inputEmpty"
           />
         </div>
         <div
@@ -408,13 +306,12 @@ import Mark from "mark.js"
 import { useQuasar } from "quasar"
 import AbortableBtn from "src/components/AbortableBtn.vue"
 import AddInfoBtn from "src/components/AddInfoBtn.vue"
-import ATip from "src/components/ATip.vue"
 import EnablePluginsMenu from "src/components/EnablePluginsMenu.vue"
 import MessageFile from "src/components/MessageFile.vue"
 import MessageImage from "src/components/MessageImage.vue"
 import MessageItem from "src/components/MessageItem.vue"
-import ModelItem from "src/components/ModelItem.vue"
 import ModelOptionsBtn from "src/components/ModelOptionsBtn.vue"
+import ModelOverrideMenu from "src/components/ModelOverrideMenu.vue"
 import ParseFilesDialog from "src/components/ParseFilesDialog.vue"
 import PromptVarInput from "src/components/PromptVarInput.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
@@ -422,14 +319,12 @@ import { useDialogInput } from "src/composables/dialog/useDialogInput"
 import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
 import { useDialogModel } from "src/composables/dialog/useDialogModel"
 import { useLlmDialog } from "src/composables/dialog/useLlmDialog"
-import { TreeListItem } from "src/composables/dialog/utils/dialogTreeUtils"
 import { useListenKey } from "src/composables/listen-key"
 import { useSetTitle } from "src/composables/set-title"
 import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
 import ErrorNotFound from "src/pages/ErrorNotFound.vue"
 import { DialogMessageMapped } from "src/services/supabase/types"
 import { useDialogMessagesStore } from "src/stores/dialogMessages"
-import { useDialogsStore } from "src/stores/dialogs"
 import { usePluginsStore } from "src/stores/plugins"
 import { useUiStateStore } from "src/stores/ui-state"
 import { useUserDataStore } from "src/stores/user-data"
@@ -450,12 +345,10 @@ import { scaleBlob } from "src/utils/image-process"
 import { engine } from "src/utils/template-engine"
 import { DialogContent } from "src/utils/templates"
 import { Plugin, ApiResultItem } from "src/utils/types"
-import { InputTypes, models } from "src/utils/values"
 import {
   computed,
   inject,
   onUnmounted,
-  provide,
   ref,
   toRef,
   watch,
@@ -472,12 +365,10 @@ const props = defineProps<{
 const rightDrawerAbove = inject("rightDrawerAbove")
 const dialogId = computed(() => props.id)
 
-const { assistant, workspace } = useActiveWorkspace()
-
-const dialogsStore = useDialogsStore()
+const { assistant } = useActiveWorkspace()
 
 const {
-  dialog, workspaceId, dialogItems, switchActiveMessage, fetchMessages,
+  dialog, workspaceId, dialogItems, switchBranch, fetchMessages,
   lastMessageId, getMessageContents, createBranch, deleteBranch, deleteStoredItem
 } = useDialogMessages(dialogId)
 
@@ -530,8 +421,6 @@ const startStream = async (target: string, insert = false) => {
   abortController.value = new AbortController()
   await stream(target, insert, abortController.value)
 }
-
-provide("dialog", dialog)
 
 function focusInput () {
   isPlatformEnabled(perfs.autoFocusDialogInput) && messageInput.value?.focus()
@@ -795,7 +684,7 @@ const userDataStore = useUserDataStore()
 watch(
   route,
   (to) => {
-    userDataStore.data.lastDialogIds[workspace.value.id] = props.id
+    userDataStore.data.lastDialogIds[workspaceId.value] = dialogId.value
     until(dialog)
       .toMatch((val) => val?.id === props.id)
       .then(async () => {
@@ -864,45 +753,6 @@ function itemInView (item: HTMLElement, container: HTMLElement) {
     item.offsetTop <= container.scrollTop + container.clientHeight &&
     item.offsetTop + item.clientHeight > container.scrollTop
   )
-}
-
-function switchBranch (item: TreeListItem<DialogMessageMapped>, index: number) {
-  console.log("----switchBranch", item, index)
-  switchActiveMessage(item.siblingMessageIds[index - 1])
-}
-
-function switchTo (target: "prev" | "next" | "first" | "last") {
-  console.log("switchTo", target)
-  // TODO: fix this
-
-  // const { container, items } = getEls()
-
-  // const index = items.findIndex(
-  //   (item, i) =>
-  //     itemInView(item, container) &&
-  //     dialogItems.value.length > 1
-  // )
-
-  // if (index === -1) return
-
-  // const id = chain.value[index]
-  // let to
-  // const curr = dialog.value.msg_route[index]
-  // const num = dialog.value.msg_tree[id].length
-
-  // if (target === "first") {
-  //   to = 0
-  // } else if (target === "last") {
-  //   to = num - 1
-  // } else if (target === "prev") {
-  //   to = curr - 1
-  // } else if (target === "next") {
-  //   to = curr + 1
-  // }
-
-  // if (to < 0 || to >= num || to === curr) return
-
-  // switchChain(index, to)
 }
 
 function scroll (
@@ -1036,16 +886,50 @@ function scroll (
 //   edit(index + 1)
 // }
 
+// function switchTo (target: "prev" | "next" | "first" | "last") {
+//   console.log("switchTo", target)
+
+//   const { container, items } = getEls()
+
+//   const index = items.findIndex(
+//     (item, i) =>
+//       itemInView(item, container) &&
+//       dialogItems.value.length > 1
+//   )
+
+//   if (index === -1) return
+
+// const id = chain.value[index]
+// let to
+// const curr = dialog.value.msg_route[index]
+// const num = dialog.value.msg_tree[id].length
+
+// if (target === "first") {
+//   to = 0
+// } else if (target === "last") {
+//   to = num - 1
+// } else if (target === "prev") {
+//   to = curr - 1
+// } else if (target === "next") {
+//   to = curr + 1
+// }
+
+// if (to < 0 || to >= num || to === curr) return
+
+// switchChain(index, to)
+// }
+
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, "scrollUpKeyV2"), () => scroll("up"))
   useListenKey(toRef(perfs, "scrollDownKeyV2"), () => scroll("down"))
   useListenKey(toRef(perfs, "scrollTopKey"), () => scroll("top"))
   useListenKey(toRef(perfs, "scrollBottomKey"), () => scroll("bottom"))
-  useListenKey(toRef(perfs, "switchPrevKeyV2"), () => switchTo("prev"))
-  useListenKey(toRef(perfs, "switchNextKeyV2"), () => switchTo("next"))
-  useListenKey(toRef(perfs, "switchFirstKey"), () => switchTo("first"))
-  useListenKey(toRef(perfs, "switchLastKey"), () => switchTo("last"))
   // TODO: fix this
+
+  // useListenKey(toRef(perfs, "switchPrevKeyV2"), () => switchTo("prev"))
+  // useListenKey(toRef(perfs, "switchNextKeyV2"), () => switchTo("next"))
+  // useListenKey(toRef(perfs, "switchFirstKey"), () => switchTo("first"))
+  // useListenKey(toRef(perfs, "switchLastKey"), () => switchTo("last"))
   // useListenKey(toRef(perfs, "regenerateCurrKey"), () => regenerateCurr())
   // useListenKey(toRef(perfs, "editCurrKey"), () => editCurr())
   useListenKey(toRef(perfs, "focusDialogInputKey"), () => focusInput())
