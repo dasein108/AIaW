@@ -245,8 +245,6 @@ export type Database = {
           id: string
           input_vars: Json
           model_override: Json | null
-          msg_route: number[]
-          msg_tree: Json
           name: string
           user_id: string
           workspace_id: string
@@ -257,8 +255,6 @@ export type Database = {
           id?: string
           input_vars: Json
           model_override?: Json | null
-          msg_route: number[]
-          msg_tree: Json
           name: string
           user_id?: string
           workspace_id: string
@@ -269,8 +265,6 @@ export type Database = {
           id?: string
           input_vars?: Json
           model_override?: Json | null
-          msg_route?: number[]
-          msg_tree?: Json
           name?: string
           user_id?: string
           workspace_id?: string
