@@ -173,7 +173,7 @@ export const useLlmDialog = (
       await switchActiveMessage(id)
     }
 
-    // In case of "send action with empty input" ?? TODO: <--- ???
+    // In case of "send action with empty input"
     !insert &&
       (await addMessage(id, {
         type: "user",
