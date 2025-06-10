@@ -346,6 +346,7 @@
 <script setup lang="ts">
 import { MdPreview, MdCatalog } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
+import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
 import { useMdPreviewProps } from "src/composables/md-preview-props"
 import { useAssistantsStore } from "src/stores/assistants"
 import { useDialogsStore } from "src/stores/dialogs"
@@ -370,6 +371,7 @@ import {
   onUnmounted,
   reactive,
   ref,
+  toRef,
   watchEffect,
 } from "vue"
 import { useI18n } from "vue-i18n"
@@ -402,6 +404,7 @@ const props = defineProps<{
 }>()
 const mdId = `md-${genId()}`
 const dialogsStore = useDialogsStore()
+const { updateMessage } = useDialogMessages(toRef(props.message, "dialog_id"))
 const $q = useQuasar()
 
 function moreInfo () {
@@ -443,8 +446,7 @@ watchEffect(async () => {
 
   if (sessionId) {
     !(await sessions.ping(sessionId)) &&
-      dialogsStore.updateDialogMessage(
-        props.message.dialog_id,
+      updateMessage(
         props.message.id,
         {
           generating_session: null,

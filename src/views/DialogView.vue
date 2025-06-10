@@ -130,23 +130,24 @@
         @scroll="onScroll"
       >
         <template
-          v-for="(i, index) in chain"
-          :key="i"
+          v-for="(item) in dialogItems"
+          :key="item.message.id"
         >
           <message-item
             class="message-item"
-            v-if="messageMap[i] && !!i"
-            :model-value="dialog.msg_route[index - 1] + 1"
-            :message="messageMap[i]"
-            :child-num="dialog.msg_tree[chain[index - 1]].length"
+            :key="item.message.id"
+            v-if="item.message"
+            :model-value="item.index + 1"
+            :message="item.message"
+            :child-num="item.siblingMessageIds.length"
             :scroll-container
-            @update:model-value="switchChain(index - 1, $event - 1)"
-            @edit="edit(index)"
-            @regenerate="regenerate(index)"
-            @delete="deleteBranch(index)"
+            @update:model-value="switchBranch(item, $event)"
+            @edit="edit(item.message)"
+            @regenerate="regenerate(item.message.parent_id)"
+            @delete="deleteBranch(item.message.id)"
             @quote="quote"
-            @extract-artifact="extractArtifact(messageMap[i], ...$event)"
-            @rendered="messageMap[i].generating_session && lockBottom()"
+            @extract-artifact="extractArtifact(item.message, ...$event)"
+            @rendered="item.message.generating_session && lockBottom()"
             @create-cyberlink="sendCyberlinkPrompt"
             pt-2
             pb-4
@@ -178,7 +179,7 @@
             :image="image"
             removable
             h="100px"
-            @remove="removeStoredItem(image)"
+            @remove="deleteStoredItem(image)"
             shadow
           />
           <message-file
@@ -188,7 +189,7 @@
             :key="file.id"
             :file="file"
             removable
-            @remove="removeStoredItem(file)"
+            @remove="deleteStoredItem(file)"
             shadow
           />
         </div>
@@ -356,7 +357,7 @@
             @click="send"
             @abort="abortController?.abort()"
             :loading="
-              isStreaming || !!messageMap[chain.at(-2)]?.generating_session
+              isStreaming || !!dialogItems.at(-2)?.message?.generating_session
             "
             ml-4
             min-h="40px"
@@ -417,15 +418,17 @@ import ModelOptionsBtn from "src/components/ModelOptionsBtn.vue"
 import ParseFilesDialog from "src/components/ParseFilesDialog.vue"
 import PromptVarInput from "src/components/PromptVarInput.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { useDialogChain } from "src/composables/dialog/useDialogChain"
+import { useDialogInput } from "src/composables/dialog/useDialogInput"
 import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
 import { useDialogModel } from "src/composables/dialog/useDialogModel"
-import { useDialogView } from "src/composables/dialog/useDialogView"
 import { useLlmDialog } from "src/composables/dialog/useLlmDialog"
+import { TreeListItem } from "src/composables/dialog/utils/dialogTreeUtils"
 import { useListenKey } from "src/composables/listen-key"
 import { useSetTitle } from "src/composables/set-title"
 import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
 import ErrorNotFound from "src/pages/ErrorNotFound.vue"
+import { DialogMessageMapped } from "src/services/supabase/types"
+import { useDialogMessagesStore } from "src/stores/dialogMessages"
 import { useDialogsStore } from "src/stores/dialogs"
 import { usePluginsStore } from "src/stores/plugins"
 import { useUiStateStore } from "src/stores/ui-state"
@@ -437,7 +440,6 @@ import {
   displayLength,
   isPlatformEnabled,
   isTextFile,
-  JSONEqual,
   mimeTypeMatch,
   pageFhStyle,
   textBeginning,
@@ -468,25 +470,26 @@ const props = defineProps<{
 }>()
 
 const rightDrawerAbove = inject("rightDrawerAbove")
+const dialogId = computed(() => props.id)
 
 const { assistant, workspace } = useActiveWorkspace()
+
 const dialogsStore = useDialogsStore()
 
-const dialogId = computed(() => props.id)
-const { messageMap, dialog, workspaceId } = useDialogMessages(dialogId)
-
-const { switchChain, updateMsgRoute, chain } = useDialogChain(dialogId)
 const {
-  editBranch,
-  deleteBranch,
+  dialog, workspaceId, dialogItems, switchActiveMessage, fetchMessages,
+  lastMessageId, getMessageContents, createBranch, deleteBranch, deleteStoredItem
+} = useDialogMessages(dialogId)
+
+const { addDialogMessage } = useDialogMessagesStore()
+
+const {
   updateInputText,
   inputMessageContent,
   inputContentItems,
   addInputItems,
   inputEmpty,
-  getDialogContents,
-  removeStoredItem,
-} = useDialogView(dialogId)
+} = useDialogInput(dialogId)
 
 const pluginsStore = usePluginsStore()
 const { data: perfs } = useUserPerfsStore()
@@ -516,19 +519,17 @@ const fileInput = ref()
 const messageInput = ref()
 const showVars = ref(true)
 
+watch(
+  () => dialogId.value,
+  () => fetchMessages(),
+  { immediate: true }
+)
+
 const startStream = async (target: string, insert = false) => {
   preventLockingBottom.value = false
   abortController.value = new AbortController()
   await stream(target, insert, abortController.value)
 }
-
-watch(
-  () => props.id,
-  () => {
-    dialogsStore.fetchDialogMessages(props.id)
-  },
-  { immediate: true }
-)
 
 provide("dialog", dialog)
 
@@ -536,8 +537,8 @@ function focusInput () {
   isPlatformEnabled(perfs.autoFocusDialogInput) && messageInput.value?.focus()
 }
 
-async function edit (index: number) {
-  await editBranch(index)
+async function edit (message: DialogMessageMapped) {
+  await createBranch(message)
   await nextTick()
   focusInput()
 }
@@ -564,12 +565,10 @@ function ensureAssistantAndModel () {
   return true
 }
 
-async function regenerate (index) {
+async function regenerate(parentId: string) {
   if (!ensureAssistantAndModel()) return
 
-  const target = chain.value[index - 1]
-  switchChain(index - 1, dialog.value.msg_tree[target].length)
-  await startStream(target, false)
+  await startStream(parentId, false)
 }
 
 function onTextPaste (ev: ClipboardEvent) {
@@ -702,9 +701,9 @@ async function quote (item: ApiResultItem) {
 async function sendPrompt (prompt: string) {
   if (!ensureAssistantAndModel()) return
 
-  const parentId = chain.value.at(-1)
+  const parentId = lastMessageId.value
 
-  const { id: newUserMessageId } = await dialogsStore.addDialogMessage(
+  const { id: newUserMessageId } = await addDialogMessage(
     dialog.value.id,
     parentId,
     {
@@ -718,10 +717,11 @@ async function sendPrompt (prompt: string) {
     }
   )
 
-  const parentChildrenCount = dialog.value.msg_tree[parentId]?.length ?? 1
-  const newRoute = [...dialog.value.msg_route]
-  newRoute[chain.value.indexOf(parentId)] = parentChildrenCount - 1
-  await dialogsStore.updateDialog({ id: dialog.value.id, msg_route: newRoute })
+  // TODO: ?????
+  // const parentChildrenCount = dialog.value.msg_tree[parentId]?.length ?? 1
+  // const newRoute = [...dialog.value.msg_route]
+  // newRoute[chain.value.indexOf(parentId)] = parentChildrenCount - 1
+  // await dialogsStore.updateDialog({ id: dialog.value.id, msg_route: newRoute })
 
   await nextTick()
   await startStream(newUserMessageId, false)
@@ -741,9 +741,9 @@ async function send () {
   })
 
   if (inputEmpty.value) {
-    await startStream(chain.value.at(-2), true)
+    await startStream(dialogItems.value.at(-2).message.id, true)
   } else {
-    await startStream(chain.value.at(-1), false)
+    await startStream(dialogItems.value.at(-1).message.id, false)
   }
 }
 
@@ -779,12 +779,12 @@ const activePlugins = computed<Plugin[]>(() =>
     )
     : []
 )
-const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
+const usage = computed(() => dialogItems.value.at(-2)?.message?.usage)
 
 async function copyContent () {
   await navigator.clipboard.writeText(
     await engine.parseAndRender(DialogContent, {
-      contents: getDialogContents(),
+      contents: getMessageContents(),
       title: dialog.value.name,
     })
   )
@@ -802,7 +802,7 @@ watch(
         focusInput()
 
         if (to.hash === "#genTitle") {
-          genTitle(getDialogContents())
+          genTitle(getMessageContents())
           router.replace({ hash: "" })
         } else if (to.hash === "#copyContent") {
           copyContent()
@@ -811,13 +811,13 @@ watch(
 
         if (to.query.goto) {
           const { route, highlight } = JSON.parse(to.query.goto as string)
-
-          if (
-            !JSONEqual(route, dialog.value.msg_route.slice(0, route.length))
-          ) {
-            updateMsgRoute(route)
-            await until(chain).changed()
-          }
+          // TODO: fix this
+          // if (
+          //   !JSONEqual(route, dialog.value.msg_route.slice(0, route.length))
+          // ) {
+          //   updateMsgRoute(route)
+          //   await until(chain).changed()
+          // }
 
           await nextTick()
           const { items } = getEls()
@@ -866,34 +866,43 @@ function itemInView (item: HTMLElement, container: HTMLElement) {
   )
 }
 
+function switchBranch (item: TreeListItem<DialogMessageMapped>, index: number) {
+  console.log("----switchBranch", item, index)
+  switchActiveMessage(item.siblingMessageIds[index - 1])
+}
+
 function switchTo (target: "prev" | "next" | "first" | "last") {
-  const { container, items } = getEls()
-  const index = items.findIndex(
-    (item, i) =>
-      itemInView(item, container) &&
-      dialog.value.msg_tree[chain.value[i]].length > 1
-  )
+  console.log("switchTo", target)
+  // TODO: fix this
 
-  if (index === -1) return
+  // const { container, items } = getEls()
 
-  const id = chain.value[index]
-  let to
-  const curr = dialog.value.msg_route[index]
-  const num = dialog.value.msg_tree[id].length
+  // const index = items.findIndex(
+  //   (item, i) =>
+  //     itemInView(item, container) &&
+  //     dialogItems.value.length > 1
+  // )
 
-  if (target === "first") {
-    to = 0
-  } else if (target === "last") {
-    to = num - 1
-  } else if (target === "prev") {
-    to = curr - 1
-  } else if (target === "next") {
-    to = curr + 1
-  }
+  // if (index === -1) return
 
-  if (to < 0 || to >= num || to === curr) return
+  // const id = chain.value[index]
+  // let to
+  // const curr = dialog.value.msg_route[index]
+  // const num = dialog.value.msg_tree[id].length
 
-  switchChain(index, to)
+  // if (target === "first") {
+  //   to = 0
+  // } else if (target === "last") {
+  //   to = num - 1
+  // } else if (target === "prev") {
+  //   to = curr - 1
+  // } else if (target === "next") {
+  //   to = curr + 1
+  // }
+
+  // if (to < 0 || to >= num || to === curr) return
+
+  // switchChain(index, to)
 }
 
 function scroll (
@@ -1000,31 +1009,32 @@ function scroll (
   container.scrollTo({ top: top + 2, behavior: "smooth" })
 }
 
-function regenerateCurr () {
-  const { container, items } = getEls()
-  const index = items.findIndex(
-    (item, i) =>
-      itemInView(item, container) &&
-      messageMap.value[chain.value[i + 1]].type === "assistant"
-  )
+// TODO: fix this
+// function regenerateCurr () {
+//   const { container, items } = getEls()
+//   const index = items.findIndex(
+//     (item, i) =>
+//       itemInView(item, container) &&
+//       messageMap.value[chain.value[i + 1]].type === "assistant"
+//   )
 
-  if (index === -1) return
+//   if (index === -1) return
 
-  regenerate(index + 1)
-}
+//   regenerate(index + 1)
+// }
 
-function editCurr () {
-  const { container, items } = getEls()
-  const index = items.findIndex(
-    (item, i) =>
-      itemInView(item, container) &&
-      messageMap.value[chain.value[i + 1]].type === "user"
-  )
+// function editCurr () {
+//   const { container, items } = getEls()
+//   const index = items.findIndex(
+//     (item, i) =>
+//       itemInView(item, container) &&
+//       messageMap.value[chain.value[i + 1]].type === "user"
+//   )
 
-  if (index === -1) return
+//   if (index === -1) return
 
-  edit(index + 1)
-}
+//   edit(index + 1)
+// }
 
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, "scrollUpKeyV2"), () => scroll("up"))
@@ -1035,8 +1045,9 @@ if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, "switchNextKeyV2"), () => switchTo("next"))
   useListenKey(toRef(perfs, "switchFirstKey"), () => switchTo("first"))
   useListenKey(toRef(perfs, "switchLastKey"), () => switchTo("last"))
-  useListenKey(toRef(perfs, "regenerateCurrKey"), () => regenerateCurr())
-  useListenKey(toRef(perfs, "editCurrKey"), () => editCurr())
+  // TODO: fix this
+  // useListenKey(toRef(perfs, "regenerateCurrKey"), () => regenerateCurr())
+  // useListenKey(toRef(perfs, "editCurrKey"), () => editCurr())
   useListenKey(toRef(perfs, "focusDialogInputKey"), () => focusInput())
 }
 

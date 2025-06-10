@@ -148,6 +148,21 @@ type WorkspaceMemberMapped = WorkspaceMember & {
   profile: ProfileMapped
 }
 
+// TODO: refactor this
+type StoredItemInput = Omit<
+  Database["public"]["Tables"]["stored_items"]["Insert"],
+  "message_content_id" | "dialog_id"
+>
+type MessageContentInput = Omit<
+  Database["public"]["Tables"]["message_contents"]["Insert"],
+  "message_id"
+> & { stored_items?: StoredItemInput[] }
+type DialogMessageInput = Omit<
+  Database["public"]["Tables"]["dialog_messages"]["Insert"],
+  "dialog_id"
+> & { message_contents: MessageContentInput[] }
+type DialogInput = Database["public"]["Tables"]["dialogs"]["Insert"]
+
 export type {
   ChatMessageWithProfile,
   Chat,
@@ -178,4 +193,9 @@ export type {
   ChatMapped,
   ProfileMapped,
   MessageContentResult,
+  // TODO: refactor this
+  DialogMessageInput,
+  DialogInput,
+  MessageContentInput,
+  StoredItemInput,
 }

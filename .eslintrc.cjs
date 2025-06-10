@@ -16,6 +16,7 @@ module.exports = {
     browser: true,
     es2021: true,
     node: true,
+    jest: true,
   },
 
   // Rules order is important, please avoid shuffling them
