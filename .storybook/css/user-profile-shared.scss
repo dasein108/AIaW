@@ -1,0 +1,194 @@
+// Shared User Profile Component Styles
+// ==============================================
+// This file contains common styles that can be shared across user profile components
+
+// Variables
+$profile-transition: all 0.2s ease-in-out;
+$profile-border-radius: 50%; // For circular elements like avatars and status indicators
+$profile-card-border-radius: 8px;
+$profile-gap-small: 6px;
+$profile-gap-medium: 8px;
+$profile-gap-large: 12px;
+$profile-padding-small: 4px 6px;
+$profile-padding-medium: 8px 12px;
+$profile-padding-large: 12px 16px;
+
+// Status indicator sizes
+$status-indicator-small: 8px;
+$status-indicator-medium: 12px;
+$status-indicator-large: 16px;
+
+// Status colors (matching the existing UserProfileStatus component)
+$status-colors: (
+    online: (light: #22c55e, // green-500
+        dark: #16a34a // green-600
+    ),
+    away: (light: #eab308, // yellow-500
+        dark: #ca8a04 // yellow-600
+    ),
+    busy: (light: #ef4444, // red-500
+        dark: #dc2626 // red-600
+    ),
+    offline: (light: #6b7280, // gray-500
+        dark: #9ca3af // gray-400
+    )
+);
+
+// Mixins
+@mixin status-indicator-base {
+    border-radius: $profile-border-radius;
+    transition: $profile-transition;
+    flex-shrink: 0;
+}
+
+@mixin status-indicator-size($size) {
+    @if $size =='small' {
+        width: $status-indicator-small;
+        height: $status-indicator-small;
+    }
+
+    @else if $size =='medium' {
+        width: $status-indicator-medium;
+        height: $status-indicator-medium;
+    }
+
+    @else if $size =='large' {
+        width: $status-indicator-large;
+        height: $status-indicator-large;
+    }
+}
+
+@mixin profile-block-base {
+    display: flex;
+    align-items: center;
+    transition: $profile-transition;
+    border-radius: $profile-card-border-radius;
+    position: relative;
+}
+
+@mixin profile-block-clickable {
+    cursor: pointer;
+
+    &:hover {
+        background-color: rgba(var(--q-primary-rgb), 0.08);
+    }
+
+    &:active {
+        background-color: rgba(var(--q-primary-rgb), 0.12);
+        transform: scale(0.98);
+    }
+}
+
+@mixin profile-text-sizing($size) {
+    @if $size =='small' {
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
+
+    @else if $size =='medium' {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+
+    @else if $size =='large' {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+}
+
+@mixin profile-name-sizing($size) {
+    @if $size =='small' {
+        font-size: 0.875rem;
+    }
+
+    @else if $size =='medium' {
+        font-size: 1rem;
+    }
+
+    @else if $size =='large' {
+        font-size: 1.125rem;
+    }
+}
+
+@mixin profile-responsive-adjustments {
+    @media (max-width: 600px) {
+        &__text--medium {
+            font-size: 0.8125rem;
+        }
+
+        &__text--large {
+            font-size: 0.9375rem;
+        }
+
+        &__name--medium {
+            font-size: 0.9375rem;
+        }
+
+        &__name--large {
+            font-size: 1.0625rem;
+        }
+    }
+}
+
+// Placeholders
+%status-indicator-base {
+    @include status-indicator-base;
+}
+
+%profile-block-base {
+    @include profile-block-base;
+}
+
+%profile-block-clickable {
+    @include profile-block-clickable;
+}
+
+%profile-text-base {
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+    white-space: nowrap;
+}
+
+%profile-name-base {
+    font-weight: 600;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--q-on-surface);
+}
+
+%profile-subtitle-base {
+    font-size: 0.75rem;
+    color: var(--q-on-surface-variant);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+// Dark mode specific mixins
+@mixin profile-dark-mode-adjustments {
+    .body--dark & {
+        &--clickable:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        &--clickable:active {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+    }
+}
+
+// Animation keyframes
+@keyframes pulse-online {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}

@@ -1,0 +1,113 @@
+// Shared Post Component Styles
+// ==============================================
+// This file contains common styles that can be shared across post-related components
+
+// Variables
+$post-border-radius: 8px;
+$post-margin-bottom: 16px;
+$post-transition: all 0.2s ease;
+$post-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+$post-shadow-dark: 0 2px 8px rgba(255, 255, 255, 0.1);
+$post-hover-bg-light: rgba(0, 0, 0, 0.04);
+$post-hover-bg-dark: rgba(255, 255, 255, 0.08);
+
+// Mixins
+@mixin post-card-base {
+  margin-bottom: $post-margin-bottom;
+  transition: $post-transition;
+
+  &:hover {
+    box-shadow: $post-shadow-light;
+  }
+}
+
+@mixin post-card-hover-effects {
+
+  .action-btn,
+  .bookmark-btn {
+    &:hover {
+      background-color: $post-hover-bg-light;
+    }
+  }
+}
+
+@mixin post-card-dark-mode {
+  .body--dark & {
+    &:hover {
+      box-shadow: $post-shadow-dark;
+    }
+  }
+
+  .body--dark {
+
+    .action-btn:hover,
+    .bookmark-btn:hover {
+      background-color: $post-hover-bg-dark;
+    }
+  }
+}
+
+// Base post card styles
+%post-card-base {
+  @include post-card-base;
+  @include post-card-hover-effects;
+  @include post-card-dark-mode;
+}
+
+// Common section padding styles
+%post-section-padding {
+  &.compact-card {
+    .post-header {
+      padding: 12px 16px 8px;
+    }
+
+    .post-content {
+      padding: 0 16px 8px;
+    }
+
+    .post-actions {
+      padding: 8px 16px 12px;
+    }
+  }
+
+  &.detailed-card {
+    .post-header {
+      padding: 16px 16px 8px;
+    }
+
+    .post-content {
+      padding: 0 16px 12px;
+    }
+
+    .post-stats {
+      padding: 8px 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .post-actions {
+      padding: 8px 4px;
+    }
+  }
+}
+
+// Action button styles
+%action-button-base {
+  border-radius: $post-border-radius;
+  transition: $post-transition;
+
+  &:hover {
+    background-color: $post-hover-bg-light;
+  }
+}
+
+// Compact variant action button styles
+%action-button-compact {
+  min-width: auto;
+  padding: 4px 8px;
+}
+
+// Detailed variant action button styles
+%action-button-detailed {
+  flex: 1;
+  max-width: 120px;
+}

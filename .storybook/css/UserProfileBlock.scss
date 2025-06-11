@@ -1,0 +1,202 @@
+// UserProfileBlock Component Styles
+// ==============================================
+@import './user-profile-shared';
+
+.user-profile-block {
+    @extend %profile-block-base;
+
+    // Layout variants
+    &--horizontal {
+        flex-direction: row;
+        gap: 12px;
+    }
+
+    &--vertical {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+
+    // Size variants
+    &--small {
+        padding: $profile-padding-small;
+
+        &.user-profile-block--horizontal {
+            gap: $profile-gap-medium;
+        }
+
+        &.user-profile-block--vertical {
+            gap: $profile-gap-small;
+            padding: 8px 6px;
+        }
+    }
+
+    &--medium {
+        padding: $profile-padding-medium;
+
+        &.user-profile-block--horizontal {
+            gap: $profile-gap-large;
+        }
+
+        &.user-profile-block--vertical {
+            gap: $profile-gap-medium;
+            padding: 12px 8px;
+        }
+    }
+
+    &--large {
+        padding: $profile-padding-large;
+
+        &.user-profile-block--horizontal {
+            gap: 16px;
+        }
+
+        &.user-profile-block--vertical {
+            gap: $profile-gap-large;
+            padding: 16px 12px;
+        }
+    }
+
+    // Clickable state
+    &--clickable {
+        @extend %profile-block-clickable;
+    }
+
+    // Avatar container
+    &__avatar {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    &__status-indicator {
+        position: absolute;
+        border-radius: $profile-border-radius;
+        bottom: -6px;
+        right: -1px;
+        padding: 1px;
+    }
+
+    // Content area
+    &__content {
+        flex: 1;
+        min-width: 0; // Allow text truncation
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .user-profile-block--vertical & {
+            align-items: center;
+        }
+    }
+
+    // Name styling
+    &__name {
+        @extend %profile-name-base;
+
+        &--small {
+            @include profile-name-sizing('small');
+        }
+
+        &--medium {
+            @include profile-name-sizing('medium');
+        }
+
+        &--large {
+            @include profile-name-sizing('large');
+        }
+    }
+
+    // Secondary info row
+    &__secondary {
+        display: flex;
+        align-items: center;
+        gap: $profile-gap-medium;
+        min-height: 0;
+
+        &--small {
+            gap: $profile-gap-small;
+        }
+
+        &--medium {
+            gap: $profile-gap-medium;
+        }
+
+        &--large {
+            gap: 10px;
+        }
+
+        .user-profile-block--vertical & {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    }
+
+    // Subtitle styling
+    &__subtitle {
+        @extend %profile-subtitle-base;
+
+        &--with-status {
+            margin-left: 4px;
+        }
+
+        .user-profile-block--small & {
+            font-size: 0.6875rem;
+        }
+
+        .user-profile-block--large & {
+            font-size: 0.8125rem;
+        }
+    }
+
+    // Responsive adjustments
+    @media (max-width: 600px) {
+        &--horizontal {
+            gap: 10px;
+        }
+
+        &--small {
+            padding: $profile-padding-small;
+        }
+
+        &--medium {
+            padding: 6px 8px;
+        }
+
+        &--large {
+            padding: 8px 12px;
+        }
+    }
+
+    // Apply responsive adjustments from shared mixin
+    @include profile-responsive-adjustments;
+}
+
+// Dark mode specific adjustments
+.body--dark {
+    .user-profile-block {
+        @include profile-dark-mode-adjustments;
+
+        &__status-indicator {
+            border-color: white;
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+    }
+}
+
+// Light mode specific adjustments
+.body--light {
+    .user-profile-block {
+        &--clickable:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        &--clickable:active {
+            background-color: rgba(0, 0, 0, 0.08);
+        }
+
+        &__status-indicator {
+            border-color: white;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+        }
+    }
+}

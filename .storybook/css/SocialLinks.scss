@@ -1,0 +1,30 @@
+.social-links-dropdown {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 8px;
+}
+
+.social-links-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.social-links-main-btn {
+  border-radius: 8px !important;
+  margin: 0 !important;
+}
+
+.social-link-btn {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.social-link-btn:hover {
+  transform: scale(1.1);
+}
+
+.social-link-btn:active {
+  transform: scale(0.95);
+}
