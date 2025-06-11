@@ -38,8 +38,8 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { dialogOptions } from "@/features/providers/utils/values"
 import { useI18n } from "vue-i18n"
+import { dialogOptions } from "@/features/providers/utils/values"
 
 const { t } = useI18n()
 

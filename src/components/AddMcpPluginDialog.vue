@@ -167,13 +167,13 @@
 <script setup lang="ts">
 import { useDialogPluginComponent, useQuasar } from "quasar"
 import VarsInput from "src/components/VarsInput.vue"
+import { computed, reactive, ref, toRaw } from "vue"
+import { useI18n } from "vue-i18n"
+import ATip from "./ATip.vue"
 import { useInstallPlugin } from "@/features/plugins/composables/install-plugin"
 import { hash53 } from "@/shared/utils/functions"
 import { IsTauri } from "@/shared/utils/platform-api"
 import { McpPluginManifest } from "@/shared/utils/types"
-import { computed, reactive, ref, toRaw } from "vue"
-import { useI18n } from "vue-i18n"
-import ATip from "./ATip.vue"
 
 const { t } = useI18n()
 

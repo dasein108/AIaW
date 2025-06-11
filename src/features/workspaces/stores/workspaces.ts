@@ -1,10 +1,10 @@
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
-import { useWorkspacesWithSubscription } from "@/features/workspaces/composables/useWorkspacesWithSubscription"
 import { supabase } from "src/services/supabase/client"
-import { DefaultWsIndexContent } from "@/features/plugins/utils/templates"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
+import { DefaultWsIndexContent } from "@/features/plugins/utils/templates"
+import { useWorkspacesWithSubscription } from "@/features/workspaces/composables/useWorkspacesWithSubscription"
 import type {
   WorkspaceMapped,
   WorkspaceMemberMapped,

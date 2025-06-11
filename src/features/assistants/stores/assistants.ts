@@ -2,13 +2,13 @@
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
 import { defaultModelSettings } from "src/common/consts"
-import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import { supabase } from "src/services/supabase/client"
-import { defaultAvatar, defaultTextAvatar } from "@/shared/utils/functions"
-import { AssistantDefaultPrompt } from "@/features/plugins/utils/templates"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
+import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
+import { AssistantDefaultPrompt } from "@/features/plugins/utils/templates"
 import { AssistantMapped, Assistant } from "@/services/supabase/types"
+import { defaultAvatar, defaultTextAvatar } from "@/shared/utils/functions"
 
 function mapAssistantTypes (item: Assistant): AssistantMapped {
   const { avatar, ...rest } = item

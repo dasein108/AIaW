@@ -1,8 +1,8 @@
 import { defineStore } from "pinia"
-import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import { supabase } from "src/services/supabase/client"
 import { reactive, ref } from "vue"
 import { useDialogMessagesStore } from "./dialogMessages"
+import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import {
   DialogInput,
   DialogMapped,

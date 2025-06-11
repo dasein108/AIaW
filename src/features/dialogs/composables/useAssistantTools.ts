@@ -1,20 +1,21 @@
 import { jsonSchema, tool, Tool } from "ai"
 import { storeToRefs } from "pinia"
 import { useQuasar } from "quasar"
-import { useCallApi } from "@/features/plugins/composables/call-api"
-import { useGetModel } from "@/features/providers/composables/get-model"
 import { getSystemPrompt } from "src/services/llm/utils"
 import {
   ArtifactMapped,
   AssistantMapped,
   StoredItem,
 } from "src/services/supabase/types"
-import { usePluginsStore } from "@/app/store"
-import { useUserDataStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
+import { Ref, computed, inject } from "vue"
+import { useI18n } from "vue-i18n"
+import { useDialogMessages } from "./useDialogMessages"
+import { usePluginsStore, useUserDataStore, useUserPerfsStore } from "@/app/store"
+import { useCallApi } from "@/features/plugins/composables/call-api"
 import artifactsPlugin from "@/features/plugins/utils/artifacts-plugin"
-import { isPlatformEnabled, mimeTypeMatch } from "@/shared/utils/functions"
 import { engine } from "@/features/plugins/utils/template-engine"
+import { useGetModel } from "@/features/providers/composables/get-model"
+import { isPlatformEnabled, mimeTypeMatch } from "@/shared/utils/functions"
 import {
   PluginPrompt,
   Plugin,
@@ -22,9 +23,6 @@ import {
   ApiResultItem,
   ApiCallError,
 } from "@/shared/utils/types"
-import { Ref, computed, inject } from "vue"
-import { useI18n } from "vue-i18n"
-import { useDialogMessages } from "./useDialogMessages"
 
 type CallTool = (
   plugin: Plugin,

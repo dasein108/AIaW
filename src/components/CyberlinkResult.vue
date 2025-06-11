@@ -22,17 +22,17 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
 import { KeplerWallet } from "src/services/kepler/KeplerWallet"
 import { parseEvents } from "src/services/kepler/utils"
-import { IsTauri } from "@/shared/utils/platform-api"
 import { computed, inject, toRef } from "vue"
+import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
 
 import { CosmosWallet } from "@/services/cosmos/CosmosWallet"
 import {
   DialogMessageMapped,
   StoredItemMapped,
 } from "@/services/supabase/types"
+import { IsTauri } from "@/shared/utils/platform-api"
 
 const props = defineProps<{
   result: StoredItemMapped[]

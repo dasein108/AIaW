@@ -87,13 +87,12 @@ import { useQuasar } from "quasar"
 import AAvatar from "src/components/AAvatar.vue"
 import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { useAuth } from "@/features/auth/composables/useAuth"
-import { syncRef } from "@/shared/composables/sync-ref"
-import { useProfileStore } from "@/app/store"
-import { useUserStore } from "@/app/store"
-import { pageFhStyle } from "@/shared/utils/functions"
 import { computed, ref, toRaw, toRefs } from "vue"
 import { useRouter } from "vue-router"
+import { useProfileStore, useUserStore } from "@/app/store"
+import { useAuth } from "@/features/auth/composables/useAuth"
+import { syncRef } from "@/shared/composables/sync-ref"
+import { pageFhStyle } from "@/shared/utils/functions"
 
 const profileStore = useProfileStore()
 const {

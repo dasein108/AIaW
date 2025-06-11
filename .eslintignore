@@ -8,3 +8,4 @@
 .eslintrc.cjs
 /quasar.config.*.temporary.compiled*
 /src/services/supabase/database.types.ts
+.github/workflows

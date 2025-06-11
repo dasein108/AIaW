@@ -54,17 +54,17 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
+import { computed, inject, Ref } from "vue"
+import { useI18n } from "vue-i18n"
+import JsonInputDialog from "./JsonInputDialog.vue"
 import { useCallApi } from "@/features/plugins/composables/call-api"
+import { DialogMapped, WorkspaceMapped } from "@/services/supabase/types"
 import {
   ApiResultItem,
   AssistantPlugins,
   Plugin,
   PluginApi,
 } from "@/shared/utils/types"
-import { computed, inject, Ref } from "vue"
-import { useI18n } from "vue-i18n"
-import JsonInputDialog from "./JsonInputDialog.vue"
-import { DialogMapped, WorkspaceMapped } from "@/services/supabase/types"
 
 const props = defineProps<{
   plugins: Plugin[]

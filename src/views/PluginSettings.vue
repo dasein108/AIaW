@@ -123,9 +123,7 @@ import JsonInput from "src/components/JsonInput.vue"
 import ListInput from "src/components/ListInput.vue"
 import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { useSetTitle } from "@/shared/composables/set-title"
 import ErrorNotFound from "src/pages/ErrorNotFound.vue"
-import { usePluginsStore } from "@/app/store"
 import { computed } from "vue"
 
 const props = defineProps<{
@@ -156,6 +154,8 @@ function pickAvatar () {
 }
 
 import { useI18n } from "vue-i18n"
+import { usePluginsStore } from "@/app/store"
+import { useSetTitle } from "@/shared/composables/set-title"
 const { t } = useI18n()
 useSetTitle(
   computed(

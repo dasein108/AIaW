@@ -29,12 +29,12 @@
 </template>
 
 <script setup lang="ts">
-import { useListenKey } from "@/shared/composables/listen-key"
-import { useUserPerfsStore } from "@/app/store"
-import { isPlatformEnabled } from "@/shared/utils/functions"
 import { ref, toRef } from "vue"
 import DialogList from "./DialogList.vue"
 import SearchDialog from "./SearchDialog.vue"
+import { useUserPerfsStore } from "@/app/store"
+import { useListenKey } from "@/shared/composables/listen-key"
+import { isPlatformEnabled } from "@/shared/utils/functions"
 
 defineProps<{
   workspaceId: string

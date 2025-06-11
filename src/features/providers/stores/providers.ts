@@ -1,20 +1,20 @@
 import { Object as TObject } from "@sinclair/typebox"
 import { defineStore } from "pinia"
-import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import { supabase } from "src/services/supabase/client"
 import {
   CustomProviderMapped,
   SubproviderMapped,
 } from "src/services/supabase/types"
-import { removeDuplicates } from "@/shared/utils/functions"
-import { ProviderType, Provider, Avatar } from "@/shared/utils/types"
 
+import { computed, reactive } from "vue"
+import { useI18n } from "vue-i18n"
+import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import {
   modelOptions as baseModelOptions,
   ProviderTypes,
 } from "@/features/providers/utils/values"
-import { computed, reactive } from "vue"
-import { useI18n } from "vue-i18n"
+import { removeDuplicates } from "@/shared/utils/functions"
+import { ProviderType, Provider, Avatar } from "@/shared/utils/types"
 
 const SELECT_QUERY = `*, subproviders(*)`
 

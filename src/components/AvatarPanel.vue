@@ -28,9 +28,9 @@
 </template>
 
 <script setup lang="ts">
-import { Avatar } from "@/shared/utils/types"
 import { computed } from "vue"
 import AAvatar from "./AAvatar.vue"
+import { Avatar } from "@/shared/utils/types"
 
 const props = defineProps<{
   title?: string

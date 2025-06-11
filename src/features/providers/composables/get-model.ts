@@ -1,6 +1,5 @@
 import { LanguageModel, wrapLanguageModel } from "ai"
-import { useProvidersStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
+import { useProvidersStore, useUserPerfsStore } from "@/app/store"
 import { AuthropicCors, FormattingReenabled } from "@/features/providers/utils/middlewares"
 import { fetch } from "@/shared/utils/platform-api"
 import { Model, Provider } from "@/shared/utils/types"

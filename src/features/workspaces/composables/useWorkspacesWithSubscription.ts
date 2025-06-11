@@ -2,7 +2,7 @@ import { supabase } from "src/services/supabase/client"
 import type { Workspace, WorkspaceMapped } from "src/services/supabase/types"
 import { ref, readonly } from "vue"
 import { useUserLoginCallback } from "../auth/useUserLoginCallback"
-import { Avatar } from "@/utils/types"
+import { Avatar } from "@/shared/utils/types"
 
 export function mapWorkspaceTypes (item: Workspace): WorkspaceMapped {
   const { avatar, ...rest } = item

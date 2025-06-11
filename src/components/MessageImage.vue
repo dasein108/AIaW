@@ -42,9 +42,9 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { getFileUrl } from "@/shared/composables/storage/utils"
 import { StoredItemMapped } from "src/services/supabase/types"
 import ViewImageDialog from "./ViewImageDialog.vue"
+import { getFileUrl } from "@/shared/composables/storage/utils"
 
 const props = defineProps<{
   image: StoredItemMapped

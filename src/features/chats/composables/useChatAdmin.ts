@@ -1,7 +1,7 @@
 import { storeToRefs } from "pinia"
-import { useUserStore } from "@/app/store"
 import { computed, readonly, Ref } from "vue"
-import { useIsWorkspaceAdmin } from "../workspaces/useIsWorkspaceAdmin"
+import { useUserStore } from "@/features/user/stores/user"
+import { useIsWorkspaceAdmin } from "@/features/workspaces/composables/useIsWorkspaceAdmin"
 import { ChatMapped } from "@/services/supabase/types"
 
 export const useIsChatAdmin = (chat: Ref<ChatMapped>) => {

@@ -42,7 +42,7 @@
         <q-btn
           flat
           color="primary"
-          :label="$t('subscribeDialog.cancel')"
+          :label="t('subscribeDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
@@ -65,7 +65,10 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from "quasar"
 import { computed, ref } from "vue"
-import { useAuth } from "../../composables/auth/useAuth"
+import { useI18n } from "vue-i18n"
+import { useAuth } from "@/features/auth/composables/useAuth"
+
+const { t } = useI18n()
 
 const authType = ref<"sign-in" | "sign-up">("sign-in")
 const authTypeOptions = [

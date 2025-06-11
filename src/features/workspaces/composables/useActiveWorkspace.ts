@@ -1,9 +1,7 @@
 import { storeToRefs } from "pinia"
-import { useAssistantsStore } from "@/app/store"
-import { useUserDataStore } from "@/app/store"
-import { useWorkspacesStore } from "@/app/store"
 import { computed } from "vue"
 import { useRoute } from "vue-router"
+import { useAssistantsStore, useUserDataStore, useWorkspacesStore } from "@/app/store"
 
 /**
  * Returns the active workspace and assistant, if no workspace is selected, the default workspace is used

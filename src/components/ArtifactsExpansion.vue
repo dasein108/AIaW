@@ -99,18 +99,18 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import SelectFileBtn from "src/components/SelectFileBtn.vue"
-import { useCloseArtifact } from "@/features/artifacts/composables/close-artifact"
-import { useCreateArtifact } from "@/features/artifacts/composables/create-artifact"
-import { useUserDataStore } from "@/app/store"
-import { caselessIncludes, getFileExt, isTextFile } from "@/shared/utils/functions"
-import { dialogOptions } from "@/features/providers/utils/values"
 import { computed, inject, ref, Ref, toRef } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter, useRoute } from "vue-router"
 import ArtifactItemIcon from "./ArtifactItemIcon.vue"
 import ArtifactItemMenu from "./ArtifactItemMenu.vue"
 import ATip from "./ATip.vue"
+import { useUserDataStore } from "@/app/store"
+import { useCloseArtifact } from "@/features/artifacts/composables/close-artifact"
+import { useCreateArtifact } from "@/features/artifacts/composables/create-artifact"
+import { dialogOptions } from "@/features/providers/utils/values"
 import { ArtifactMapped, Workspace } from "@/services/supabase/types"
+import { caselessIncludes, getFileExt, isTextFile } from "@/shared/utils/functions"
 
 const artifacts: Ref<ArtifactMapped[]> = inject("artifacts")
 

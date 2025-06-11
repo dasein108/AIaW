@@ -7,35 +7,34 @@ import {
 } from "ai"
 import { pickBy } from "lodash"
 import { useQuasar } from "quasar"
-import { useStorage } from "@/shared/composables/storage/useStorage"
-import { FILES_BUCKET, getFileUrl } from "@/shared/composables/storage/utils"
 import {
   generateTitle,
   generateArtifactName,
   generateExtractArtifact,
 } from "src/services/llm/utils"
-import { useDialogsStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
-import { getAssistantModelSettings } from "@/features/assistants/utils/assistant-utils"
-import { storedItemResultContent } from "@/shared/utils/dialog"
-import { genId, mimeTypeMatch } from "@/shared/utils/functions"
-import sessions from "@/shared/utils/sessions"
-import { ExtractArtifactResult } from "@/features/plugins/utils/templates"
 import { ref, Ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { useCallApi } from "../call-api"
-import { useCreateArtifact } from "../create-artifact"
-import { useAssistantTools } from "./useAssistantTools"
-import { useDialogMessages } from "./useDialogMessages"
-import { useDialogModel } from "./useDialogModel"
+import { useDialogsStore, useUserPerfsStore } from "@/app/store"
 import { AssistantMessageContent } from "@/common/types/dialogs"
+import { useCreateArtifact } from "@/features/artifacts/composables/create-artifact"
+import { getAssistantModelSettings } from "@/features/assistants/utils/assistant-utils"
+import { useAssistantTools } from "@/features/dialogs/composables/useAssistantTools"
+import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
+import { useDialogModel } from "@/features/dialogs/composables/useDialogModel"
+import { useCallApi } from "@/features/plugins/composables/call-api"
+import { ExtractArtifactResult } from "@/features/plugins/utils/templates"
 import {
   AssistantMapped,
   DialogMessageMapped,
   MessageContentMapped,
   MessageContentResult,
 } from "@/services/supabase/types"
-import { ConvertArtifactOptions, Plugin, PluginApi } from "@/utils/types"
+import { useStorage } from "@/shared/composables/storage/useStorage"
+import { FILES_BUCKET, getFileUrl } from "@/shared/composables/storage/utils"
+import { storedItemResultContent } from "@/shared/utils/dialog"
+import { genId, mimeTypeMatch } from "@/shared/utils/functions"
+import sessions from "@/shared/utils/sessions"
+import { ConvertArtifactOptions, Plugin, PluginApi } from "@/shared/utils/types"
 
 export const useLlmDialog = (
   workspaceId: Ref<string>,

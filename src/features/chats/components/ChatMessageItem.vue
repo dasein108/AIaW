@@ -91,12 +91,12 @@
 import { MdPreview } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
 import AAvatar from "src/components/AAvatar.vue"
-import { useMdPreviewProps } from "@/shared/composables/md-preview-props"
+import { computed, reactive, ref } from "vue"
 import { useUserStore, useUserPerfsStore } from "@/app/store"
+import { ChatMessageWithProfile } from "@/services/supabase/types"
+import { useMdPreviewProps } from "@/shared/composables/md-preview-props"
 import { genId } from "@/shared/utils/functions"
 import { ApiResultItem, TextAvatar } from "@/shared/utils/types"
-import { computed, reactive, ref } from "vue"
-import { ChatMessageWithProfile } from "@/services/supabase/types"
 
 const props = defineProps<{
   message: ChatMessageWithProfile

@@ -1,7 +1,7 @@
 import { pickBy } from "lodash"
-import { getFileUrl } from "@/shared/composables/storage/utils"
 import { ToolResultContent } from "./types"
 import { MessageContentResult } from "@/services/supabase/types"
+import { getFileUrl } from "@/shared/composables/storage/utils"
 
 // TODO: multimodal version ???
 // export const storedItemResultContent = async (item: MessageContentResult, mimeSupported: string[]): Promise<ToolResultContent> => {

@@ -2,11 +2,11 @@
 
 import { isEqual, throttle, cloneDeep } from "lodash"
 import { defineStore } from "pinia"
-import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
-import { supabase } from "src/services/supabase/client"
-import { CODE_NO_RECORD_FOUND } from "src/services/supabase/consts"
 import { reactive, ref, watch } from "vue"
-import { useUserStore } from "./user"
+import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
+import { useUserStore } from "@/features/user/stores/user"
+import { supabase } from "@/services/supabase/client"
+import { CODE_NO_RECORD_FOUND } from "@/services/supabase/consts"
 
 export function createUserDataStore<T extends object> (
   storeId: string,

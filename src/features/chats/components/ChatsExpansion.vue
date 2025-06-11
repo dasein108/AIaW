@@ -39,16 +39,16 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useListenKey } from "@/shared/composables/listen-key"
 import { supabase } from "src/services/supabase/client"
-import { useUserStore, useUserPerfsStore } from "@/app/store"
-import { isPlatformEnabled } from "@/shared/utils/functions"
 import { ref, toRef } from "vue"
 import { useRouter } from "vue-router"
 import ChatList from "./ChatList.vue"
 import SearchChats from "./SearchChats.vue"
 import UserListDialog from "./UserListDialog.vue"
+import { useUserStore, useUserPerfsStore } from "@/app/store"
 import { ProfileMapped } from "@/services/supabase/types"
+import { useListenKey } from "@/shared/composables/listen-key"
+import { isPlatformEnabled } from "@/shared/utils/functions"
 
 const $q = useQuasar()
 const router = useRouter()

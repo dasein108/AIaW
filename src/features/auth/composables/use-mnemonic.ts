@@ -1,10 +1,10 @@
+import { ref } from "vue"
+import { EncryptionService } from "../services/encryption/EncryptionService"
 import {
   getMnemonic,
   saveMnemonic,
   removeMnemonic,
 } from "@/app/store"
-import { ref } from "vue"
-import { EncryptionService } from "../services/encryption/EncryptionService"
 
 export function useMnemonic () {
   const isMnemonicLocked = ref(false)

@@ -315,20 +315,29 @@ import ModelOverrideMenu from "src/components/ModelOverrideMenu.vue"
 import ParseFilesDialog from "src/components/ParseFilesDialog.vue"
 import PromptVarInput from "src/components/PromptVarInput.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
+import ErrorNotFound from "src/pages/ErrorNotFound.vue"
+import { DialogMessageMapped } from "src/services/supabase/types"
+import {
+  computed,
+  inject,
+  onUnmounted,
+  ref,
+  toRef,
+  watch,
+  nextTick,
+} from "vue"
+import { useI18n } from "vue-i18n"
+import { useRoute, useRouter } from "vue-router"
+import { useDialogMessagesStore, usePluginsStore, useUiStateStore, useUserDataStore, useUserPerfsStore } from "@/app/store"
 import { useDialogInput } from "@/features/dialogs/composables/useDialogInput"
 import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
 import { useDialogModel } from "@/features/dialogs/composables/useDialogModel"
 import { useLlmDialog } from "@/features/dialogs/composables/useLlmDialog"
+import { engine } from "@/features/plugins/utils/template-engine"
+import { DialogContent } from "@/features/plugins/utils/templates"
+import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
 import { useListenKey } from "@/shared/composables/listen-key"
 import { useSetTitle } from "@/shared/composables/set-title"
-import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
-import ErrorNotFound from "src/pages/ErrorNotFound.vue"
-import { DialogMessageMapped } from "src/services/supabase/types"
-import { useDialogMessagesStore } from "@/app/store"
-import { usePluginsStore } from "@/app/store"
-import { useUiStateStore } from "@/app/store"
-import { useUserDataStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
 import { MaxMessageFileSizeMB } from "@/shared/utils/config"
 import {
   almostEqual,
@@ -342,20 +351,7 @@ import {
   wrapQuote
 } from "@/shared/utils/functions"
 import { scaleBlob } from "@/shared/utils/image-process"
-import { engine } from "@/features/plugins/utils/template-engine"
-import { DialogContent } from "@/features/plugins/utils/templates"
 import { Plugin, ApiResultItem } from "@/shared/utils/types"
-import {
-  computed,
-  inject,
-  onUnmounted,
-  ref,
-  toRef,
-  watch,
-  nextTick,
-} from "vue"
-import { useI18n } from "vue-i18n"
-import { useRoute, useRouter } from "vue-router"
 const { t } = useI18n()
 
 const props = defineProps<{

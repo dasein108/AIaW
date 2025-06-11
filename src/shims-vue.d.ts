@@ -8,3 +8,15 @@ declare module "*.vue" {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+// Make $t globally available in Vue components
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties {
+    $t: (key: string, params?: any) => string
+  }
+}
+
+// Global $t function
+declare global {
+  var $t: (key: string, params?: any) => string
+}

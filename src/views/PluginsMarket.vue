@@ -81,10 +81,10 @@ import ATip from "src/components/ATip.vue"
 import InstallPluginBtn from "src/components/InstallPluginBtn.vue"
 import PluginTypeBadge from "src/components/PluginTypeBadge.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { caselessIncludes, pageFhStyle } from "@/shared/utils/functions"
-import { IsTauri } from "@/shared/utils/platform-api"
 import { computed, reactive, ref } from "vue"
 import { useI18n } from "vue-i18n"
+import { caselessIncludes, pageFhStyle } from "@/shared/utils/functions"
+import { IsTauri } from "@/shared/utils/platform-api"
 
 defineEmits(["toggle-drawer"])
 

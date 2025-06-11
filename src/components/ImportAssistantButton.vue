@@ -41,10 +41,10 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useAssistantActions } from "@/features/workspaces/composables/assistant-actions"
-import { clipboardReadText } from "@/shared/utils/platform-api"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
+import { useAssistantActions } from "@/features/workspaces/composables/assistant-actions"
+import { clipboardReadText } from "@/shared/utils/platform-api"
 
 const { t } = useI18n()
 const $q = useQuasar()

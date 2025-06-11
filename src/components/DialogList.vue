@@ -83,8 +83,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
 import { useQuasar } from "quasar"
-import { useDialogsStore } from "@/app/store"
-import { dialogOptions } from "@/features/providers/utils/values"
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter, useRoute } from "vue-router"
@@ -92,6 +90,8 @@ import AddDialogItem from "./AddDialogItem.vue"
 import MenuItem from "./MenuItem.vue"
 import SearchDialog from "./SearchDialog.vue"
 import SelectWorkspaceDialog from "./SelectWorkspaceDialog.vue"
+import { useDialogsStore } from "@/app/store"
+import { dialogOptions } from "@/features/providers/utils/values"
 
 const { t } = useI18n()
 const props = defineProps<{

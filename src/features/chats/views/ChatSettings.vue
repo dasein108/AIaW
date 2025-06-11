@@ -97,11 +97,10 @@ import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
 
 import { useIsChatAdmin } from "src/features/chats/composables/useChatAdmin"
-import { syncRef } from "@/shared/composables/sync-ref"
-import { useChatsStore } from "@/app/store"
-import { useWorkspacesStore } from "@/app/store"
-import { pageFhStyle } from "@/shared/utils/functions"
 import { computed, ref, toRaw, watch } from "vue"
+import { useChatsStore, useWorkspacesStore } from "@/app/store"
+import { syncRef } from "@/shared/composables/sync-ref"
+import { pageFhStyle } from "@/shared/utils/functions"
 const $q = useQuasar()
 
 defineEmits(["toggle-drawer"])

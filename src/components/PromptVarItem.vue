@@ -68,10 +68,10 @@
 </template>
 
 <script setup lang="ts">
-import { PromptVar } from "@/shared/utils/types"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 import PromptVarInput from "./PromptVarInput.vue"
+import { PromptVar } from "@/shared/utils/types"
 
 const model = defineModel<PromptVar>()
 

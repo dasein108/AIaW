@@ -97,11 +97,6 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useCreateDialog } from "@/features/dialogs/composables/create-dialog"
-import { useAssistantsStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
-import { defaultAvatar } from "@/shared/utils/functions"
-import { dialogOptions } from "@/features/providers/utils/values"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
@@ -109,6 +104,10 @@ import AAvatar from "./AAvatar.vue"
 import ImportAssistantButton from "./ImportAssistantButton.vue"
 import MenuItem from "./MenuItem.vue"
 import SelectWorkspaceDialog from "./SelectWorkspaceDialog.vue"
+import { useUserPerfsStore, useAssistantsStore } from "@/app/store"
+import { useCreateDialog } from "@/features/dialogs/composables/create-dialog"
+import { dialogOptions } from "@/features/providers/utils/values"
+import { defaultAvatar } from "@/shared/utils/functions"
 
 const { t } = useI18n()
 

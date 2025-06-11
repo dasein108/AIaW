@@ -36,10 +36,9 @@
 import { storeToRefs } from "pinia"
 import AAvatar from "src/components/AAvatar.vue"
 import { DialogMapped } from "src/services/supabase/types"
-import { useDialogsStore } from "@/app/store"
-import { useWorkspacesStore } from "@/app/store"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
+import { useDialogsStore, useWorkspacesStore } from "@/app/store"
 
 const MAX_LAST_DIALOGS = 3
 const router = useRouter()

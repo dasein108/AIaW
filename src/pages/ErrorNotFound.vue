@@ -28,8 +28,8 @@
 
 <script setup lang="ts">
 import HintCard from "src/components/HintCard.vue"
-import { useUiStateStore } from "@/app/store"
 import { ref, onMounted } from "vue"
+import { useUiStateStore } from "@/app/store"
 
 const props = defineProps<{
   timeout?: number

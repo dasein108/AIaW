@@ -11,11 +11,11 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useProvidersStore } from "@/app/store"
-import { Provider } from "@/shared/utils/types"
-import { dialogOptions } from "@/features/providers/utils/values"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
+import { useProvidersStore } from "@/app/store"
+import { dialogOptions } from "@/features/providers/utils/values"
+import { Provider } from "@/shared/utils/types"
 
 const props = defineProps<{
   provider: Provider

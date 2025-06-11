@@ -1,7 +1,6 @@
-import { useAuthStore } from "@/app/store"
 import { ref } from "vue"
-import { getMnemonic } from "@/app/store"
-import { IsTauri } from "../utils/platform-api"
+import { useAuthStore, getMnemonic } from "@/app/store"
+import { IsTauri } from "@/shared/utils/platform-api"
 
 export function usePinModal () {
   const showPinModal = ref(false)

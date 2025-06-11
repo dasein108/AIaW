@@ -1,7 +1,6 @@
 import { until } from "@vueuse/core"
-import { useUserDataStore } from "@/app/store"
-import { useWorkspacesStore } from "@/app/store"
 import { useRouter } from "vue-router"
+import { useUserDataStore, useWorkspacesStore } from "@/app/store"
 
 export function useOpenLastWorkspace () {
   const workspacesStore = useWorkspacesStore()

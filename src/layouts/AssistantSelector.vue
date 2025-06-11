@@ -30,10 +30,10 @@
 <script setup lang="ts">
 import AAvatar from "src/components/AAvatar.vue"
 import AssistantList from "src/components/AssistantList.vue"
+import { computed } from "vue"
 import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
 import { avatarKey } from "@/shared/utils/functions"
 import { IconAvatar } from "@/shared/utils/types"
-import { computed } from "vue"
 
 const { assistant, workspace } = useActiveWorkspace()
 

@@ -1,6 +1,6 @@
-import { useGetModel } from "@/features/providers/composables/get-model"
-import { useUserPerfsStore } from "@/app/store"
 import { computed, Ref, ref } from "vue"
+import { useUserPerfsStore } from "@/app/store"
+import { useGetModel } from "@/features/providers/composables/get-model"
 import { AssistantMapped, DialogMapped } from "@/services/supabase/types"
 
 export const useDialogModel = (

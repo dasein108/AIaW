@@ -31,12 +31,12 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
+import { toRef } from "vue"
+import { useUserPerfsStore } from "@/app/store"
 import { useCheckLogin } from "@/features/auth/composables/useCheckLogin"
 import { useCreateDialog } from "@/features/dialogs/composables/create-dialog"
 import { useListenKey } from "@/shared/composables/listen-key"
-import { useUserPerfsStore } from "@/app/store"
 import { isPlatformEnabled } from "@/shared/utils/functions"
-import { toRef } from "vue"
 
 const props = defineProps<{
   workspaceId: string

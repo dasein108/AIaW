@@ -1,8 +1,8 @@
 import { Object as TObject } from "@sinclair/typebox"
-import { useAuthStore } from "@/app/store"
-import { IsTauri } from "@/shared/utils/platform-api"
 import { getLocalStorageWalletState } from "./KeplerWallet"
-import { Plugin } from "@/utils/types"
+import { useAuthStore } from "@/features/auth/stores/auth"
+import { IsTauri } from "@/shared/utils/platform-api"
+import { Plugin } from "@/shared/utils/types"
 
 // Function to get wallet address depending on platform
 const getWalletAddress = async () => {

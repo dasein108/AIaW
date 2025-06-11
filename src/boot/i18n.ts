@@ -2,9 +2,9 @@ import { Quasar } from "quasar"
 import { boot } from "quasar/wrappers"
 
 import messages from "src/i18n"
-import { localData } from "@/shared/utils/local-data"
 import { nextTick, watch } from "vue"
 import { createI18n } from "vue-i18n"
+import { localData } from "@/shared/utils/local-data"
 
 export type MessageLanguages = keyof typeof messages
 // Type-define 'en-US' as the master schema for the resource
@@ -80,4 +80,8 @@ export default boot(({ app }) => {
 
   // Set i18n instance on app
   app.use(i18n)
+
+  // Make $t globally available everywhere
+  app.config.globalProperties.$t = i18n.global.t
+  globalThis.$t = i18n.global.t
 })

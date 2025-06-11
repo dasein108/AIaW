@@ -7,7 +7,14 @@
     "types": ["vite/client", "node", "jest"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/services/*": ["./src/services/*"],
+      "@/app/*": ["./src/app/*"],
+      "@/composables/*": ["./src/composables/*"],
+      "@/features/*": ["./src/features/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/stores/*": ["./src/stores/*"],
+      "@/utils/*": ["./src/utils/*"]
     }
   }
 }

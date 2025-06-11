@@ -346,23 +346,6 @@
 <script setup lang="ts">
 import { MdPreview, MdCatalog } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
-import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
-import { useMdPreviewProps } from "@/shared/composables/md-preview-props"
-import { useAssistantsStore } from "@/app/store"
-import { useDialogsStore } from "@/app/store"
-import { usePluginsStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
-import {
-  escapeRegex,
-  genId,
-  idDateString,
-  isPlatformEnabled,
-  textBeginning,
-  wrapCode,
-} from "@/shared/utils/functions"
-import sessions from "@/shared/utils/sessions"
-import { ApiResultItem, ConvertArtifactOptions } from "@/shared/utils/types"
-import { dialogOptions } from "@/features/providers/utils/values"
 import {
   computed,
   ComputedRef,
@@ -387,15 +370,29 @@ import MessageInfoDialog from "./MessageInfoDialog.vue"
 import PickAvatarDialog from "./PickAvatarDialog.vue"
 import TextareaDialog from "./TextareaDialog.vue"
 import ToolContent from "./ToolContent.vue"
+import { useUserPerfsStore, usePluginsStore, useDialogsStore, useAssistantsStore } from "@/app/store"
 import {
   UserMessageContent,
   AssistantMessageContent,
   AssistantToolContent,
 } from "@/common/types/dialogs"
+import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
+import { dialogOptions } from "@/features/providers/utils/values"
 import {
   DialogMessageMapped,
   MessageContentMapped,
 } from "@/services/supabase/types"
+import { useMdPreviewProps } from "@/shared/composables/md-preview-props"
+import {
+  escapeRegex,
+  genId,
+  idDateString,
+  isPlatformEnabled,
+  textBeginning,
+  wrapCode,
+} from "@/shared/utils/functions"
+import sessions from "@/shared/utils/sessions"
+import { ApiResultItem, ConvertArtifactOptions } from "@/shared/utils/types"
 
 const props = defineProps<{
   message: DialogMessageMapped

@@ -17,7 +17,6 @@ import { stop } from "quasar/src/utils/event/event.js"
 import { createComponent } from "quasar/src/utils/private.create/create.js"
 import { addFocusFn } from "quasar/src/utils/private.focus/focus-manager.js"
 import { injectProp } from "quasar/src/utils/private.inject-obj-prop/inject-obj-prop.js"
-import useKeyComposition from "@/shared/composables/key-composition.ts"
 import {
   h,
   ref,
@@ -28,6 +27,7 @@ import {
   nextTick,
   getCurrentInstance,
 } from "vue"
+import useKeyComposition from "@/shared/composables/key-composition.ts"
 
 export default createComponent({
   name: "AInput",

@@ -1,8 +1,8 @@
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
-import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import { supabase } from "src/services/supabase/client"
 import { reactive, computed } from "vue"
+import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import { ArtifactMapped } from "@/services/supabase/types"
 
 export const useArtifactsStore = defineStore("artifacts", () => {

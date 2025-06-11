@@ -13,11 +13,11 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useInstallPlugin } from "@/features/plugins/composables/install-plugin"
-import { usePluginsStore } from "@/app/store"
-import { PluginManifest } from "@/shared/utils/types"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
+import { usePluginsStore } from "@/app/store"
+import { useInstallPlugin } from "@/features/plugins/composables/install-plugin"
+import { PluginManifest } from "@/shared/utils/types"
 
 const { t } = useI18n()
 

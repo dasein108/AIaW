@@ -1,5 +1,7 @@
 import { Validator } from "@cfworker/json-schema"
 import { useQuasar } from "quasar"
+import { toRaw } from "vue"
+import { useI18n } from "vue-i18n"
 import { usePluginsStore } from "@/app/store"
 import { fetch } from "@/shared/utils/platform-api"
 import {
@@ -8,8 +10,6 @@ import {
   LobePluginManifestSchema,
   McpPluginManifestSchema,
 } from "@/shared/utils/types"
-import { toRaw } from "vue"
-import { useI18n } from "vue-i18n"
 
 export function useInstallPlugin () {
   const store = usePluginsStore()

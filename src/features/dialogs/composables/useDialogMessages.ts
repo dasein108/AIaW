@@ -1,12 +1,10 @@
 import { storeToRefs } from "pinia"
-import { useStorage } from "@/shared/composables/storage/useStorage"
-import { useDialogMessagesStore } from "@/app/store"
-import { useDialogsStore } from "@/app/store"
-import { useWorkspacesStore } from "@/app/store"
 import { computed, Ref, watch } from "vue"
 import { FILES_BUCKET } from "../storage/utils"
 import { getBranchList, getDialogItemList, TreeListItem } from "./utils/dialogTreeUtils"
+import { useDialogMessagesStore, useDialogsStore, useWorkspacesStore } from "@/app/store"
 import { DialogMessageInput, DialogMessageMapped, StoredItemMapped } from "@/services/supabase/types"
+import { useStorage } from "@/shared/composables/storage/useStorage"
 
 export const useDialogMessages = (dialogId: Ref<string>) => {
   const { dialogs } = storeToRefs(useDialogsStore())
