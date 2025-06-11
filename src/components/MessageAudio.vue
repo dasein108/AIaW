@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { getFileUrl } from "src/composables/storage/utils"
+import { getFileUrl } from "@/shared/composables/storage/utils"
 import { StoredItem } from "@/services/supabase/types"
 
 const props = defineProps<{

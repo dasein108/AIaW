@@ -123,9 +123,9 @@ import JsonInput from "src/components/JsonInput.vue"
 import ListInput from "src/components/ListInput.vue"
 import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { useSetTitle } from "src/composables/set-title"
+import { useSetTitle } from "@/shared/composables/set-title"
 import ErrorNotFound from "src/pages/ErrorNotFound.vue"
-import { usePluginsStore } from "src/stores/plugins"
+import { usePluginsStore } from "@/app/store"
 import { computed } from "vue"
 
 const props = defineProps<{

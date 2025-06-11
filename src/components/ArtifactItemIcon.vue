@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { codeExtensions } from "src/utils/values"
+import { codeExtensions } from "@/features/providers/utils/values"
 import { computed } from "vue"
 import { ArtifactMapped } from "@/services/supabase/types"
 

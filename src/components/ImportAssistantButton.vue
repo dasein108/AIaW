@@ -41,8 +41,8 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useAssistantActions } from "src/composables/workspaces/assistant-actions"
-import { clipboardReadText } from "src/utils/platform-api"
+import { useAssistantActions } from "@/features/workspaces/composables/assistant-actions"
+import { clipboardReadText } from "@/shared/utils/platform-api"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 

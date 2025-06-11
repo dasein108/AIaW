@@ -97,11 +97,11 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useCreateDialog } from "src/composables/create-dialog"
-import { useAssistantsStore } from "src/stores/assistants"
-import { useUserPerfsStore } from "src/stores/user-perfs"
-import { defaultAvatar } from "src/utils/functions"
-import { dialogOptions } from "src/utils/values"
+import { useCreateDialog } from "@/features/dialogs/composables/create-dialog"
+import { useAssistantsStore } from "@/app/store"
+import { useUserPerfsStore } from "@/app/store"
+import { defaultAvatar } from "@/shared/utils/functions"
+import { dialogOptions } from "@/features/providers/utils/values"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"

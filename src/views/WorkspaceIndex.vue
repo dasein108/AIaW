@@ -21,12 +21,12 @@
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { useMdPreviewProps } from "src/composables/md-preview-props"
-import { useSetTitle } from "src/composables/set-title"
-import { syncRef } from "src/composables/sync-ref"
-import { useWorkspacesStore } from "src/stores/workspaces"
-import { engine } from "src/utils/template-engine"
-import { DefaultWsIndexContent } from "src/utils/templates"
+import { useMdPreviewProps } from "@/shared/composables/md-preview-props"
+import { useSetTitle } from "@/shared/composables/set-title"
+import { syncRef } from "@/shared/composables/sync-ref"
+import { useWorkspacesStore } from "@/app/store"
+import { engine } from "@/features/plugins/utils/template-engine"
+import { DefaultWsIndexContent } from "@/features/plugins/utils/templates"
 import { computed, Ref, inject, toRaw } from "vue"
 import { WorkspaceMapped } from "@/services/supabase/types"
 

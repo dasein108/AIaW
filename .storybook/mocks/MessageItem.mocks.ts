@@ -1,6 +1,6 @@
 import { fn } from '@storybook/test'
 import type { DialogMessageMapped, Assistant, StoredItemMapped } from '../../src/services/supabase/types'
-import type { Avatar } from '../../src/utils/types'
+import type { Avatar } from '../../@/shared/utils/types'
 
 // Create alias for backward compatibility
 type Message = DialogMessageMapped

@@ -77,12 +77,12 @@
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
 import { useDialogPluginComponent } from "quasar"
-import { useMdPreviewProps } from "src/composables/md-preview-props"
-// import { exportFile } from 'src/utils/platform-api'
-import { useStorage } from "src/composables/storage/useStorage"
-import { FILES_BUCKET } from "src/composables/storage/utils"
-import { wrapCode, wrapQuote } from "src/utils/functions"
-import { codeExtensions } from "src/utils/values"
+import { useMdPreviewProps } from "@/shared/composables/md-preview-props"
+// import { exportFile } from '@/shared/utils/platform-api'
+import { useStorage } from "@/shared/composables/storage/useStorage"
+import { FILES_BUCKET } from "@/shared/composables/storage/utils"
+import { wrapCode, wrapQuote } from "@/shared/utils/functions"
+import { codeExtensions } from "@/features/providers/utils/values"
 import { computed, ref, watchEffect } from "vue"
 import CopyBtn from "./CopyBtn.vue"
 import { StoredItem } from "@/services/supabase/types"

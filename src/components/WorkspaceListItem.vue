@@ -119,14 +119,14 @@
 
 <script setup lang="ts">
 import { QMenu } from "quasar"
-import { useWorkspaceActions } from "src/composables/workspaces/workspace-actions"
+import { useWorkspaceActions } from "@/features/workspaces/composables/workspace-actions"
 import { ref, watch, toRef } from "vue"
 import { useRootWorkspace } from "../composables/workspaces/useRootWorkspaces"
 import AAvatar from "./AAvatar.vue"
 import MenuButton from "./ExpansionItem/MenuButton.vue"
 import MenuItem from "./MenuItem.vue"
 import type { WorkspaceMapped } from "@/services/supabase/types"
-// import { Folder, Workspace } from 'src/utils/types'
+// import { Folder, Workspace } from '@/shared/utils/types'
 
 const props = defineProps<{
   item: WorkspaceMapped

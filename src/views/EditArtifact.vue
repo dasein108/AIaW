@@ -98,11 +98,11 @@
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
 import CodeJar from "src/components/CodeJar.vue"
-import { useListenKey } from "src/composables/listen-key"
-import { useMdPreviewProps } from "src/composables/md-preview-props"
-import { useArtifactsStore } from "src/stores/artifacts"
-import { useUserPerfsStore } from "src/stores/user-perfs"
-import { artifactUnsaved, saveArtifactChanges } from "src/utils/functions"
+import { useListenKey } from "@/shared/composables/listen-key"
+import { useMdPreviewProps } from "@/shared/composables/md-preview-props"
+import { useArtifactsStore } from "@/app/store"
+import { useUserPerfsStore } from "@/app/store"
+import { artifactUnsaved, saveArtifactChanges } from "@/shared/utils/functions"
 import { computed, ref, toRef, watchEffect } from "vue"
 import { ArtifactMapped } from "@/services/supabase/types"
 

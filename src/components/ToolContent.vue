@@ -84,10 +84,10 @@
 
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
-import { useMdPreviewProps } from "src/composables/md-preview-props"
-import { usePluginsStore } from "src/stores/plugins"
-import { wrapCode } from "src/utils/functions"
-import { engine } from "src/utils/template-engine"
+import { useMdPreviewProps } from "@/shared/composables/md-preview-props"
+import { usePluginsStore } from "@/app/store"
+import { wrapCode } from "@/shared/utils/functions"
+import { engine } from "@/features/plugins/utils/template-engine"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 import AAvatar from "./AAvatar.vue"

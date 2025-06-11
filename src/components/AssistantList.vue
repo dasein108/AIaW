@@ -27,9 +27,9 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
-import { useAssistantsStore } from "src/stores/assistants"
-import { useUserPerfsStore } from "src/stores/user-perfs"
-import { defaultAvatar } from "src/utils/functions"
+import { useAssistantsStore } from "@/app/store"
+import { useUserPerfsStore } from "@/app/store"
+import { defaultAvatar } from "@/shared/utils/functions"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
 import AssistantListItem from "./AssistantListItem.vue"

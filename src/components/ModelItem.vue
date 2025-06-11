@@ -21,8 +21,8 @@
 
 <script setup lang="ts">
 import AAvatar from "src/components/AAvatar.vue"
-import { defaultAvatar } from "src/utils/functions"
-import { Avatar } from "src/utils/types"
+import { defaultAvatar } from "@/shared/utils/functions"
+import { Avatar } from "@/shared/utils/types"
 import { computed } from "vue"
 
 const props = defineProps<{

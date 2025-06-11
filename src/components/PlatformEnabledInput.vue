@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { PlatformEnabled } from "src/utils/types"
+import { PlatformEnabled } from "@/shared/utils/types"
 import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()

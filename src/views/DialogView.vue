@@ -315,21 +315,21 @@ import ModelOverrideMenu from "src/components/ModelOverrideMenu.vue"
 import ParseFilesDialog from "src/components/ParseFilesDialog.vue"
 import PromptVarInput from "src/components/PromptVarInput.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { useDialogInput } from "src/composables/dialog/useDialogInput"
-import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
-import { useDialogModel } from "src/composables/dialog/useDialogModel"
-import { useLlmDialog } from "src/composables/dialog/useLlmDialog"
-import { useListenKey } from "src/composables/listen-key"
-import { useSetTitle } from "src/composables/set-title"
-import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
+import { useDialogInput } from "@/features/dialogs/composables/useDialogInput"
+import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
+import { useDialogModel } from "@/features/dialogs/composables/useDialogModel"
+import { useLlmDialog } from "@/features/dialogs/composables/useLlmDialog"
+import { useListenKey } from "@/shared/composables/listen-key"
+import { useSetTitle } from "@/shared/composables/set-title"
+import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
 import ErrorNotFound from "src/pages/ErrorNotFound.vue"
 import { DialogMessageMapped } from "src/services/supabase/types"
-import { useDialogMessagesStore } from "src/stores/dialogMessages"
-import { usePluginsStore } from "src/stores/plugins"
-import { useUiStateStore } from "src/stores/ui-state"
-import { useUserDataStore } from "src/stores/user-data"
-import { useUserPerfsStore } from "src/stores/user-perfs"
-import { MaxMessageFileSizeMB } from "src/utils/config"
+import { useDialogMessagesStore } from "@/app/store"
+import { usePluginsStore } from "@/app/store"
+import { useUiStateStore } from "@/app/store"
+import { useUserDataStore } from "@/app/store"
+import { useUserPerfsStore } from "@/app/store"
+import { MaxMessageFileSizeMB } from "@/shared/utils/config"
 import {
   almostEqual,
   displayLength,
@@ -340,11 +340,11 @@ import {
   textBeginning,
   wrapCode,
   wrapQuote
-} from "src/utils/functions"
-import { scaleBlob } from "src/utils/image-process"
-import { engine } from "src/utils/template-engine"
-import { DialogContent } from "src/utils/templates"
-import { Plugin, ApiResultItem } from "src/utils/types"
+} from "@/shared/utils/functions"
+import { scaleBlob } from "@/shared/utils/image-process"
+import { engine } from "@/features/plugins/utils/template-engine"
+import { DialogContent } from "@/features/plugins/utils/templates"
+import { Plugin, ApiResultItem } from "@/shared/utils/types"
 import {
   computed,
   inject,

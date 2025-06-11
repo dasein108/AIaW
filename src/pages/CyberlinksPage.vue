@@ -82,12 +82,12 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useCallApi } from "src/composables/call-api"
-import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
+import { useCallApi } from "@/features/plugins/composables/call-api"
+import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
 import { getLocalStorageWalletState } from "src/services/kepler/KeplerWallet"
-import { useAuthStore } from "src/stores/auth"
-import { usePluginsStore } from "src/stores/plugins"
-import { IsTauri } from "src/utils/platform-api"
+import { useAuthStore } from "@/app/store"
+import { usePluginsStore } from "@/app/store"
+import { IsTauri } from "@/shared/utils/platform-api"
 import { computed, provide, ref, onMounted, watch } from "vue"
 
 const pageFhStyle = (offset: number, height: number) => ({

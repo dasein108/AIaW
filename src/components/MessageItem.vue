@@ -346,12 +346,12 @@
 <script setup lang="ts">
 import { MdPreview, MdCatalog } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
-import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
-import { useMdPreviewProps } from "src/composables/md-preview-props"
-import { useAssistantsStore } from "src/stores/assistants"
-import { useDialogsStore } from "src/stores/dialogs"
-import { usePluginsStore } from "src/stores/plugins"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
+import { useMdPreviewProps } from "@/shared/composables/md-preview-props"
+import { useAssistantsStore } from "@/app/store"
+import { useDialogsStore } from "@/app/store"
+import { usePluginsStore } from "@/app/store"
+import { useUserPerfsStore } from "@/app/store"
 import {
   escapeRegex,
   genId,
@@ -359,10 +359,10 @@ import {
   isPlatformEnabled,
   textBeginning,
   wrapCode,
-} from "src/utils/functions"
-import sessions from "src/utils/sessions"
-import { ApiResultItem, ConvertArtifactOptions } from "src/utils/types"
-import { dialogOptions } from "src/utils/values"
+} from "@/shared/utils/functions"
+import sessions from "@/shared/utils/sessions"
+import { ApiResultItem, ConvertArtifactOptions } from "@/shared/utils/types"
+import { dialogOptions } from "@/features/providers/utils/values"
 import {
   computed,
   ComputedRef,

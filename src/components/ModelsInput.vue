@@ -21,8 +21,8 @@
 </template>
 
 <script setup lang="ts">
-import { useFilterOptions } from "src/composables/filter-options"
-import { useProvidersStore } from "src/stores/providers"
+import { useFilterOptions } from "@/shared/composables/filter-options"
+import { useProvidersStore } from "@/app/store"
 import { toRef } from "vue"
 import ModelItem from "./ModelItem.vue"
 

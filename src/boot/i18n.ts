@@ -2,7 +2,7 @@ import { Quasar } from "quasar"
 import { boot } from "quasar/wrappers"
 
 import messages from "src/i18n"
-import { localData } from "src/utils/local-data"
+import { localData } from "@/shared/utils/local-data"
 import { nextTick, watch } from "vue"
 import { createI18n } from "vue-i18n"
 

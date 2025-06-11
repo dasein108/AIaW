@@ -1,7 +1,7 @@
 import { Loading } from 'quasar'
 import { register } from 'register-service-worker'
 import { i18n } from 'src/boot/i18n'
-import { localData } from 'src/utils/local-data'
+import { localData } from '@/shared/utils/local-data'
 import version from 'src/version.json'
 
 // The ready(), registered(), cached(), updatefound() and updated()

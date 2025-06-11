@@ -7,7 +7,7 @@ This document describes how dialog messages are created, read, updated, and dele
 ## 1. Create
 
 ### Dialog Creation
-- **File:** `src/composables/create-dialog.ts`
+- **File:** `@/features/dialogs/composables/create-dialog.ts`
 - **Pattern:**
   - A new dialog is created with a root user message.
   - Both dialog and its first message are created in a single Dexie transaction.
@@ -25,7 +25,7 @@ flowchart TD
 
 **Code Example:**
 ```ts
-// src/composables/create-dialog.ts
+// @/features/dialogs/composables/create-dialog.ts
 async function createDialog(props: Partial<Dialog> = {}) {
   const id = genId()
   const messageId = genId()

@@ -26,9 +26,9 @@
 <script setup lang="ts">
 import AAvatar from "src/components/AAvatar.vue"
 import WorkspaceNav from "src/components/WorkspaceNav.vue"
-import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
-import { avatarKey } from "src/utils/functions"
-import { IconAvatar } from "src/utils/types"
+import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
+import { avatarKey } from "@/shared/utils/functions"
+import { IconAvatar } from "@/shared/utils/types"
 import { computed } from "vue"
 
 const { workspace } = useActiveWorkspace()

@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { codeExtensions } from "src/utils/values"
+import { codeExtensions } from "@/features/providers/utils/values"
 import { computed } from "vue"
 import ViewFileDialog from "./ViewFileDialog.vue"
 import { StoredItemMapped } from "@/services/supabase/types"

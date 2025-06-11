@@ -22,10 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
+import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
 import { KeplerWallet } from "src/services/kepler/KeplerWallet"
 import { parseEvents } from "src/services/kepler/utils"
-import { IsTauri } from "src/utils/platform-api"
+import { IsTauri } from "@/shared/utils/platform-api"
 import { computed, inject, toRef } from "vue"
 
 import { CosmosWallet } from "@/services/cosmos/CosmosWallet"

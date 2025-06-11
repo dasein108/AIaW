@@ -159,12 +159,12 @@
 
 <script setup lang="ts">
 import { useDialogPluginComponent } from "quasar"
-import { useStorage } from "src/composables/storage/useStorage"
-import { useUserPerfsStore } from "src/stores/user-perfs"
-import { genId } from "src/utils/functions"
-import { cropSquareBlob } from "src/utils/image-process"
-import { Avatar } from "src/utils/types"
-import { materialSymbols } from "src/utils/values"
+import { useStorage } from "@/shared/composables/storage/useStorage"
+import { useUserPerfsStore } from "@/app/store"
+import { genId } from "@/shared/utils/functions"
+import { cropSquareBlob } from "@/shared/utils/image-process"
+import { Avatar } from "@/shared/utils/types"
+import { materialSymbols } from "@/features/providers/utils/values"
 import { ref, toRaw } from "vue"
 import AAvatar from "./AAvatar.vue"
 import AvatarPanel from "./AvatarPanel.vue"

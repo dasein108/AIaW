@@ -36,8 +36,8 @@
 import { storeToRefs } from "pinia"
 import AAvatar from "src/components/AAvatar.vue"
 import { DialogMapped } from "src/services/supabase/types"
-import { useDialogsStore } from "src/stores/dialogs"
-import { useWorkspacesStore } from "src/stores/workspaces"
+import { useDialogsStore } from "@/app/store"
+import { useWorkspacesStore } from "@/app/store"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
 
