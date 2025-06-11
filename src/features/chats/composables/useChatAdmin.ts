@@ -1,9 +1,8 @@
 import { storeToRefs } from "pinia"
 import { useUserStore } from "src/stores/user"
 import { computed, readonly, Ref } from "vue"
-import { useIsWorkspaceAdmin } from "../workspaces/useIsWorkspaceAdmin"
+import { useIsWorkspaceAdmin } from "@/composables/workspaces/useIsWorkspaceAdmin"
 import { ChatMapped } from "@/services/supabase/types"
-
 export const useIsChatAdmin = (chat: Ref<ChatMapped>) => {
   const { currentUserId } = storeToRefs(useUserStore())
   const workspaceId = computed(() => chat.value?.workspace_id)

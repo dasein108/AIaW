@@ -66,6 +66,11 @@ export default configure((ctx) => {
 
       extendViteConf() {
         return {
+          resolve: {
+            alias: {
+              '@': fileURLToPath(new URL('./src', import.meta.url))
+            }
+          },
           server: {
             watch: {
               ignored: ['**/src-tauri/**', '**/.venv/**', '/android/**']

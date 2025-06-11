@@ -4,7 +4,7 @@ import type {
   ProfileMapped,
 } from "src/services/supabase/types"
 import { useProfileStore } from "src/stores/profile"
-import { useUserLoginCallback } from "../auth/useUserLoginCallback"
+import { useUserLoginCallback } from "@/composables/auth/useUserLoginCallback"
 
 // Cache for sender profiles
 const profileCache = new Map<string, ProfileMapped | null>()
