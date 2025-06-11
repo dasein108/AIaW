@@ -1,0 +1,87 @@
+// PostCardWithGallery Component Styles
+// ==============================================
+@import './post-shared';
+
+.post-card {
+  @extend %post-card-base;
+  @extend %post-section-padding;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  // Compact variant styles
+  &.compact-card {
+    .post-header {
+      padding: 12px 16px 8px;
+    }
+
+    .post-content {
+      padding: 0 16px 8px;
+    }
+
+    .post-actions {
+      padding: 8px 16px 12px;
+
+      .action-btn {
+        @extend %action-button-compact;
+      }
+    }
+  }
+
+  // Detailed variant styles
+  &.detailed-card {
+    .post-header {
+      padding: 16px 16px 8px;
+    }
+
+    .post-content {
+      padding: 0 16px 12px;
+    }
+
+    .post-stats {
+      padding: 8px 16px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .post-actions {
+      padding: 8px 4px;
+
+      .action-btn {
+        @extend %action-button-detailed;
+      }
+    }
+  }
+}
+
+// Post Images Section
+// Note: PostImageGallery component handles its own styling
+.post-images {
+  // Remove any existing image-specific styles since PostImageGallery handles them
+  // This section is intentionally minimal as the gallery component manages the layout
+}
+
+// Action Buttons
+.action-btn {
+  @extend %action-button-base;
+  border-radius: 8px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+// Dark Mode Adjustments
+.body--dark {
+  .post-card {
+    &:hover {
+      box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+}
