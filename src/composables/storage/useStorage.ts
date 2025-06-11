@@ -97,9 +97,9 @@ export function useStorage (bucketName: string = AVATAR_BUCKET) {
   }
 
   // TODO: move outside storage
-  const apiResultItemToStoredItem = async (
+  const saveApiResultItem = async (
     item: ApiResultItem,
-    dialog_id: string
+    storedItemData: Partial<StoredItemMapped>
   ): Promise<StoredItemMapped | null> => {
     if (item.type === "file") {
       const fileItem = await uploadApiResultItem(item)
@@ -107,16 +107,24 @@ export function useStorage (bucketName: string = AVATAR_BUCKET) {
       if (fileItem) {
         return {
           ...fileItem,
-          dialog_id,
+          ...storedItemData,
         }
       }
     }
 
+    // Text items store in DB, not in storage
     return {
       content_text: item.contentText,
       type: item.type,
-      dialog_id,
+      ...storedItemData,
     }
+  }
+
+  const saveApiResultItems = async (
+    items: ApiResultItem[],
+    storedItemData: Partial<StoredItemMapped>
+  ) => {
+    return Promise.all(items.map((item) => saveApiResultItem(item, storedItemData)))
   }
 
   return {
@@ -125,6 +133,7 @@ export function useStorage (bucketName: string = AVATAR_BUCKET) {
     deleteFile,
     getFileSizeByUrl,
     uploadApiResultItem,
-    apiResultItemToStoredItem,
+    saveApiResultItem,
+    saveApiResultItems
   }
 }

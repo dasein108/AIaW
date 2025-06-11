@@ -34,7 +34,6 @@ import {
   DialogMessageMapped,
   MessageContentMapped,
   MessageContentResult,
-  StoredItemMapped,
 } from "@/services/supabase/types"
 import { ConvertArtifactOptions, Plugin, PluginApi } from "@/utils/types"
 
@@ -64,7 +63,7 @@ export const useLlmDialog = (
         contents,
         locale.value
       )
-      await dialogsStore.updateDialog({ id: dialog.value.id, name: title })
+      await dialogsStore.updateDialog({ id: dialogId.value, name: title })
 
       return title
     } catch (e) {
@@ -140,7 +139,6 @@ export const useLlmDialog = (
 
   async function stream(
     targetId: string,
-    insert = false,
     abortController: AbortController | null = null
   ) {
     // In case if last message in status "inputing"
@@ -173,19 +171,17 @@ export const useLlmDialog = (
       await switchActiveMessage(id)
     }
 
-    // In case of "send action with empty input"
-    !insert &&
-      (await addMessage(id, {
-        type: "user",
-        message_contents: [
-          {
-            type: "user-message",
-            text: "",
-            stored_items: [],
-          },
-        ],
-        status: "inputing",
-      }))
+    await addMessage(id, {
+      type: "user",
+      message_contents: [
+        {
+          type: "user-message",
+          text: "",
+          stored_items: [],
+        },
+      ],
+      status: "inputing",
+    })
 
     isStreaming.value = true
 
@@ -208,11 +204,7 @@ export const useLlmDialog = (
       await update()
 
       const { result: apiResult, error } = await callApi(plugin, api, args)
-      const storedItems: StoredItemMapped[] = await Promise.all(
-        apiResult.map((r) =>
-          storage.apiResultItemToStoredItem(r, dialog.value.id)
-        )
-      )
+      const storedItems = await storage.saveApiResultItems(apiResult, { dialog_id: dialogId.value })
 
       content.stored_items = storedItems
 

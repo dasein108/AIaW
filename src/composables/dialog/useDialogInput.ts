@@ -32,9 +32,7 @@ export const useDialogInput = (
   }
 
   async function addInputItems (items: ApiResultItem[]) {
-    const storedItems: StoredItemMapped[] = await Promise.all(
-      items.map((r) => storage.apiResultItemToStoredItem(r, dialogId.value))
-    )
+    const storedItems: StoredItemMapped[] = await storage.saveApiResultItems(items, { dialog_id: dialogId.value })
 
     await updateMessage(
       lastMessageId.value,

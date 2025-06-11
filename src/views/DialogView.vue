@@ -363,6 +363,7 @@ const props = defineProps<{
 }>()
 
 const rightDrawerAbove = inject("rightDrawerAbove")
+
 const dialogId = computed(() => props.id)
 
 const { assistant } = useActiveWorkspace()
@@ -419,7 +420,7 @@ watch(
 const startStream = async (target: string, insert = false) => {
   preventLockingBottom.value = false
   abortController.value = new AbortController()
-  await stream(target, insert, abortController.value)
+  await stream(target, abortController.value)
 }
 
 function focusInput () {
@@ -457,7 +458,7 @@ function ensureAssistantAndModel () {
 async function regenerate(parentId: string) {
   if (!ensureAssistantAndModel()) return
 
-  await startStream(parentId, false)
+  await startStream(parentId)
 }
 
 function onTextPaste (ev: ClipboardEvent) {
@@ -613,7 +614,7 @@ async function sendPrompt (prompt: string) {
   // await dialogsStore.updateDialog({ id: dialog.value.id, msg_route: newRoute })
 
   await nextTick()
-  await startStream(newUserMessageId, false)
+  await startStream(newUserMessageId)
 }
 
 async function sendCyberlinkPrompt (text: string) {
@@ -629,11 +630,7 @@ async function send () {
     scroll("bottom")
   })
 
-  if (inputEmpty.value) {
-    await startStream(dialogItems.value.at(-2).message.id, true)
-  } else {
-    await startStream(dialogItems.value.at(-1).message.id, false)
-  }
+  await startStream(lastMessageId.value, false)
 }
 
 let lastScrollTop
@@ -686,7 +683,7 @@ watch(
   (to) => {
     userDataStore.data.lastDialogIds[workspaceId.value] = dialogId.value
     until(dialog)
-      .toMatch((val) => val?.id === props.id)
+      .toMatch((val) => val?.id === dialogId.value)
       .then(async () => {
         focusInput()
 
@@ -939,10 +936,10 @@ const uiStateStore = useUiStateStore()
 const scrollTops = uiStateStore.dialogScrollTops
 
 function onScroll (ev) {
-  scrollTops[props.id] = ev.target.scrollTop
+  scrollTops[dialogId.value] = ev.target.scrollTop
 }
 watch(
-  () => dialog.value?.id,
+  () => dialogId.value,
   (id) => {
     if (!id) return
 
