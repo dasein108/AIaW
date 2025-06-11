@@ -52,6 +52,17 @@ const bgColors = {
 }
 
 export default defineConfig({
+  content: {
+    pipeline: {
+      include: [
+        // the default
+        /\.(vue|svelte|[jt]sx|mdx?|astro|elm|php|phtml|html)($|\?)/,
+        // Include Storybook stories
+        '.storybook/**/*.stories.{js,ts}',
+        '.storybook/**/*'
+      ]
+    }
+  },
   theme: {
     colors: {
       ...textColors,

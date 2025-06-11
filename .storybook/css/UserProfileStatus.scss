@@ -1,0 +1,66 @@
+// UserProfileStatus Component Styles
+// ==============================================
+@import './user-profile-shared';
+
+.user-profile-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &--dot-only {
+        gap: 0;
+    }
+
+    &__indicator {
+        @extend %status-indicator-base;
+
+        &--small {
+            @include status-indicator-size('small');
+        }
+
+        &--medium {
+            @include status-indicator-size('medium');
+        }
+
+        &--large {
+            @include status-indicator-size('large');
+        }
+
+        // Animation for online status
+        &--online {
+            animation: pulse-online 2s infinite;
+        }
+    }
+
+    &__text {
+        @extend %profile-text-base;
+
+        &--small {
+            @include profile-text-sizing('small');
+        }
+
+        &--medium {
+            @include profile-text-sizing('medium');
+        }
+
+        &--large {
+            @include profile-text-sizing('large');
+        }
+    }
+
+    // Responsive adjustments
+    @include profile-responsive-adjustments;
+}
+
+// Dark mode improvements
+body.body--dark {
+    .user-profile-status__indicator {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+    }
+}
+
+body.body--light {
+    .user-profile-status__indicator {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8) !important;
+    }
+}

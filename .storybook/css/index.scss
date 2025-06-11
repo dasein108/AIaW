@@ -1,0 +1,22 @@
+// Component Styles Index
+// ==============================================
+// This file provides a central import point for all component styles
+
+// Shared styles (must be imported first)
+@import './post-shared';
+@import './user-profile-shared';
+
+// Individual component styles
+@import './PostCard';
+@import './PostCardWithGallery';
+@import './UserProfileStatus';
+@import './UserProfileBlock';
+@import './WalletComponent';
+@import './SocialShare';
+
+// Usage:
+// To import all component styles: @import '../css';
+// To import specific component: @import '../css/PostCard';
+// To import specific user profile component: @import '../css/UserProfileStatus';
+// To import specific wallet component: @import '../css/WalletComponent';
+// To import specific social share component: @import '../css/SocialShare';

@@ -1,0 +1,135 @@
+.social-share {
+  display: inline-block;
+}
+
+.social-share-dialog {
+  min-width: 400px;
+  max-width: 500px;
+
+  .q-card__section {
+    padding: 16px 16px 16px 16px;
+  }
+}
+
+.social-icons-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+
+
+  @media (max-width: 480px) {
+    gap: 12px;
+  }
+}
+
+.social-icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 60px;
+
+  @media (max-width: 480px) {
+    min-width: 50px;
+  }
+}
+
+.social-icon-btn {
+  width: 48px !important;
+  height: 48px !important;
+  font-size: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  // Ensure icons are centered
+  .q-btn__content {
+    justify-content: center;
+    align-items: center;
+  }
+
+  // Custom icon sizing for better visual balance
+  .q-icon {
+    font-size: 28px;
+  }
+
+  @media (max-width: 480px) {
+    width: 42px !important;
+    height: 42px !important;
+    font-size: 20px;
+
+    .q-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+.social-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 60px;
+  word-wrap: break-word;
+
+  @media (max-width: 480px) {
+    font-size: 11px;
+    max-width: 50px;
+  }
+}
+
+// Dark mode adjustments
+.body--dark {
+
+  .social-icon-btn {
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+// Custom color adjustments to match the reference design
+.social-icon-btn {
+
+  // WhatsApp green
+  &.bg-green-6 {
+    background-color: #25d366 !important;
+  }
+
+  // Facebook blue
+  &.bg-blue-7 {
+    background-color: #1877f2 !important;
+  }
+
+  // X (Twitter) dark
+  &.bg-grey-9 {
+    background-color: #000000 !important;
+  }
+
+  // Kakao yellow
+  &.bg-yellow-8 {
+    background-color: #fee500 !important;
+    color: #000 !important;
+  }
+
+  // Email grey-blue
+  &.bg-blue-grey-7 {
+    background-color: #546e7a !important;
+  }
+
+  // Embed grey
+  &.bg-grey-7 {
+    background-color: #616161 !important;
+  }
+}

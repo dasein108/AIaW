@@ -1,0 +1,109 @@
+.wallet-component {
+  border-radius: 16px;
+  max-width: 500px;
+  margin: 0 auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  .wallet-header {
+    border-radius: 16px 16px 0 0;
+    padding: 32px 24px;
+  }
+
+  .balance-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .action-buttons {
+    padding: 24px;
+  }
+
+  .action-btn {
+    min-width: 140px;
+    height: 48px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: none;
+  }
+
+  .wallet-info {
+    border-radius: 0 0 16px 16px;
+    padding: 16px 24px;
+  }
+
+  // Animation for balance changes
+  .wallet-header .text-h2 {
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  // Icon animation
+  .balance-display .q-icon {
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: rotate(360deg);
+    }
+  }
+
+  // Button hover effects
+  .action-btn {
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 600px) {
+    margin: 16px;
+    border-radius: 12px;
+
+    .wallet-header {
+      padding: 24px 16px;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .balance-display {
+      flex-direction: column;
+      gap: 5px;
+
+      .q-icon {
+        margin-right: 0 !important;
+      }
+    }
+
+    .action-buttons {
+      padding: 16px;
+
+      .row {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    .action-btn {
+      width: 100%;
+      max-width: 280px;
+      margin-bottom: 8px;
+    }
+
+    .wallet-info {
+      padding: 12px 16px;
+      border-radius: 0 0 12px 12px;
+
+      .row {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+      }
+    }
+  }
+}
