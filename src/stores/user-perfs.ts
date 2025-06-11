@@ -80,7 +80,7 @@ const defaultPerfs: Perfs = {
     "deepseek-reasoner",
   ],
   autoGenTitle: true,
-  sendKey: "ctrl+enter",
+  sendKey: "enter",
   messageSelectionBtn: true,
   codePasteOptimize: true,
   dialogScrollBtn: "always",
