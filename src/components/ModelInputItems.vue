@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { useProvidersStore } from "src/stores/providers"
+import { useProvidersStore } from "@/app/store"
 import { Model } from "src/utils/types"
 import { InputTypes, models } from "src/utils/values"
 import AutocompleteInput from "./AutocompleteInput.vue"

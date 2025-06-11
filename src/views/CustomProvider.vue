@@ -100,7 +100,7 @@ import {
   CustomProviderMapped,
   SubproviderMapped,
 } from "src/services/supabase/types"
-import { useProvidersStore } from "src/stores/providers"
+import { useProvidersStore } from "@/app/store"
 import { pageFhStyle } from "src/utils/functions"
 import { computed, toRaw } from "vue"
 import { useI18n } from "vue-i18n"

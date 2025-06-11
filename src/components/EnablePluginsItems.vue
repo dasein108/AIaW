@@ -61,8 +61,8 @@
 
 <script setup lang="ts">
 import { syncRef } from "src/composables/sync-ref"
-import { useAssistantsStore } from "src/stores/assistants"
-import { usePluginsStore } from "src/stores/plugins"
+import { useAssistantsStore } from "@/app/store"
+import { usePluginsStore } from "@/app/store"
 import { AssistantPlugin, Plugin } from "src/utils/types"
 import { toRaw } from "vue"
 import AAvatar from "./AAvatar.vue"

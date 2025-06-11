@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { useBack } from "src/composables/back"
 import SettingsArea from "src/layouts/SettingsArea.vue"
-import { useUiStateStore } from "src/stores/ui-state"
+import { useUiStateStore } from "@/app/store"
 
 const uiStore = useUiStateStore()
 

@@ -34,7 +34,7 @@ import { storeToRefs } from "pinia"
 import { useCheckLogin } from "src/composables/auth/useCheckLogin"
 import { useCreateDialog } from "src/composables/create-dialog"
 import { useListenKey } from "src/composables/listen-key"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useUserPerfsStore } from "@/app/store"
 import { isPlatformEnabled } from "src/utils/functions"
 import { toRef } from "vue"
 

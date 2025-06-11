@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import PluginTypeBadge from "src/components/PluginTypeBadge.vue"
-import { usePluginsStore } from "src/stores/plugins"
+import { usePluginsStore } from "@/app/store"
 import { useI18n } from "vue-i18n"
 import AAvatar from "./AAvatar.vue"
 

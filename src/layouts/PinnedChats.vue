@@ -31,8 +31,8 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
 import AAvatar from "src/components/AAvatar.vue"
-import { useChatsStore } from "src/features/chats/stores/chats"
-import { useWorkspacesStore } from "src/stores/workspaces"
+import { useChatsStore } from "@/app/store"
+import { useWorkspacesStore } from "@/app/store"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
 

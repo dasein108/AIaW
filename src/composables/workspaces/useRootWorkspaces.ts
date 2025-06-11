@@ -1,4 +1,4 @@
-import { useWorkspacesStore } from "src/stores/workspaces"
+import { useWorkspacesStore } from "@/app/store"
 import { computed } from "vue"
 import { WorkspaceMapped } from "@/services/supabase/types"
 

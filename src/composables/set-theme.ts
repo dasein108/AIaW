@@ -7,8 +7,8 @@ import {
   TonalPalette,
 } from "@material/material-color-utilities"
 import { Dark } from "quasar"
-import { useUiStateStore } from "src/stores/ui-state"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useUiStateStore } from "@/app/store"
+import { useUserPerfsStore } from "@/app/store"
 import { IsCapacitor } from "src/utils/platform-api"
 import { watchEffect } from "vue"
 

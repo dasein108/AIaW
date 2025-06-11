@@ -3,7 +3,7 @@ import type {
   ChatMessageWithProfile,
   ProfileMapped,
 } from "src/services/supabase/types"
-import { useProfileStore } from "src/stores/profile"
+import { useProfileStore } from "@/app/store"
 import { useUserLoginCallback } from "@/composables/auth/useUserLoginCallback"
 
 // Cache for sender profiles

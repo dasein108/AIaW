@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from "quasar"
 import AAvatar from "src/components/AAvatar.vue"
-import { useProfileStore } from "src/stores/profile"
+import { useProfileStore } from "@/app/store"
 import { onMounted, ref } from "vue"
 import type { ProfileMapped } from "@/services/supabase/types"
 

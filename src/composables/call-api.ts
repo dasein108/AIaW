@@ -1,5 +1,5 @@
 import { Schema, Validator } from "@cfworker/json-schema"
-import { usePluginsStore } from "src/stores/plugins"
+import { usePluginsStore } from "@/app/store"
 import { removeUndefinedProps } from "src/utils/functions"
 import { ApiResultItem, Plugin, PluginApi } from "src/utils/types"
 import { Ref, toRaw } from "vue"

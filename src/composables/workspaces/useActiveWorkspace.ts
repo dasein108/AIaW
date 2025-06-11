@@ -1,7 +1,7 @@
 import { storeToRefs } from "pinia"
-import { useAssistantsStore } from "src/stores/assistants"
-import { useUserDataStore } from "src/stores/user-data"
-import { useWorkspacesStore } from "src/stores/workspaces"
+import { useAssistantsStore } from "@/app/store"
+import { useUserDataStore } from "@/app/store"
+import { useWorkspacesStore } from "@/app/store"
 import { computed } from "vue"
 import { useRoute } from "vue-router"
 

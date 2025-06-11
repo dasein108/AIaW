@@ -60,8 +60,8 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import { CustomProviderMapped } from "src/services/supabase/types"
-import { useProvidersStore } from "src/stores/providers"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useProvidersStore } from "@/app/store"
+import { useUserPerfsStore } from "@/app/store"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import AAvatar from "./AAvatar.vue"

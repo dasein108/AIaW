@@ -2,7 +2,7 @@ import { throttle } from "lodash"
 import { defineStore } from "pinia"
 import { useChatsWithSubscription } from "src/features/chats/composables/useChatsWithSubscription"
 import { supabase } from "src/services/supabase/client"
-import { useUserStore } from "src/stores/user"
+import { useUserStore } from "@/app/store"
 import { readonly } from "vue"
 import { ChatMapped } from "@/services/supabase/types"
 

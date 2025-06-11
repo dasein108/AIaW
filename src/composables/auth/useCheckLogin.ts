@@ -1,5 +1,5 @@
 import { useQuasar } from "quasar"
-import { useUserStore } from "src/stores/user"
+import { useUserStore } from "@/app/store"
 
 export function useCheckLogin () {
   const userStore = useUserStore()

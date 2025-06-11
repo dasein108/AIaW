@@ -1,6 +1,6 @@
-import { useAuthStore } from "src/stores/auth"
+import { useAuthStore } from "@/app/store"
 import { ref } from "vue"
-import { getMnemonic } from "../stores/tauri-store"
+import { getMnemonic } from "@/app/store"
 import { IsTauri } from "../utils/platform-api"
 
 export function usePinModal () {

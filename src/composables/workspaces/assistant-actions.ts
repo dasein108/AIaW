@@ -1,7 +1,7 @@
 import { Validator } from "@cfworker/json-schema"
 import { useQuasar } from "quasar"
 import { defaultModelSettings } from "src/common/consts"
-import { useAssistantsStore } from "src/stores/assistants"
+import { useAssistantsStore } from "@/app/store"
 import { AssistantDefaultPrompt } from "src/utils/templates"
 import { MarketAssistantSchema } from "src/utils/types"
 import { toRaw } from "vue"

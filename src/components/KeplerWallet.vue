@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "src/stores/auth"
+import { useAuthStore } from "@/app/store"
 import { computed, inject } from "vue"
 import { KeplerWallet } from "@/services/kepler/KeplerWallet"
 

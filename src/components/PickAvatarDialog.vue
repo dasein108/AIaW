@@ -160,7 +160,7 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from "quasar"
 import { useStorage } from "src/composables/storage/useStorage"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useUserPerfsStore } from "@/app/store"
 import { genId } from "src/utils/functions"
 import { cropSquareBlob } from "src/utils/image-process"
 import { Avatar } from "src/utils/types"

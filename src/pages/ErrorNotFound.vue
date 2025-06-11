@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import HintCard from "src/components/HintCard.vue"
-import { useUiStateStore } from "src/stores/ui-state"
+import { useUiStateStore } from "@/app/store"
 import { ref, onMounted } from "vue"
 
 const props = defineProps<{

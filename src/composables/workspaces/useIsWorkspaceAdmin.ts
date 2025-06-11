@@ -1,5 +1,5 @@
-import { useUserStore } from "src/stores/user"
-import { useWorkspacesStore } from "src/stores/workspaces"
+import { useUserStore } from "@/app/store"
+import { useWorkspacesStore } from "@/app/store"
 import { computed, readonly, Ref, ref, watch } from "vue"
 
 export const useIsWorkspaceAdmin = (workspaceId: Ref<string | null>) => {

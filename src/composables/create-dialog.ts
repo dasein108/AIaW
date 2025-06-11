@@ -1,5 +1,5 @@
-import { useDialogsStore } from "src/stores/dialogs"
-import { useUserDataStore } from "src/stores/user-data"
+import { useDialogsStore } from "@/app/store"
+import { useUserDataStore } from "@/app/store"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import { Dialog } from "@/services/supabase/types"

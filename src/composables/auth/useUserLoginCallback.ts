@@ -1,5 +1,5 @@
 import { storeToRefs } from "pinia"
-import { useUserStore } from "src/stores/user"
+import { useUserStore } from "@/app/store"
 import { watch } from "vue"
 
 export function useUserLoginCallback (onLogin: () => Promise<void>) {

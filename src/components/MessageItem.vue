@@ -348,10 +348,10 @@ import { MdPreview, MdCatalog } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
 import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
 import { useMdPreviewProps } from "src/composables/md-preview-props"
-import { useAssistantsStore } from "src/stores/assistants"
-import { useDialogsStore } from "src/stores/dialogs"
-import { usePluginsStore } from "src/stores/plugins"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useAssistantsStore } from "@/app/store"
+import { useDialogsStore } from "@/app/store"
+import { usePluginsStore } from "@/app/store"
+import { useUserPerfsStore } from "@/app/store"
 import {
   escapeRegex,
   genId,

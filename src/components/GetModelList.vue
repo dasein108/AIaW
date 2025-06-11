@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useProvidersStore } from "src/stores/providers"
+import { useProvidersStore } from "@/app/store"
 import { Provider } from "src/utils/types"
 import { dialogOptions } from "src/utils/values"
 import { computed } from "vue"

@@ -124,7 +124,7 @@ import { storeToRefs } from "pinia"
 import AccountBtn from "src/components/AccountBtn.vue"
 import DarkSwitchBtn from "src/components/DarkSwitchBtn.vue"
 import MenuItem from "src/components/MenuItem.vue"
-import { useUserStore } from "src/stores/user"
+import { useUserStore } from "@/app/store"
 import { IsWeb } from "src/utils/platform-api"
 import { useI18n } from "vue-i18n"
 

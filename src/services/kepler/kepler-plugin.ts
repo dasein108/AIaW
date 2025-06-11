@@ -1,5 +1,5 @@
 import { Object as TObject } from "@sinclair/typebox"
-import { useAuthStore } from "src/stores/auth"
+import { useAuthStore } from "@/app/store"
 import { IsTauri } from "src/utils/platform-api"
 import { getLocalStorageWalletState } from "./KeplerWallet"
 import { Plugin } from "@/utils/types"

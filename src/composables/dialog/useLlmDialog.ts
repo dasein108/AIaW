@@ -14,8 +14,8 @@ import {
   generateArtifactName,
   generateExtractArtifact,
 } from "src/services/llm/utils"
-import { useDialogsStore } from "src/stores/dialogs"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useDialogsStore } from "@/app/store"
+import { useUserPerfsStore } from "@/app/store"
 import { getAssistantModelSettings } from "src/utils/assistant-utils"
 import { storedItemResultContent } from "src/utils/dialog"
 import { genId, mimeTypeMatch } from "src/utils/functions"

@@ -1,4 +1,4 @@
-// src/stores/user-data-factory.ts
+// src/features/user/stores/user-data-factory.ts
 
 import { isEqual, throttle, cloneDeep } from "lodash"
 import { defineStore } from "pinia"

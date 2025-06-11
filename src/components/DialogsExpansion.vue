@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { useListenKey } from "src/composables/listen-key"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useUserPerfsStore } from "@/app/store"
 import { isPlatformEnabled } from "src/utils/functions"
 import { ref, toRef } from "vue"
 import DialogList from "./DialogList.vue"

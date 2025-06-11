@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import AAvatar from "src/components/AAvatar.vue"
-import { useProvidersStore } from "src/stores/providers"
+import { useProvidersStore } from "@/app/store"
 import { Provider } from "src/utils/types"
 import { computed } from "vue"
 import JsonInput from "./JsonInput.vue"

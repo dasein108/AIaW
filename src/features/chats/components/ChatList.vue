@@ -55,9 +55,7 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import { useListenKey } from "src/composables/listen-key"
-import { useChatsStore } from "src/features/chats/stores/chats"
-import { useUserStore } from "src/stores/user"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useChatsStore, useUserStore, useUserPerfsStore } from "@/app/store"
 import { isPlatformEnabled } from "src/utils/functions"
 import { ref, toRef } from "vue"
 import { useRouter } from "vue-router"
