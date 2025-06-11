@@ -118,18 +118,19 @@
 
 <script setup lang="ts">
 import { QPageContainer, QPage, useQuasar } from "quasar"
-import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { useChatMessagesStore, useChatsStore } from "@/app/store"
-import { useUiStateStore, useUserStore, useUserPerfsStore } from "@/app/store"
-import { useUserStore } from "src/stores/user"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { ChatMapped, ChatMessageWithProfile } from "src/services/supabase/types"
 import {
   almostEqual,
   isPlatformEnabled,
   pageFhStyle,
 } from "src/utils/functions"
 import { computed, inject, nextTick, ref, watch } from "vue"
-import { ChatMapped, ChatMessageWithProfile } from "@/services/supabase/types"
+import { useChatMessagesStore, useChatsStore } from "@/app/store"
+import ViewCommonHeader from "@/components/ViewCommonHeader.vue"
+import ChatMessageItem from "@/features/chats/components/ChatMessageItem.vue"
+import { useUserStore } from "@/features/user/stores/user"
+import { useUserPerfsStore } from "@/features/user/stores/user-perfs"
+import { useUiStateStore } from "@/shared/store/ui-state"
 const props = defineProps<{
   id: string
 }>()

@@ -1,4 +1,4 @@
-import { createUserDataStore } from "./createUserDataStore"
+import { createUserDataStore } from "@/shared/utils/createUserDataStore"
 
 export type ListOpen = {
   assistants: boolean

@@ -494,10 +494,10 @@ import { useSetTitle } from "src/composables/set-title"
 import { getAvatarUrl } from "src/composables/storage/utils"
 import { syncRef } from "src/composables/sync-ref"
 import ErrorNotFound from "src/pages/ErrorNotFound.vue"
-import { useAssistantsStore } from "@/app/store"
 import { pageFhStyle } from "src/utils/functions"
 import { exportFile } from "src/utils/platform-api"
 import { computed, inject, toRaw } from "vue"
+import { useAssistantsStore } from "@/app/store"
 import { AssistantMapped } from "@/services/supabase/types"
 
 const props = defineProps<{

@@ -9,7 +9,7 @@ import {
 } from "src/utils/types"
 import { models } from "src/utils/values"
 import { watchEffect } from "vue"
-import { createUserDataStore } from "./createUserDataStore"
+import { createUserDataStore } from "@/shared/utils/createUserDataStore"
 
 interface Perfs {
   darkMode: boolean | "auto"

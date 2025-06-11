@@ -1,9 +1,9 @@
 import { Schema, Validator } from "@cfworker/json-schema"
-import { usePluginsStore } from "@/app/store"
 import { removeUndefinedProps } from "src/utils/functions"
 import { ApiResultItem, Plugin, PluginApi } from "src/utils/types"
 import { Ref, toRaw } from "vue"
 import { useI18n } from "vue-i18n"
+import { usePluginsStore } from "@/app/store"
 
 export function useCallApi (
   workspaceId: Ref<string>,

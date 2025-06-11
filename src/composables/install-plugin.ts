@@ -1,6 +1,5 @@
 import { Validator } from "@cfworker/json-schema"
 import { useQuasar } from "quasar"
-import { usePluginsStore } from "@/app/store"
 import { fetch } from "src/utils/platform-api"
 import {
   GradioPluginManifestSchema,
@@ -10,6 +9,7 @@ import {
 } from "src/utils/types"
 import { toRaw } from "vue"
 import { useI18n } from "vue-i18n"
+import { usePluginsStore } from "@/app/store"
 
 export function useInstallPlugin () {
   const store = usePluginsStore()

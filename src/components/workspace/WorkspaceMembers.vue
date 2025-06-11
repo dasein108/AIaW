@@ -49,9 +49,8 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import UserListDialog from "src/features/chats/components/UserListDialog.vue"
-import { useUserStore } from "@/app/store"
-import { useWorkspacesStore } from "@/app/store"
 import { onMounted, ref } from "vue"
+import { useUserStore, useWorkspacesStore } from "@/app/store"
 import type {
   ProfileMapped,
   WorkspaceMemberMapped,

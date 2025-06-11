@@ -133,11 +133,10 @@ import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
 import { useSetTitle } from "src/composables/set-title"
 import { syncRef } from "src/composables/sync-ref"
 import ErrorNotFound from "src/pages/ErrorNotFound.vue"
-import { useAssistantsStore } from "@/app/store"
-import { usePluginsStore } from "@/app/store"
 import { PluginApi } from "src/utils/types"
 import { computed, toRaw } from "vue"
 import { useI18n } from "vue-i18n"
+import { usePluginsStore, useAssistantsStore } from "@/app/store"
 import { AssistantMapped } from "@/services/supabase/types"
 
 defineEmits(["toggle-drawer"])

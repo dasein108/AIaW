@@ -7,10 +7,9 @@ import {
   TonalPalette,
 } from "@material/material-color-utilities"
 import { Dark } from "quasar"
-import { useUiStateStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
 import { IsCapacitor } from "src/utils/platform-api"
 import { watchEffect } from "vue"
+import { useUiStateStore, useUserPerfsStore } from "@/app/store"
 
 export function useSetTheme () {
   const uiStateStore = useUiStateStore()

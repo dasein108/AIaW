@@ -348,10 +348,6 @@ import { MdPreview, MdCatalog } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
 import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
 import { useMdPreviewProps } from "src/composables/md-preview-props"
-import { useAssistantsStore } from "@/app/store"
-import { useDialogsStore } from "@/app/store"
-import { usePluginsStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
 import {
   escapeRegex,
   genId,
@@ -387,6 +383,7 @@ import MessageInfoDialog from "./MessageInfoDialog.vue"
 import PickAvatarDialog from "./PickAvatarDialog.vue"
 import TextareaDialog from "./TextareaDialog.vue"
 import ToolContent from "./ToolContent.vue"
+import { useUserPerfsStore, usePluginsStore, useDialogsStore, useAssistantsStore } from "@/app/store"
 import {
   UserMessageContent,
   AssistantMessageContent,

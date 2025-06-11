@@ -14,8 +14,6 @@ import {
   generateArtifactName,
   generateExtractArtifact,
 } from "src/services/llm/utils"
-import { useDialogsStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
 import { getAssistantModelSettings } from "src/utils/assistant-utils"
 import { storedItemResultContent } from "src/utils/dialog"
 import { genId, mimeTypeMatch } from "src/utils/functions"
@@ -28,6 +26,7 @@ import { useCreateArtifact } from "../create-artifact"
 import { useAssistantTools } from "./useAssistantTools"
 import { useDialogMessages } from "./useDialogMessages"
 import { useDialogModel } from "./useDialogModel"
+import { useUserPerfsStore, useDialogsStore } from "@/app/store"
 import { AssistantMessageContent } from "@/common/types/dialogs"
 import {
   AssistantMapped,

@@ -125,9 +125,10 @@ import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
 import { useSetTitle } from "src/composables/set-title"
 import ErrorNotFound from "src/pages/ErrorNotFound.vue"
-import { usePluginsStore } from "@/app/store"
 import { computed } from "vue"
-
+import { useI18n } from "vue-i18n"
+import { usePluginsStore } from "@/features/plugins/stores/plugins"
+const { t } = useI18n()
 const props = defineProps<{
   id: string
 }>()
@@ -155,8 +156,6 @@ function pickAvatar () {
   })
 }
 
-import { useI18n } from "vue-i18n"
-const { t } = useI18n()
 useSetTitle(
   computed(
     () => plugin.value && `${t("pluginSettings.title")} - ${plugin.value.title}`

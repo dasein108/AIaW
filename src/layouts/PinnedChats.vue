@@ -31,10 +31,9 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
 import AAvatar from "src/components/AAvatar.vue"
-import { useChatsStore } from "@/app/store"
-import { useWorkspacesStore } from "@/app/store"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
+import { useChatsStore, useWorkspacesStore } from "@/app/store"
 
 const MAX_LAST_CHATS = 3
 const router = useRouter()

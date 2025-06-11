@@ -324,11 +324,6 @@ import { useSetTitle } from "src/composables/set-title"
 import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
 import ErrorNotFound from "src/pages/ErrorNotFound.vue"
 import { DialogMessageMapped } from "src/services/supabase/types"
-import { useDialogMessagesStore } from "@/app/store"
-import { usePluginsStore } from "@/app/store"
-import { useUiStateStore } from "@/app/store"
-import { useUserDataStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
 import { MaxMessageFileSizeMB } from "src/utils/config"
 import {
   almostEqual,
@@ -356,6 +351,7 @@ import {
 } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRoute, useRouter } from "vue-router"
+import { useUserPerfsStore, useUserDataStore, useUiStateStore, usePluginsStore, useDialogMessagesStore } from "@/app/store"
 const { t } = useI18n()
 
 const props = defineProps<{

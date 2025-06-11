@@ -92,10 +92,10 @@ import { MdPreview } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
 import AAvatar from "src/components/AAvatar.vue"
 import { useMdPreviewProps } from "src/composables/md-preview-props"
-import { useUserStore, useUserPerfsStore } from "@/app/store"
 import { genId } from "src/utils/functions"
 import { ApiResultItem, TextAvatar } from "src/utils/types"
 import { computed, reactive, ref } from "vue"
+import { useUserStore, useUserPerfsStore } from "@/app/store"
 import { ChatMessageWithProfile } from "@/services/supabase/types"
 
 const props = defineProps<{

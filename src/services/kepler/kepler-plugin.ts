@@ -1,7 +1,7 @@
 import { Object as TObject } from "@sinclair/typebox"
-import { useAuthStore } from "@/app/store"
 import { IsTauri } from "src/utils/platform-api"
 import { getLocalStorageWalletState } from "./KeplerWallet"
+import { useAuthStore } from "@/app/store"
 import { Plugin } from "@/utils/types"
 
 // Function to get wallet address depending on platform

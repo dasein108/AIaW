@@ -89,11 +89,10 @@ import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
 import { useAuth } from "src/composables/auth/useAuth"
 import { syncRef } from "src/composables/sync-ref"
-import { useProfileStore } from "@/app/store"
-import { useUserStore } from "@/app/store"
 import { pageFhStyle } from "src/utils/functions"
 import { computed, ref, toRaw, toRefs } from "vue"
 import { useRouter } from "vue-router"
+import { useUserStore, useProfileStore } from "@/app/store"
 
 const profileStore = useProfileStore()
 const {

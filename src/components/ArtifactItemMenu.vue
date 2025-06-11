@@ -35,8 +35,6 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useArtifactsStore } from "@/app/store"
-import { useUserDataStore } from "@/app/store"
 import { artifactUnsaved, saveArtifactChanges } from "src/utils/functions"
 import { exportFile } from "src/utils/platform-api"
 import { dialogOptions } from "src/utils/values"
@@ -44,6 +42,7 @@ import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 import MenuItem from "./MenuItem.vue"
 import SelectWorkspaceDialog from "./SelectWorkspaceDialog.vue"
+import { useUserDataStore, useArtifactsStore } from "@/app/store"
 import { ArtifactMapped } from "@/services/supabase/types"
 
 const $q = useQuasar()

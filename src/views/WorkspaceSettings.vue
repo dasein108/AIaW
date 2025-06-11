@@ -135,11 +135,9 @@ import WorkspaceMembers from "src/components/workspace/WorkspaceMembers.vue"
 import { useSetTitle } from "src/composables/set-title"
 import { syncRef } from "src/composables/sync-ref"
 import { useIsWorkspaceAdmin } from "src/composables/workspaces/useIsWorkspaceAdmin"
-import { useAssistantsStore } from "@/app/store"
-import { useUserDataStore } from "@/app/store"
-import { useWorkspacesStore } from "@/app/store"
 import { computed, Ref, inject, toRaw, watch } from "vue"
 import { useI18n } from "vue-i18n"
+import { useAssistantsStore, useUserDataStore, useWorkspacesStore } from "@/app/store"
 import { WorkspaceMapped } from "@/services/supabase/types"
 const { t } = useI18n()
 

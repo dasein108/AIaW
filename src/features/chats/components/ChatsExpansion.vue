@@ -41,13 +41,13 @@
 import { useQuasar } from "quasar"
 import { useListenKey } from "src/composables/listen-key"
 import { supabase } from "src/services/supabase/client"
-import { useUserStore, useUserPerfsStore } from "@/app/store"
 import { isPlatformEnabled } from "src/utils/functions"
 import { ref, toRef } from "vue"
 import { useRouter } from "vue-router"
 import ChatList from "./ChatList.vue"
 import SearchChats from "./SearchChats.vue"
 import UserListDialog from "./UserListDialog.vue"
+import { useUserStore, useUserPerfsStore } from "@/app/store"
 import { ProfileMapped } from "@/services/supabase/types"
 
 const $q = useQuasar()

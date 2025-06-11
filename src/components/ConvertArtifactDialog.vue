@@ -67,9 +67,9 @@
 
 <script setup lang="ts">
 import { useDialogPluginComponent } from "quasar"
-import { useUserPerfsStore } from "@/app/store"
 import { ConvertArtifactOptions } from "src/utils/types"
 import { ref } from "vue"
+import { useUserPerfsStore } from "@/app/store"
 
 const props = defineProps<{
   lang: string

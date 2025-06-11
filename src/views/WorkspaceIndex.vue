@@ -24,10 +24,10 @@ import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
 import { useMdPreviewProps } from "src/composables/md-preview-props"
 import { useSetTitle } from "src/composables/set-title"
 import { syncRef } from "src/composables/sync-ref"
-import { useWorkspacesStore } from "@/app/store"
 import { engine } from "src/utils/template-engine"
 import { DefaultWsIndexContent } from "src/utils/templates"
 import { computed, Ref, inject, toRaw } from "vue"
+import { useWorkspacesStore } from "@/app/store"
 import { WorkspaceMapped } from "@/services/supabase/types"
 
 defineEmits(["toggle-drawer"])

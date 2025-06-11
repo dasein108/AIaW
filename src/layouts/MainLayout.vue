@@ -119,8 +119,6 @@ import { useQuasar } from "quasar"
 import AddDialogItem from "src/components/AddDialogItem.vue"
 import { useOpenLastWorkspace } from "src/composables/open-last-workspace"
 import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
-import { usePluginsStore } from "@/app/store"
-import { useUiStateStore } from "@/app/store"
 import version from "src/version.json"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
@@ -130,6 +128,7 @@ import LastDialogs from "./LastDialogs.vue"
 import PinnedChats from "./PinnedChats.vue"
 import TabsItem from "./TabsItem.vue"
 import WorkspaceSelector from "./WorkspaceSelector.vue"
+import { useUiStateStore, usePluginsStore } from "@/app/store"
 
 defineOptions({
   name: "MainLayout",

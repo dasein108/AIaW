@@ -3,8 +3,8 @@ import LinkAttr from "markdown-it-link-attributes"
 import { config, MdPreviewProps, XSSPlugin } from "md-editor-v3"
 import { useQuasar } from "quasar"
 import router from "src/router"
-import { useUserPerfsStore } from "@/app/store"
 import { computed } from "vue"
+import { useUserPerfsStore } from "@/app/store"
 import "md-editor-v3/lib/preview.css"
 
 config({

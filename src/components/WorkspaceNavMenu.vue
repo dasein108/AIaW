@@ -30,10 +30,9 @@
 
 <script setup lang="ts">
 import { useWorkspaceActions } from "src/composables/workspaces/workspace-actions"
-import { useUserDataStore } from "@/app/store"
-import { useWorkspacesStore } from "@/app/store"
 import { useRouter, useRoute } from "vue-router"
 import WorkspaceListSelect from "./WorkspaceListSelect.vue"
+import { useUserDataStore, useWorkspacesStore } from "@/app/store"
 import type { WorkspaceMapped } from "@/services/supabase/types"
 
 const { addWorkspace, addFolder } = useWorkspaceActions()

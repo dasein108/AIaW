@@ -1,11 +1,11 @@
 import { Validator } from "@cfworker/json-schema"
 import { useQuasar } from "quasar"
 import { defaultModelSettings } from "src/common/consts"
-import { useAssistantsStore } from "@/app/store"
 import { AssistantDefaultPrompt } from "src/utils/templates"
 import { MarketAssistantSchema } from "src/utils/types"
 import { toRaw } from "vue"
 import { useI18n } from "vue-i18n"
+import { useAssistantsStore } from "@/app/store"
 
 export function useAssistantActions () {
   const assistantsStore = useAssistantsStore()

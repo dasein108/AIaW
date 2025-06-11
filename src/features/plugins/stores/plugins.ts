@@ -33,8 +33,8 @@ import {
 import webSearchPlugin from "src/utils/web-search-plugin"
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { useAssistantsStore } from "./assistants"
 import { useUserPluginsStore } from "./user-plugins"
+import { useAssistantsStore } from "@/features/assistants/stores/assistants"
 import { UserPlugin } from "@/services/supabase/types"
 
 export const usePluginsStore = defineStore("plugins", () => {

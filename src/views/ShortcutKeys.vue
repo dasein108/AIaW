@@ -218,8 +218,8 @@
 import PlatformEnabledInput from "src/components/PlatformEnabledInput.vue"
 import ShortcutKeyInput from "src/components/ShortcutKeyInput.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { useUserPerfsStore } from "@/app/store"
 import { pageFhStyle } from "src/utils/functions"
+import { useUserPerfsStore } from "@/app/store"
 
 const { data: perfs } = useUserPerfsStore()
 

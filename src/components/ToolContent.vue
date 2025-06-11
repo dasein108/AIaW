@@ -85,7 +85,6 @@
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
 import { useMdPreviewProps } from "src/composables/md-preview-props"
-import { usePluginsStore } from "@/app/store"
 import { wrapCode } from "src/utils/functions"
 import { engine } from "src/utils/template-engine"
 import { computed } from "vue"
@@ -93,6 +92,7 @@ import { useI18n } from "vue-i18n"
 import AAvatar from "./AAvatar.vue"
 import MessageAudio from "./MessageAudio.vue"
 import MessageImage from "./MessageImage.vue"
+import { usePluginsStore } from "@/app/store"
 import { AssistantToolContent } from "@/common/types/dialogs"
 import { StoredItemMapped } from "@/services/supabase/types"
 

@@ -29,8 +29,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "@/app/store"
 import { computed, inject } from "vue"
+import { useAuthStore } from "@/app/store"
 import { KeplerWallet } from "@/services/kepler/KeplerWallet"
 
 const hasKeplr = computed(() => typeof window !== "undefined" && window.keplr)

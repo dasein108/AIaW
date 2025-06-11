@@ -5,10 +5,10 @@ import { Validator } from "@cfworker/json-schema"
 import { until } from "@vueuse/core"
 import { useQuasar } from "quasar"
 import { useOpenLastWorkspace } from "src/composables/open-last-workspace"
-import { useUserPerfsStore } from "@/app/store"
 import { ProviderSchema } from "src/utils/types"
 import { useI18n } from "vue-i18n"
 import { useRoute } from "vue-router"
+import { useUserPerfsStore } from "@/app/store"
 
 const route = useRoute()
 const userPerfsStore = useUserPerfsStore()

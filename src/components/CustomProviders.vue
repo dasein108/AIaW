@@ -60,12 +60,11 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import { CustomProviderMapped } from "src/services/supabase/types"
-import { useProvidersStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import AAvatar from "./AAvatar.vue"
 import MenuItem from "./MenuItem.vue"
+import { useUserPerfsStore, useProvidersStore } from "@/app/store"
 
 const { t } = useI18n()
 

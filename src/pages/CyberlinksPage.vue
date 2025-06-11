@@ -85,10 +85,9 @@ import { useQuasar } from "quasar"
 import { useCallApi } from "src/composables/call-api"
 import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
 import { getLocalStorageWalletState } from "src/services/kepler/KeplerWallet"
-import { useAuthStore } from "@/app/store"
-import { usePluginsStore } from "@/app/store"
 import { IsTauri } from "src/utils/platform-api"
 import { computed, provide, ref, onMounted, watch } from "vue"
+import { useAuthStore, usePluginsStore } from "@/app/store"
 
 const pageFhStyle = (offset: number, height: number) => ({
   height: `${height - offset}px`,

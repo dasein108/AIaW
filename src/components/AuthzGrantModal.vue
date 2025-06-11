@@ -545,8 +545,8 @@
 import { useQuasar } from "quasar"
 import { WalletService, WalletInfo } from "src/services/authz/wallet-service"
 import { ref, computed, onMounted, watch } from "vue"
-import { useAuthStore } from "@/app/store"
 import PinModal from "./PinModal.vue"
+import { useAuthStore } from "@/app/store"
 
 interface Props {
   modelValue: boolean

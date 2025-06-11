@@ -61,12 +61,11 @@
 
 <script setup lang="ts">
 import { syncRef } from "src/composables/sync-ref"
-import { useAssistantsStore } from "@/app/store"
-import { usePluginsStore } from "@/app/store"
 import { AssistantPlugin, Plugin } from "src/utils/types"
 import { toRaw } from "vue"
 import AAvatar from "./AAvatar.vue"
 import PluginTypeBadge from "./PluginTypeBadge.vue"
+import { usePluginsStore, useAssistantsStore } from "@/app/store"
 import { AssistantMapped } from "@/services/supabase/types"
 
 const props = defineProps<{

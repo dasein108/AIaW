@@ -9,9 +9,6 @@ import {
   AssistantMapped,
   StoredItem,
 } from "src/services/supabase/types"
-import { usePluginsStore } from "@/app/store"
-import { useUserDataStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
 import artifactsPlugin from "src/utils/artifacts-plugin"
 import { isPlatformEnabled, mimeTypeMatch } from "src/utils/functions"
 import { engine } from "src/utils/template-engine"
@@ -25,6 +22,7 @@ import {
 import { Ref, computed, inject } from "vue"
 import { useI18n } from "vue-i18n"
 import { useDialogMessages } from "./useDialogMessages"
+import { useUserPerfsStore, useUserDataStore, usePluginsStore } from "@/app/store"
 
 type CallTool = (
   plugin: Plugin,

@@ -562,14 +562,13 @@ import ProviderInputItems from "src/components/ProviderInputItems.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
 import { useGetModel } from "src/composables/get-model"
 import { useLocateId } from "src/composables/locate-id"
-import { useAuthStore } from "@/app/store"
-import { useUserPerfsStore } from "@/app/store"
 import { pageFhStyle } from "src/utils/functions"
 import { localData } from "src/utils/local-data"
 import { IsTauri } from "src/utils/platform-api"
 import { dialogOptions, mdCodeThemes, mdPreviewThemes } from "src/utils/values"
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
+import { useUserPerfsStore, useAuthStore } from "@/app/store"
 
 defineEmits(["toggle-drawer"])
 

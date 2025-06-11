@@ -75,12 +75,11 @@ import MenuItem from "src/components/MenuItem.vue"
 import SelectWorkspaceDialog from "src/components/SelectWorkspaceDialog.vue"
 import { useCreateDialog } from "src/composables/create-dialog"
 import { AssistantMapped } from "src/services/supabase/types"
-import { useAssistantsStore } from "@/app/store"
-import { useUserDataStore } from "@/app/store"
 import { dialogOptions } from "src/utils/values"
 import { ref, toRef, computed } from "vue"
 import { useI18n } from "vue-i18n"
 import MenuButton from "./ExpansionItem/MenuButton.vue"
+import { useUserDataStore, useAssistantsStore } from "@/app/store"
 
 const props = defineProps({
   assistant: { type: Object, required: true },
