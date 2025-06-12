@@ -60,7 +60,7 @@ const timePlugin: Plugin = {
       description: t("plugins.time.description"),
       prompt: t("plugins.time.prompt"),
       parameters: TObject({}),
-      async execute () {
+      async execute() {
         return [
           {
             type: "text",
@@ -197,7 +197,7 @@ const calculatorPlugin: Plugin = {
         expression: TString({ description: calculatorExpressionPrompt }),
         variables: TOptional(TObject(undefined, { description: "Variables" })),
       }),
-      async execute ({ expression, variables }) {
+      async execute({ expression, variables }) {
         return [
           {
             type: "text",
@@ -213,7 +213,7 @@ const calculatorPlugin: Plugin = {
   description: t("plugins.calculator.description"),
 }
 
-function buildLobePlugin (
+function buildLobePlugin(
   manifest: LobeChatPluginManifest,
   available: boolean
 ): Plugin {
@@ -229,7 +229,7 @@ function buildLobePlugin (
       prompt: description,
       parameters,
       showComponents: manifest.type === "markdown" ? ["markdown"] : undefined,
-      async execute (args, settings) {
+      async execute(args, settings) {
         const res = await corsFetch(url, {
           method: "POST",
           body: JSON.stringify(args),
@@ -259,7 +259,7 @@ function buildLobePlugin (
   }
 }
 
-function buildHuggingParams (inputs: HuggingPluginManifest["inputs"]) {
+function buildHuggingParams(inputs: HuggingPluginManifest["inputs"]) {
   const obj = {}
   for (const input of inputs) {
     if (input.paramType === "fixed") continue
@@ -280,7 +280,7 @@ function buildHuggingParams (inputs: HuggingPluginManifest["inputs"]) {
   return TObject(obj)
 }
 
-function buildGradioSettings (endpoint: GradioManifestEndpoint) {
+function buildGradioSettings(endpoint: GradioManifestEndpoint) {
   const obj = {}
   for (const input of endpoint.inputs) {
     if (
@@ -309,7 +309,7 @@ function buildGradioSettings (endpoint: GradioManifestEndpoint) {
   return TObject(obj)
 }
 
-function buildGradioPlugin (
+function buildGradioPlugin(
   manifest: GradioPluginManifest,
   available: boolean
 ): Plugin {
@@ -327,7 +327,7 @@ function buildGradioPlugin (
     settings[endpoint.name] = buildGradioSettings(endpoint)
   }
 
-  async function predict (endpoint: GradioManifestEndpoint, args, settings) {
+  async function predict(endpoint: GradioManifestEndpoint, args, settings) {
     const options = settings._hfToken
       ? { hf_token: settings._hfToken }
       : undefined
@@ -372,7 +372,7 @@ function buildGradioPlugin (
         description,
         prompt: description,
         parameters: buildHuggingParams(e.inputs),
-        async execute (args, settings) {
+        async execute(args, settings) {
           return await predict(e, args, settings)
         },
       }
@@ -389,7 +389,7 @@ function buildGradioPlugin (
         prompt: description,
         parameters: buildHuggingParams(e.inputs),
         showComponents,
-        async execute (args, settings) {
+        async execute(args, settings) {
           return await predict(e, args, settings)
         },
       }
@@ -410,7 +410,7 @@ function buildGradioPlugin (
               mask: rangeInput.mask,
             }
           : undefined,
-        async execute ({ file, range }, settings) {
+        async execute({ file, range }, settings) {
           const args: any = { [fileInput.name]: file }
 
           if (rangeInput) args[rangeInput.name] = range
@@ -437,7 +437,7 @@ function buildGradioPlugin (
   }
 }
 
-function buildMcpPlugin (dump: McpPluginDump, available: boolean): Plugin {
+function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
   const resourceToResultItem = (resource, name?) =>
     resource.text
       ? {
@@ -459,7 +459,7 @@ function buildMcpPlugin (dump: McpPluginDump, available: boolean): Plugin {
     description: tool.description,
     prompt: tool.description,
     parameters: tool.inputSchema as PluginSchema,
-    async execute (args, settings) {
+    async execute(args, settings) {
       const client = await getClient(id, { type: transport.type, ...settings })
       const res: CallToolResult = await client.callTool({
         name: tool.name,
@@ -497,7 +497,7 @@ function buildMcpPlugin (dump: McpPluginDump, available: boolean): Plugin {
       name,
       description,
       parameters: TObject({}),
-      async execute (args, settings) {
+      async execute(args, settings) {
         const client = await getClient(id, {
           type: transport.type,
           ...settings,
@@ -522,7 +522,7 @@ function buildMcpPlugin (dump: McpPluginDump, available: boolean): Plugin {
       name,
       description,
       parameters: TObject(params),
-      async execute (args, settings) {
+      async execute(args, settings) {
         const client = await getClient(id, {
           type: transport.type,
           ...settings,
@@ -595,7 +595,7 @@ function buildMcpPlugin (dump: McpPluginDump, available: boolean): Plugin {
   }
 }
 
-async function dumpMcpPlugin (
+async function dumpMcpPlugin(
   manifest: McpPluginManifest
 ): Promise<McpPluginDump> {
   const client = await getClient(manifest.id, manifest.transport)
@@ -618,7 +618,7 @@ async function dumpMcpPlugin (
   }
 }
 
-function lobeDefaultData (manifest: LobeChatPluginManifest): PluginData {
+function lobeDefaultData(manifest: LobeChatPluginManifest): PluginData {
   const { identifier, meta } = manifest
 
   return {
@@ -632,7 +632,7 @@ function lobeDefaultData (manifest: LobeChatPluginManifest): PluginData {
   }
 }
 
-function gradioDefaultData (manifest: GradioPluginManifest): PluginData {
+function gradioDefaultData(manifest: GradioPluginManifest): PluginData {
   const settings = {}
   for (const e of manifest.endpoints) {
     const setting = {}
@@ -670,7 +670,7 @@ function gradioDefaultData (manifest: GradioPluginManifest): PluginData {
   return { settings, avatar: manifest.avatar, fileparsers }
 }
 
-function mcpDefaultData (manifest: McpPluginManifest): PluginData {
+function mcpDefaultData(manifest: McpPluginManifest): PluginData {
   const { transport } = manifest
   const settings =
     transport.type === "stdio"
@@ -715,7 +715,7 @@ const gradioTypeMap = {
   bool: (val) => val === "true",
 }
 
-function huggingToGradio (
+function huggingToGradio(
   manifest: HuggingPluginManifest
 ): GradioPluginManifest {
   const fileInput = manifest.inputs.find((i) => i.type === "file")
@@ -807,7 +807,7 @@ const videoTranscriptPlugin: Plugin = {
     {
       name: "transcribe",
       description: t("plugins.videoTranscript.transcribe.description"),
-      async execute ({ file, range }, settings) {
+      async execute({ file, range }, settings) {
         if (!AudioEncoderSupported) {
           throw new Error(t("plugins.videoTranscript.audioEncoderError"))
         }
@@ -978,7 +978,7 @@ const docParsePlugin: Plugin = {
     {
       name: "parse",
       description: t("plugins.docParse.parse.description"),
-      async execute ({ file, range }, settings) {
+      async execute({ file, range }, settings) {
         const docs = await parseDoc(file, {
           language: settings.ocrLanguage,
           targetPages: range ? parsePageRange(range).join(",") : undefined,

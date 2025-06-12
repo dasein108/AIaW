@@ -62,33 +62,22 @@ const authzPlugin: Plugin = {
   apis: [
     {
       type: "tool",
-      name: "create-cyberlink",
+      name: "broadcast-mcp-tx",
       description:
-        'PRIMARY API FOR CYBERLINKS: This is the main API to use when user wants to create a cyberlink. If user message contains phrases like "create cyberlink", "make cyberlink", "new cyberlink" - THIS is the API to use, not execute-send. Example: "create cyberlink with type Thread and value Hello" -> use this API with {type: "Thread", value: "Hello"}.',
+        "Broadcasts a transaction body (JSON) received from MCP using grantee client. Use this for all operations except send.",
       parameters: {
         type: "object",
         properties: {
-          type: {
-            type: "string",
-            description:
-              'The type of cyberlink (e.g. "Thread", "Post", "Comment")',
-          },
-          value: {
-            type: "string",
-            description: "The content/value for the cyberlink",
-          },
-          fid: {
-            type: "string",
-            description:
-              "From particle ID (optional, can be auto-generated if not provided)",
-            default: "auto",
+          msg: {
+            type: "object",
+            description: "Transaction message JSON (as received from MCP)",
           },
         },
-        required: ["type", "value"],
+        required: ["msg"],
       },
-      async execute (args) {
-        console.log("[PLUGIN] Executing create-cyberlink")
-        const { type, value, fid } = args
+      async execute(args) {
+        console.log("[PLUGIN] Executing broadcast-mcp-tx", args)
+        const { msg } = args
         const authStore = useAuthStore()
         const walletService = WalletService.getInstance()
         const walletState = getWalletState()
@@ -128,22 +117,11 @@ const authzPlugin: Plugin = {
             authStore.granteeSigner
           )
 
-          // Create cyberlink message - only include fid if provided
-          const cyberlinkMsg = { type, value }
-          const createMsg: any = { cyberlink: cyberlinkMsg }
-
-          if (fid && fid !== "auto") {
-            createMsg.fid = fid
-          }
-
+          // Оборачиваем MCP JSON в MsgExecuteContract
           const execContractMsg = {
             sender: granterAddress,
             contract: CYBER_CONTRACT_ADDRESS,
-            msg: toUtf8(
-              JSON.stringify({
-                create_cyberlink: createMsg,
-              })
-            ),
+            msg: toUtf8(JSON.stringify(msg)),
             funds: [],
           }
 
@@ -181,318 +159,12 @@ const authzPlugin: Plugin = {
           return [
             {
               type: "text",
-              contentText: `✅ **Cyberlink Created Successfully**
-
-**Cyberlink Details:**
-- **Type:** ${type}
-- **Value:** ${value}
-- **Creator:** ${granterAddress}
-- **Transaction Hash:** ${tx.transactionHash}
-- **Gas Used:** ${tx.gasUsed}
-- **Gas Wanted:** ${tx.gasWanted}
-- **Block Height:** ${tx.height}
-
-**Explorer Link:** https://cybernode.ai/network/cyber/tx/${tx.transactionHash}
-
-The cyberlink was created using MsgExecuteContract authorization through the grantee wallet.`,
+              contentText: `✅ **Transaction Broadcasted Successfully**\n\n**Transaction Hash:** ${tx.transactionHash}\n**Gas Used:** ${tx.gasUsed}\n**Gas Wanted:** ${tx.gasWanted}\n**Block Height:** ${tx.height}\n\n**Explorer Link:** https://cybernode.ai/network/cyber/tx/${tx.transactionHash}`,
             },
           ]
         } catch (error) {
-          console.error("Error creating cyberlink:", error)
-          throw new Error(`Failed to create cyberlink: ${error.message}`)
-        }
-      },
-    },
-    {
-      type: "tool",
-      name: "update-cyberlink",
-      description: "Update an existing cyberlink by setting a new value.",
-      parameters: {
-        type: "object",
-        properties: {
-          value: {
-            type: "string",
-            description: "New value/content for the cyberlink",
-          },
-          fid: {
-            type: "string",
-            description: 'From particle ID (required, e.g. "Thread:12")',
-          },
-          from: {
-            type: "string",
-            description:
-              'Source particle (optional, only include if user explicitly mentions "from something")',
-          },
-          to: {
-            type: "string",
-            description:
-              'Target particle (optional, only include if user explicitly mentions "to something")',
-          },
-        },
-        required: ["value", "fid"],
-      },
-      async execute (args) {
-        console.log("[PLUGIN] Executing update-cyberlink")
-        const { value, fid, from, to } = args
-        const authStore = useAuthStore()
-        const walletService = WalletService.getInstance()
-        const walletState = getWalletState()
-
-        if (!walletState.isConnected) {
-          if (IsTauri) {
-            throw new Error(
-              "Cosmos wallet not connected. Please connect your wallet first."
-            )
-          } else {
-            throw new Error(
-              "Kepler wallet not connected. Please connect Kepler wallet first."
-            )
-          }
-        }
-
-        if (!authStore.isConnected || !authStore.granteeSigner) {
-          console.log({
-            isConnected: authStore.isConnected,
-            granteeSigner: authStore.granteeSigner,
-          })
-          throw new Error(
-            "Grantee wallet not connected or signer not available. Please ensure grantee wallet is set up and connected."
-          )
-        }
-
-        try {
-          const granterAddress = await getGranterAddress()
-          const granteeAccounts = await authStore.granteeSigner.getAccounts()
-
-          if (granteeAccounts.length === 0) {
-            throw new Error("No accounts found for grantee signer.")
-          }
-
-          const granteeAccount = granteeAccounts[0]
-          const granteeClient = await walletService.getClient(
-            authStore.granteeSigner
-          )
-
-          // Create update message - fid and value are required, from/to only if specified
-          const updateMsg: any = {
-            fid,
-            value,
-          }
-
-          // Only include from/to if user explicitly provided them
-          if (from) {
-            updateMsg.from = from
-          }
-
-          if (to) {
-            updateMsg.to = to
-          }
-
-          const execContractMsg = {
-            sender: granterAddress,
-            contract: CYBER_CONTRACT_ADDRESS,
-            msg: toUtf8(
-              JSON.stringify({
-                update_cyberlink: updateMsg,
-              })
-            ),
-            funds: [],
-          }
-
-          const execMsg = {
-            grantee: granteeAccount.address,
-            msgs: [
-              {
-                typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
-                value: MsgExecuteContract.encode(execContractMsg).finish(),
-              },
-            ],
-          }
-
-          const tx = await granteeClient.signAndBroadcast(
-            granteeAccount.address,
-            [
-              {
-                typeUrl: "/cosmos.authz.v1beta1.MsgExec",
-                value: execMsg,
-              },
-            ],
-            {
-              amount: coins("210000", config.FEE_DENOM),
-              gas: "210000",
-            }
-          )
-
-          if (tx.code !== 0) {
-            const errorMessage = tx.rawLog || "Transaction failed"
-            throw new Error(
-              `Transaction failed with code ${tx.code} ${errorMessage}`
-            )
-          }
-
-          return [
-            {
-              type: "text",
-              contentText: `✅ **Cyberlink Updated Successfully**
-
-**Update Details:**
-- **FID:** ${fid}
-- **New Value:** ${value}${from ? `\n- **From:** ${from}` : ""}${to ? `\n- **To:** ${to}` : ""}
-- **Updater:** ${granterAddress}
-- **Transaction Hash:** ${tx.transactionHash}
-- **Gas Used:** ${tx.gasUsed}
-- **Gas Wanted:** ${tx.gasWanted}
-- **Block Height:** ${tx.height}
-
-**Explorer Link:** https://cybernode.ai/network/cyber/tx/${tx.transactionHash}
-
-The cyberlink was updated using MsgExecuteContract authorization through the grantee wallet.`,
-            },
-          ]
-        } catch (error) {
-          console.error("Error updating cyberlink:", error)
-          throw new Error(`Failed to update cyberlink: ${error.message}`)
-        }
-      },
-    },
-    {
-      type: "tool",
-      name: "delete-cyberlink",
-      description: "Delete an existing cyberlink between a type and its value.",
-      parameters: {
-        type: "object",
-        properties: {
-          from: {
-            type: "string",
-            description:
-              'Source particle type (e.g. "Thread", "Post", "Comment")',
-          },
-          to: {
-            type: "string",
-            description: "Target particle value or content to unlink",
-          },
-          fid: {
-            type: "string",
-            description:
-              "From particle ID (optional, can be auto-generated if not provided)",
-            default: "auto",
-          },
-        },
-        required: ["from", "to"],
-      },
-      async execute (args) {
-        console.log("[PLUGIN] Executing delete-cyberlink")
-        const { from, to, fid } = args
-        const authStore = useAuthStore()
-        const walletService = WalletService.getInstance()
-        const walletState = getWalletState()
-
-        if (!walletState.isConnected) {
-          if (IsTauri) {
-            throw new Error(
-              "Cosmos wallet not connected. Please connect your wallet first."
-            )
-          } else {
-            throw new Error(
-              "Kepler wallet not connected. Please connect Kepler wallet first."
-            )
-          }
-        }
-
-        if (!authStore.isConnected || !authStore.granteeSigner) {
-          console.log({
-            isConnected: authStore.isConnected,
-            granteeSigner: authStore.granteeSigner,
-          })
-          throw new Error(
-            "Grantee wallet not connected or signer not available. Please ensure grantee wallet is set up and connected."
-          )
-        }
-
-        try {
-          const granterAddress = await getGranterAddress()
-          const granteeAccounts = await authStore.granteeSigner.getAccounts()
-
-          if (granteeAccounts.length === 0) {
-            throw new Error("No accounts found for grantee signer.")
-          }
-
-          const granteeAccount = granteeAccounts[0]
-          const granteeClient = await walletService.getClient(
-            authStore.granteeSigner
-          )
-
-          // Create delete message - only include fid if provided
-          const deleteMsg: any = { from, to }
-
-          if (fid && fid !== "auto") {
-            deleteMsg.fid = fid
-          }
-
-          const execContractMsg = {
-            sender: granterAddress,
-            contract: CYBER_CONTRACT_ADDRESS,
-            msg: toUtf8(
-              JSON.stringify({
-                delete_cyberlink: deleteMsg,
-              })
-            ),
-            funds: [],
-          }
-
-          const execMsg = {
-            grantee: granteeAccount.address,
-            msgs: [
-              {
-                typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
-                value: MsgExecuteContract.encode(execContractMsg).finish(),
-              },
-            ],
-          }
-
-          const tx = await granteeClient.signAndBroadcast(
-            granteeAccount.address,
-            [
-              {
-                typeUrl: "/cosmos.authz.v1beta1.MsgExec",
-                value: execMsg,
-              },
-            ],
-            {
-              amount: coins("210000", config.FEE_DENOM),
-              gas: "210000",
-            }
-          )
-
-          if (tx.code !== 0) {
-            const errorMessage = tx.rawLog || "Transaction failed"
-            throw new Error(
-              `Transaction failed with code ${tx.code} ${errorMessage}`
-            )
-          }
-
-          return [
-            {
-              type: "text",
-              contentText: `✅ **Cyberlink Deleted Successfully**
-
-**Deletion Details:**
-- **From (Type):** ${from}
-- **To (Value):** ${to}
-- **Deleter:** ${granterAddress}
-- **Transaction Hash:** ${tx.transactionHash}
-- **Gas Used:** ${tx.gasUsed}
-- **Gas Wanted:** ${tx.gasWanted}
-- **Block Height:** ${tx.height}
-
-**Explorer Link:** https://cybernode.ai/network/cyber/tx/${tx.transactionHash}
-
-The cyberlink was deleted using MsgExecuteContract authorization through the grantee wallet.`,
-            },
-          ]
-        } catch (error) {
-          console.error("Error deleting cyberlink:", error)
-          throw new Error(`Failed to delete cyberlink: ${error.message}`)
+          console.error("Error broadcasting MCP tx:", error)
+          throw new Error(`Failed to broadcast MCP tx: ${error.message}`)
         }
       },
     },
@@ -653,17 +325,31 @@ The cyberlink was deleted using MsgExecuteContract authorization through the gra
   prompt: `CRITICAL INSTRUCTIONS FOR AI ASSISTANT:
 
 1. When user writes "send X tokens to cyber1..." or "отправить X токенов на cyber1..." I MUST immediately call execute-send API
-2. When user writes "create cyberlink..." I MUST immediately call create-cyberlink API
+2. For ALL OTHER blockchain operations (cyberlink creation, update, delete, etc.) I MUST call broadcast-mcp-tx API with the JSON transaction body received from MCP
 3. I NEVER respond with text like "tokens sent" or "операция выполнена" without calling the API first
 4. I ALWAYS call the API to perform the actual blockchain operation
 
 EXAMPLES OF REQUIRED API CALLS:
 - User: "send 100 ustake to cyber1abc123" → I call execute-send({toAddress: "cyber1abc123", amount: "100"})
 - User: "отправить 50 токенов на cyber1def456" → I call execute-send({toAddress: "cyber1def456", amount: "50"})
-- User: "create cyberlink with type Thread and value Hello" → I call create-cyberlink({type: "Thread", value: "Hello"})
-- User: "make Thread cyberlink with Hello content" → I call create-cyberlink({type: "Thread", value: "Hello"})
 
-I am a blockchain executor that PERFORMS operations by calling APIs, not a text generator that describes operations.`,
+I am a blockchain executor that PERFORMS operations by calling APIs, not a text generator that describes operations.
+when user asks to create/update/delete cyberlink use MCP tool to create transaction body and pass this body as msg
+to broadcast-mcp-tx; fid is mandatory field, take it from the data returned by MCP plugin and add to cyberlink
+transaction body, here is correct msg example
+{
+  "update_cyberlink": {
+    "cyberlink": {
+      "type": "Post",
+      "from": "Any",
+      "to": "Any",
+      "value": "Andryha test updated"
+    },
+    "fid": "Post:24"
+  }
+}
+  use fid, don't use gid!
+`,
   promptVars: [],
 }
 

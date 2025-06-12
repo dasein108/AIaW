@@ -151,7 +151,7 @@
             my-2
             :class="colMode ? 'mx-4' : 'mx-2'"
           />
-          <cyberlink-result
+          <!-- <cyberlink-result
             v-if="
               message.status !== 'processed' &&
                 content.type === 'assistant-tool' &&
@@ -162,7 +162,7 @@
             :message="message"
             :key="'cyberlink-' + index"
             class="my-2"
-          />
+          /> -->
         </div>
         <div
           text-err
@@ -344,14 +344,24 @@
 </template>
 
 <script setup lang="ts">
-import { MdPreview, MdCatalog } from "md-editor-v3"
-import { copyToClipboard, useQuasar } from "quasar"
-import { useDialogMessages } from "@features/dialogs/composables/useDialogMessages"
-import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
+import ConvertArtifactDialog from "@/features/artifacts/components/ConvertArtifactDialog.vue"
 import { useAssistantsStore } from "@/features/assistants/store"
-import { useDialogsStore } from "@features/dialogs/store/dialogs"
+import MessageInfoDialog from "@/features/dialogs/components/MessageInfoDialog.vue"
+import MessageFile from "@/features/media/components/MessageFile.vue"
+import MessageImage from "@/features/media/components/MessageImage.vue"
+import ToolContent from "@/features/plugins/components/ToolContent.vue"
 import { usePluginsStore } from "@/features/plugins/store"
+import MenuItem from "@/shared/components/menu/MenuItem.vue"
+import CopyBtn from "@/shared/components/ui/CopyBtn.vue"
+import TextareaDialog from "@/shared/components/ui/TextareaDialog.vue"
+import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
 import { useUserPerfsStore } from "@/shared/store/user-perfs"
+import sessions from "@/shared/utils/sessions"
+import { dialogOptions } from "@/shared/utils/values"
+import { useDialogMessages } from "@features/dialogs/composables/useDialogMessages"
+import { useDialogsStore } from "@features/dialogs/store/dialogs"
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
+import PickAvatarDialog from "@shared/components/avatar/PickAvatarDialog.vue"
 import {
   escapeRegex,
   genId,
@@ -360,9 +370,9 @@ import {
   textBeginning,
   wrapCode,
 } from "@shared/utils/functions"
-import sessions from "@/shared/utils/sessions"
 import { ApiResultItem, ConvertArtifactOptions } from "@shared/utils/types"
-import { dialogOptions } from "@/shared/utils/values"
+import { MdCatalog, MdPreview } from "md-editor-v3"
+import { copyToClipboard, useQuasar } from "quasar"
 import {
   computed,
   ComputedRef,
@@ -376,21 +386,11 @@ import {
 } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
-import AAvatar from "@shared/components/avatar/AAvatar.vue"
-import ConvertArtifactDialog from "@/features/artifacts/components/ConvertArtifactDialog.vue"
-import CopyBtn from "@/shared/components/ui/CopyBtn.vue"
-import CyberlinkResult from "@/features/cyber/components/CyberlinkResult.vue"
-import MenuItem from "@/shared/components/menu/MenuItem.vue"
-import MessageFile from "@/features/media/components/MessageFile.vue"
-import MessageImage from "@/features/media/components/MessageImage.vue"
-import MessageInfoDialog from "@/features/dialogs/components/MessageInfoDialog.vue"
-import PickAvatarDialog from "@shared/components/avatar/PickAvatarDialog.vue"
-import TextareaDialog from "@/shared/components/ui/TextareaDialog.vue"
-import ToolContent from "@/features/plugins/components/ToolContent.vue"
+// import CyberlinkResult from "./CyberlinkResult.vue"
 import {
-  UserMessageContent,
   AssistantMessageContent,
   AssistantToolContent,
+  UserMessageContent,
 } from "@/features/dialogs/types"
 import {
   DialogMessageMapped,
