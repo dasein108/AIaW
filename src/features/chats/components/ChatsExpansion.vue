@@ -40,9 +40,8 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import { useListenKey } from "@/shared/composables"
-import { supabase } from "src/services/supabase/client"
-import { useUserStore } from "src/stores/user"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { supabase } from "@/services/supabase/client"
+import { useUserStore, useUserPerfsStore } from "@shared/store"
 import { isPlatformEnabled } from "@shared/utils/functions"
 import { ref, toRef } from "vue"
 import { useRouter } from "vue-router"

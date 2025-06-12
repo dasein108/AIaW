@@ -1,5 +1,5 @@
 import { defaultData } from "@/utils/plugins"
-import { createUserDataStore } from "@/stores/createUserDataStore"
+import { createUserDataStore } from "@/shared/store/utils/createUserDataStore"
 import { PluginData } from "@/utils/types"
 
 export const useUserPluginsStore = () => {

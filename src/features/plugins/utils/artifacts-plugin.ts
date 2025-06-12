@@ -1,6 +1,6 @@
 import { Array as TArray, Object, Optional, String } from "@sinclair/typebox"
 import { i18n } from "@/boot/i18n"
-import { useArtifactsStore } from "@/stores/artifacts"
+import { useArtifactsStore } from "@/features/artifacts/store"
 import { saveArtifactChanges } from "@/utils/functions"
 import { engine } from "@/utils/template-engine"
 import { Plugin, PluginApi, PluginData } from "@/utils/types"

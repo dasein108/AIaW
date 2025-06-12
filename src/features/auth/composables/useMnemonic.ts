@@ -2,7 +2,7 @@ import {
   getMnemonic,
   saveMnemonic,
   removeMnemonic,
-} from "src/stores/tauri-store"
+} from "@/shared/store/tauri-store"
 import { ref } from "vue"
 import { EncryptionService } from "@/services/encryption/EncryptionService"
 

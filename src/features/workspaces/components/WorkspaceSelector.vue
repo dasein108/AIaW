@@ -27,8 +27,8 @@
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import WorkspaceNav from "@features/workspaces/components/WorkspaceNav.vue"
 import { useActiveWorkspace } from "@features/workspaces/composables/useActiveWorkspace"
-import { avatarKey } from "@/utils/functions"
-import { IconAvatar } from "@/utils/types"
+import { avatarKey } from "@shared/utils/functions"
+import { IconAvatar } from "@shared/utils/types"
 import { computed } from "vue"
 
 const { workspace } = useActiveWorkspace()

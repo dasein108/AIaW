@@ -155,7 +155,7 @@ import { useCloseArtifact } from "@/features/artifacts/composables/closeArtifact
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 import { useArtifactsStore } from "@/features/artifacts/store"
 import { ListOpen, useUserDataStore } from "@/shared/store/user-data"
-import { useUserPerfsStore } from "@/shared/store/user-perfs"
+import { useUserPerfsStore } from "@shared/store"
 import { useWorkspacesStore } from "@/features/workspaces/store"
 import { artifactUnsaved, isPlatformEnabled } from "@shared/utils/functions"
 import EditArtifact from "@/features/artifacts/views/EditArtifact.vue"

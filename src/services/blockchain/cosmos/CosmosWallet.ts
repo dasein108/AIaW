@@ -13,7 +13,7 @@ import {
   saveMnemonic,
   getMnemonic,
   removeMnemonic,
-} from "src/stores/tauri-store"
+} from "@/shared/store/tauri-store"
 import { IsTauri } from "@/shared/utils/platform-api"
 import { ref } from "vue"
 import { config } from "@services/blockchain/constants"

@@ -1,4 +1,4 @@
-import { useChatsStore } from "src/stores/chats"
+import { useChatsStore } from "@/features/chats/store"
 import { computed, Ref } from "vue"
 import { ChatMapped } from "@/services/supabase/types"
 

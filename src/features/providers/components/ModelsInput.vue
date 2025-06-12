@@ -22,9 +22,9 @@
 
 <script setup lang="ts">
 import { useFilterOptions } from "@/shared/composables"
-import { useProvidersStore } from "@/stores/providers"
+import { useProvidersStore } from "@/features/providers/store"
 import { toRef } from "vue"
-import ModelItem from "@/features/providers/components/ModelItem.vue"
+import ModelItem from "./ModelItem.vue"
 
 const model = defineModel<string[]>()
 const providersStore = useProvidersStore()

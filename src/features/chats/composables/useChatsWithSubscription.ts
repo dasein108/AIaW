@@ -1,6 +1,6 @@
-import { supabase } from "src/services/supabase/client"
+import { supabase } from "@/services/supabase/client"
 import type { ChatMapped } from "@/services/supabase/types"
-import { useUserStore } from "src/stores/user"
+import { useUserStore } from "@shared/store"
 import { defaultTextAvatar } from "@shared/utils/functions"
 import type { Avatar } from "@shared/utils/types"
 import { ref, readonly, watch } from "vue"

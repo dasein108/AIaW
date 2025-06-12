@@ -166,10 +166,10 @@ import { cropSquareBlob } from "@/utils/image-process"
 import { Avatar } from "@/utils/types"
 import { materialSymbols } from "@/shared/utils/values"
 import { ref, toRaw } from "vue"
-import AAvatar from "@shared/components/AAvatar.vue"
-import AvatarPanel from "@/components/AvatarPanel.vue"
-import HueSlider from "@/components/HueSlider.vue"
-import ImageInputArea from "@/components/ImageInputArea.vue"
+import AAvatar from "@/shared/components/avatar/AAvatar.vue"
+import AvatarPanel from "@/shared/components/avatar/AvatarPanel.vue"
+import HueSlider from "@/shared/components/ui/HueSlider.vue"
+import ImageInputArea from "@/features/media/components/ImageInputArea.vue"
 
 const props = defineProps<{
   defaultTab: string

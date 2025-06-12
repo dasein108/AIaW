@@ -99,16 +99,16 @@
 import { useQuasar } from "quasar"
 import { useCreateDialog } from "@features/dialogs/composables/createDialog"
 import { useAssistantsStore } from "@features/assistants/store"
-import { useUserPerfsStore } from "@/stores/user-perfs"
+import { useUserPerfsStore } from "@shared/store"
 import { defaultAvatar } from "@shared/utils/functions"
-import { dialogOptions } from "@shared/utils/values"
+import { dialogOptions } from "@/shared/utils/values"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import ImportAssistantButton from "./ImportAssistantButton.vue"
 import MenuItem from "@shared/components/MenuItem.vue"
-import SelectWorkspaceDialog from "@features/workspaces/components/SelectWorkspaceDialog.vue"
+import SelectWorkspaceDialog from "@/features/workspaces/components/SelectWorkspaceDialog.vue"
 
 const { t } = useI18n()
 

@@ -34,8 +34,8 @@ import { storeToRefs } from "pinia"
 import { useCheckLogin } from "@features/auth/composables/useCheckLogin"
 import { useCreateDialog } from "../composables"
 import { useListenKey } from "@/shared/composables"
-import { useUserPerfsStore } from "@/stores/user-perfs"
-import { isPlatformEnabled } from "@/utils/functions"
+import { useUserPerfsStore } from "@shared/store"
+import { isPlatformEnabled } from "@/shared/utils/functions"
 import { toRef } from "vue"
 
 const props = defineProps<{

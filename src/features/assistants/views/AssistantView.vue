@@ -491,7 +491,7 @@ import ProviderInputItems from "@/features/providers/components/ProviderInputIte
 import ViewCommonHeader from "@/components/ViewCommonHeader.vue"
 import { useLocateId } from "@/shared/composables/locate-id"
 import { useSetTitle } from "@/shared/composables/set-title"
-import { getAvatarUrl } from "@/shared/composables/storage/utils"
+import { getAvatarUrl } from "@/composables/storage/utils"
 import { syncRef } from "@/shared/composables/sync-ref"
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 import { useAssistantsStore } from "@/features/assistants/store"

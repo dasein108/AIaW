@@ -1,4 +1,4 @@
-import { useUserStore } from "@/stores/user"
+import { useUserStore } from "@shared/store"
 import { useWorkspacesStore } from "@features/workspaces/store"
 import { computed, readonly, Ref, ref, watch } from "vue"
 

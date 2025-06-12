@@ -9,9 +9,8 @@ import {
   AssistantMapped,
   StoredItem,
 } from "@/services/supabase/types"
-import { usePluginsStore } from "@/stores/plugins"
-import { useUserDataStore } from "@/stores/user-data"
-import { useUserPerfsStore } from "@/stores/user-perfs"
+import { usePluginsStore } from "@/features/plugins/store"
+import { useUserDataStore, useUserPerfsStore } from "@shared/store"
 import artifactsPlugin from "@/utils/artifacts-plugin"
 import { isPlatformEnabled, mimeTypeMatch } from "@/utils/functions"
 import { engine } from "@/utils/template-engine"

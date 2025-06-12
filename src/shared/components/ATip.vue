@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { Screen } from "quasar"
-import { useUserDataStore } from "@/stores/user-data"
+import { useUserDataStore } from "@shared/store"
 import { computed } from "vue"
 
 const props = defineProps<{
