@@ -1,18 +1,5 @@
-import { AssistantMapped } from "src/services/supabase/types"
-import { ModelSettings } from "./types"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the utils from its new location in the feature module.
+// TODO: Update all imports to reference @features/assistants/utils/assistantUtils directly and remove this file.
 
-export const getAssistantModelSettings = (
-  assistant: AssistantMapped,
-  override: Partial<ModelSettings> = {}
-) => {
-  const settings: Partial<ModelSettings> = {}
-  for (const key in assistant.model_settings) {
-    const val = assistant.model_settings[key]
-
-    if (val || val === 0) {
-      settings[key] = val
-    }
-  }
-
-  return { ...settings, ...override }
-}
+export { getAssistantModelSettings } from "@features/assistants/utils/assistantUtils"

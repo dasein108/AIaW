@@ -1,6 +1,39 @@
-// This file is being kept for backward compatibility during the refactoring process.
-// It re-exports the utils from its new location in the shared module.
-// TODO: Update all imports to reference @shared/utils/types directly and remove this file.
+export {
+  randomHash,
+  escapeRegex,
+  escapeHtml,
+  defaultAvatar,
+  hctToHex,
+  genId,
+  idTimestamp,
+  idDateString,
+  JSONEqual,
+  mimeTypeMatch,
+  isTextFile,
+  wrapCode,
+  wrapQuote,
+  parseSeconds,
+  caselessIncludes,
+  displayLength,
+  parsePageRange,
+  pageFhStyle,
+  almostEqual,
+  isPlatformEnabled,
+  textBeginning,
+  getFileExt,
+  saveArtifactChanges,
+  restoreArtifactChanges,
+  blobToBase64,
+  base64ToArrayBuffer,
+  artifactUnsaved,
+  removeUndefinedProps,
+  cyrb53,
+  hash53,
+  removeDuplicates,
+  localePrice,
+  defaultTextAvatar,
+  avatarKey,
+} from "./functions"
 
 export {
   ApiCallError,
@@ -10,7 +43,7 @@ export {
   LobePluginManifestSchema,
   MarketAssistantSchema,
   ProviderSchema,
-} from "@shared/utils/types"
+} from "./types"
 
 export type {
   Provider,
@@ -63,4 +96,4 @@ export type {
   ArtifactVersion,
   PluginPrompt,
   ToolResultContent,
-} from "@shared/utils/types"
+} from "./types"

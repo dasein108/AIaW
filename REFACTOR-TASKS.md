@@ -243,13 +243,13 @@
 
 ## Phase 16: Utils Reorganization
 
-- [ ] **Task 16.1**: Create `utils` directory in each feature module that needs it
-- [ ] **Task 16.2**: Identify feature-specific utilities in `src/utils`
-- [ ] **Task 16.3**: Move feature-specific utilities to `src/features/<feature>/utils`
-- [ ] **Task 16.4**: Identify utilities used across multiple features
-- [ ] **Task 16.5**: Move shared utilities to `src/shared/utils` if not already there
-- [ ] **Task 16.6**: Create index.ts files in each feature's utils directory to export utilities
-- [ ] **Task 16.7**: Create index.ts file in shared/utils to export shared utilities
+- [x] **Task 16.1**: Create `utils` directory in each feature module that needs it
+- [x] **Task 16.2**: Identify feature-specific utilities in `src/utils`
+- [x] **Task 16.3**: Move feature-specific utilities to `src/features/<feature>/utils`
+- [x] **Task 16.4**: Identify utilities used across multiple features
+- [x] **Task 16.5**: Move shared utilities to `src/shared/utils` if not already there
+- [x] **Task 16.6**: Create index.ts files in each feature's utils directory to export utilities
+- [x] **Task 16.7**: Create index.ts file in shared/utils to export shared utilities
 - [ ] **Task 16.8**: Update imports in all files that reference the moved utilities
 - [ ] **Task 16.9**: Run `pnpm dev` to verify there are no errors
 
