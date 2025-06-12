@@ -4,8 +4,8 @@ import { coins } from "@cosmjs/proto-signing"
 import { MsgExec } from "cosmjs-types/cosmos/authz/v1beta1/tx"
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx"
 import { MsgExecuteContract } from "cosmjs-types/cosmwasm/wasm/v1/tx"
-import { WalletService } from "src/services/authz/wallet-service"
-import { config } from "src/services/constants"
+import { WalletService } from "@/services"
+import { config } from "@/services/constants"
 import {
   CYBER_CONTRACT_ADDRESS,
   getLocalStorageWalletState,

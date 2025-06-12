@@ -391,7 +391,7 @@ import {
   UserMessageContent,
   AssistantMessageContent,
   AssistantToolContent,
-} from "@/common/types/dialogs"
+} from "@/features/dialogs/types"
 import {
   DialogMessageMapped,
   MessageContentMapped,

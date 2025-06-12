@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
-import { defaultModelSettings } from "@/common/consts"
+import { defaultModelSettings } from "@/features/assistants/consts"
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import { supabase } from "@/services/supabase/client"
 import { defaultAvatar, defaultTextAvatar } from "@/shared/utils/functions"

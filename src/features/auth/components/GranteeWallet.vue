@@ -54,10 +54,11 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { WalletService, WalletInfo } from "src/services/authz/wallet-service"
+import { WalletService } from "@/services"
+import { WalletInfo } from "@/services/blockchain/authz/wallet-service"
 import { ref, computed, watch } from "vue"
 import { useAuthStore } from "@features/auth/store/auth"
-import PinModal from "./PinModal.vue"
+import PinModal from "@/components/PinModal.vue"
 
 const $q = useQuasar()
 const showPinModal = ref(false)

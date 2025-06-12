@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { syncRef } from "@/composables/sync-ref"
+import { syncRef } from "@/shared/composables"
 import { useAssistantsStore } from "@features/assistants/store"
 import { usePluginsStore } from "@features/plugins/store"
 import { AssistantPlugin, Plugin } from "@/utils/types"

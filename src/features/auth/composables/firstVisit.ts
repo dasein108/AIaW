@@ -1,6 +1,6 @@
 import { storeToRefs } from "pinia"
 import { useQuasar } from "quasar"
-import { defaultModelSettings } from "src/common/consts"
+import { defaultModelSettings } from "@/features/assistants/consts"
 import AuthDialog from "@features/auth/components/AuthDialog.vue"
 import { useAssistantsStore } from "@features/assistants/store"
 import { useUserStore } from "@shared/store"

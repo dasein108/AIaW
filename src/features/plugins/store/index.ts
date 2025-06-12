@@ -1,7 +1,7 @@
 import { LobeChatPluginManifest } from "@lobehub/chat-plugin-sdk"
 import { defineStore, storeToRefs } from "pinia"
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
-import authzPlugin from "@/plugins/cosmos-authz"
+import authzPlugin from "@/features/plugins/buildin/cosmos-authz"
 import { keplerPlugin } from "@/services/kepler/kepler-plugin"
 import { supabase } from "@/services/supabase/client"
 import artifacts from "@/features/plugins/utils/artifacts-plugin"

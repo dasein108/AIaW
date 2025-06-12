@@ -1,7 +1,7 @@
 import { jsonSchema, tool, Tool } from "ai"
 import { storeToRefs } from "pinia"
 import { useQuasar } from "quasar"
-import { useCallApi } from "@/composables/call-api"
+import { useCallApi } from "@/shared/composables"
 import { useGetModel } from "@features/providers/composables/getModel"
 import { getSystemPrompt } from "@/services/llm/utils"
 import {

@@ -7,8 +7,8 @@ import {
 } from "ai"
 import { pickBy } from "lodash"
 import { useQuasar } from "quasar"
-import { useStorage } from "@/composables/storage/useStorage"
-import { FILES_BUCKET, getFileUrl } from "@/composables/storage/utils"
+import { useStorage } from "@/shared/composables/storage/useStorage"
+import { FILES_BUCKET, getFileUrl } from "@/shared/composables/storage/utils"
 import {
   generateTitle,
   generateArtifactName,
@@ -23,12 +23,12 @@ import sessions from "@/utils/sessions"
 import { ExtractArtifactResult } from "@/utils/templates"
 import { ref, Ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { useCallApi } from "@/composables/call-api"
+import { useCallApi } from "@/shared/composables"
 import { useCreateArtifact } from "@features/artifacts/composables/createArtifact"
 import { useAssistantTools } from "./useAssistantTools"
 import { useDialogMessages } from "./useDialogMessages"
 import { useDialogModel } from "./useDialogModel"
-import { AssistantMessageContent } from "@/common/types/dialogs"
+import { AssistantMessageContent } from "@/features/dialogs/types"
 import {
   AssistantMapped,
   DialogMessageMapped,

@@ -4,7 +4,7 @@ import {
   WalletService,
   WalletInfo,
   GranteeWalletInfo,
-} from "@/services/authz/wallet-service"
+} from "@/services/blockchain/authz/wallet-service"
 import { CosmosWallet } from "@/services/cosmos/CosmosWallet"
 import { KeplerWallet } from "@/services/kepler/KeplerWallet"
 

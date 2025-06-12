@@ -1,8 +1,8 @@
 import { computed, Ref, watch } from "vue"
-import { useStorage } from "@/composables/storage/useStorage"
-import { FILES_BUCKET } from "@/composables/storage/utils"
+import { useStorage } from "@/shared/composables/storage/useStorage"
+import { FILES_BUCKET } from "@/shared/composables/storage/utils"
 import { useDialogMessages } from "./useDialogMessages"
-import { UserMessageContent } from "@/common/types/dialogs"
+import { UserMessageContent } from "@/features/dialogs/types"
 import {
   MessageContentMapped,
   StoredItemMapped,

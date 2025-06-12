@@ -1,6 +1,6 @@
 import { Validator } from "@cfworker/json-schema"
 import { useQuasar } from "quasar"
-import { defaultModelSettings } from "@/common/consts"
+import { defaultModelSettings } from "@/features/assistants/consts"
 import { useAssistantsStore } from "@features/assistants/store"
 import { AssistantDefaultPrompt } from "@/utils/templates"
 import { MarketAssistantSchema } from "@/utils/types"
