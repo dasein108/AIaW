@@ -7,9 +7,9 @@ import {
   Number,
 } from "@sinclair/typebox"
 import { i18n } from "@/boot/i18n"
-import { SearxngBaseURL } from "@/utils/config"
-import { fetch } from "@/shared/utils/platform-api"
-import { Plugin, PluginData } from "@/utils/types"
+import { SearxngBaseURL } from "@/shared/utils/config"
+import { fetch } from "@/shared/utils/platformApi"
+import { Plugin, PluginData } from "@/shared/utils/types"
 
 const { t } = i18n.global
 

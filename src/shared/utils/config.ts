@@ -3,8 +3,6 @@ export const MaxMessageFileSizeMB = parseFloat(
 )
 export const DocParseBaseURL = process.env.DOC_PARSE_BASE_URL
 export const CorsFetchBaseURL = process.env.CORS_FETCH_BASE_URL
-export const UsdToCnyRate =
-  process.env.USD_TO_CNY_RATE && parseFloat(process.env.USD_TO_CNY_RATE)
 export const StripeFee =
   process.env.STRIPE_FEE && parseFloat(process.env.STRIPE_FEE)
 export const SearxngBaseURL = process.env.SEARXNG_BASE_URL

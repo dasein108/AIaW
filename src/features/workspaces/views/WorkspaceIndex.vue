@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
-import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
 import { useSetTitle } from "@/shared/composables/set-title"
 import { syncRef } from "@/shared/composables/sync-ref"

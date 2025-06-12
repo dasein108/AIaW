@@ -1,6 +1,6 @@
-import { defaultData } from "@/utils/plugins"
+import { defaultData } from "@/features/plugins/utils/plugins"
 import { createUserDataStore } from "@/shared/store/utils/createUserDataStore"
-import { PluginData } from "@/utils/types"
+import { PluginData } from "@/shared/utils/types"
 
 export const useUserPluginsStore = () => {
   return createUserDataStore<Record<string, PluginData>>(

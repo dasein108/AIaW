@@ -119,7 +119,7 @@
 <script setup lang="ts">
 import { QPageContainer, QPage, useQuasar } from "quasar"
 import ChatMessageItem from "@/features/chats/components/ChatMessageItem.vue"
-import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 
 import { useChatMessagesStore } from "@/features/chats/store/chatMessages"
 import { useChatsStore } from "@/features/chats/store"

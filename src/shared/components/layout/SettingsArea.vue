@@ -123,9 +123,9 @@
 import { storeToRefs } from "pinia"
 import AccountBtn from "@features/auth/components/AccountBtn.vue"
 import DarkSwitchBtn from "@/shared/components/ui/DarkSwitchBtn.vue"
-import MenuItem from "@shared/components/MenuItem.vue"
+import MenuItem from "@/shared/components/menu/MenuItem.vue"
 import { useUserStore } from "@/shared/store/user"
-import { IsWeb } from "@/shared/utils/platform-api"
+import { IsWeb } from "@/shared/utils/platformApi"
 import { useI18n } from "vue-i18n"
 
 const { isLoggedIn } = storeToRefs(useUserStore())

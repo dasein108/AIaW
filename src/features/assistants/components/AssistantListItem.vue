@@ -71,7 +71,7 @@
 import { storeToRefs } from "pinia"
 import { useQuasar, QMenu } from "quasar"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
-import MenuItem from "@shared/components/MenuItem.vue"
+import MenuItem from "@/shared/components/menu/MenuItem.vue"
 import SelectWorkspaceDialog from "@/features/workspaces/components/SelectWorkspaceDialog.vue"
 import { useCreateDialog } from "@/features/dialogs/composables"
 import { AssistantMapped } from "@/services/supabase/types"
@@ -80,7 +80,7 @@ import { useUserDataStore } from "@shared/store"
 import { dialogOptions } from "@/shared/utils/values"
 import { ref, toRef, computed } from "vue"
 import { useI18n } from "vue-i18n"
-import MenuButton from "@shared/components/ExpansionItem/MenuButton.vue"
+import MenuButton from "@/shared/components/menu/MenuButton.vue"
 
 const props = defineProps({
   assistant: { type: Object, required: true },

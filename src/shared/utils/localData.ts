@@ -3,7 +3,7 @@ import { localReactive } from "@/shared/composables/localReactive"
 interface LocalData {
   lastReloadTimestamp: number | null
   visited: boolean
-  language: "en-US" | "zh-CN" | "zh-TW" | null
+  language: "en-US" | null
   ignoredUpdate: string
 }
 

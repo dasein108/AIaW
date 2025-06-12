@@ -5,8 +5,8 @@ import {
   WalletInfo,
   GranteeWalletInfo,
 } from "@/services/blockchain/authz/wallet-service"
-import { CosmosWallet } from "@/services/cosmos/CosmosWallet"
-import { KeplerWallet } from "@/services/kepler/KeplerWallet"
+import { CosmosWallet } from "@/services/blockchain/cosmos/CosmosWallet"
+import { KeplerWallet } from "@/services/blockchain/kepler/KeplerWallet"
 
 interface AuthState {
   walletInfo: WalletInfo | null // Grantee wallet info (address, encrypted mnemonic)

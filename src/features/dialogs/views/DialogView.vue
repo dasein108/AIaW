@@ -314,7 +314,7 @@ import ModelOptionsBtn from "@/features/providers/components/ModelOptionsBtn.vue
 import ModelOverrideMenu from "@/features/providers/components/ModelOverrideMenu.vue"
 import ParseFilesDialog from "../components/ParseFilesDialog.vue"
 import PromptVarInput from "@/features/prompt/components/PromptVarInput.vue"
-import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 import { useDialogInput } from "@/features/dialogs/composables/useDialogInput"
 import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
 import { useDialogModel } from "@/features/dialogs/composables/useDialogModel"

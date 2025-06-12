@@ -217,7 +217,7 @@
 <script setup lang="ts">
 import PlatformEnabledInput from "@/features/providers/components/PlatformEnabledInput.vue"
 import ShortcutKeyInput from "@/shared/components/ui/ShortcutKeyInput.vue"
-import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 import { useUserPerfsStore } from "@shared/store/user-perfs"
 import { pageFhStyle } from "@/shared/utils/functions"
 

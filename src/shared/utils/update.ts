@@ -2,8 +2,8 @@ import { LiveUpdate } from "@capawesome/capacitor-live-update"
 import { Loading, Notify, QNotifyAction } from "quasar"
 import { i18n } from "src/boot/i18n"
 import version from "src/version.json"
-import { localData } from "./local-data"
-import { fetch, IsCapacitor, IsWeb } from "../shared/utils/platform-api"
+import { localData } from "@/shared/utils/localData"
+import { fetch, IsCapacitor, IsWeb } from "./platformApi"
 
 const BaseURL = "https://github.com/NitroRCr/AIaW/releases/latest/download"
 type Version = typeof version

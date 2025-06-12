@@ -8,7 +8,7 @@ import {
   ModelSettings,
   PromptVar,
   Provider,
-} from "@/utils/types"
+} from "@shared/utils/types"
 
 type ChatMessage = Database["public"]["Tables"]["messages"]["Row"]
 type Chat = Database["public"]["Tables"]["chats"]["Row"]

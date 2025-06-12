@@ -89,7 +89,7 @@ import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter, useRoute } from "vue-router"
 import AddDialogItem from "./AddDialogItem.vue"
-import MenuItem from "@shared/components/MenuItem.vue"
+import MenuItem from "@/shared/components/menu/MenuItem.vue"
 import SearchDialog from "@/features/dialogs/components/SearchDialog.vue"
 import SelectWorkspaceDialog from "@/features/workspaces/components/SelectWorkspaceDialog.vue"
 

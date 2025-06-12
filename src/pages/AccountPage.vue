@@ -86,7 +86,7 @@
 import { useQuasar } from "quasar"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import PickAvatarDialog from "@shared/components/avatar/PickAvatarDialog.vue"
-import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 import { useAuth } from "@features/auth/composables/useAuth"
 import { syncRef } from "@/shared/composables/sync-ref"
 import { useProfileStore } from "@features/profile/store"

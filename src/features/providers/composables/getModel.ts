@@ -1,8 +1,8 @@
 import { LanguageModel, wrapLanguageModel } from "ai"
 import { useProvidersStore } from "@features/providers/store"
 import { useUserPerfsStore } from "@/shared/store"
-import { AuthropicCors, FormattingReenabled } from "@/utils/middlewares"
-import { fetch } from "@/shared/utils/platform-api"
+import { AuthropicCors, FormattingReenabled } from "@/features/providers/utils/middlewares"
+import { fetch } from "@/shared/utils/platformApi"
 import { Model, Provider } from "@shared/utils/types"
 
 const FormattingModels = ["o1", "o3-mini", "o3-mini-2025-01-31"]

@@ -2,10 +2,10 @@ import { LobeChatPluginManifest } from "@lobehub/chat-plugin-sdk"
 import { defineStore, storeToRefs } from "pinia"
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import authzPlugin from "@/features/plugins/buildin/cosmos-authz"
-import { keplerPlugin } from "@/services/kepler/kepler-plugin"
+import { keplerPlugin } from "@/services/blockchain/kepler/kepler-plugin"
 import { supabase } from "@/services/supabase/client"
-import artifacts from "@/features/plugins/utils/artifacts-plugin"
-import { IsTauri } from "@/shared/utils/platform-api"
+import artifacts from "@/features/plugins/buildin/artifacts-plugin"
+import { IsTauri } from "@/shared/utils/platformApi"
 import {
   buildGradioPlugin,
   buildLobePlugin,
@@ -30,7 +30,7 @@ import {
   McpPluginDump,
   McpPluginManifest,
 } from "@/shared/utils/types"
-import webSearchPlugin from "@/features/plugins/utils/web-search-plugin"
+import webSearchPlugin from "@/features/plugins/buildin/web-search-plugin"
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useAssistantsStore } from "@/features/assistants/store"

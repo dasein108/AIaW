@@ -123,8 +123,8 @@ import { useWorkspaceActions } from "@features/workspaces/composables/workspace-
 import { ref, watch, toRef } from "vue"
 import { useRootWorkspace } from "@features/workspaces/composables"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
-import MenuButton from "@shared/components/ExpansionItem/MenuButton.vue"
-import MenuItem from "@shared/components/MenuItem.vue"
+import MenuButton from "@/shared/components/menu/MenuButton.vue"
+import MenuItem from "@/shared/components/menu/MenuItem.vue"
 import type { WorkspaceMapped } from "@/services/supabase/types"
 
 const props = defineProps<{

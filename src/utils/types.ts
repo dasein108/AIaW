@@ -1,27 +1,5 @@
-// This file is being kept for backward compatibility during the refactoring process.
-// It re-exports the utils from its new location in the shared module.
-// TODO: Update all imports to reference @shared/utils/types directly and remove this file.
-
-export {
-  ApiCallError,
-  HuggingPluginManifestSchema,
-  GradioPluginManifestSchema,
-  McpPluginManifestSchema,
-  LobePluginManifestSchema,
-  MarketAssistantSchema,
-  ProviderSchema,
-} from "@shared/utils/types"
-
 export type {
-  Provider,
-  ProviderType,
-  ModelSettings,
-  PromptVar,
-  PromptVarValue,
-  PluginApi,
-  Plugin,
-  PluginData,
-  PluginsData,
+
   AssistantPluginInfo,
   AssistantPluginTool,
   AssistantPluginAction,

@@ -1,9 +1,9 @@
 import { Array as TArray, Object, Optional, String } from "@sinclair/typebox"
 import { i18n } from "@/boot/i18n"
 import { useArtifactsStore } from "@/features/artifacts/store"
-import { saveArtifactChanges } from "@/utils/functions"
-import { engine } from "@/utils/template-engine"
-import { Plugin, PluginApi, PluginData } from "@/utils/types"
+import { saveArtifactChanges } from "@shared/utils/functions"
+import { engine } from "@/shared/utils/template/template-engine"
+import { Plugin, PluginApi, PluginData } from "@shared/utils/types"
 import { ArtifactMapped } from "@/services/supabase/types"
 
 const pluginId = "aiaw-artifacts"

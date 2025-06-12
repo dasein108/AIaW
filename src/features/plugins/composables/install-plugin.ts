@@ -1,13 +1,13 @@
 import { Validator } from "@cfworker/json-schema"
 import { useQuasar } from "quasar"
 import { usePluginsStore } from "@features/plugins/store"
-import { fetch } from "@/shared/utils/platform-api"
+import { fetch } from "@/shared/utils/platformApi"
 import {
   GradioPluginManifestSchema,
   HuggingPluginManifestSchema,
   LobePluginManifestSchema,
   McpPluginManifestSchema,
-} from "@/utils/types"
+} from "@/shared/utils/types"
 import { toRaw } from "vue"
 import { useI18n } from "vue-i18n"
 

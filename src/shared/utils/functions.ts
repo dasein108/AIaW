@@ -1,7 +1,5 @@
 import { Hct, hexFromArgb } from "@material/material-color-utilities"
 import { Platform } from "quasar"
-import { i18n } from "src/boot/i18n"
-import { UsdToCnyRate } from "@/utils/config"
 import { Avatar, PlatformEnabled } from "@/utils/types"
 import { ArtifactMapped } from "@/services/supabase/types"
 
@@ -294,12 +292,6 @@ function removeDuplicates (arr: any[]) {
   return Array.from(new Set(arr))
 }
 
-function localePrice (usd: number, fixed = 2) {
-  return i18n.global.locale.value === "zh-CN"
-    ? `￥${(usd * UsdToCnyRate).toFixed(fixed)}`
-    : `$ ${usd.toFixed(fixed)}`
-}
-
 export {
   randomHash,
   escapeRegex,
@@ -332,7 +324,6 @@ export {
   cyrb53,
   hash53,
   removeDuplicates,
-  localePrice,
   defaultTextAvatar,
   avatarKey,
 }

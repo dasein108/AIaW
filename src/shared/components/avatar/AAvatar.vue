@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { hctToHex } from "@/utils/functions"
+import { hctToHex } from "@shared/utils/functions"
 import { Avatar } from "@/utils/types"
 import { computed } from "vue"
 import ImageAvatar from "@shared/components/avatar/ImageAvatar.vue"

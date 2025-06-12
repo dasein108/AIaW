@@ -107,7 +107,7 @@ import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import ImportAssistantButton from "./ImportAssistantButton.vue"
-import MenuItem from "@shared/components/MenuItem.vue"
+import MenuItem from "@/shared/components/menu/MenuItem.vue"
 import SelectWorkspaceDialog from "@/features/workspaces/components/SelectWorkspaceDialog.vue"
 
 const { t } = useI18n()

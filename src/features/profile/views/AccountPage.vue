@@ -85,12 +85,12 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import { AAvatar, PickAvatarDialog } from "@shared/components/avatar"
-import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 import { useAuth } from "@features/auth/composables/useAuth"
 import { syncRef } from "@shared/composables/sync-ref"
 import { useProfileStore } from "@features/profile/store"
 import { useUserStore } from "@shared/store/user"
-import { pageFhStyle } from "@/utils/functions"
+import { pageFhStyle } from "@shared/utils/functions"
 import { computed, ref, toRaw, toRefs } from "vue"
 import { useRouter } from "vue-router"
 

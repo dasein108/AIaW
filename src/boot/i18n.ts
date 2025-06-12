@@ -2,7 +2,7 @@ import { Quasar } from "quasar"
 import { boot } from "quasar/wrappers"
 
 import messages from "src/i18n"
-import { localData } from "src/utils/local-data"
+import { localData } from "@/shared/utils/localData"
 import { nextTick, watch } from "vue"
 import { createI18n } from "vue-i18n"
 
@@ -25,10 +25,10 @@ declare module "vue-i18n" {
 /* eslint-enable @typescript-eslint/no-empty-interface */
 
 const langList = import.meta.glob(
-  "../../node_modules/quasar/lang/(en-US|zh-CN|zh-TW).js"
+  "../../node_modules/quasar/lang/(en-US).js"
 )
 
-type SupportedLang = "en-US" | "zh-CN" | "zh-TW"
+type SupportedLang = "en-US"
 
 const languages = Object.keys(messages)
 
@@ -37,10 +37,6 @@ function getLanguage (): SupportedLang {
 
   if (languages.includes(navigator.language)) {
     return navigator.language as SupportedLang
-  } else if (navigator.language === "zh-HK") {
-    return "zh-TW"
-  } else {
-    return "en-US"
   }
 }
 

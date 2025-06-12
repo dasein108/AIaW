@@ -6,7 +6,7 @@ import {
   PlatformEnabled,
   Provider,
   ShortcutKey,
-} from "@/utils/types"
+} from "@shared/utils/types"
 import { models } from "@/shared/utils/values"
 import { watchEffect } from "vue"
 import { createUserDataStore } from "./utils/createUserDataStore"

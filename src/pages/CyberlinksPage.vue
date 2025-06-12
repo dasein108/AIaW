@@ -84,10 +84,10 @@
 import { useQuasar } from "quasar"
 import { useCallApi } from "@shared/composables/callApi"
 import { useActiveWorkspace } from "@features/workspaces/composables/useActiveWorkspace"
-import { getLocalStorageWalletState } from "@/services/kepler/KeplerWallet"
+import { getLocalStorageWalletState } from "@/services/blockchain/kepler/KeplerWallet"
 import { useAuthStore } from "@features/auth/store/auth"
 import { usePluginsStore } from "@features/plugins/store"
-import { IsTauri } from "@/shared/utils/platform-api"
+import { IsTauri } from "@/shared/utils/platformApi"
 import { computed, provide, ref, onMounted, watch } from "vue"
 
 const pageFhStyle = (offset: number, height: number) => ({

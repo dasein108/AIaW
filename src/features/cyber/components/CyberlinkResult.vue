@@ -25,7 +25,7 @@
 import { useDialogMessages } from "@features/dialogs/composables/useDialogMessages"
 import { KeplerWallet } from "@/services/blockchain/kepler/KeplerWallet"
 import { parseEvents } from "@/services/blockchain/kepler/utils"
-import { IsTauri } from "@/shared/utils/platform-api"
+import { IsTauri } from "@/shared/utils/platformApi"
 import { computed, inject, toRef } from "vue"
 
 import { CosmosWallet } from "@/services/blockchain/cosmos/CosmosWallet"

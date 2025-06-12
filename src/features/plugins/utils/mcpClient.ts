@@ -3,10 +3,10 @@ import { platform } from "@tauri-apps/plugin-os"
 import { Notify } from "quasar"
 import { i18n } from "src/boot/i18n"
 import { version } from "src/version.json"
-import { JSONEqual } from "@/utils/functions"
+import { JSONEqual } from "@shared/utils/functions"
 import { SSEClientTransport } from "./mcpSseTransport"
-import { fetch } from "@/shared/utils/platform-api"
-import { TauriShellClientTransport } from "@/utils/tauri-shell-transport"
+import { fetch } from "@/shared/utils/platformApi"
+import { TauriShellClientTransport } from "@/features/platform/utils/tauriShellTransport"
 import { TransportConf } from "@/utils/types"
 
 const KeepAliveTimeout = 300e3

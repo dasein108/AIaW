@@ -24,7 +24,7 @@ import { usePinModal } from "@/features/auth/composables/usePinModal"
 import { createCosmosSigner } from "./services/cosmos/CosmosWallet"
 import type { CosmosWallet } from "./services/cosmos/CosmosWallet"
 import { EncryptionService } from "./services/encryption/EncryptionService"
-import { createKeplerWallet } from "./services/kepler/KeplerWallet"
+import { createKeplerWallet } from "@/services/blockchain/kepler/KeplerWallet"
 import { useAssistantsStore } from "@features/assistants/store"
 import { useAuthStore } from "@features/auth/store/auth"
 import { useChatsStore } from "@features/chats/store"
@@ -32,8 +32,8 @@ import { useChatMessagesStore } from "@features/chats/store/chatMessages"
 import { useDialogsStore } from "@features/dialogs/store/dialogs"
 import { usePluginsStore } from "@features/plugins/store"
 
-import { IsTauri, IsWeb } from "./shared/utils/platform-api"
-import { checkUpdate, ready } from "./utils/update"
+import { IsTauri, IsWeb } from "./shared/utils/platformApi"
+import { checkUpdate, ready } from "./shared/utils/update"
 defineOptions({
   name: "App",
 })

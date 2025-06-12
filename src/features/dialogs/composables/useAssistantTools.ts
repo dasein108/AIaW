@@ -11,16 +11,16 @@ import {
 } from "@/services/supabase/types"
 import { usePluginsStore } from "@/features/plugins/store"
 import { useUserDataStore, useUserPerfsStore } from "@shared/store"
-import artifactsPlugin from "@/utils/artifacts-plugin"
-import { isPlatformEnabled, mimeTypeMatch } from "@/utils/functions"
-import { engine } from "@/utils/template-engine"
+import artifactsPlugin from "@/features/plugins/buildin/artifacts-plugin"
+import { isPlatformEnabled, mimeTypeMatch } from "@shared/utils/functions"
+import { engine } from "@/shared/utils/template/template-engine"
 import {
   PluginPrompt,
   Plugin,
   PluginApi,
   ApiResultItem,
   ApiCallError,
-} from "@/utils/types"
+} from "@/shared/utils/types"
 import { Ref, computed, inject } from "vue"
 import { useI18n } from "vue-i18n"
 import { useDialogMessages } from "./useDialogMessages"

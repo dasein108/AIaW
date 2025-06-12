@@ -1,5 +1,5 @@
 import { CorsFetchBaseURL } from "./config"
-import { fetch, IsCapacitor, IsTauri } from "./platform-api"
+import { fetch, IsCapacitor, IsTauri } from "./platformApi"
 
 export async function corsFetch (
   url: string,

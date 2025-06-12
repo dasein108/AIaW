@@ -14,7 +14,7 @@ import {
   getMnemonic,
   removeMnemonic,
 } from "@/shared/store/tauri-store"
-import { IsTauri } from "@/shared/utils/platform-api"
+import { IsTauri } from "@/shared/utils/platformApi"
 import { ref } from "vue"
 import { config } from "@services/blockchain/constants"
 import { EncryptionService } from "@services/security/encryption/EncryptionService"

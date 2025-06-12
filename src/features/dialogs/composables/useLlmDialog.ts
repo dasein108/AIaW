@@ -16,11 +16,11 @@ import {
 } from "@/services/llm/utils"
 import { useDialogsStore } from "@features/dialogs/store/dialogs"
 import { useUserPerfsStore } from "@shared/store"
-import { getAssistantModelSettings } from "@/utils/assistant-utils"
-import { storedItemResultContent } from "@/utils/dialog"
-import { genId, mimeTypeMatch } from "@/utils/functions"
-import sessions from "@/utils/sessions"
-import { ExtractArtifactResult } from "@/utils/templates"
+import { getAssistantModelSettings } from "@features/assistants/utils/assistantUtils"
+import { storedItemResultContent } from "@features/dialogs/utils/dialog"
+import { genId, mimeTypeMatch } from "@shared/utils/functions"
+import sessions from "@/shared/utils/sessions"
+import { ExtractArtifactResult } from "@/shared/utils/template/templates"
 import { ref, Ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useCallApi } from "@/shared/composables"
@@ -35,7 +35,7 @@ import {
   MessageContentMapped,
   MessageContentResult,
 } from "@/services/supabase/types"
-import { ConvertArtifactOptions, Plugin, PluginApi } from "@/utils/types"
+import { ConvertArtifactOptions, Plugin, PluginApi } from "@/shared/utils/types"
 
 export const useLlmDialog = (
   workspaceId: Ref<string>,

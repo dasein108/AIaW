@@ -12,9 +12,9 @@ import { createXai } from "@ai-sdk/xai"
 import { createOpenRouter } from "@openrouter/ai-sdk-provider"
 import { Object, String } from "@sinclair/typebox"
 import { createOllama } from "ollama-ai-provider"
-import { i18n } from "src/boot/i18n"
-import { fetch } from "./platform-api"
-import { Model, ProviderType } from "../../utils/types"
+import { i18n } from "@/boot/i18n"
+import { fetch } from "./platformApi"
+import { Model, ProviderType } from "./types"
 
 const { t } = i18n.global
 

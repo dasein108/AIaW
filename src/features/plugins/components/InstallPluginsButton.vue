@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { clipboardReadText } from "@/shared/utils/platform-api"
+import { clipboardReadText } from "@/shared/utils/platformApi"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 import AddMcpPluginDialog from "@features/plugins/components/AddMcpPluginDialog.vue"

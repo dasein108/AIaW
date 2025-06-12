@@ -60,9 +60,9 @@ import AAvatar from "@shared/components/AAvatar.vue"
 import { dialogOptions } from "@/shared/utils/values"
 import { computed, ref, toRef } from "vue"
 import { useRoute } from "vue-router"
-import { useWorkspaceChats } from "@features/chats/composables/useWorkspaceChats"
-import { MenuButton } from "@shared/components/ExpansionItem"
-import MenuItem from "@shared/components/MenuItem.vue"
+import { useWorkspaceChats } from "@/features/chats/composables/useWorkspaceChats"
+import MenuButton from "@/shared/components/menu/MenuButton.vue"
+import MenuItem from "@/shared/components/menu/MenuItem.vue"
 import { ChatMapped } from "@/services/supabase/types"
 
 const props = defineProps<{

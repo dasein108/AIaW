@@ -30,7 +30,6 @@ export {
   cyrb53,
   hash53,
   removeDuplicates,
-  localePrice,
   defaultTextAvatar,
   avatarKey,
 } from "./functions"

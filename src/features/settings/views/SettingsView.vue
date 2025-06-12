@@ -559,14 +559,14 @@ import ModelsInput from "@/features/providers/components/ModelsInput.vue"
 import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
 import PlatformEnabledInput from "@/features/providers/components/PlatformEnabledInput.vue"
 import ProviderInputItems from "@/features/providers/components/ProviderInputItems.vue"
-import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 import { useGetModel } from "@/features/providers/composables/getModel"
 import { useLocateId } from "@/shared/composables/locate-id"
 import { useAuthStore } from "@/features/auth/store/auth"
 import { useUserPerfsStore } from "@/shared/store/user-perfs"
 import { pageFhStyle } from "@/shared/utils/functions"
 import { localData } from "@/shared/utils/localData"
-import { IsTauri } from "@/shared/utils/platform-api"
+import { IsTauri } from "@/shared/utils/platformApi"
 import { dialogOptions, mdCodeThemes, mdPreviewThemes } from "@/shared/utils/values"
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
@@ -626,8 +626,6 @@ const provider = computed(() => getProvider())
 const langOptions = [
   { label: t("settingsView.auto"), value: null },
   { label: "English", value: "en-US" },
-  { label: "简体中文", value: "zh-CN" },
-  { label: "繁體中文", value: "zh-TW" },
 ]
 
 function sortModels () {

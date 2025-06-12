@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { Plugin } from "@/utils/types"
+import { Plugin } from "@shared/utils/types"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 

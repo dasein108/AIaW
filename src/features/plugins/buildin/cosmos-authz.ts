@@ -9,9 +9,9 @@ import { config } from "@/services/constants"
 import {
   CYBER_CONTRACT_ADDRESS,
   getLocalStorageWalletState,
-} from "src/services/kepler/KeplerWallet"
+} from "@/services/blockchain/kepler/KeplerWallet"
 import { useAuthStore } from "@features/auth/store/auth"
-import { IsTauri } from "@/shared/utils/platform-api"
+import { IsTauri } from "@/shared/utils/platformApi"
 import { Plugin } from "@shared/utils/types"
 
 // Function to get wallet state depending on platform
