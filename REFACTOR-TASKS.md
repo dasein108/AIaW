@@ -188,41 +188,61 @@
 
 ## Phase 12: Shared Stores Migration
 
-- [ ] **Task 12.1**: Create `src/shared/store` directory
-- [ ] **Task 12.2**: Create `src/shared/store/utils` directory for store utilities
-- [ ] **Task 12.3**: Move `src/stores/createUserDataStore.ts` to `src/shared/store/utils/createUserDataStore.ts`
-- [ ] **Task 12.4**: Identify shared stores that aren't tied to specific features
-- [ ] **Task 12.5**: Move identified stores to `src/shared/store`
-- [ ] **Task 12.6**: Update imports in the moved stores
-- [ ] **Task 12.7**: Update any imports that reference the moved stores
-- [ ] **Task 12.8**: Run `pnpm dev` to verify there are no errors
+- [x] **Task 12.1**: Create `src/shared/store` directory
+- [x] **Task 12.2**: Create `src/shared/store/utils` directory for store utilities
+- [x] **Task 12.3**: Move `src/stores/createUserDataStore.ts` to `src/shared/store/utils/createUserDataStore.ts`
+- [x] **Task 12.4**: Identify shared stores that aren't tied to specific features
+- [x] **Task 12.5**: Move identified stores to `src/shared/store`
+- [x] **Task 12.6**: Update imports in the moved stores
+- [x] **Task 12.7**: Update any imports that reference the moved stores
+- [x] **Task 12.8**: Run `pnpm dev` to verify there are no errors
 
-## Phase 13: Clean Up Duplicated Code
+## Phase 13: Profile Feature Extraction
 
-- [ ] **Task 13.1**: Identify components in `/components` and `/layouts` that now exist in `/features` or `/shared` directories
-- [ ] **Task 13.2**: Remove these duplicate components from `/components`
-- [ ] **Task 13.3**: Identify composables in `/composables` that now exist in `/features` or `/shared` directories
-- [ ] **Task 13.4**: Remove these duplicate composables from `/composables`
-- [ ] **Task 13.5**: Identify utils in `/utils` that now exist in `/features` or `/shared` directories
-- [ ] **Task 13.6**: Remove these duplicate utils from `/utils`
-- [ ] **Task 13.7**: DO NOT REMOVE code that does not have duplicates in feature directories
-- [ ] **Task 13.8**: Update any imports that still reference the old paths
-- [ ] **Task 13.9**: Run `pnpm dev` to verify there are no errors
+- [x] **Task 13.1**: Create feature subdirectories for profile:
+  ```
+  src/features/profile/components
+  src/features/profile/composables
+  src/features/profile/store
+  src/features/profile/views
+  ```
+- [x] **Task 13.2**: Move profile store from `src/shared/store/profile.ts` to `src/features/profile/store/profile.ts`
+- [x] **Task 13.3**: Identify profile components in `src/components` related to user profiles
+- [x] **Task 13.4**: Move profile components to `src/features/profile/components`
+- [x] **Task 13.5**: Update imports in the moved components
+- [x] **Task 13.6**: Identify profile composables (if any)
+- [x] **Task 13.7**: Move profile composables to `src/features/profile/composables`
+- [x] **Task 13.8**: Update imports in the moved composables
+- [x] **Task 13.9**: Update the shared store index to remove profile exports
+- [x] **Task 13.10**: Update any imports that reference the moved profile store
+- [x] **Task 13.11**: Run `pnpm dev` to verify there are no errors
 
-## Phase 14: Filename Standardization
+## Phase 14: Clean Up Duplicated Code
 
-- [ ] **Task 14.1**: Identify files with kebab-case or non-camelCase names
-- [ ] **Task 14.2**: Rename these files to camelCase based on code content
-- [ ] **Task 14.3**: Update all imports referencing the renamed files
-- [ ] **Task 14.4**: Run `pnpm dev` to verify there are no errors
+- [ ] **Task 14.1**: Identify components in `/components` and `/layouts` that now exist in `/features` or `/shared` directories
+- [ ] **Task 14.2**: Remove these duplicate components from `/components`
+- [ ] **Task 14.3**: Identify composables in `/composables` that now exist in `/features` or `/shared` directories
+- [ ] **Task 14.4**: Remove these duplicate composables from `/composables`
+- [ ] **Task 14.5**: Identify utils in `/utils` that now exist in `/features` or `/shared` directories
+- [ ] **Task 14.6**: Remove these duplicate utils from `/utils`
+- [ ] **Task 14.7**: DO NOT REMOVE code that does not have duplicates in feature directories
+- [ ] **Task 14.8**: Update any imports that still reference the old paths
+- [ ] **Task 14.9**: Run `pnpm dev` to verify there are no errors
 
-## Phase 15: Final Verification
+## Phase 15: Filename Standardization
 
-- [ ] **Task 15.1**: Run comprehensive tests (`npm test`)
-- [ ] **Task 15.2**: Verify all features work correctly in the browser
-- [ ] **Task 15.3**: Verify build process works (`npm run build`)
-- [ ] **Task 15.4**: Document the new project structure
-- [ ] **Task 15.5**: Update any relevant documentation
+- [ ] **Task 15.1**: Identify files with kebab-case or non-camelCase names
+- [ ] **Task 15.2**: Rename these files to camelCase based on code content
+- [ ] **Task 15.3**: Update all imports referencing the renamed files
+- [ ] **Task 15.4**: Run `pnpm dev` to verify there are no errors
+
+## Phase 16: Final Verification
+
+- [ ] **Task 16.1**: Run comprehensive tests (`npm test`)
+- [ ] **Task 16.2**: Verify all features work correctly in the browser
+- [ ] **Task 16.3**: Verify build process works (`npm run build`)
+- [ ] **Task 16.4**: Document the new project structure
+- [ ] **Task 16.5**: Update any relevant documentation
 
 ## Completion Checklist
 

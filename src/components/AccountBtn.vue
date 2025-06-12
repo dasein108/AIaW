@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
 import { useQuasar } from "quasar"
-import { useProfileStore } from "src/stores/profile"
+import { useProfileStore } from "@features/profile/store"
 import { useUserStore } from "src/stores/user"
 import { useRouter, useRoute } from "vue-router"
 import AAvatar from "./AAvatar.vue"
