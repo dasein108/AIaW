@@ -1,28 +1,5 @@
-import { useAuthStore } from "@features/auth/store/auth"
-import { ref } from "vue"
-import { getMnemonic } from "../stores/tauri-store"
-import { IsTauri } from "../utils/platform-api"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the composable from its new location in the feature module.
+// TODO: Update all imports to reference @features/auth/composables/usePinModal directly and remove this file.
 
-export function usePinModal () {
-  const showPinModal = ref(false)
-
-  const checkEncryptedMnemonic = async () => {
-    const authStore = useAuthStore()
-    const hasMnemonic = !!(IsTauri
-      ? await getMnemonic()
-      : authStore.walletInfo?.mnemonic)
-
-    if (hasMnemonic) {
-      showPinModal.value = true
-
-      return true
-    }
-
-    return false
-  }
-
-  return {
-    showPinModal,
-    checkEncryptedMnemonic,
-  }
-}
+export { usePinModal } from "@features/auth/composables/usePinModal"

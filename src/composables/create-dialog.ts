@@ -1,41 +1,5 @@
-import { useDialogsStore } from "@features/dialogs/store/dialogs"
-import { useUserDataStore } from "src/stores/user-data"
-import { useI18n } from "vue-i18n"
-import { useRouter } from "vue-router"
-import { Dialog } from "@/services/supabase/types"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the composable from its new location in the feature module.
+// TODO: Update all imports to reference @features/dialogs/composables/createDialog directly and remove this file.
 
-export function useCreateDialog (workspaceId: string) {
-  const router = useRouter()
-  const dialogsStore = useDialogsStore()
-  const { t } = useI18n()
-
-  async function createDialog (props: Partial<Dialog> = {}) {
-    const userStore = useUserDataStore()
-
-    const dialog = await dialogsStore.addDialog(
-      {
-        workspace_id: workspaceId,
-        name: t("createDialog.newDialog"),
-        assistant_id: userStore.data.defaultAssistantIds[workspaceId] || null,
-        input_vars: {},
-        ...props,
-      },
-      {
-        type: "user",
-        message_contents: [
-          {
-            type: "user-message",
-            text: "",
-            name: "",
-            stored_items: [],
-          },
-        ],
-        status: "inputing",
-      }
-    )
-
-    router.push(`/workspaces/${workspaceId}/dialogs/${dialog.id}`)
-  }
-
-  return { createDialog }
-}
+export { useCreateDialog } from "@features/dialogs/composables/createDialog"

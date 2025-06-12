@@ -1,40 +1,5 @@
-import { useQuasar } from "quasar"
-import SaveDialog from "src/components/SaveDialog.vue"
-import { useArtifactsStore } from "src/stores/artifacts"
-import { useUserDataStore } from "src/stores/user-data"
-import {
-  restoreArtifactChanges,
-  saveArtifactChanges,
-} from "src/utils/functions"
-import { ArtifactMapped } from "@/services/supabase/types"
-export function useCloseArtifact () {
-  const $q = useQuasar()
-  const artifactsStore = useArtifactsStore()
-  const userDataStore = useUserDataStore()
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the composable from its new location in the feature module.
+// TODO: Update all imports to reference @features/artifacts/composables/closeArtifact directly and remove this file.
 
-  function closeArtifact (artifact: ArtifactMapped) {
-    if (artifact.tmp !== artifact.versions[artifact.curr_index].text) {
-      $q.dialog({
-        component: SaveDialog,
-        componentProps: {
-          name: artifact.name,
-        },
-      }).onOk((save: boolean) => {
-        const changes = save
-          ? saveArtifactChanges(artifact)
-          : restoreArtifactChanges(artifact)
-        artifactsStore.update({
-          id: artifact.id,
-          ...changes,
-        })
-        userDataStore.data.openedArtifacts =
-          userDataStore.data.openedArtifacts.filter((id) => id !== artifact.id)
-      })
-    } else {
-      userDataStore.data.openedArtifacts =
-        userDataStore.data.openedArtifacts.filter((id) => id !== artifact.id)
-    }
-  }
-
-  return { closeArtifact }
-}
+export { useCloseArtifact } from "@features/artifacts/composables/closeArtifact"

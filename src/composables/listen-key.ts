@@ -1,39 +1,5 @@
-import { ShortcutKey } from "src/utils/types"
-import { onActivated, onDeactivated, onMounted, onUnmounted, Ref } from "vue"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the composable from its new location in the shared module.
+// TODO: Update all imports to reference @shared/composables/listenKey directly and remove this file.
 
-export function useListenKey (
-  shortcutKey: Ref<ShortcutKey>,
-  callback,
-  prevent = true
-) {
-  const listener = (event) => {
-    if (!shortcutKey.value) return
-
-    const {
-      key,
-      withCtrl = false,
-      withShift = false,
-      withAlt = false,
-    } = shortcutKey.value
-
-    if (
-      event.code === key &&
-      event.ctrlKey === withCtrl &&
-      event.shiftKey === withShift &&
-      event.altKey === withAlt
-    ) {
-      callback()
-      prevent && event.preventDefault()
-    }
-  }
-  const addListener = () => {
-    document.addEventListener("keydown", listener)
-  }
-  const rmListener = () => {
-    document.removeEventListener("keydown", listener)
-  }
-  onMounted(addListener)
-  onUnmounted(rmListener)
-  onActivated(addListener)
-  onDeactivated(rmListener)
-}
+export { useListenKey } from "@shared/composables/listenKey"

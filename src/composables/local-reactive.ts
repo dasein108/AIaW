@@ -1,27 +1,5 @@
-import { LocalStorage } from "quasar"
-import { watch, reactive } from "vue"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the composable from its new location in the shared module.
+// TODO: Update all imports to reference @shared/composables/localReactive directly and remove this file.
 
-export function localReactive<T extends object> (key: string, value: T) {
-  const val = reactive({
-    ...value,
-    ...((LocalStorage.getItem(key) as T) || {}),
-  })
-  let flag = false
-  watch(val, () => {
-    if (flag) {
-      flag = false
-
-      return
-    }
-
-    LocalStorage.setItem(key, val)
-  })
-  addEventListener("storage", (event) => {
-    if (event.key === key) {
-      flag = true
-      Object.assign(val, LocalStorage.getItem(key) as T)
-    }
-  })
-
-  return val
-}
+export { localReactive } from "@shared/composables/localReactive"

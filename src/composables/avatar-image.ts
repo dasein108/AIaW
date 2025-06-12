@@ -1,6 +1,5 @@
-import { Ref } from "vue"
-import { getAvatarUrl } from "./storage/utils"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the composable from its new location in the feature module.
+// TODO: Update all imports to reference @features/profile/composables/avatar-image directly and remove this file.
 
-export function useAvatarImage (imageId: Ref<string>) {
-  return getAvatarUrl(imageId.value)
-}
+export { useAvatarImage } from "@features/profile/composables/avatar-image"

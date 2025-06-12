@@ -2,4 +2,4 @@
 // It re-exports the composable from its new location in the feature module.
 // TODO: Update all imports to reference @features/workspaces/composables directly and remove this file.
 
-export { useRootWorkspace } from "@features/workspaces/composables/useRootWorkspaces"
+export { useRootWorkspace } from "@/features/workspaces/composables/useRootWorkspace"

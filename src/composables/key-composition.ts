@@ -1,16 +1,5 @@
-import { client } from "quasar/src/plugins/platform/Platform.js"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the composable from its new location in the shared module.
+// TODO: Update all imports to reference @shared/composables/keyComposition directly and remove this file.
 
-export default function (onInput) {
-  return function onComposition (e) {
-    if (client.is.android) return
-
-    if (e.type === "compositionend" || e.type === "change") {
-      if (!e.target.qComposing) return
-
-      e.target.qComposing = false
-      onInput(e)
-    } else if (e.type === "compositionstart") {
-      e.target.qComposing = true
-    }
-  }
-}
+export { default } from "@shared/composables/keyComposition"
