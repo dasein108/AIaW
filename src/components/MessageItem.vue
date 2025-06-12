@@ -151,7 +151,7 @@
             my-2
             :class="colMode ? 'mx-4' : 'mx-2'"
           />
-          <CyberlinkResult
+          <!-- <CyberlinkResult
             v-if="
               message.status !== 'processed' &&
                 content.type === 'assistant-tool' &&
@@ -162,7 +162,7 @@
             :message="message"
             :key="'cyberlink-' + index"
             class="my-2"
-          />
+          /> -->
         </div>
         <div
           text-err
@@ -379,7 +379,7 @@ import { useRouter } from "vue-router"
 import AAvatar from "./AAvatar.vue"
 import ConvertArtifactDialog from "./ConvertArtifactDialog.vue"
 import CopyBtn from "./CopyBtn.vue"
-import CyberlinkResult from "./CyberlinkResult.vue"
+// import CyberlinkResult from "./CyberlinkResult.vue"
 import MenuItem from "./MenuItem.vue"
 import MessageFile from "./MessageFile.vue"
 import MessageImage from "./MessageImage.vue"
