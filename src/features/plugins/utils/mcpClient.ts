@@ -7,7 +7,7 @@ import { JSONEqual } from "@shared/utils/functions"
 import { SSEClientTransport } from "./mcpSseTransport"
 import { fetch } from "@/shared/utils/platformApi"
 import { TauriShellClientTransport } from "@/features/platform/utils/tauriShellTransport"
-import { TransportConf } from "@/utils/types"
+import { TransportConf } from "@shared/utils/types"
 
 const KeepAliveTimeout = 300e3
 

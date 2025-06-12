@@ -1,6 +1,6 @@
 import { Hct, hexFromArgb } from "@material/material-color-utilities"
 import { Platform } from "quasar"
-import { Avatar, PlatformEnabled } from "@/utils/types"
+import { Avatar, PlatformEnabled } from "@shared/utils/types"
 import { ArtifactMapped } from "@/services/supabase/types"
 
 function randomHash (digits = 64) {
