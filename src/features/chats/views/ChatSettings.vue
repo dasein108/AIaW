@@ -94,7 +94,7 @@ import { QPageContainer, QPage, useQuasar } from "quasar"
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
 import NotificationPanel from "@/shared/components/common/NotificationPanel.vue"
 import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
-import ViewCommonHeader from "@/components/ViewCommonHeader.vue"
+import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
 
 import { useIsChatAdmin } from "@/features/chats/composables/useIsChatAdmin"
 import { syncRef } from "@/shared/composables/sync-ref"

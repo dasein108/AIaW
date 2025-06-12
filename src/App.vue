@@ -9,7 +9,6 @@
 </template>
 
 <script setup lang="ts">
-// import { createDbService } from './services/database/Db'
 
 import { until } from "@vueuse/core"
 import { storeToRefs } from "pinia"
@@ -18,7 +17,7 @@ import { useUserStore, getMnemonic, useUserDataStore, useUserPerfsStore } from "
 import { computed, onMounted, provide, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
-import PinModal from "@/components/PinModal.vue"
+import PinModal from "@features/auth/components/PinModal.vue"
 import { useFirstVisit } from "@features/auth/composables/firstVisit"
 import { useSetTheme } from "@/shared/composables/setTheme"
 import { usePinModal } from "@/features/auth/composables/usePinModal"

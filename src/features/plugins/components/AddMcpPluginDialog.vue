@@ -166,7 +166,7 @@
 
 <script setup lang="ts">
 import { useDialogPluginComponent, useQuasar } from "quasar"
-import VarsInput from "@/components/VarsInput.vue"
+import VarsInput from "@/features/prompt/components/VarsInput.vue"
 import { useInstallPlugin } from "@features/plugins/composables/install-plugin"
 import { hash53 } from "@/utils/functions"
 import { IsTauri } from "@/shared/utils/platform-api"

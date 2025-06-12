@@ -1,5 +1,5 @@
 import { useQuasar } from "quasar"
-import SaveDialog from "@/components/SaveDialog.vue"
+import SaveDialog from "@/shared/components/ui/SaveDialog.vue"
 import { useArtifactsStore } from "@/features/artifacts/store"
 import { useUserDataStore } from "@/shared/store/user-data"
 import {

@@ -85,7 +85,7 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import { AAvatar, PickAvatarDialog } from "@shared/components/avatar"
-import ViewCommonHeader from "@/components/ViewCommonHeader.vue"
+import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
 import { useAuth } from "@features/auth/composables/useAuth"
 import { syncRef } from "@shared/composables/sync-ref"
 import { useProfileStore } from "@features/profile/store"

@@ -168,8 +168,8 @@ import { materialSymbols } from "@/shared/utils/values"
 import { ref, toRaw } from "vue"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import AvatarPanel from "./AvatarPanel.vue"
-import HueSlider from "@/components/HueSlider.vue"
-import ImageInputArea from "@/components/ImageInputArea.vue"
+import HueSlider from "@/shared/components/ui/HueSlider.vue"
+import ImageInputArea from "@/features/media/components/ImageInputArea.vue"
 
 const props = defineProps<{
   defaultTab: string

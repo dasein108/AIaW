@@ -126,10 +126,10 @@
 </template>
 
 <script setup lang="ts">
-import HintCard from "@/components/HintCard.vue"
-import JsonInput from "@/components/JsonInput.vue"
-import PromptVarInput from "@/components/PromptVarInput.vue"
-import ViewCommonHeader from "@/components/ViewCommonHeader.vue"
+import HintCard from "@/shared/components/ui/HintCard.vue"
+import JsonInput from "@/shared/components/ui/JsonInput.vue"
+import PromptVarInput from "@/features/prompt/components/PromptVarInput.vue"
+import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
 import { useSetTitle } from "@/shared/composables/set-title"
 import { syncRef } from "@/shared/composables/sync-ref"
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"

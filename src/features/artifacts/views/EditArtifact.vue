@@ -97,7 +97,7 @@
 
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
-import CodeJar from "@/components/CodeJar.vue"
+import CodeJar from "@shared/components/ui/CodeJar.vue"
 import { useListenKey } from "@/shared/composables"
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
 import { useArtifactsStore } from "@/features/artifacts/store"

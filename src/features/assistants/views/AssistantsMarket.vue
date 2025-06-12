@@ -75,7 +75,7 @@
 import { useQuasar } from "quasar"
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
 import SelectWorkspaceDialog from "@/features/workspaces/components/SelectWorkspaceDialog.vue"
-import ViewCommonHeader from "@/components/ViewCommonHeader.vue"
+import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
 import { useAssistantActions } from "@/features/workspaces/composables/useAssistantActions"
 import { caselessIncludes, pageFhStyle } from "@/shared/utils/functions"
 import { computed, reactive, ref } from "vue"
