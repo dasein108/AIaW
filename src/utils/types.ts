@@ -1,10 +1,5 @@
 export type {
 
-  AssistantPluginInfo,
-  AssistantPluginTool,
-  AssistantPluginAction,
-  AssistantPlugin,
-  AssistantPlugins,
   StoredReactive,
   ApiResultItem,
   Avatar,

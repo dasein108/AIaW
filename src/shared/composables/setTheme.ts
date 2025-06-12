@@ -8,7 +8,7 @@ import {
 } from "@material/material-color-utilities"
 import { Dark } from "quasar"
 import { useUiStateStore, useUserPerfsStore } from "@shared/store"
-import { IsCapacitor } from "@shared/utils/platform-api"
+import { IsCapacitor } from "@shared/utils/platformApi"
 import { watchEffect } from "vue"
 
 export function useSetTheme () {
