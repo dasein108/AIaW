@@ -10,7 +10,7 @@ import {
   CYBER_CONTRACT_ADDRESS,
   getLocalStorageWalletState,
 } from "src/services/kepler/KeplerWallet"
-import { useAuthStore } from "src/stores/auth"
+import { useAuthStore } from "@features/auth/store/auth"
 import { IsTauri } from "src/utils/platform-api"
 import { Plugin } from "src/utils/types"
 

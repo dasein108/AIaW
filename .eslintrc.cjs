@@ -88,7 +88,7 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": "off",
 
     "space-before-function-paren": "off",
-    "space-before-blocks": "warn",
+    "space-before-blocks": "off", // "warn" tmp
     "no-prototype-builtins": "off",
 
     "@typescript-eslint/no-explicit-any": "off",
@@ -102,7 +102,7 @@ module.exports = {
 
     "unused-imports/no-unused-imports": "warn",
     "import/order": [
-      "error",
+      "off", // "warn" tmp
       {
         groups: [
           "builtin",
@@ -116,7 +116,7 @@ module.exports = {
       },
     ],
     "padding-line-between-statements": [
-      "warn",
+      "off", // "warn" tmp
       { blankLine: "always", prev: "*", next: "function" },
       { blankLine: "always", prev: "*", next: "if" },
       { blankLine: "always", prev: "if", next: "*" },

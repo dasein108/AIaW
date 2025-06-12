@@ -1,14 +1,5 @@
-import { useWorkspacesStore } from "src/stores/workspaces"
-import { computed } from "vue"
-import { WorkspaceMapped } from "@/services/supabase/types"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the composable from its new location in the feature module.
+// TODO: Update all imports to reference @features/workspaces/composables directly and remove this file.
 
-export function useRootWorkspace (parentId: string | null) {
-  const workspaceStore = useWorkspacesStore()
-
-  return computed<WorkspaceMapped[]>(
-    () =>
-      workspaceStore.workspaces.filter(
-        (workspace) => workspace.parent_id === parentId
-      ) as WorkspaceMapped[]
-  )
-}
+export { useRootWorkspace } from "@features/workspaces/composables/useRootWorkspaces"

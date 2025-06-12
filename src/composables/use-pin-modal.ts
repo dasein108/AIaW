@@ -1,4 +1,4 @@
-import { useAuthStore } from "src/stores/auth"
+import { useAuthStore } from "@features/auth/store/auth"
 import { ref } from "vue"
 import { getMnemonic } from "../stores/tauri-store"
 import { IsTauri } from "../utils/platform-api"

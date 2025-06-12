@@ -1,4 +1,4 @@
-import { useDialogsStore } from "src/stores/dialogs"
+import { useDialogsStore } from "@features/dialogs/store/dialogs"
 import { useUserDataStore } from "src/stores/user-data"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"

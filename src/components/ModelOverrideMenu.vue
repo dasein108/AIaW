@@ -92,7 +92,7 @@
 <script setup lang="ts">
 import ATip from "src/components/ATip.vue"
 import ModelItem from "src/components/ModelItem.vue"
-import { useDialogsStore } from "src/stores/dialogs"
+import { useDialogsStore } from "@features/dialogs/store/dialogs"
 import { useUserPerfsStore } from "src/stores/user-perfs"
 import { InputTypes, models } from "src/utils/values"
 

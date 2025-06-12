@@ -349,7 +349,7 @@ import { copyToClipboard, useQuasar } from "quasar"
 import { useDialogMessages } from "src/composables/dialog/useDialogMessages"
 import { useMdPreviewProps } from "src/composables/md-preview-props"
 import { useAssistantsStore } from "src/stores/assistants"
-import { useDialogsStore } from "src/stores/dialogs"
+import { useDialogsStore } from "@features/dialogs/store/dialogs"
 import { usePluginsStore } from "src/stores/plugins"
 import { useUserPerfsStore } from "src/stores/user-perfs"
 import {

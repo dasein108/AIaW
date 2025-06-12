@@ -103,7 +103,14 @@ export default configure((ctx) => {
           }
         }, { server: false }],
         ['unocss/vite']
-      ]
+      ],
+      // Configure Vite aliases
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@features': fileURLToPath(new URL('./src/features', import.meta.url)),
+        '@shared': fileURLToPath(new URL('./src/shared', import.meta.url)),
+        '@services': fileURLToPath(new URL('./src/services', import.meta.url))
+      }
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
