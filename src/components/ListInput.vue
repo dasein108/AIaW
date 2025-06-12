@@ -1,14 +1,7 @@
-<template>
-  <q-select
-    v-model="model"
-    use-input
-    use-chips
-    multiple
-    hide-dropdown-icon
-    input-debounce="0"
-  />
-</template>
-
-<script setup lang="ts">
-const model = defineModel<string[]>()
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the shared module.
+     TODO: Update all imports to reference @/shared/components/input/ListInput.vue directly and remove this file. -->
+<script>
+import ListInput from "@/shared/components/input/ListInput.vue"
+export default ListInput
 </script>

@@ -88,7 +88,6 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": "off",
 
     "space-before-function-paren": "off",
-    "space-before-blocks": "off", // "warn" tmp
     "no-prototype-builtins": "off",
 
     "@typescript-eslint/no-explicit-any": "off",
@@ -115,6 +114,9 @@ module.exports = {
         alphabetize: { order: "asc", caseInsensitive: true },
       },
     ],
+    "space-before-blocks": "off", // "warn" tmp
+    "eol-last": "off",
+    "semi": "off",
     "padding-line-between-statements": [
       "off", // "warn" tmp
       { blankLine: "always", prev: "*", next: "function" },

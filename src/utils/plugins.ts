@@ -30,7 +30,7 @@ import {
   parseSeconds,
 } from "./functions"
 import { getClient } from "./mcp-client"
-import { fetch, IsTauri } from "./platform-api"
+import { fetch, IsTauri } from "../shared/utils/platform-api"
 import {
   GradioFixedInput,
   GradioManifestEndpoint,

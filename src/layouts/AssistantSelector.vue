@@ -28,11 +28,11 @@
   </q-item>
 </template>
 <script setup lang="ts">
-import AAvatar from "src/components/AAvatar.vue"
-import AssistantList from "src/components/AssistantList.vue"
-import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
-import { avatarKey } from "src/utils/functions"
-import { IconAvatar } from "src/utils/types"
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
+import AssistantList from "@features/assistants/components/AssistantList.vue"
+import { useActiveWorkspace } from "@features/workspaces/composables/useActiveWorkspace"
+import { avatarKey } from "@shared/utils/functions"
+import { IconAvatar } from "@shared/utils/types"
 import { computed } from "vue"
 
 const { assistant, workspace } = useActiveWorkspace()

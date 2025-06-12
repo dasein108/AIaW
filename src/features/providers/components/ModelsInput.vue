@@ -21,10 +21,10 @@
 </template>
 
 <script setup lang="ts">
-import { useFilterOptions } from "src/composables/filter-options"
-import { useProvidersStore } from "@features/providers/store"
+import { useFilterOptions } from "@/shared/composables"
+import { useProvidersStore } from "@/stores/providers"
 import { toRef } from "vue"
-import ModelItem from "src/components/ModelItem.vue"
+import ModelItem from "@/features/providers/components/ModelItem.vue"
 
 const model = defineModel<string[]>()
 const providersStore = useProvidersStore()

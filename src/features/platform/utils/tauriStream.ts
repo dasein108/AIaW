@@ -8,7 +8,7 @@
 
 import { listen } from "@tauri-apps/api/event"
 import { invoke } from "@tauri-apps/api/core"
-import { IsTauri } from "@/utils/platform-api"
+import { IsTauri } from "@/shared/utils/platform-api"
 
 type ResponseEvent = {
   id: number

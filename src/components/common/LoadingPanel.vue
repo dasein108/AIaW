@@ -1,10 +1,7 @@
-<template>
-  <q-page bg-surface>
-    <q-card>
-      <q-card-section>
-        {{ $t("common.loading") }}
-      </q-card-section>
-    </q-card>
-  </q-page>
-</template>
-<script setup lang="ts"></script>
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the shared module.
+     TODO: Update all imports to reference @/shared/components/common/LoadingPanel.vue directly and remove this file. -->
+<script>
+import LoadingPanel from "@/shared/components/common/LoadingPanel.vue"
+export default LoadingPanel
+</script>

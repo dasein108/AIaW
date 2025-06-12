@@ -1,16 +1,5 @@
-import { storeToRefs } from "pinia"
-import { useUserStore } from "src/stores/user"
-import { computed, readonly, Ref } from "vue"
-import { useIsWorkspaceAdmin } from "../workspaces/useIsWorkspaceAdmin"
-import { ChatMapped } from "@/services/supabase/types"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the utils from its new location in the feature module.
+// TODO: Update all imports to reference @features/chats/composables/useIsChatAdmin directly and remove this file.
 
-export const useIsChatAdmin = (chat: Ref<ChatMapped>) => {
-  const { currentUserId } = storeToRefs(useUserStore())
-  const workspaceId = computed(() => chat.value?.workspace_id)
-  const { isAdmin: isWorkspaceAdmin } = useIsWorkspaceAdmin(workspaceId)
-  const isAdmin = computed(
-    () => isWorkspaceAdmin.value || chat.value?.owner_id === currentUserId.value
-  )
-
-  return { isAdmin: readonly(isAdmin) }
-}
+export { useIsChatAdmin } from "@features/chats/composables/useIsChatAdmin"

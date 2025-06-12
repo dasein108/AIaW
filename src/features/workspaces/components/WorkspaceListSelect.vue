@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRootWorkspace } from "@/composables/workspaces/useRootWorkspaces"
+import { useRootWorkspace } from "@features/workspaces/composables"
 import WorkspaceListItem from "./WorkspaceListItem.vue"
 
 defineProps<{

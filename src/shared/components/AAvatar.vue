@@ -35,7 +35,7 @@ import { useQuasar } from "quasar"
 import { hctToHex } from "@/utils/functions"
 import { Avatar } from "@/utils/types"
 import { computed } from "vue"
-import ImageAvatar from "@/components/ImageAvatar.vue"
+import ImageAvatar from "./avatar/ImageAvatar.vue"
 const props = defineProps<{
   avatar: Avatar
 }>()

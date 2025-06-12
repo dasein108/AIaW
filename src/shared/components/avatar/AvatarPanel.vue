@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { Avatar } from "@/utils/types"
 import { computed } from "vue"
-import AAvatar from "./AAvatar.vue"
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
 
 const props = defineProps<{
   title?: string

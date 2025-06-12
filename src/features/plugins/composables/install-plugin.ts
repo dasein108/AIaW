@@ -1,7 +1,7 @@
 import { Validator } from "@cfworker/json-schema"
 import { useQuasar } from "quasar"
 import { usePluginsStore } from "@features/plugins/store"
-import { fetch } from "@/utils/platform-api"
+import { fetch } from "@/shared/utils/platform-api"
 import {
   GradioPluginManifestSchema,
   HuggingPluginManifestSchema,

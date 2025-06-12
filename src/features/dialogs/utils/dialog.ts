@@ -1,5 +1,5 @@
 import { pickBy } from "lodash"
-import { getFileUrl } from "src/composables/storage/utils"
+import { getFileUrl } from "@/shared/composables/storage/utils"
 import { ToolResultContent } from "@/utils/types"
 import { MessageContentResult } from "@/services/supabase/types"
 

@@ -116,9 +116,9 @@
 
 <script setup>
 import { useQuasar } from "quasar"
-import AddDialogItem from "src/components/AddDialogItem.vue"
-import { useOpenLastWorkspace } from "src/composables/open-last-workspace"
-import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
+import AddDialogItem from "@features/dialogs/components/AddDialogItem.vue"
+import { useOpenLastWorkspace } from "@features/workspaces/composables/openLastWorkspace"
+import { useActiveWorkspace } from "@features/workspaces/composables/useActiveWorkspace"
 import { usePluginsStore } from "src/stores/plugins"
 import { useUiStateStore } from "src/stores/ui-state"
 import version from "src/version.json"

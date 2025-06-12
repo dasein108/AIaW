@@ -24,9 +24,9 @@
   </q-item>
 </template>
 <script setup lang="ts">
-import AAvatar from "@/components/AAvatar.vue"
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import WorkspaceNav from "@features/workspaces/components/WorkspaceNav.vue"
-import { useActiveWorkspace } from "@/composables/workspaces/useActiveWorkspace"
+import { useActiveWorkspace } from "@features/workspaces/composables/useActiveWorkspace"
 import { avatarKey } from "@/utils/functions"
 import { IconAvatar } from "@/utils/types"
 import { computed } from "vue"

@@ -1,57 +1,7 @@
-<template>
-  <q-dialog
-    ref="dialogRef"
-    @hide="onDialogHide"
-  >
-    <q-card min-w="320px">
-      <q-card-section>
-        <div class="text-h6">
-          {{
-            accept === "workspace"
-              ? $t("selectWorkspaceDialog.selectWorkspace")
-              : $t("selectWorkspaceDialog.selectFolder")
-          }}
-        </div>
-      </q-card-section>
-      <q-card-section p-0>
-        <workspace-list-select
-          v-model="selected"
-          :accept
-        />
-      </q-card-section>
-      <q-card-actions align="right">
-        <q-btn
-          flat
-          color="primary"
-          :label="$t('selectWorkspaceDialog.cancel')"
-          @click="onDialogCancel"
-        />
-        <q-btn
-          flat
-          color="primary"
-          :label="$t('selectWorkspaceDialog.confirm')"
-          :disable="!selected || exclude?.includes(selected)"
-          @click="onDialogOK(selected)"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-</template>
-
-<script setup lang="ts">
-import { useDialogPluginComponent } from "quasar"
-import { ref } from "vue"
-import WorkspaceListSelect from "./WorkspaceListSelect.vue"
-
-defineProps<{
-  accept: "workspace" | "folder"
-  exclude?: string[]
-}>()
-
-defineEmits([...useDialogPluginComponent.emits])
-
-const selected = ref<string>()
-
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent()
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the feature module.
+     TODO: Update all imports to reference @/features/workspaces/components/SelectWorkspaceDialog.vue directly and remove this file. -->
+<script>
+import SelectWorkspaceDialog from "@/features/workspaces/components/SelectWorkspaceDialog.vue";
+export default SelectWorkspaceDialog;
 </script>

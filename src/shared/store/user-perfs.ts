@@ -7,7 +7,7 @@ import {
   Provider,
   ShortcutKey,
 } from "@/utils/types"
-import { models } from "@/utils/values"
+import { models } from "@/shared/utils/values"
 import { watchEffect } from "vue"
 import { createUserDataStore } from "./utils/createUserDataStore"
 

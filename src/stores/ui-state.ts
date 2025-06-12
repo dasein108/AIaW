@@ -1,14 +1,5 @@
-import { defineStore } from "pinia"
-import { ref } from "vue"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the store from its new location in the shared module.
+// TODO: Update all imports to reference @/shared/store/ui-state directly and remove this file.
 
-export const useUiStateStore = defineStore("ui-state", () => {
-  const mainDrawerOpen = ref(false)
-
-  function toggleMainDrawer () {
-    mainDrawerOpen.value = !mainDrawerOpen.value
-  }
-  const colors = ref({})
-  const dialogScrollTops = ref<Record<string, number>>({})
-
-  return { mainDrawerOpen, toggleMainDrawer, colors, dialogScrollTops }
-})
+export * from "@/shared/store/ui-state"

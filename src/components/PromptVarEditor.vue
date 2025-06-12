@@ -1,35 +1,7 @@
-<template>
-  <div>
-    <prompt-var-item
-      v-for="(item, index) in model"
-      :key="item.id"
-      v-model="model[index]"
-      @remove="model.splice(index, 1)"
-      my-3
-    />
-    <q-btn
-      :label="$t('promptVarEditor.addVariable')"
-      icon="sym_o_add"
-      flat
-      w-full
-      text-sec
-      @click="add"
-    />
-  </div>
-</template>
-
-<script setup lang="ts">
-import { genId } from "src/utils/functions"
-import { PromptVar } from "src/utils/types"
-import PromptVarItem from "./PromptVarItem.vue"
-
-const model = defineModel<PromptVar[]>()
-
-function add () {
-  model.value.push({
-    id: genId(),
-    name: null,
-    type: "text",
-  })
-}
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the feature module.
+     TODO: Update all imports to reference @/features/prompt/components/PromptVarEditor.vue directly and remove this file. -->
+<script>
+import PromptVarEditor from "@/features/prompt/components/PromptVarEditor.vue"
+export default PromptVarEditor
 </script>

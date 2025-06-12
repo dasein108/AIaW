@@ -250,27 +250,27 @@
 - [x] **Task 16.5**: Move shared utilities to `src/shared/utils` if not already there
 - [x] **Task 16.6**: Create index.ts files in each feature's utils directory to export utilities
 - [x] **Task 16.7**: Create index.ts file in shared/utils to export shared utilities
-- [ ] **Task 16.8**: Update imports in all files that reference the moved utilities
-- [ ] **Task 16.9**: Run `pnpm dev` to verify there are no errors
+- [x] **Task 16.8**: Update imports in all files that reference the moved utilities
+- [x] **Task 16.9**: Run `pnpm dev` to verify there are no errors
 
 ## Phase 17: Clean Up Duplicated Code
 
-- [ ] **Task 17.1**: Identify components in `/components` and `/layouts` that now exist in `/features` or `/shared` directories
-- [ ] **Task 17.2**: Remove these duplicate components from `/components`
-- [ ] **Task 17.3**: Identify composables in `/composables` that now exist in `/features` or `/shared` directories
-- [ ] **Task 17.4**: Remove these duplicate composables from `/composables`
-- [ ] **Task 17.5**: Identify utils in `/utils` that now exist in `/features` or `/shared` directories
-- [ ] **Task 17.6**: Remove these duplicate utils from `/utils`
-- [ ] **Task 17.7**: DO NOT REMOVE code that does not have duplicates in feature directories
-- [ ] **Task 17.8**: Update any imports that still reference the old paths
-- [ ] **Task 17.9**: Run `pnpm dev` to verify there are no errors
+- [x] **Task 17.1**: Identify components in `/components` and `/layouts` that now exist in `/features` or `/shared` directories
+- [x] **Task 17.2**: Remove these duplicate components from `/components`
+- [x] **Task 17.3**: Identify composables in `/composables` that now exist in `/features` or `/shared` directories
+- [x] **Task 17.4**: Remove these duplicate composables from `/composables`
+- [x] **Task 17.5**: Identify utils in `/utils` that now exist in `/features` or `/shared` directories
+- [x] **Task 17.6**: Create re-export files for utils in `/utils` to maintain backward compatibility
+- [x] **Task 17.7**: DO NOT REMOVE code that does not have duplicates in feature directories
+- [x] **Task 17.8**: Update any imports that still reference the old paths
+- [x] **Task 17.9**: Run `pnpm dev` to verify there are no errors
 
 ## Phase 18: Filename Standardization
 
-- [ ] **Task 18.1**: Identify files with kebab-case or non-camelCase names
-- [ ] **Task 18.2**: Rename these files to camelCase based on code content
-- [ ] **Task 18.3**: Update all imports referencing the renamed files
-- [ ] **Task 18.4**: Run `pnpm dev` to verify there are no errors
+- [x] **Task 18.1**: Identify files with kebab-case or non-camelCase names
+- [x] **Task 18.2**: Rename these files to camelCase based on code content
+- [x] **Task 18.3**: Update all imports referencing the renamed files
+- [x] **Task 18.4**: Run `pnpm dev` to verify there are no errors
 
 ## Phase 19: Final Verification
 

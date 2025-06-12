@@ -1,4 +1,4 @@
-import { ShortcutKey } from "src/utils/types"
+import { ShortcutKey } from "@shared/utils/types"
 import { onActivated, onDeactivated, onMounted, onUnmounted, Ref } from "vue"
 
 export function useListenKey (

@@ -5,9 +5,9 @@ import { useUserDataStore } from "@/stores/user-data"
 import { useUserPerfsStore } from "@/stores/user-perfs"
 import { useWorkspacesStore } from "@features/workspaces/store"
 import { defaultAvatar } from "@/utils/functions"
-import { dialogOptions } from "@/utils/values"
+import { dialogOptions } from "@/shared/utils/values"
 import { useI18n } from "vue-i18n"
-import { useCheckLogin } from "@/composables/auth/useCheckLogin"
+import { useCheckLogin } from "@/features/auth/composables"
 
 export function useWorkspaceActions () {
   const workspacesStore = useWorkspacesStore()

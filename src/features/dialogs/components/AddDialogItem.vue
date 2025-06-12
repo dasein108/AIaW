@@ -32,8 +32,8 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
 import { useCheckLogin } from "@features/auth/composables/useCheckLogin"
-import { useCreateDialog } from "@/composables/create-dialog"
-import { useListenKey } from "@/composables/listen-key"
+import { useCreateDialog } from "../composables"
+import { useListenKey } from "@/shared/composables"
 import { useUserPerfsStore } from "@/stores/user-perfs"
 import { isPlatformEnabled } from "@/utils/functions"
 import { toRef } from "vue"

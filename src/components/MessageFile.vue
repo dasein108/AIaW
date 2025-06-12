@@ -1,47 +1,7 @@
-<template>
-  <q-chip
-    :label="file.name"
-    :removable
-    :icon
-    icon-remove="sym_o_close"
-    @remove="$emit('remove')"
-    @click="viewFile"
-    clickable
-  />
-</template>
-
-<script setup lang="ts">
-import { useQuasar } from "quasar"
-import { codeExtensions } from "src/utils/values"
-import { computed } from "vue"
-import ViewFileDialog from "./ViewFileDialog.vue"
-import { StoredItemMapped } from "@/services/supabase/types"
-
-const props = defineProps<{
-  file: StoredItemMapped
-  removable?: boolean
-}>()
-
-defineEmits(["remove"])
-
-const $q = useQuasar()
-
-function viewFile () {
-  $q.dialog({
-    component: ViewFileDialog,
-    componentProps: {
-      file: props.file,
-    },
-  })
-}
-
-const icon = computed(() => {
-  const ext = props.file.name.split(".").pop()
-
-  if (codeExtensions.includes(ext)) {
-    return "sym_o_code"
-  }
-
-  return "sym_o_description"
-})
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the feature module.
+     TODO: Update all imports to reference @/features/media/components/MessageFile.vue directly and remove this file. -->
+<script>
+import MessageFile from "@/features/media/components/MessageFile.vue"
+export default MessageFile
 </script>

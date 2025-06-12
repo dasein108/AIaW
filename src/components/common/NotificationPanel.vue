@@ -1,18 +1,7 @@
-<template>
-  <q-page>
-    <q-card>
-      <q-card-section
-        :class="{ 'bg-red': warning, 'bg-grey-3': !warning, 'shadow-1': true }"
-      >
-        {{ title }}
-      </q-card-section>
-    </q-card>
-  </q-page>
-</template>
-
-<script setup lang="ts">
-defineProps<{
-  title: string
-  warning?: boolean
-}>()
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the shared module.
+     TODO: Update all imports to reference @/shared/components/common/NotificationPanel.vue directly and remove this file. -->
+<script>
+import NotificationPanel from "@/shared/components/common/NotificationPanel.vue"
+export default NotificationPanel
 </script>

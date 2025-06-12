@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import AssistantsExpansion from "src/components/AssistantsExpansion.vue"
+import AssistantsExpansion from "@features/assistants/components/AssistantsExpansion.vue"
 import { computed, provide, ref } from "vue"
 
 const drawerOpen = ref(false)

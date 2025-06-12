@@ -1,20 +1,5 @@
-import { storeToRefs } from "pinia"
-import { useUserStore } from "src/stores/user"
-import { watch } from "vue"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the utils from its new location in the feature module.
+// TODO: Update all imports to reference @features/auth/composables/useUserLoginCallback directly and remove this file.
 
-export function useUserLoginCallback (onLogin: () => Promise<void>) {
-  const { isInitialized, currentUserId } = storeToRefs(useUserStore())
-
-  watch(
-    () => [currentUserId.value, isInitialized.value],
-    ([newId, newInit], old) => {
-      const [oldId] = old ?? []
-
-      if (newId !== oldId || !oldId) {
-        if (newInit) {
-          onLogin()
-        }
-      }
-    }
-  )
-}
+export { useUserLoginCallback } from "@features/auth/composables/useUserLoginCallback"

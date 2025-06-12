@@ -1,11 +1,11 @@
 import { useQuasar } from "quasar"
-import SaveDialog from "src/components/SaveDialog.vue"
-import { useArtifactsStore } from "@features/artifacts/store"
-import { useUserDataStore } from "src/stores/user-data"
+import SaveDialog from "@/components/SaveDialog.vue"
+import { useArtifactsStore } from "@/features/artifacts/store"
+import { useUserDataStore } from "@/shared/store/user-data"
 import {
   restoreArtifactChanges,
   saveArtifactChanges,
-} from "src/utils/functions"
+} from "@/shared/utils/functions"
 import { ArtifactMapped } from "@/services/supabase/types"
 
 export function useCloseArtifact () {

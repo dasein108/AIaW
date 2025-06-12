@@ -88,20 +88,20 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import AAvatar from "@shared/components/AAvatar.vue"
-import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
-import ProviderInputItems from "@features/providers/components/ProviderInputItems.vue"
-import SubproviderInput from "@features/providers/components/SubproviderInput.vue"
-import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { useSetTitle } from "src/composables/set-title"
-import { syncRef } from "src/composables/sync-ref"
-import ErrorNotFound from "src/pages/ErrorNotFound.vue"
+import AAvatar from "@/shared/components/avatar/AAvatar.vue"
+import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
+import ProviderInputItems from "@/features/providers/components/ProviderInputItems.vue"
+import SubproviderInput from "@/features/providers/components/SubproviderInput.vue"
+import ViewCommonHeader from "@/components/ViewCommonHeader.vue"
+import { useSetTitle } from "@/shared/composables/set-title"
+import { syncRef } from "@/shared/composables/sync-ref"
+import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 import {
   CustomProviderMapped,
   SubproviderMapped,
 } from "@/services/supabase/types"
-import { useProvidersStore } from "@features/providers/store"
-import { pageFhStyle } from "src/utils/functions"
+import { useProvidersStore } from "@/features/providers/store"
+import { pageFhStyle } from "@/shared/utils/functions"
 import { computed, toRaw } from "vue"
 import { useI18n } from "vue-i18n"
 

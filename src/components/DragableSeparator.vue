@@ -1,40 +1,7 @@
-<template>
-  <div
-    cursor-ew-resize
-    @mousedown="onMounseDown"
-  />
-</template>
-
-<script setup lang="ts">
-const props = defineProps<{
-  reverse?: boolean
-  min?: number
-  max?: number
-}>()
-const model = defineModel<number>()
-
-function onMounseDown (ev: MouseEvent) {
-  const initial = model.value
-  const startX = ev.clientX
-
-  function onMouseMove (ev: MouseEvent) {
-    const delta = ev.clientX - startX
-    let res = initial + (props.reverse ? -delta : delta)
-    const { min = -Infinity, max = Infinity } = props
-
-    if (res < min) res = min
-
-    if (res > max) res = max
-
-    model.value = res
-  }
-  addEventListener("mousemove", onMouseMove)
-  addEventListener(
-    "mouseup",
-    () => {
-      removeEventListener("mousemove", onMouseMove)
-    },
-    { once: true }
-  )
-}
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the shared module.
+     TODO: Update all imports to reference @/shared/components/ui/DragableSeparator.vue directly and remove this file. -->
+<script>
+import DragableSeparator from "@/shared/components/ui/DragableSeparator.vue"
+export default DragableSeparator
 </script>

@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { AssistantMapped } from "@/services/supabase/types"
-import AAvatar from "@/components/AAvatar.vue"
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
 
 defineProps<{
   assistant?: AssistantMapped

@@ -1,6 +1,6 @@
 import { useQuasar } from "quasar"
 import { ref, watch } from "vue"
-import { useUserPerfsStore } from "src/stores/user-perfs"
+import { useUserPerfsStore } from "@/shared/store/user-perfs"
 
 export function useSetTheme () {
   const $q = useQuasar()

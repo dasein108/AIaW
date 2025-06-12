@@ -65,7 +65,7 @@ import { useAssistantsStore } from "@features/assistants/store"
 import { usePluginsStore } from "@features/plugins/store"
 import { AssistantPlugin, Plugin } from "@/utils/types"
 import { toRaw } from "vue"
-import AAvatar from "@/components/AAvatar.vue"
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import PluginTypeBadge from "@features/plugins/components/PluginTypeBadge.vue"
 import { AssistantMapped } from "@/services/supabase/types"
 

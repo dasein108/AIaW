@@ -1,36 +1,5 @@
-import { createUserDataStore } from "./createUserDataStore"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the store from its new location in the shared module.
+// TODO: Update all imports to reference @/shared/store/user-data directly and remove this file.
 
-export type ListOpen = {
-  assistants: boolean
-  artifacts: boolean
-  dialogs: boolean
-  chats: boolean
-}
-
-interface UserData {
-  lastWorkspaceId: string
-  noobAlertDismissed: boolean
-  lastDialogIds: Record<string, string>
-  defaultAssistantIds: Record<string, string>
-  openedArtifacts: string[]
-  listOpen: Record<string, ListOpen>
-  tipDismissed: Record<string, boolean>
-  prodExpiredNotifiedTimestamp: number
-  evalExpiredNotified: boolean
-}
-
-const defaultUserData: UserData = {
-  lastWorkspaceId: null,
-  noobAlertDismissed: false,
-  tipDismissed: {},
-  lastDialogIds: {},
-  defaultAssistantIds: {},
-  prodExpiredNotifiedTimestamp: null,
-  evalExpiredNotified: false,
-  listOpen: {},
-  openedArtifacts: [],
-}
-
-export const useUserDataStore = () => {
-  return createUserDataStore<UserData>("user-data", defaultUserData)()
-}
+export * from "@/shared/store/user-data"

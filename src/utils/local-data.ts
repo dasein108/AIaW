@@ -1,17 +1,5 @@
-import { localReactive } from "src/composables/local-reactive"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the utils from its new location in the shared module.
+// TODO: Update all imports to reference @/shared/utils/localData directly and remove this file.
 
-interface LocalData {
-  lastReloadTimestamp: number | null
-  visited: boolean
-  language: "en-US" | "zh-CN" | "zh-TW" | null
-  ignoredUpdate: string
-}
-
-const localData = localReactive<LocalData>("local-data", {
-  lastReloadTimestamp: null,
-  visited: false,
-  language: null,
-  ignoredUpdate: null,
-})
-
-export { localData }
+export { localData } from "@/shared/utils/localData"

@@ -8,7 +8,7 @@ import {
 } from "@sinclair/typebox"
 import { i18n } from "@/boot/i18n"
 import { SearxngBaseURL } from "@/utils/config"
-import { fetch } from "@/utils/platform-api"
+import { fetch } from "@/shared/utils/platform-api"
 import { Plugin, PluginData } from "@/utils/types"
 
 const { t } = i18n.global

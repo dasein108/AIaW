@@ -36,8 +36,8 @@
 
 <script setup lang="ts">
 import ChatList from "@features/chats/components/ChatList.vue"
-import DialogList from "src/components/DialogList.vue"
-import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
+import DialogList from "@features/dialogs/components/DialogList.vue"
+import { useActiveWorkspace } from "@features/workspaces/composables/useActiveWorkspace"
 import { computed, ref } from "vue"
 
 const { workspace } = useActiveWorkspace()

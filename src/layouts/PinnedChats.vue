@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
-import AAvatar from "src/components/AAvatar.vue"
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import { useChatsStore } from "src/stores/chats"
 import { useWorkspacesStore } from "src/stores/workspaces"
 import { computed } from "vue"

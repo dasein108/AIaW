@@ -1,53 +1,7 @@
-<template>
-  <q-header
-    bg-sur-c-low
-    text-on-sur
-  >
-    <q-toolbar>
-      <q-btn
-        v-if="backTo"
-        flat
-        dense
-        round
-        icon="sym_o_arrow_back"
-        @click="back"
-      />
-      <q-btn
-        v-else
-        flat
-        dense
-        round
-        icon="sym_o_menu"
-        @click="uiStore.toggleMainDrawer"
-      />
-      <slot />
-      <q-btn
-        v-if="!noDrawer"
-        flat
-        dense
-        round
-        icon="sym_o_segment"
-        @click="$emit('toggle-drawer')"
-        @contextmenu.prevent="$emit('contextmenu')"
-      />
-      <settings-area />
-    </q-toolbar>
-  </q-header>
-</template>
-
-<script setup lang="ts">
-import { useBack } from "src/composables/back"
-import SettingsArea from "src/layouts/SettingsArea.vue"
-import { useUiStateStore } from "src/stores/ui-state"
-
-const uiStore = useUiStateStore()
-
-defineEmits(["toggle-drawer", "contextmenu"])
-
-const props = defineProps<{
-  backTo?: string
-  noDrawer?: boolean
-}>()
-const back = useBack(props.backTo)
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the shared module.
+     TODO: Update all imports to reference @/shared/components/ui/ViewCommonHeader.vue directly and remove this file. -->
+<script>
+import ViewCommonHeader from "@/shared/components/ui/ViewCommonHeader.vue"
+export default ViewCommonHeader
 </script>
-<style scoped></style>

@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
-import AAvatar from "src/components/AAvatar.vue"
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import { DialogMapped } from "src/services/supabase/types"
 import { useDialogsStore } from "@features/dialogs/store/dialogs"
 import { useWorkspacesStore } from "src/stores/workspaces"

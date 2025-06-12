@@ -6,13 +6,13 @@ import {
   CustomProviderMapped,
   SubproviderMapped,
 } from "@/services/supabase/types"
-import { removeDuplicates } from "src/utils/functions"
-import { ProviderType, Provider, Avatar } from "src/utils/types"
+import { removeDuplicates } from "@shared/utils/functions"
+import { ProviderType, Provider, Avatar } from "@shared/utils/types"
 
 import {
   modelOptions as baseModelOptions,
   ProviderTypes,
-} from "src/utils/values"
+} from "@/shared/utils/values"
 import { computed, reactive } from "vue"
 import { useI18n } from "vue-i18n"
 

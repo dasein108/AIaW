@@ -72,8 +72,8 @@
 
 <script setup lang="ts">
 import { useProvidersStore } from "src/stores/providers"
-import { Model } from "src/utils/types"
-import { InputTypes, models } from "src/utils/values"
+import { Model } from "@shared/utils/types"
+import { InputTypes, models } from "@/shared/utils/values"
 import AutocompleteInput from "./AutocompleteInput.vue"
 import ListInput from "./ListInput.vue"
 import ModelItem from "./ModelItem.vue"

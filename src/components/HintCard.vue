@@ -1,22 +1,7 @@
-<template>
-  <div
-    w="175px"
-    mx-a
-  >
-    <img
-      :src="imgUrl"
-      w-full
-      h-a
-    >
-    <div text="on-sur-var center">
-      {{ message }}
-    </div>
-  </div>
-</template>
-
-<script setup lang="ts">
-defineProps<{
-  imgUrl: string
-  message: string
-}>()
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the shared module.
+     TODO: Update all imports to reference @/shared/components/ui/HintCard.vue directly and remove this file. -->
+<script>
+import HintCard from "@/shared/components/ui/HintCard.vue"
+export default HintCard
 </script>

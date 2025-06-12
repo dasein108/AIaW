@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { ShortcutKey } from "src/utils/types"
+import { ShortcutKey } from "@shared/utils/types"
 import { computed } from "vue"
 
 const model = defineModel<ShortcutKey>()

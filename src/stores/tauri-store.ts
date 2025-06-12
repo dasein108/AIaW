@@ -1,21 +1,5 @@
-import { Store } from "@tauri-apps/plugin-store"
-import { IsTauri } from "src/utils/platform-api"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the store from its new location in the shared module.
+// TODO: Update all imports to reference @/shared/store/tauri-store directly and remove this file.
 
-const store = IsTauri ? await Store.load("settings.json") : null
-
-export async function saveMnemonic (mnemonic: string) {
-  await store.set("mnemonic", mnemonic)
-  await store.save()
-}
-
-export async function getMnemonic (): Promise<string | null> {
-  console.log("getMnemonic")
-  const mnemonic = await store.get("mnemonic")
-
-  return (mnemonic as string) || null
-}
-
-export async function removeMnemonic () {
-  await store.delete("mnemonic")
-  await store.save()
-}
+export * from "@/shared/store/tauri-store"

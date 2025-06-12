@@ -84,14 +84,14 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import AAvatar from "src/components/AAvatar.vue"
-import PickAvatarDialog from "src/components/PickAvatarDialog.vue"
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
+import PickAvatarDialog from "@shared/components/avatar/PickAvatarDialog.vue"
 import ViewCommonHeader from "src/components/ViewCommonHeader.vue"
-import { useAuth } from "src/composables/auth/useAuth"
-import { syncRef } from "src/composables/sync-ref"
+import { useAuth } from "@features/auth/composables/useAuth"
+import { syncRef } from "@/shared/composables/sync-ref"
 import { useProfileStore } from "@features/profile/store"
 import { useUserStore } from "src/stores/user"
-import { pageFhStyle } from "src/utils/functions"
+import { pageFhStyle } from "@shared/utils/functions"
 import { computed, ref, toRaw, toRefs } from "vue"
 import { useRouter } from "vue-router"
 

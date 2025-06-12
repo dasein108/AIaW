@@ -1,35 +1,6 @@
-import { genId } from "./functions"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the utils from its new location in the shared module.
+// TODO: Update all imports to reference @/shared/utils/sessions directly and remove this file.
 
-const id = genId()
-const channel = new BroadcastChannel("sessions")
-
-channel.addEventListener("message", ({ data }) => {
-  if (data.type === "ping") {
-    channel.postMessage({ sessionId: id, type: "pong" })
-  }
-})
-
-function ping (sessionId: string) {
-  return new Promise<boolean>((resolve) => {
-    if (sessionId === id) {
-      resolve(true)
-
-      return
-    }
-
-    channel.postMessage({ sessionId, type: "ping" })
-    const timeout = setTimeout(() => {
-      channel.removeEventListener("message", listener)
-      resolve(false)
-    }, 50)
-    const listener = ({ data }) => {
-      if (data.type === "pong" && data.sessionId === sessionId) {
-        clearTimeout(timeout)
-        resolve(true)
-      }
-    }
-    channel.addEventListener("message", listener, { once: true })
-  })
-}
-
-export default { id, ping }
+import sessions from "@/shared/utils/sessions"
+export default sessions

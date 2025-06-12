@@ -1,26 +1,5 @@
-import { CorsFetchBaseURL } from "./config"
-import { fetch, IsCapacitor, IsTauri } from "./platform-api"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the utils from its new location in the shared module.
+// TODO: Update all imports to reference @/shared/utils/corsFetch directly and remove this file.
 
-export async function corsFetch (
-  url: string,
-  { method = "GET", headers = {}, body }
-) {
-  if (IsCapacitor || IsTauri) return fetch(url, { method, headers, body })
-
-  if (!CorsFetchBaseURL) throw new Error("当前部署配置不支持跨域请求")
-
-  const response = await fetch(`${CorsFetchBaseURL}/proxy`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      method,
-      url,
-      headers,
-      body,
-    }),
-  })
-
-  return response
-}
+export { corsFetch } from "@/shared/utils/corsFetch"

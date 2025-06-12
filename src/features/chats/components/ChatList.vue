@@ -54,11 +54,11 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useListenKey } from "src/composables/listen-key"
+import { useListenKey } from "@/shared/composables"
 import { useChatsStore } from "src/stores/chats"
 import { useUserStore } from "src/stores/user"
 import { useUserPerfsStore } from "src/stores/user-perfs"
-import { isPlatformEnabled } from "src/utils/functions"
+import { isPlatformEnabled } from "@shared/utils/functions"
 import { ref, toRef } from "vue"
 import { useRouter } from "vue-router"
 import { useWorkspaceChats } from "@features/chats/composables/useWorkspaceChats"

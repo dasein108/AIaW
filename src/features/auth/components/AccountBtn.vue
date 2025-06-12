@@ -26,7 +26,7 @@ import { useQuasar } from "quasar"
 import { useProfileStore } from "@features/profile/store"
 import { useUserStore } from "src/stores/user"
 import { useRouter, useRoute } from "vue-router"
-import AAvatar from "@/components/AAvatar.vue"
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import AuthDialog from "@features/auth/components/AuthDialog.vue"
 
 const $q = useQuasar()

@@ -5,7 +5,7 @@ import { i18n } from "src/boot/i18n"
 import { version } from "src/version.json"
 import { JSONEqual } from "@/utils/functions"
 import { SSEClientTransport } from "./mcpSseTransport"
-import { fetch } from "@/utils/platform-api"
+import { fetch } from "@/shared/utils/platform-api"
 import { TauriShellClientTransport } from "@/utils/tauri-shell-transport"
 import { TransportConf } from "@/utils/types"
 

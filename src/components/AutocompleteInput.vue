@@ -1,36 +1,7 @@
-<template>
-  <q-select
-    :model-value="model"
-    @input-value="model = $event"
-    :options="filteredOptions"
-    @filter="filterFn"
-    use-input
-    hide-selected
-    fill-input
-    hide-dropdown-icon
-    :input-debounce="0"
-  >
-    <template
-      v-if="$slots.option"
-      #option="slot"
-    >
-      <slot
-        name="option"
-        v-bind="slot"
-      />
-    </template>
-  </q-select>
-</template>
-
-<script setup lang="ts">
-import { useFilterOptions } from "src/composables/filter-options"
-import { toRef } from "vue"
-
-const props = defineProps<{
-  options: string[]
-}>()
-
-const model = defineModel<string>()
-
-const { filteredOptions, filterFn } = useFilterOptions(toRef(props, "options"))
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the shared module.
+     TODO: Update all imports to reference @/shared/components/input/AutocompleteInput.vue directly and remove this file. -->
+<script>
+import AutocompleteInput from "@/shared/components/input/AutocompleteInput.vue"
+export default AutocompleteInput
 </script>

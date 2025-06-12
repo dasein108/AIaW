@@ -13,9 +13,9 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useInstallPlugin } from "src/composables/install-plugin"
-import { usePluginsStore } from "src/stores/plugins"
-import { PluginManifest } from "src/utils/types"
+import { useInstallPlugin } from "@/features/plugins/composables"
+import { usePluginsStore } from "@/stores/plugins"
+import { PluginManifest } from "@shared/utils/types"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 

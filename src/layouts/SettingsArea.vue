@@ -121,11 +121,11 @@
 
 <script setup>
 import { storeToRefs } from "pinia"
-import AccountBtn from "src/components/AccountBtn.vue"
-import DarkSwitchBtn from "src/components/DarkSwitchBtn.vue"
-import MenuItem from "src/components/MenuItem.vue"
-import { useUserStore } from "src/stores/user"
-import { IsWeb } from "src/utils/platform-api"
+import AccountBtn from "@features/auth/components/AccountBtn.vue"
+import DarkSwitchBtn from "@/shared/components/ui/DarkSwitchBtn.vue"
+import MenuItem from "@shared/components/MenuItem.vue"
+import { useUserStore } from "@/shared/store/user"
+import { IsWeb } from "@/shared/utils/platform-api"
 import { useI18n } from "vue-i18n"
 
 const { isLoggedIn } = storeToRefs(useUserStore())

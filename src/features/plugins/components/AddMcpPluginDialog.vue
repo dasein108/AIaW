@@ -169,11 +169,11 @@ import { useDialogPluginComponent, useQuasar } from "quasar"
 import VarsInput from "@/components/VarsInput.vue"
 import { useInstallPlugin } from "@features/plugins/composables/install-plugin"
 import { hash53 } from "@/utils/functions"
-import { IsTauri } from "@/utils/platform-api"
+import { IsTauri } from "@/shared/utils/platform-api"
 import { McpPluginManifest } from "@/utils/types"
 import { computed, reactive, ref, toRaw } from "vue"
 import { useI18n } from "vue-i18n"
-import ATip from "@/components/ATip.vue"
+import ATip from "@shared/components/ATip.vue"
 
 const { t } = useI18n()
 

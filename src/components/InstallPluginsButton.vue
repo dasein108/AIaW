@@ -50,10 +50,10 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { clipboardReadText } from "src/utils/platform-api"
+import { clipboardReadText } from "@/shared/utils/platform-api"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
-import AddMcpPluginDialog from "./AddMcpPluginDialog.vue"
+import AddMcpPluginDialog from "@features/plugins/components/AddMcpPluginDialog.vue"
 
 const emit = defineEmits(["plugin-installed"])
 const $q = useQuasar()

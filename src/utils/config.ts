@@ -1,10 +1,5 @@
-export const MaxMessageFileSizeMB = parseFloat(
-  process.env.MAX_MESSAGE_FILE_SIZE_MB || "20"
-)
-export const DocParseBaseURL = process.env.DOC_PARSE_BASE_URL
-export const CorsFetchBaseURL = process.env.CORS_FETCH_BASE_URL
-export const UsdToCnyRate =
-  process.env.USD_TO_CNY_RATE && parseFloat(process.env.USD_TO_CNY_RATE)
-export const StripeFee =
-  process.env.STRIPE_FEE && parseFloat(process.env.STRIPE_FEE)
-export const SearxngBaseURL = process.env.SEARXNG_BASE_URL
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the utils from its new location in the shared module.
+// TODO: Update all imports to reference @/shared/utils/config directly and remove this file.
+
+export * from "@/shared/utils/config"

@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import { useProvidersStore } from "@features/providers/store"
-import { Provider } from "src/utils/types"
+import { Provider } from "@shared/utils/types"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 

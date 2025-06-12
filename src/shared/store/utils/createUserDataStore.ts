@@ -2,7 +2,7 @@
 
 import { isEqual, throttle, cloneDeep } from "lodash"
 import { defineStore } from "pinia"
-import { useUserLoginCallback } from "@features/auth/composables/useUserLoginCallback"
+import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import { supabase } from "@/services/supabase/client"
 import { CODE_NO_RECORD_FOUND } from "@/services/supabase/consts"
 import { reactive, ref, watch } from "vue"

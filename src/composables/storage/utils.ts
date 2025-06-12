@@ -1,11 +1,5 @@
-export const AVATAR_BUCKET = "avatar.images"
-export const FILES_BUCKET = "files"
-export const BASE_URL = `${process.env.SUPABASE_URL}/storage/v1/object/public/`
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the utils from its new location in the shared module.
+// TODO: Update all imports to reference @/shared/composables/storage/utils directly and remove this file.
 
-export const getAvatarUrl = (id: string) => {
-  return `${BASE_URL}${AVATAR_BUCKET}/${id}`
-}
-
-export const getFileUrl = (id: string) => {
-  return `${BASE_URL}${FILES_BUCKET}/${id}`
-}
+export * from "@/shared/composables/storage/utils"

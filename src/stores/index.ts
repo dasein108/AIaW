@@ -1,32 +1,5 @@
-import { createPinia } from "pinia"
-import { store } from "quasar/wrappers"
-import { Router } from "vue-router"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the store creation function from its new location in the shared module.
+// TODO: Update all imports to reference @/shared/store directly and remove this file.
 
-/*
- * When adding new properties to stores, you should also
- * extend the `PiniaCustomProperties` interface.
- * @see https://pinia.vuejs.org/core-concepts/plugins.html#typing-new-store-properties
- */
-declare module "pinia" {
-  export interface PiniaCustomProperties {
-    readonly router: Router
-  }
-}
-
-/*
- * If not building with SSR mode, you can
- * directly export the Store instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Store instance.
- */
-
-export default store((/* { ssrContext } */) => {
-  const pinia = createPinia()
-
-  // You can add Pinia plugins here
-  // pinia.use(SomePiniaPlugin)
-
-  return pinia
-})
+export { default } from "@/shared/store"

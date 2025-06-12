@@ -1,26 +1,7 @@
-<template>
-  <q-dialog
-    ref="dialogRef"
-    @hide="onDialogHide"
-    maximized
-  >
-    <img
-      :src="url"
-      object-contain
-      max-w-100vw
-      max-h-100vh
-    >
-  </q-dialog>
-</template>
-
-<script setup lang="ts">
-import { useDialogPluginComponent } from "quasar"
-
-defineProps<{
-  url: string
-}>()
-
-defineEmits([...useDialogPluginComponent.emits])
-
-const { dialogRef, onDialogHide } = useDialogPluginComponent()
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the feature module.
+     TODO: Update all imports to reference @/features/media/components/ViewImageDialog.vue directly and remove this file. -->
+<script>
+import ViewImageDialog from "@/features/media/components/ViewImageDialog.vue"
+export default ViewImageDialog
 </script>

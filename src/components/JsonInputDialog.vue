@@ -1,61 +1,7 @@
-<template>
-  <q-dialog
-    ref="dialogRef"
-    @hide="onDialogHide"
-  >
-    <q-card style="width: min(90vw, 500px)">
-      <q-card-section>
-        <div class="text-h6">
-          {{ title }}
-        </div>
-      </q-card-section>
-      <q-card-section px-0>
-        <json-input
-          :schema
-          v-model="value"
-          component="item"
-          :input-props="{ filled: false }"
-        />
-      </q-card-section>
-      <q-card-actions align="right">
-        <q-btn
-          flat
-          color="primary"
-          :label="$t('jsonInputDialog.cancel')"
-          @click="onDialogCancel"
-        />
-        <q-btn
-          flat
-          color="primary"
-          :label="$t('jsonInputDialog.ok')"
-          :disable="!valid"
-          @click="onDialogOK(value)"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-</template>
-
-<script setup lang="ts">
-import { Schema, Validator } from "@cfworker/json-schema"
-import { PluginSchema } from "@lobehub/chat-plugin-sdk"
-import { useDialogPluginComponent } from "quasar"
-import { computed, ref } from "vue"
-import JsonInput from "./JsonInput.vue"
-
-const props = defineProps<{
-  title: string
-  schema: PluginSchema
-  model: Record<string, any>
-}>()
-
-const value = ref(props.model)
-const valid = computed(
-  () => new Validator(props.schema as Schema).validate(value.value).valid
-)
-
-defineEmits([...useDialogPluginComponent.emits])
-
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
-  useDialogPluginComponent()
+<!-- This file is being kept for backward compatibility during the refactoring process.
+     It re-exports the component from its new location in the shared module.
+     TODO: Update all imports to reference @/shared/components/dialog/JsonInputDialog.vue directly and remove this file. -->
+<script>
+import JsonInputDialog from "@/shared/components/dialog/JsonInputDialog.vue"
+export default JsonInputDialog
 </script>

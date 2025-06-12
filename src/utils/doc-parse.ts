@@ -1,43 +1,6 @@
-import { DocParseBaseURL } from "./config"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the utils from its new location in the features/artifacts module.
+// TODO: Update all imports to reference @/features/artifacts/utils/docParse directly and remove this file.
 
-interface ParsedDoc {
-  meta: Record<string, any>
-  text: string
-}
-
-interface ParseResult {
-  success: boolean
-  content?: ParsedDoc[]
-}
-
-async function parseDoc (file: Blob, { language, targetPages }) {
-  try {
-    const formData = new FormData()
-    formData.append("file", file)
-    language && formData.append("language", language)
-    targetPages && formData.append("target_pages", targetPages)
-
-    const response = await fetch(`${DocParseBaseURL}/parse`, {
-      method: "POST",
-      body: formData,
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-
-    const data: ParseResult = await response.json()
-
-    if (!data.success) {
-      throw new Error("Failed to parse document")
-    }
-
-    return data.content
-  } catch (error) {
-    console.error("Error parsing document:", error)
-    throw error
-  }
-}
-
-export { parseDoc }
-export type { ParsedDoc }
+export { parseDoc } from "@/features/artifacts/utils/docParse"
+export type { ParsedDoc } from "@/features/artifacts/utils/docParse"
