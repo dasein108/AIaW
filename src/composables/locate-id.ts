@@ -1,16 +1,5 @@
-import { until } from "@vueuse/core"
-import { onMounted, Ref } from "vue"
-import { useRoute } from "vue-router"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the composable from its new location in the shared module.
+// TODO: Update all imports to reference @shared/composables/locate-id directly and remove this file.
 
-function useLocateId (ready: Ref<unknown>) {
-  const route = useRoute()
-  onMounted(() => {
-    until(ready)
-      .toBeTruthy()
-      .then(() => {
-        route.hash && document.querySelector(route.hash)?.scrollIntoView()
-      })
-  })
-}
-
-export { useLocateId }
+export { useLocateId } from "@shared/composables/locate-id"

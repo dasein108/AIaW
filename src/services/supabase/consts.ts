@@ -1,1 +1,2 @@
-export const CODE_NO_RECORD_FOUND = "PGRST116"
+// Re-export for backward compatibility
+export * from "@services/data/supabase/consts"

@@ -1,61 +1,8 @@
-<template>
-  <q-avatar
-    v-if="avatar?.type === 'text'"
-    :style
-  >
-    {{ avatar.text }}
-  </q-avatar>
-  <image-avatar
-    v-else-if="avatar?.type === 'image'"
-    :id="avatar.imageId"
-    :style
-  />
-  <q-avatar
-    v-else-if="avatar?.type === 'icon'"
-    :icon="avatar.icon"
-    :style
-    :font-size
-  />
-  <q-avatar
-    v-else-if="avatar?.type === 'url'"
-    :style
-  >
-    <img :src="avatar.url">
-  </q-avatar>
-  <q-avatar
-    v-else-if="avatar?.type === 'svg'"
-    :icon="`svguse:/svg/${avatar.name}.svg#icon`"
-    :style
-    :font-size
-  />
-</template>
+<!-- This file is being kept for backward compatibility during the refactoring process. -->
+<!-- It re-exports the component from its new location in the shared module. -->
+<!-- TODO: Update all imports to reference @shared/components/AAvatar directly and remove this file. -->
 
-<script setup lang="ts">
-import { useQuasar } from "quasar"
-import { hctToHex } from "src/utils/functions"
-import { Avatar } from "src/utils/types"
-import { computed } from "vue"
-import ImageAvatar from "./ImageAvatar.vue"
-const props = defineProps<{
-  avatar: Avatar
-}>()
-
-const $q = useQuasar()
-const style = computed(() => {
-  if (!props.avatar.hue) return {}
-
-  const { hue } = props.avatar
-
-  return $q.dark.isActive
-    ? {
-        color: hctToHex(hue, 40, 90),
-        backgroundColor: hctToHex(hue, 40, 30),
-      }
-    : {
-        color: hctToHex(hue, 40, 10),
-        backgroundColor: hctToHex(hue, 40, 90),
-      }
-})
-
-const fontSize = "0.6em"
+<script>
+import AAvatar from '@shared/components/AAvatar.vue'
+export default AAvatar
 </script>

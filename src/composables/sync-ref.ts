@@ -1,37 +1,5 @@
-import { Ref, ref, watch, WatchSource } from "vue"
+// This file is being kept for backward compatibility during the refactoring process.
+// It re-exports the composable from its new location in the shared module.
+// TODO: Update all imports to reference @shared/composables/sync-ref directly and remove this file.
 
-export function syncRef<T> (
-  source: WatchSource<T>,
-  set: (value: T) => void,
-  options?: {
-    sourceDeep?: boolean
-    valueDeep?: boolean
-    initialValue?: T
-  }
-) {
-  const val = ref(options?.initialValue) as Ref<T>
-  let flag = false
-  watch(
-    val,
-    (newVal) => {
-      if (flag) {
-        flag = false
-
-        return
-      }
-
-      set(newVal)
-    },
-    { deep: options?.valueDeep }
-  )
-  watch(
-    source,
-    (newVal) => {
-      flag = true
-      val.value = newVal
-    },
-    { immediate: true, deep: options?.sourceDeep }
-  )
-
-  return val
-}
+export { syncRef } from "@shared/composables/sync-ref"
