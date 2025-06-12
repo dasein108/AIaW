@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import ATip from "src/components/ATip.vue"
-import CustomProviders from "src/components/CustomProviders.vue"
+import CustomProviders from "@features/providers/components/CustomProviders.vue"
 import { provide, ref } from "vue"
 
 const drawerOpen = ref(false)

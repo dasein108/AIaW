@@ -129,13 +129,100 @@
 - [x] **Task 8.3**: Update imports for the reorganized services
 - [x] **Task 8.4**: Run `pnpm dev` to verify there are no errors
 
-## Phase 9: Final Verification
+## Phase 9: Chats Feature Extraction
 
-- [ ] **Task 9.1**: Run comprehensive tests (`npm test`)
-- [ ] **Task 9.2**: Verify all features work correctly in the browser
-- [ ] **Task 9.3**: Verify build process works (`npm run build`)
-- [ ] **Task 9.4**: Document the new project structure
-- [ ] **Task 9.5**: Update any relevant documentation
+- [x] **Task 9.1**: Create feature subdirectories for chats:
+  ```
+  src/features/chats/components
+  src/features/chats/composables
+  src/features/chats/store
+  src/features/chats/views
+  ```
+- [x] **Task 9.2**: Identify chat components in `src/components/chats` and related components
+- [x] **Task 9.3**: Move chat components to `src/features/chats/components`
+- [x] **Task 9.4**: Update imports in the moved components
+- [x] **Task 9.5**: Identify chat composables in `src/composables/chats`
+- [x] **Task 9.6**: Move chat composables to `src/features/chats/composables`
+- [x] **Task 9.7**: Update imports in the moved composables
+- [x] **Task 9.8**: Move chat stores (`src/stores/chats.ts`, `src/stores/chat-messages.ts`) to `src/features/chats/store`
+- [x] **Task 9.9**: Update any imports that reference the moved chat stores
+- [x] **Task 9.10**: Run `pnpm dev` to verify there are no errors
+
+## Phase 10: Artifacts Feature Extraction
+
+- [x] **Task 10.1**: Create feature subdirectories for artifacts:
+  ```
+  src/features/artifacts/components
+  src/features/artifacts/composables
+  src/features/artifacts/store
+  src/features/artifacts/views
+  ```
+- [x] **Task 10.2**: Identify artifact components in `src/components` related to artifacts
+- [x] **Task 10.3**: Move artifact components to `src/features/artifacts/components`
+- [x] **Task 10.4**: Update imports in the moved components
+- [x] **Task 10.5**: Identify artifact composables (if any)
+- [x] **Task 10.6**: Move artifact composables to `src/features/artifacts/composables`
+- [x] **Task 10.7**: Update imports in the moved composables
+- [x] **Task 10.8**: Move artifacts store (`src/stores/artifacts.ts`) to `src/features/artifacts/store`
+- [x] **Task 10.9**: Update any imports that reference the moved artifacts store
+- [x] **Task 10.10**: Run `pnpm dev` to verify there are no errors
+
+## Phase 11: Providers Feature Extraction
+
+- [x] **Task 11.1**: Create feature subdirectories for providers:
+  ```
+  src/features/providers/components
+  src/features/providers/composables
+  src/features/providers/store
+  src/features/providers/views
+  ```
+- [x] **Task 11.2**: Identify provider components in `src/components` related to providers
+- [x] **Task 11.3**: Move provider components to `src/features/providers/components`
+- [x] **Task 11.4**: Update imports in the moved components
+- [x] **Task 11.5**: Identify provider composables (if any)
+- [x] **Task 11.6**: Move provider composables to `src/features/providers/composables`
+- [x] **Task 11.7**: Update imports in the moved composables
+- [x] **Task 11.8**: Move providers store (`src/stores/providers.ts`) to `src/features/providers/store`
+- [x] **Task 11.9**: Update any imports that reference the moved providers store
+- [x] **Task 11.10**: Run `pnpm dev` to verify there are no errors
+
+## Phase 12: Shared Stores Migration
+
+- [ ] **Task 12.1**: Create `src/shared/store` directory
+- [ ] **Task 12.2**: Create `src/shared/store/utils` directory for store utilities
+- [ ] **Task 12.3**: Move `src/stores/createUserDataStore.ts` to `src/shared/store/utils/createUserDataStore.ts`
+- [ ] **Task 12.4**: Identify shared stores that aren't tied to specific features
+- [ ] **Task 12.5**: Move identified stores to `src/shared/store`
+- [ ] **Task 12.6**: Update imports in the moved stores
+- [ ] **Task 12.7**: Update any imports that reference the moved stores
+- [ ] **Task 12.8**: Run `pnpm dev` to verify there are no errors
+
+## Phase 13: Clean Up Duplicated Code
+
+- [ ] **Task 13.1**: Identify components in `/components` and `/layouts` that now exist in `/features` or `/shared` directories
+- [ ] **Task 13.2**: Remove these duplicate components from `/components`
+- [ ] **Task 13.3**: Identify composables in `/composables` that now exist in `/features` or `/shared` directories
+- [ ] **Task 13.4**: Remove these duplicate composables from `/composables`
+- [ ] **Task 13.5**: Identify utils in `/utils` that now exist in `/features` or `/shared` directories
+- [ ] **Task 13.6**: Remove these duplicate utils from `/utils`
+- [ ] **Task 13.7**: DO NOT REMOVE code that does not have duplicates in feature directories
+- [ ] **Task 13.8**: Update any imports that still reference the old paths
+- [ ] **Task 13.9**: Run `pnpm dev` to verify there are no errors
+
+## Phase 14: Filename Standardization
+
+- [ ] **Task 14.1**: Identify files with kebab-case or non-camelCase names
+- [ ] **Task 14.2**: Rename these files to camelCase based on code content
+- [ ] **Task 14.3**: Update all imports referencing the renamed files
+- [ ] **Task 14.4**: Run `pnpm dev` to verify there are no errors
+
+## Phase 15: Final Verification
+
+- [ ] **Task 15.1**: Run comprehensive tests (`npm test`)
+- [ ] **Task 15.2**: Verify all features work correctly in the browser
+- [ ] **Task 15.3**: Verify build process works (`npm run build`)
+- [ ] **Task 15.4**: Document the new project structure
+- [ ] **Task 15.5**: Update any relevant documentation
 
 ## Completion Checklist
 

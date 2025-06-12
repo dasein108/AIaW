@@ -1,4 +1,4 @@
-import { useGetModel } from "@/composables/get-model"
+import { useGetModel } from "@features/providers/composables/getModel"
 import { useUserPerfsStore } from "@/stores/user-perfs"
 import { computed, Ref, ref } from "vue"
 import { AssistantMapped, DialogMapped } from "@/services/supabase/types"

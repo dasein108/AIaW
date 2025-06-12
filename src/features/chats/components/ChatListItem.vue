@@ -56,13 +56,13 @@
 
 <script setup lang="ts">
 import { useQuasar, QMenu } from "quasar"
-import AAvatar from "src/components/AAvatar.vue"
+import AAvatar from "@shared/components/AAvatar.vue"
 import { dialogOptions } from "src/utils/values"
 import { computed, ref, toRef } from "vue"
 import { useRoute } from "vue-router"
-import { useWorkspaceChats } from "../../composables/chats/useWorkspaceChats"
-import MenuButton from "../ExpansionItem/MenuButton.vue"
-import MenuItem from "../MenuItem.vue"
+import { useWorkspaceChats } from "@features/chats/composables/useWorkspaceChats"
+import MenuButton from "src/components/ExpansionItem/MenuButton.vue"
+import MenuItem from "@shared/components/MenuItem.vue"
 import { ChatMapped } from "@/services/supabase/types"
 
 const props = defineProps<{

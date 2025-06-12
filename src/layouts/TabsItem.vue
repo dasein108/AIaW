@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import ChatList from "src/components/chats/ChatList.vue"
+import ChatList from "@features/chats/components/ChatList.vue"
 import DialogList from "src/components/DialogList.vue"
 import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
 import { computed, ref } from "vue"

@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import ChatsExpansion from "src/components/chats/ChatsExpansion.vue"
+import ChatsExpansion from "@features/chats/components/ChatsExpansion.vue"
 import { computed, provide, ref } from "vue"
 
 const drawerOpen = ref(false)
