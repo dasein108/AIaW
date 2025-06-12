@@ -1,116 +1,40 @@
 <template>
-  <q-item
-    v-for="plugin in pluginsStore.plugins.filter(
-      (p) => p.available && (p.apis.length || p.prompt)
-    )"
-    :key="plugin.id"
-    :clickable="dense"
-    @click="dense && setPlugin(plugin, !assistant.plugins[plugin.id]?.enabled)"
-  >
-    <q-item-section
-      avatar
-      v-if="pluginsStore.data[plugin.id]"
-      min-w-0
-    >
-      <a-avatar
-        :avatar="pluginsStore.data[plugin.id].avatar"
-        :size="dense ? '32px' : '40px'"
+  <q-menu>
+    <q-list>
+      <enable-plugins-items
+        :assistant-id
+        dense
       />
-    </q-item-section>
-    <q-item-section>
-      <q-item-label>
-        {{ plugin.title
-        }}<plugin-type-badge
-          v-if="!dense"
-          :type="plugin.type"
-          ml-2
-          lh="1.1em"
-        />
-      </q-item-label>
-      <q-item-label
-        caption
-        v-if="!dense"
+      <q-item
+        clickable
+        :to="`../assistants/${assistantId}#plugins`"
+        min-h="40px"
+        py-0
       >
-        {{ plugin.description }}
-      </q-item-label>
-    </q-item-section>
-    <q-item-section side>
-      <div
-        flex
-        items-center
-      >
-        <q-btn
-          flat
-          dense
-          round
-          icon="sym_o_tune"
-          :to="`${assistant.id}/plugins/${plugin.id}`"
-          v-if="assistant.plugins[plugin.id]?.enabled && !dense"
-          :title="$t('assistantView.pluginFunction')"
-          mr-2
-        />
-        <q-checkbox
-          :model-value="!!assistant.plugins[plugin.id]?.enabled"
-          @update:model-value="setPlugin(plugin, $event)"
-          :dense
-        />
-      </div>
-    </q-item-section>
-  </q-item>
+        <q-item-section
+          avatar
+          min-w-0
+        >
+          <q-avatar
+            icon="sym_o_more_vert"
+            size="32px"
+            font-size="0.6em"
+          />
+        </q-item-section>
+        <q-item-section>
+          <q-item-label>
+            {{ $t("enablePluginsMenu.moreInfo") }}
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+    </q-list>
+  </q-menu>
 </template>
 
 <script setup lang="ts">
-import { syncRef } from "@shared/composables/sync-ref"
-import { useAssistantsStore } from "@features/assistants/store"
-import { usePluginsStore } from "@features/plugins/store"
-import { AssistantPlugin, Plugin } from "@shared/utils/types"
-import { toRaw } from "vue"
-import AAvatar from "@shared/components/avatar/AAvatar.vue"
-import PluginTypeBadge from "@features/plugins/components/PluginTypeBadge.vue"
-import { AssistantMapped } from "@/services/supabase/types"
+import EnablePluginsItems from "./EnablePluginsItems.vue"
 
-const props = defineProps<{
+defineProps<{
   assistantId: string
-  dense?: boolean
 }>()
-
-const store = useAssistantsStore()
-
-const assistant = syncRef<AssistantMapped>(
-  () => store.assistants.find((a) => a.id === props.assistantId),
-  (val) => {
-    store.put(toRaw(val))
-  },
-  { valueDeep: true }
-)
-const pluginsStore = usePluginsStore()
-
-function setPlugin (plugin: Plugin, enabled: boolean) {
-  if (enabled && !assistant.value.plugins[plugin.id]) {
-    const assistantPlugin: AssistantPlugin = {
-      enabled: true,
-      infos: [],
-      tools: [],
-      resources: [],
-      vars: {},
-    }
-    plugin.apis.forEach((api) => {
-      if (api.type === "tool") {
-        assistantPlugin.tools.push({
-          name: api.name,
-          enabled: true,
-        })
-      } else if (api.type === "info") {
-        assistantPlugin.infos.push({
-          name: api.name,
-          enabled: true,
-          args: {},
-        })
-      }
-    })
-    assistant.value.plugins[plugin.id] = assistantPlugin
-  } else {
-    assistant.value.plugins[plugin.id].enabled = enabled
-  }
-}
 </script>
