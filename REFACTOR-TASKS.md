@@ -217,32 +217,68 @@
 - [x] **Task 13.10**: Update any imports that reference the moved profile store
 - [x] **Task 13.11**: Run `pnpm dev` to verify there are no errors
 
-## Phase 14: Clean Up Duplicated Code
+## Phase 14: Avatar Components Reorganization
 
-- [ ] **Task 14.1**: Identify components in `/components` and `/layouts` that now exist in `/features` or `/shared` directories
-- [ ] **Task 14.2**: Remove these duplicate components from `/components`
-- [ ] **Task 14.3**: Identify composables in `/composables` that now exist in `/features` or `/shared` directories
-- [ ] **Task 14.4**: Remove these duplicate composables from `/composables`
-- [ ] **Task 14.5**: Identify utils in `/utils` that now exist in `/features` or `/shared` directories
-- [ ] **Task 14.6**: Remove these duplicate utils from `/utils`
-- [ ] **Task 14.7**: DO NOT REMOVE code that does not have duplicates in feature directories
-- [ ] **Task 14.8**: Update any imports that still reference the old paths
-- [ ] **Task 14.9**: Run `pnpm dev` to verify there are no errors
+- [x] **Task 14.1**: Create `src/shared/components/avatar` directory for avatar-related components
+- [x] **Task 14.2**: Move `ImageAvatar.vue` from `src/features/profile/components` to `src/shared/components/avatar`
+- [x] **Task 14.3**: Move `PickAvatarDialog.vue` from `src/features/profile/components` to `src/shared/components/avatar`
+- [x] **Task 14.4**: Move `AvatarPanel.vue` from `src/components` to `src/shared/components/avatar` (if it exists)
+- [x] **Task 14.5**: Move `AAvatar.vue` from `src/shared/components` to `src/shared/components/avatar`
+- [x] **Task 14.6**: Move any other avatar-related components to `src/shared/components/avatar`
+- [x] **Task 14.7**: Create an index.ts file in `src/shared/components/avatar` to export all avatar components
+- [x] **Task 14.8**: Update imports in all files that reference the moved avatar components
+- [x] **Task 14.9**: Run `pnpm dev` to verify there are no errors
 
-## Phase 15: Filename Standardization
+## Phase 15: Composables Reorganization
 
-- [ ] **Task 15.1**: Identify files with kebab-case or non-camelCase names
-- [ ] **Task 15.2**: Rename these files to camelCase based on code content
-- [ ] **Task 15.3**: Update all imports referencing the renamed files
-- [ ] **Task 15.4**: Run `pnpm dev` to verify there are no errors
+- [ ] **Task 15.1**: Identify remaining composables in `src/composables` directory
+- [ ] **Task 15.2**: Determine which feature each composable belongs to
+- [ ] **Task 15.3**: Move feature-specific composables to `src/features/<feature>/composables`
+- [ ] **Task 15.4**: Identify composables used across multiple features
+- [ ] **Task 15.5**: Move shared composables to `src/shared/composables` if not already there
+- [ ] **Task 15.6**: Create index.ts files in each feature's composables directory to export composables
+- [ ] **Task 15.7**: Create index.ts file in shared/composables to export shared composables
+- [ ] **Task 15.8**: Update imports in all files that reference the moved composables
+- [ ] **Task 15.9**: Run `pnpm dev` to verify there are no errors
 
-## Phase 16: Final Verification
+## Phase 16: Utils Reorganization
 
-- [ ] **Task 16.1**: Run comprehensive tests (`npm test`)
-- [ ] **Task 16.2**: Verify all features work correctly in the browser
-- [ ] **Task 16.3**: Verify build process works (`npm run build`)
-- [ ] **Task 16.4**: Document the new project structure
-- [ ] **Task 16.5**: Update any relevant documentation
+- [ ] **Task 16.1**: Create `utils` directory in each feature module that needs it
+- [ ] **Task 16.2**: Identify feature-specific utilities in `src/utils`
+- [ ] **Task 16.3**: Move feature-specific utilities to `src/features/<feature>/utils`
+- [ ] **Task 16.4**: Identify utilities used across multiple features
+- [ ] **Task 16.5**: Move shared utilities to `src/shared/utils` if not already there
+- [ ] **Task 16.6**: Create index.ts files in each feature's utils directory to export utilities
+- [ ] **Task 16.7**: Create index.ts file in shared/utils to export shared utilities
+- [ ] **Task 16.8**: Update imports in all files that reference the moved utilities
+- [ ] **Task 16.9**: Run `pnpm dev` to verify there are no errors
+
+## Phase 16: Clean Up Duplicated Code
+
+- [ ] **Task 16.1**: Identify components in `/components` and `/layouts` that now exist in `/features` or `/shared` directories
+- [ ] **Task 16.2**: Remove these duplicate components from `/components`
+- [ ] **Task 16.3**: Identify composables in `/composables` that now exist in `/features` or `/shared` directories
+- [ ] **Task 16.4**: Remove these duplicate composables from `/composables`
+- [ ] **Task 16.5**: Identify utils in `/utils` that now exist in `/features` or `/shared` directories
+- [ ] **Task 16.6**: Remove these duplicate utils from `/utils`
+- [ ] **Task 16.7**: DO NOT REMOVE code that does not have duplicates in feature directories
+- [ ] **Task 16.8**: Update any imports that still reference the old paths
+- [ ] **Task 16.9**: Run `pnpm dev` to verify there are no errors
+
+## Phase 17: Filename Standardization
+
+- [ ] **Task 17.1**: Identify files with kebab-case or non-camelCase names
+- [ ] **Task 17.2**: Rename these files to camelCase based on code content
+- [ ] **Task 17.3**: Update all imports referencing the renamed files
+- [ ] **Task 17.4**: Run `pnpm dev` to verify there are no errors
+
+## Phase 18: Final Verification
+
+- [ ] **Task 18.1**: Run comprehensive tests (`npm test`)
+- [ ] **Task 18.2**: Verify all features work correctly in the browser
+- [ ] **Task 18.3**: Verify build process works (`npm run build`)
+- [ ] **Task 18.4**: Document the new project structure
+- [ ] **Task 18.5**: Update any relevant documentation
 
 ## Completion Checklist
 

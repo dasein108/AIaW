@@ -90,7 +90,7 @@
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
-import AAvatar from "@shared/components/AAvatar.vue"
+import { AAvatar } from "@shared/components/avatar"
 import { useMdPreviewProps } from "src/composables/md-preview-props"
 import { useUserStore } from "src/stores/user"
 import { useUserPerfsStore } from "src/stores/user-perfs"
