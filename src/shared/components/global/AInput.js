@@ -17,7 +17,7 @@ import { stop } from "quasar/src/utils/event/event.js"
 import { createComponent } from "quasar/src/utils/private.create/create.js"
 import { addFocusFn } from "quasar/src/utils/private.focus/focus-manager.js"
 import { injectProp } from "quasar/src/utils/private.inject-obj-prop/inject-obj-prop.js"
-import useKeyComposition from "@shared/composables/keyComposition"
+import keyComposition from "@shared/composables/keyComposition"
 import {
   h,
   ref,
@@ -68,7 +68,7 @@ export default createComponent({
     "animationend",
   ],
 
-  setup (props, { emit, attrs }) {
+  setup(props, { emit, attrs }) {
     const { proxy } = getCurrentInstance()
     const { $q } = proxy
 
@@ -94,7 +94,7 @@ export default createComponent({
     const formDomProps = useFileFormDomProps(props, /* type guard */ true)
     const hasValue = computed(() => fieldValueIsFilled(innerValue.value))
 
-    const onComposition = useKeyComposition(onInput)
+    const onComposition = keyComposition(onInput)
 
     const state = useFieldState({ changeEvent: true })
 
@@ -125,7 +125,7 @@ export default createComponent({
       evt.onCompositionstart =
         evt.onCompositionupdate =
         evt.onCompositionend =
-          onComposition
+        onComposition
 
       if (hasMask.value === true) {
         evt.onKeydown = onMaskedKeydown
@@ -229,7 +229,7 @@ export default createComponent({
       }
     )
 
-    function focus () {
+    function focus() {
       addFocusFn(() => {
         const el = document.activeElement
 
@@ -243,11 +243,11 @@ export default createComponent({
       })
     }
 
-    function select () {
+    function select() {
       inputRef.value?.select()
     }
 
-    function onPaste (e) {
+    function onPaste(e) {
       if (hasMask.value === true && props.reverseFillMask !== true) {
         const inp = e.target
         moveCursorForPaste(inp, inp.selectionStart, inp.selectionEnd)
@@ -256,7 +256,7 @@ export default createComponent({
       emit("paste", e)
     }
 
-    function onInput (e) {
+    function onInput(e) {
       if (!e || !e.target) return
 
       if (props.type === "file") {
@@ -299,12 +299,12 @@ export default createComponent({
       props.autogrow === true && adjustHeight()
     }
 
-    function onAnimationend (e) {
+    function onAnimationend(e) {
       emit("animationend", e)
       adjustHeight()
     }
 
-    function emitValue (val, stopWatcher) {
+    function emitValue(val, stopWatcher) {
       emitValueFn = () => {
         emitTimer = null
 
@@ -341,7 +341,7 @@ export default createComponent({
     }
 
     // textarea only
-    function adjustHeight () {
+    function adjustHeight() {
       requestAnimationFrame(() => {
         const inp = inputRef.value
 
@@ -375,7 +375,7 @@ export default createComponent({
       })
     }
 
-    function onChange (e) {
+    function onChange(e) {
       onComposition(e)
 
       if (emitTimer !== null) {
@@ -388,7 +388,7 @@ export default createComponent({
       emit("change", e.target.value)
     }
 
-    function onFinishEditing (e) {
+    function onFinishEditing(e) {
       e !== void 0 && stop(e)
 
       if (emitTimer !== null) {
@@ -413,7 +413,7 @@ export default createComponent({
         })
     }
 
-    function getCurValue () {
+    function getCurValue() {
       return temp.hasOwnProperty("value") === true
         ? temp.value
         : innerValue.value !== void 0

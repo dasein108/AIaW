@@ -1,8 +1,8 @@
 import { LobeChatPluginManifest } from "@lobehub/chat-plugin-sdk"
 import { defineStore, storeToRefs } from "pinia"
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
-import authzPlugin from "@/features/plugins/buildin/cosmos-authz"
-import { keplerPlugin } from "@/features/plugins/buildin/kepler-plugin"
+import authzPlugin from "@/features/plugins/buildin/cosmosAuthz"
+import { keplerPlugin } from "@/features/plugins/buildin/keplerPlugin"
 import { supabase } from "@/services/supabase/client"
 import artifacts from "@/features/plugins/buildin/artifactsPlugin"
 import { IsTauri } from "@/shared/utils/platformApi"
@@ -30,11 +30,11 @@ import {
   McpPluginDump,
   McpPluginManifest,
 } from "@/shared/utils/types"
-import webSearchPlugin from "@/features/plugins/buildin/web-search-plugin"
+import webSearchPlugin from "@/features/plugins/buildin/webSearchPlugin"
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useAssistantsStore } from "@/features/assistants/store"
-import { useUserPluginsStore } from "./user-plugins"
+import { useUserPluginsStore } from "./userPlugins"
 import { UserPlugin } from "@/services/supabase/types"
 
 export const usePluginsStore = defineStore("plugins", () => {

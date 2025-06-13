@@ -119,7 +119,7 @@
 
 <script setup lang="ts">
 import { QMenu } from "quasar"
-import { useWorkspaceActions } from "@features/workspaces/composables/workspace-actions"
+import { useWorkspaceActions } from "@features/workspaces/composables/workspaceActions"
 import { ref, watch, toRef } from "vue"
 import { useRootWorkspace } from "@features/workspaces/composables"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"

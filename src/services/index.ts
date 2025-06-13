@@ -1,7 +1,7 @@
 // Re-export services from their new modular locations
 // Blockchain services
 export { config } from "./blockchain/constants"
-export { WalletService } from "./blockchain/authz/wallet-service"
+export { WalletService } from "./blockchain/authz/walletService"
 export { createCosmosSigner } from "./blockchain/cosmos/CosmosWallet"
 export { createKeplerWallet, CYBER_CONTRACT_ADDRESS } from "./blockchain/kepler/KeplerWallet"
 

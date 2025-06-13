@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import { useArtifactsStore } from "@features/artifacts/store"
-import { useUserDataStore } from "@/shared/store/user-data"
+import { useUserDataStore } from "@/shared/store/userData"
 import { artifactUnsaved, saveArtifactChanges } from "@shared/utils/functions"
 import { exportFile } from "@/shared/utils/platformApi"
 import { dialogOptions } from "@/shared/utils/values"

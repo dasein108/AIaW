@@ -13,7 +13,7 @@ import { usePluginsStore } from "@/features/plugins/store"
 import { useUserDataStore, useUserPerfsStore } from "@shared/store"
 import artifactsPlugin from "@/features/plugins/buildin/artifactsPlugin"
 import { isPlatformEnabled, mimeTypeMatch } from "@shared/utils/functions"
-import { engine } from "@/shared/utils/template/template-engine"
+import { engine } from "@/shared/utils/template/templateEngine"
 import {
   PluginPrompt,
   Plugin,

@@ -1,7 +1,7 @@
 import { useActiveWorkspace } from "./useActiveWorkspace"
 import { useIsWorkspaceAdmin } from "./useIsWorkspaceAdmin"
 import { useRootWorkspace } from "./useRootWorkspace"
-import { useWorkspaceActions } from "./workspace-actions"
+import { useWorkspaceActions } from "./workspaceActions"
 import { useWorkspacesWithSubscription } from "./useWorkspacesWithSubscription"
 import { useOpenLastWorkspace } from "./openLastWorkspace"
 import { useAssistantActions } from "./useAssistantActions"

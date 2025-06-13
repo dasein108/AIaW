@@ -123,9 +123,9 @@ import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 
 import { useChatMessagesStore } from "@/features/chats/store/chatMessages"
 import { useChatsStore } from "@/features/chats/store"
-import { useUiStateStore } from "@/shared/store/ui-state"
+import { useUiStateStore } from "@/shared/store/uiState"
 import { useUserStore } from "@/shared/store/user"
-import { useUserPerfsStore } from "@/shared/store/user-perfs"
+import { useUserPerfsStore } from "@/shared/store/userPerfs"
 import {
   almostEqual,
   isPlatformEnabled,

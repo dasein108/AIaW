@@ -1,5 +1,5 @@
 import { until } from "@vueuse/core"
-import { useUserDataStore } from "@/shared/store/user-data"
+import { useUserDataStore } from "@/shared/store/userData"
 import { useWorkspacesStore } from "@/features/workspaces/store"
 import { useRouter } from "vue-router"
 

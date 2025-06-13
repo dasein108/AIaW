@@ -320,7 +320,7 @@ import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessa
 import { useDialogModel } from "@/features/dialogs/composables/useDialogModel"
 import { useLlmDialog } from "@/features/dialogs/composables/useLlmDialog"
 import { useListenKey } from "@/shared/composables"
-import { useSetTitle } from "@/shared/composables/set-title"
+import { useSetTitle } from "@/shared/composables/setTitle"
 import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 import { DialogMessageMapped } from "@/services/supabase/types"

@@ -2,7 +2,7 @@ import { Array as TArray, Object, Optional, String } from "@sinclair/typebox"
 import { i18n } from "@/boot/i18n"
 import { useArtifactsStore } from "@/features/artifacts/store"
 import { saveArtifactChanges } from "@shared/utils/functions"
-import { engine } from "@/shared/utils/template/template-engine"
+import { engine } from "@/shared/utils/template/templateEngine"
 import { Plugin, PluginApi, PluginData } from "@shared/utils/types"
 import { ArtifactMapped } from "@/services/supabase/types"
 

@@ -97,7 +97,7 @@ import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
 import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 
 import { useIsChatAdmin } from "@/features/chats/composables/useIsChatAdmin"
-import { syncRef } from "@/shared/composables/sync-ref"
+import { syncRef } from "@/shared/composables/syncRef"
 import { useChatsStore } from "@/features/chats/store"
 import { useWorkspacesStore } from "@/features/workspaces/store"
 import { pageFhStyle } from "@/shared/utils/functions"

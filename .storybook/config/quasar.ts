@@ -3,8 +3,8 @@ import { Quasar, Dialog, Notify, Loading, Dark } from "quasar";
 import { materialSymbolsOutlined } from "@quasar/extras";
 
 // Import global components
-import AInput from "../../src/components/global/AInput.js";
-import VarsInput from "../../src/components/VarsInput.vue";
+import AInput from "../../src/shared/components/global/AInput.js";
+import VarsInput from "../../src/features/prompt/components/VarsInput.vue";
 
 // Quasar configuration for Storybook
 export const setupQuasar = (app: App) => {

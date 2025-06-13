@@ -3,11 +3,11 @@
 
 // Re-export from blockchain services
 export { config } from "./blockchain/constants"
-export { WalletService } from "./blockchain/authz/wallet-service"
+export { WalletService } from "./blockchain/authz/walletService"
 export { createCosmosSigner } from "./blockchain/cosmos/CosmosWallet"
 export { createKeplerWallet, CYBER_CONTRACT_ADDRESS, getLocalStorageWalletState } from "./blockchain/kepler/KeplerWallet"
 export { parseTxStatus } from "./blockchain/kepler/utils"
-export { keplerPlugin } from "../features/plugins/buildin/kepler-plugin"
+export { keplerPlugin } from "../features/plugins/buildin/keplerPlugin"
 export type { KeplerWalletState, TxStatusResponse } from "./blockchain/kepler/types"
 export type { ChainConfig } from "./blockchain/kepler/types"
 

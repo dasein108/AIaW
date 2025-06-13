@@ -544,7 +544,7 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import { WalletService } from "@/services"
-import { WalletInfo } from "@/services/blockchain/authz/wallet-service"
+import { WalletInfo } from "@/services/blockchain/authz/walletService"
 import { ref, computed, onMounted, watch } from "vue"
 import { useAuthStore } from "@features/auth/store/auth"
 import PinModal from "@features/auth/components/PinModal.vue"

@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { useWorkspaceActions } from "@features/workspaces/composables/workspace-actions"
+import { useWorkspaceActions } from "@features/workspaces/composables/workspaceActions"
 import { useUserDataStore } from "@shared/store"
 import { useWorkspacesStore } from "@features/workspaces/store"
 import { useRouter, useRoute } from "vue-router"

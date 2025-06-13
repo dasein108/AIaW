@@ -93,8 +93,8 @@ import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
 import ProviderInputItems from "@/features/providers/components/ProviderInputItems.vue"
 import SubproviderInput from "@/features/providers/components/SubproviderInput.vue"
 import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
-import { useSetTitle } from "@/shared/composables/set-title"
-import { syncRef } from "@/shared/composables/sync-ref"
+import { useSetTitle } from "@/shared/composables/setTitle"
+import { syncRef } from "@/shared/composables/syncRef"
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 import {
   CustomProviderMapped,
