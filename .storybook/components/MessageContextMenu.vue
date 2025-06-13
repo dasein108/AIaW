@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import MenuItem from '../../src/components/MenuItem.vue'
+import MenuItem from '@shared/components/menu/MenuItem.vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()

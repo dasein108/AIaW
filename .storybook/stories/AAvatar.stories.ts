@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import AAvatar from '../../src/components/AAvatar.vue'
-import { hctToHex } from '../../src/utils/functions'
+import AAvatar from "@shared/components/AAvatar.vue"
+import { hctToHex } from "@shared/utils/functions"
 
 const meta = {
   title: 'Social/Profile/AAvatar',

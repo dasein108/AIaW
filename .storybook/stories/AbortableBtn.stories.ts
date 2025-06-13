@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import AbortableBtn from '../../src/components/AbortableBtn.vue'
+import AbortableBtn from '@shared/components/ui/AbortableBtn.vue'
 
 const meta = {
   title: 'Dialog/AbortableBtn',

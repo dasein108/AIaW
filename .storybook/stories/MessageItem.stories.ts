@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { nextTick } from 'vue'
 import { vueRouter } from 'storybook-vue3-router'
-import MessageItem from '../../src/components/MessageItem.vue'
+import MessageItem from '@features/dialogs/components/MessageItem.vue'
 import {
   userMessage,
   assistantMessage,

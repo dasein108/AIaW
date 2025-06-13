@@ -34,6 +34,9 @@ const config: StorybookConfig = {
       resolve: {
         alias: {
           "@": fileURLToPath(new URL("../src", import.meta.url)),
+          "@shared": fileURLToPath(new URL("../src/shared", import.meta.url)),
+          "@features": fileURLToPath(new URL("../src/features", import.meta.url)),
+          "@services": fileURLToPath(new URL("../src/services", import.meta.url)),
           src: fileURLToPath(new URL("../src", import.meta.url)),
           layouts: fileURLToPath(new URL("../src/layouts", import.meta.url)),
           pages: fileURLToPath(new URL("../src/pages", import.meta.url)),
@@ -42,6 +45,7 @@ const config: StorybookConfig = {
           "@/services/supabase/userProvider": fileURLToPath(new URL("../.storybook/mocks/supabase-userProvider.ts", import.meta.url)),
           "src/components/social/composable/useChats": fileURLToPath(new URL("../.storybook/mocks/useChats.ts", import.meta.url)),
         },
+        extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
       },
       define: {
         "process.env": {
