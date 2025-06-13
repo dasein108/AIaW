@@ -7,7 +7,7 @@ export { WalletService } from "./blockchain/authz/wallet-service"
 export { createCosmosSigner } from "./blockchain/cosmos/CosmosWallet"
 export { createKeplerWallet, CYBER_CONTRACT_ADDRESS, getLocalStorageWalletState } from "./blockchain/kepler/KeplerWallet"
 export { parseTxStatus } from "./blockchain/kepler/utils"
-export { keplerPlugin } from "./blockchain/kepler/kepler-plugin"
+export { keplerPlugin } from "../features/plugins/buildin/kepler-plugin"
 export type { KeplerWalletState, TxStatusResponse } from "./blockchain/kepler/types"
 export type { ChainConfig } from "./blockchain/kepler/types"
 

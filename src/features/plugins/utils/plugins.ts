@@ -18,7 +18,7 @@ import {
 } from "@sinclair/typebox"
 import { Parser } from "expr-eval"
 import { i18n } from "@/boot/i18n"
-import artifacts from "../buildin/artifacts-plugin"
+import artifacts from "../buildin/artifactsPlugin"
 import { AudioEncoderSupported, extractAudioBlob } from "@/features/media/utils/audioProcess"
 import { DocParseBaseURL } from "@/shared/utils/config"
 import { corsFetch } from "@shared/utils/corsFetch"

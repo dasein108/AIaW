@@ -2,9 +2,9 @@ import { LobeChatPluginManifest } from "@lobehub/chat-plugin-sdk"
 import { defineStore, storeToRefs } from "pinia"
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import authzPlugin from "@/features/plugins/buildin/cosmos-authz"
-import { keplerPlugin } from "@/services/blockchain/kepler/kepler-plugin"
+import { keplerPlugin } from "@/features/plugins/buildin/kepler-plugin"
 import { supabase } from "@/services/supabase/client"
-import artifacts from "@/features/plugins/buildin/artifacts-plugin"
+import artifacts from "@/features/plugins/buildin/artifactsPlugin"
 import { IsTauri } from "@/shared/utils/platformApi"
 import {
   buildGradioPlugin,
