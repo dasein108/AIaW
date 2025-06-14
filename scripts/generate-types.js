@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 // Run the Supabase type generator normally (change to your project ID and types file path ie.: ./app/types/database.types.ts)
-const TYPES_FILE_PATH = './src/services/supabase/database.types.ts'
+const TYPES_FILE_PATH = './src/services/data/supabase/database.types.ts'
 console.log('Generating types...')
 execSync(`supabase gen types typescript --project-id "$PROJECT_ID" --schema public  > ${TYPES_FILE_PATH}`)
 // Get the path to the output file
