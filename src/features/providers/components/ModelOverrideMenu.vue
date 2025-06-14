@@ -90,11 +90,13 @@
 </template>
 
 <script setup lang="ts">
-import ATip from "@shared/components/ATip.vue"
-import ModelItem from "./ModelItem.vue"
-import { useDialogsStore } from "@/features/dialogs/store"
-import { useUserPerfsStore } from "@shared/store"
+import ATip from "@/shared/components/ATip.vue"
+import { useUserPerfsStore } from "@/shared/store"
 import { InputTypes, models } from "@/shared/utils/values"
+
+import { useDialogsStore } from "@/features/dialogs/store"
+
+import ModelItem from "./ModelItem.vue"
 
 interface Props {
   model: any

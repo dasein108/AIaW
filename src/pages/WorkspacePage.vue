@@ -147,21 +147,25 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import ArtifactItemIcon from "@features/artifacts/components/ArtifactItemIcon.vue"
-import ArtifactItemMenu from "@features/artifacts/components/ArtifactItemMenu.vue"
-import ArtifactsExpansion from "@features/artifacts/components/ArtifactsExpansion.vue"
-import DragableSeparator from "@/shared/components/DragableSeparator.vue"
-import { useCloseArtifact } from "@/features/artifacts/composables/useCloseArtifact"
-import ErrorNotFound from "@/pages/ErrorNotFound.vue"
-import { useArtifactsStore } from "@/features/artifacts/store"
-import { ListOpen, useUserDataStore } from "@/shared/store/userData"
-import { useWorkspacesStore } from "@/features/workspaces/store"
-import { artifactUnsaved, isPlatformEnabled } from "@shared/utils/functions"
-import EditArtifact from "@/features/artifacts/views/EditArtifact.vue"
 import { computed, provide, ref, watch } from "vue"
 import { useRoute, useRouter } from "vue-router"
-import { ArtifactMapped, WorkspaceMapped } from "@/services/data/supabase/types"
+
+import DragableSeparator from "@/shared/components/DragableSeparator.vue"
 import { useUserPerfsStore } from "@/shared/store"
+import { ListOpen, useUserDataStore } from "@/shared/store/userData"
+import { artifactUnsaved, isPlatformEnabled } from "@/shared/utils/functions"
+
+import ArtifactItemIcon from "@/features/artifacts/components/ArtifactItemIcon.vue"
+import ArtifactItemMenu from "@/features/artifacts/components/ArtifactItemMenu.vue"
+import ArtifactsExpansion from "@/features/artifacts/components/ArtifactsExpansion.vue"
+import { useCloseArtifact } from "@/features/artifacts/composables/useCloseArtifact"
+import { useArtifactsStore } from "@/features/artifacts/store"
+import EditArtifact from "@/features/artifacts/views/EditArtifact.vue"
+import { useWorkspacesStore } from "@/features/workspaces/store"
+
+import { ArtifactMapped, WorkspaceMapped } from "@/services/data/supabase/types"
+
+import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 
 const props = defineProps<{
   id: string

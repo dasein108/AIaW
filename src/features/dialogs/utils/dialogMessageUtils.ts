@@ -4,8 +4,10 @@
  * into formats needed for display or for sending to language models.
  */
 import { pickBy } from "lodash"
+
 import { getFileUrl } from "@/shared/composables/storage/utils"
 import { ToolResultContent } from "@/shared/types"
+
 import { MessageContentResult } from "@/services/data/supabase/types"
 
 // TODO: multimodal version ???

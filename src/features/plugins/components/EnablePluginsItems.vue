@@ -60,13 +60,16 @@
 </template>
 
 <script setup lang="ts">
-import { syncRef } from "@/shared/composables"
-import { useAssistantsStore } from "@features/assistants/store"
-import { usePluginsStore } from "@features/plugins/store"
-import { AssistantPlugin, Plugin } from "@/shared/types"
 import { toRaw } from "vue"
-import AAvatar from "@shared/components/avatar/AAvatar.vue"
-import PluginTypeBadge from "@features/plugins/components/PluginTypeBadge.vue"
+
+import AAvatar from "@/shared/components/avatar/AAvatar.vue"
+import { syncRef } from "@/shared/composables"
+import { AssistantPlugin, Plugin } from "@/shared/types"
+
+import { useAssistantsStore } from "@/features/assistants/store"
+import PluginTypeBadge from "@/features/plugins/components/PluginTypeBadge.vue"
+import { usePluginsStore } from "@/features/plugins/store"
+
 import { AssistantMapped } from "@/services/data/supabase/types"
 
 const props = defineProps<{

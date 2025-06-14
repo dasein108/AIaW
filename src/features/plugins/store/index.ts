@@ -1,11 +1,22 @@
 import { LobeChatPluginManifest } from "@lobehub/chat-plugin-sdk"
 import { defineStore, storeToRefs } from "pinia"
+import { computed, ref } from "vue"
+import { useI18n } from "vue-i18n"
+
+import {
+  GradioPluginManifest,
+  HuggingPluginManifest,
+  McpPluginDump,
+  McpPluginManifest,
+} from "@/shared/types"
+import { IsTauri } from "@/shared/utils/platformApi"
+
+import { useAssistantsStore } from "@/features/assistants/store"
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
+import artifacts from "@/features/plugins/buildin/artifactsPlugin"
 import authzPlugin from "@/features/plugins/buildin/cosmosAuthz"
 import { keplerPlugin } from "@/features/plugins/buildin/keplerPlugin"
-import { supabase } from "@/services/data/supabase/client"
-import artifacts from "@/features/plugins/buildin/artifactsPlugin"
-import { IsTauri } from "@/shared/utils/platformApi"
+import webSearchPlugin from "@/features/plugins/buildin/webSearchPlugin"
 import {
   buildGradioPlugin,
   buildLobePlugin,
@@ -24,19 +35,26 @@ import {
   videoTranscriptPlugin,
   whisperPlugin,
 } from "@/features/plugins/utils/plugins"
-import {
-  GradioPluginManifest,
-  HuggingPluginManifest,
-  McpPluginDump,
-  McpPluginManifest,
-} from "@/shared/types"
-import webSearchPlugin from "@/features/plugins/buildin/webSearchPlugin"
-import { computed, ref } from "vue"
-import { useI18n } from "vue-i18n"
-import { useAssistantsStore } from "@/features/assistants/store"
-import { useUserPluginsStore } from "./userPlugins"
+
+import { supabase } from "@/services/data/supabase/client"
 import { UserPlugin } from "@/services/data/supabase/types"
 
+import { useUserPluginsStore } from "./userPlugins"
+
+/**
+ * Store for managing plugins in the application
+ *
+ * This store handles plugin installation, availability, and management.
+ * It integrates with the assistants store to manage assistant-plugin associations.
+ *
+ * @dependencies
+ * - {@link useAssistantsStore} - For updating assistant plugins
+ * - {@link useUserPluginsStore} - For plugin data storage
+ * - {@link useUserLoginCallback} - For initialization after login
+ *
+ * @database
+ * - Table: "user_plugins" - Stores installed plugin data
+ */
 export const usePluginsStore = defineStore("plugins", () => {
   const assistantsStore = useAssistantsStore()
   const installedPlugins = ref<UserPlugin[]>([])

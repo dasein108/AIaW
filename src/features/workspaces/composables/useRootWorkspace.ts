@@ -1,5 +1,7 @@
-import { useWorkspacesStore } from "@features/workspaces/store"
 import { computed } from "vue"
+
+import { useWorkspacesStore } from "@/features/workspaces/store"
+
 import { WorkspaceMapped } from "@/services/data/supabase/types"
 
 export function useRootWorkspace (parentId: string | null) {

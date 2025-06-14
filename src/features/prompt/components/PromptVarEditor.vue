@@ -19,8 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import { genId } from "@/shared/utils/functions"
 import { PromptVar } from "@/shared/types"
+import { genId } from "@/shared/utils/functions"
+
 import PromptVarItem from "./PromptVarItem.vue"
 
 const model = defineModel<PromptVar[]>()

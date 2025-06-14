@@ -88,22 +88,26 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
+import { computed, toRaw } from "vue"
+import { useI18n } from "vue-i18n"
+
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
 import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
-import ProviderInputItems from "@/features/providers/components/ProviderInputItems.vue"
-import SubproviderInput from "@/features/providers/components/SubproviderInput.vue"
-import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 import { useSetTitle } from "@/shared/composables/setTitle"
 import { syncRef } from "@/shared/composables/syncRef"
-import ErrorNotFound from "@/pages/ErrorNotFound.vue"
+import { pageFhStyle } from "@/shared/utils/functions"
+
+import ProviderInputItems from "@/features/providers/components/ProviderInputItems.vue"
+import SubproviderInput from "@/features/providers/components/SubproviderInput.vue"
+import { useProvidersStore } from "@/features/providers/store"
+
 import {
   CustomProviderMapped,
   SubproviderMapped,
 } from "@/services/data/supabase/types"
-import { useProvidersStore } from "@/features/providers/store"
-import { pageFhStyle } from "@/shared/utils/functions"
-import { computed, toRaw } from "vue"
-import { useI18n } from "vue-i18n"
+
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
+import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 
 const props = defineProps<{
   id: string

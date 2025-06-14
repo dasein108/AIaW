@@ -1,5 +1,5 @@
 import { LanguageModelUsage } from "ai"
-import { Database } from "./database.types"
+
 import {
   ArtifactVersion,
   AssistantPlugins,
@@ -9,6 +9,8 @@ import {
   PromptVar,
   Provider,
 } from "@/shared/types"
+
+import { Database } from "./database.types"
 
 type ChatMessage = Database["public"]["Tables"]["messages"]["Row"]
 type Chat = Database["public"]["Tables"]["chats"]["Row"]

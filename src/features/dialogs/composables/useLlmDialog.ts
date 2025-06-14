@@ -5,28 +5,29 @@ import {
 } from "ai"
 import { pickBy } from "lodash"
 import { useQuasar } from "quasar"
+import { ref, Ref } from "vue"
+import { useI18n } from "vue-i18n"
+
+import { useCallApi } from "@/shared/composables"
 import { useStorage } from "@/shared/composables/storage/useStorage"
 import { getFileUrl } from "@/shared/composables/storage/utils"
+import { useUserPerfsStore } from "@/shared/store"
+import { ConvertArtifactOptions, Plugin, PluginApi } from "@/shared/types"
+import { genId, mimeTypeMatch } from "@/shared/utils/functions"
+import sessions from "@/shared/utils/sessions"
+import { ExtractArtifactResult } from "@/shared/utils/template/templates"
+
+import { useCreateArtifact } from "@/features/artifacts/composables/useCreateArtifact"
+import { getAssistantModelSettings } from "@/features/assistants/utils/assistantUtils"
+import { useDialogsStore } from "@/features/dialogs/store"
+import { AssistantMessageContent } from "@/features/dialogs/types"
+import { storedItemResultContent } from "@/features/dialogs/utils/dialogMessageUtils"
+
 import {
   generateTitle,
   generateArtifactName,
   generateExtractArtifact,
 } from "@/services/ai/llm/utils"
-import { useDialogsStore } from "@features/dialogs/store"
-import { useUserPerfsStore } from "@shared/store"
-import { getAssistantModelSettings } from "@features/assistants/utils/assistantUtils"
-import { storedItemResultContent } from "@features/dialogs/utils/dialogMessageUtils"
-import { genId, mimeTypeMatch } from "@shared/utils/functions"
-import sessions from "@/shared/utils/sessions"
-import { ExtractArtifactResult } from "@/shared/utils/template/templates"
-import { ref, Ref } from "vue"
-import { useI18n } from "vue-i18n"
-import { useCallApi } from "@/shared/composables"
-import { useCreateArtifact } from "@features/artifacts/composables/useCreateArtifact"
-import { useAssistantTools } from "./useAssistantTools"
-import { useDialogMessages } from "./useDialogMessages"
-import { useDialogModel } from "./useDialogModel"
-import { AssistantMessageContent } from "@/features/dialogs/types"
 import {
   AssistantMapped,
   DialogMessageMapped,
@@ -34,7 +35,10 @@ import {
   MessageContentResult,
   StoredItemMapped,
 } from "@/services/data/supabase/types"
-import { ConvertArtifactOptions, Plugin, PluginApi } from "@/shared/types"
+
+import { useAssistantTools } from "./useAssistantTools"
+import { useDialogMessages } from "./useDialogMessages"
+import { useDialogModel } from "./useDialogModel"
 
 export const useLlmDialog = (
   workspaceId: Ref<string>,
@@ -252,6 +256,7 @@ export const useLlmDialog = (
       // Save result based on stored items without arrayBuffer
       const contentResult = storedItems.map((i) => {
         const { type, mime_type, content_text, file_url } = i
+
         return pickBy(
           { type, mime_type, content_text, file_url },
           (v) => v !== undefined
@@ -261,6 +266,7 @@ export const useLlmDialog = (
     }
 
     await updateFn({ message_contents: contents })
+
     return { result: apiResult, error }
   }
 
@@ -316,6 +322,7 @@ export const useLlmDialog = (
     const result = await generateText(params)
     messageContent.text = result.text
     messageContent.reasoning = result.reasoning
+
     return result
   }
 
@@ -426,6 +433,7 @@ export const useLlmDialog = (
       )
 
       const messages = getChainMessages()
+
       if (systemPrompt) {
         messages.unshift({
           role: assistant.value.prompt_role,
@@ -443,6 +451,7 @@ export const useLlmDialog = (
 
       // Step 4: Process response (streaming or not)
       let result
+
       if (assistant.value.stream) {
         result = await processStreamingResponse(
           params, id, messageContent, contents, updateFn

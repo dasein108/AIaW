@@ -1,10 +1,13 @@
 import { fileTypeFromBuffer } from "file-type"
-import { supabase } from "@/services/data/supabase/client"
-import { genId } from "@/shared/utils/functions"
-import { BASE_URL } from "./utils"
-import { StoredItemMapped } from "@/services/data/supabase/types"
+
 import { ApiResultItem } from "@/shared/types"
+import { genId } from "@/shared/utils/functions"
+
+import { supabase } from "@/services/data/supabase/client"
+import { StoredItemMapped } from "@/services/data/supabase/types"
+
 import { BucketName } from "./types"
+import { BASE_URL } from "./utils"
 
 /**
  * Detects the MIME type and file extension from an ArrayBuffer containing file data

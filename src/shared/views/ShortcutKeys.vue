@@ -215,11 +215,13 @@
 </template>
 
 <script setup lang="ts">
-import PlatformEnabledInput from "@/features/providers/components/PlatformEnabledInput.vue"
 import ShortcutKeyInput from "@/shared/components/ShortcutKeyInput.vue"
-import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 import { useUserPrefsStore } from "@/shared/store/userPrefs"
 import { pageFhStyle } from "@/shared/utils/functions"
+
+import PlatformEnabledInput from "@/features/providers/components/PlatformEnabledInput.vue"
+
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 
 const { data: perfs } = useUserPrefsStore()
 

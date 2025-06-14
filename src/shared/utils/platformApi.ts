@@ -6,7 +6,9 @@ import { platform } from "@tauri-apps/plugin-os"
 import { ExportFile } from "capacitor-export-file"
 import { fetch as capFetch } from "capacitor-stream-fetch"
 import { exportFile as webExportFile } from "quasar"
+
 import { blobToBase64 } from "@/shared/utils/functions"
+
 import { fetch as tauriFetch } from "@/features/platform/utils/tauriStream"
 export const IsTauri = "__TAURI_INTERNALS__" in window
 export const IsCapacitor = Capacitor.isNativePlatform()

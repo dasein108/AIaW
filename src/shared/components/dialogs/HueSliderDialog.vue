@@ -49,6 +49,7 @@
 <script setup>
 import { useDialogPluginComponent } from "quasar"
 import { ref } from "vue"
+
 import HctPreviewCircle from "@/shared/components/HctPreviewCircle.vue"
 import HueSlider from "@/shared/components/HueSlider.vue"
 

@@ -1,14 +1,31 @@
 import { defineStore } from "pinia"
-import { useUserLoginCallback } from "@features/auth/composables/useUserLoginCallback"
-import { supabase } from "@/services/data/supabase/client"
 import { reactive, ref } from "vue"
-import { useDialogMessagesStore } from "./dialogMessages"
+
+import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
+
+import { supabase } from "@/services/data/supabase/client"
 import {
   DialogInput,
   DialogMapped,
   DialogMessageInput,
 } from "@/services/data/supabase/types"
 
+import { useDialogMessagesStore } from "./dialogMessages"
+
+/**
+ * Store for managing dialogs in the application
+ *
+ * This store handles dialog creation, deletion, and updates.
+ * It works closely with the dialog messages store to manage messages within dialogs.
+ *
+ * @dependencies
+ * - {@link useDialogMessagesStore} - For managing messages within dialogs
+ * - {@link useUserLoginCallback} - For initialization after login
+ *
+ * @database
+ * - Table: "dialogs" - Stores dialog metadata
+ * - Related to: "dialog_messages" table (managed by dialogMessagesStore)
+ */
 export const useDialogsStore = defineStore("dialogs", () => {
   const dialogs = reactive<Record<string, DialogMapped>>({})
   const isLoaded = ref(false)

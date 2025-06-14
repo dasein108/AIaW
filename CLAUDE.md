@@ -9,11 +9,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **State Management**: Pinia stores with persisted state
 
 ## Commands
-- Build: `npm run build` or `quasar build`
-- Development: `npm run dev` or `quasar dev`
-- Lint: `npm run lint` or `npm run eslint:fix` to auto-fix issues
-- Test: `npm test` or `jest [testFilePath]` for a single test
-- Storybook: `npm run storybook`
+- Build: `pnpm run build` or `quasar build`
+- Development: `pnpm run dev` or `quasar dev`
+- Lint: `pnpm run lint` or `pnpm run eslint:fix` to auto-fix issues
+- Test: `pnpm test` or `jest [testFilePath]` for a single test
+- Storybook: `pnpm run storybook`
 - Type Check: `vue-tsc --noEmit`
 
 ## Code Style

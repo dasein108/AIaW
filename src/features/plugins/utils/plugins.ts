@@ -17,20 +17,7 @@ import {
   String as TString,
 } from "@sinclair/typebox"
 import { Parser } from "expr-eval"
-import { i18n } from "@/boot/i18n"
-import artifacts from "../buildin/artifactsPlugin"
-import { AudioEncoderSupported, extractAudioBlob } from "@/features/media/utils/audioProcess"
-import { DocParseBaseURL } from "@/shared/utils/config"
-import { corsFetch } from "@shared/utils/corsFetch"
-import { parseDoc } from "@features/artifacts/utils/docParse"
-import {
-  base64ToArrayBuffer,
-  defaultTextAvatar,
-  parsePageRange,
-  parseSeconds,
-} from "@/shared/utils/functions"
-import { getClient } from "./mcpClient"
-import { IsTauri } from "@/shared/utils/platformApi"
+
 import {
   GradioFixedInput,
   GradioManifestEndpoint,
@@ -45,7 +32,25 @@ import {
   McpPluginManifest,
   Avatar,
 } from "@/shared/types"
+import { DocParseBaseURL } from "@/shared/utils/config"
+import { corsFetch } from "@/shared/utils/corsFetch"
+import {
+  base64ToArrayBuffer,
+  defaultTextAvatar,
+  parsePageRange,
+  parseSeconds,
+} from "@/shared/utils/functions"
+import { IsTauri } from "@/shared/utils/platformApi"
+
+import { parseDoc } from "@/features/artifacts/utils/docParse"
+import { AudioEncoderSupported, extractAudioBlob } from "@/features/media/utils/audioProcess"
+
+import artifacts from "../buildin/artifactsPlugin"
 import webSearchPlugin from "../buildin/webSearchPlugin"
+
+import { getClient } from "./mcpClient"
+
+import { i18n } from "@/boot/i18n"
 
 const { t } = i18n.global
 
@@ -234,7 +239,7 @@ function buildLobePlugin(
   manifest: LobeChatPluginManifest,
   options?: PluginBuilderOptions
 ): Plugin {
-  const { available = true, customSettings = {} } = options || {};
+  const { available = true, customSettings = {} } = options || {}
   const { identifier, meta, settings } = manifest
   const title = meta.title ?? identifier
 
@@ -339,7 +344,7 @@ function buildGradioPlugin(
   manifest: GradioPluginManifest,
   options?: PluginBuilderOptions
 ): Plugin {
-  const { available = true } = options || {};
+  const { available = true } = options || {}
   const { id, title, description, prompt, promptVars, noRoundtrip } = manifest
   const settings = {
     _hfToken: TOptional(
@@ -475,7 +480,7 @@ function buildMcpPlugin(
   dump: McpPluginDump,
   options?: PluginBuilderOptions
 ): Plugin {
-  const { available = true } = options || {};
+  const { available = true } = options || {}
   const resourceToResultItem = (resource, name?) =>
     resource.text
       ? {
@@ -652,29 +657,29 @@ async function dumpMcpPlugin(
   manifest: McpPluginManifest,
   options?: DumpMcpPluginOptions
 ): Promise<McpPluginDump> {
-  const { includeCapabilities = true } = options || {};
+  const { includeCapabilities = true } = options || {}
   const client = await getClient(manifest.id, manifest.transport)
   const capabilities = client.getServerCapabilities()
 
-  let tools = [];
-  let resources = [];
-  let prompts = [];
+  let tools = []
+  let resources = []
+  let prompts = []
 
   if (includeCapabilities) {
     const toolsResult = capabilities.tools
       ? await client.listTools()
-      : { tools: [] };
-    tools = toolsResult.tools;
+      : { tools: [] }
+    tools = toolsResult.tools
 
     const resourcesResult = capabilities.resources
       ? await client.listResources()
-      : { resources: [] };
-    resources = resourcesResult.resources;
+      : { resources: [] }
+    resources = resourcesResult.resources
 
     const promptsResult = capabilities.prompts
       ? await client.listPrompts()
-      : { prompts: [] };
-    prompts = promptsResult.prompts;
+      : { prompts: [] }
+    prompts = promptsResult.prompts
   }
 
   return {

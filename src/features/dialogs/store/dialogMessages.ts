@@ -1,7 +1,8 @@
 import merge from "lodash/merge"
 import { defineStore } from "pinia"
-import { supabase } from "@/services/data/supabase/client"
 import { reactive } from "vue"
+
+import { supabase } from "@/services/data/supabase/client"
 import {
   DialogMessageMapped,
   MessageContentMapped,
@@ -12,6 +13,31 @@ import {
 
 const SELECT_DIALOG_MESSAGES = "*, message_contents(*, stored_items(*))"
 
+/**
+ * Store for managing dialog messages in AI conversations
+ *
+ * This store handles:
+ * - Fetching, creating, updating, and deleting dialog messages
+ * - Managing message content and stored items within messages
+ * - Tracking message state (active, streaming, complete)
+ * - Organizing messages by dialog
+ *
+ * Dialog messages represent the individual messages within an AI conversation,
+ * including both user inputs and AI responses, along with any attachments or
+ * generated content.
+ *
+ * @dependencies
+ * - No direct store dependencies, but works closely with useDialogsStore
+ *
+ * @database
+ * - Table: "dialog_messages" - Stores message metadata and relationships
+ * - Table: "message_contents" - Stores actual message content
+ * - Table: "stored_items" - Stores attachments and generated files
+ *
+ * @related
+ * - Used by {@link useDialogMessages} composable for message operations
+ * - Used by {@link useLlmDialog} for managing conversation flow
+ */
 export const useDialogMessagesStore = defineStore("dialogMessages", () => {
   const dialogMessages = reactive<Record<string, DialogMessageMapped[]>>({})
 

@@ -1,10 +1,14 @@
 import { Array as TArray, Object, Optional, String } from "@sinclair/typebox"
-import { i18n } from "@/boot/i18n"
-import { useArtifactsStore } from "@/features/artifacts/store"
-import { saveArtifactChanges } from "@shared/utils/functions"
-import { engine } from "@/shared/utils/template/templateEngine"
+
 import { Plugin, PluginApi, PluginData } from "@/shared/types"
+import { saveArtifactChanges } from "@/shared/utils/functions"
+import { engine } from "@/shared/utils/template/templateEngine"
+
+import { useArtifactsStore } from "@/features/artifacts/store"
+
 import { ArtifactMapped } from "@/services/data/supabase/types"
+
+import { i18n } from "@/boot/i18n"
 
 const pluginId = "aiaw-artifacts"
 

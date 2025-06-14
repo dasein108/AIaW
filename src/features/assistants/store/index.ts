@@ -1,13 +1,16 @@
 /* eslint-disable camelcase */
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
-import { defaultModelSettings } from "@/features/assistants/consts"
-import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
-import { supabase } from "@/services/data/supabase/client"
-import { defaultAvatar, defaultTextAvatar } from "@/shared/utils/functions"
-import { AssistantDefaultPrompt } from "@/features/dialogs/utils/dialogTemplateDefinitions"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
+
+import { defaultAvatar, defaultTextAvatar } from "@/shared/utils/functions"
+
+import { defaultModelSettings } from "@/features/assistants/consts"
+import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
+import { AssistantDefaultPrompt } from "@/features/dialogs/utils/dialogTemplateDefinitions"
+
+import { supabase } from "@/services/data/supabase/client"
 import { AssistantMapped, Assistant } from "@/services/data/supabase/types"
 
 function mapAssistantTypes (item: Assistant): AssistantMapped {
@@ -19,6 +22,28 @@ function mapAssistantTypes (item: Assistant): AssistantMapped {
   } as AssistantMapped
 }
 
+/**
+ * Store for managing AI assistants in the application
+ *
+ * This store handles:
+ * - Fetching, creating, updating, and deleting assistants
+ * - Managing assistant configurations (prompts, models, settings)
+ * - Tracking assistant state across the application
+ *
+ * Assistants are AI configurations that can be used in dialogs to provide
+ * specific capabilities or personalities for different use cases.
+ *
+ * @dependencies
+ * - {@link useUserLoginCallback} - For initialization after user login
+ * - {@link useI18n} - For internationalization of default assistant names
+ *
+ * @database
+ * - Table: "user_assistants" - Stores assistant configurations
+ *
+ * @related
+ * - Used by {@link usePluginsStore} for managing assistant-plugin associations
+ * - Used by {@link useDialogInput} for setting up conversation contexts
+ */
 export const useAssistantsStore = defineStore("assistants", () => {
   const assistants = ref<AssistantMapped[]>([])
   const isLoaded = ref(false)

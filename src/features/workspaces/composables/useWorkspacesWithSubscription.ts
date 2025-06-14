@@ -1,8 +1,11 @@
+import { ref, readonly } from "vue"
+
+import { Avatar } from "@/shared/types"
+
+import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
+
 import { supabase } from "@/services/data/supabase/client"
 import type { Workspace, WorkspaceMapped } from "@/services/data/supabase/types"
-import { ref, readonly } from "vue"
-import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
-import { Avatar } from "@/shared/types"
 
 export function mapWorkspaceTypes (item: Workspace): WorkspaceMapped {
   const { avatar, ...rest } = item

@@ -10,6 +10,7 @@ This guide outlines the architecture, patterns, and conventions used in the AIaW
 - [Feature-Based Structure](#feature-based-structure)
 - [Development Workflow](#development-workflow)
 - [Coding Standards](#coding-standards)
+- [Refactoring Guidelines](#refactoring-guidelines)
 - [State Management](#state-management)
 - [Component Development](#component-development)
 - [Cross-Platform Development](#cross-platform-development)
@@ -133,8 +134,36 @@ features/
 ### File Organization
 
 - One component per file
-- Import order: builtin, external, internal, parent, sibling, index (alphabetized)
 - Group related functionality in appropriate feature directories
+
+### Import Standards
+
+- **Path Aliases**: Always use `@/` prefix for path aliases
+  ```typescript
+  // Correct
+  import { useUserStore } from "@/shared/store"
+  import { useDialogsStore } from "@/features/dialogs/store"
+
+  // Incorrect
+  import { useUserStore } from "@shared/store"
+  import { useDialogsStore } from "../../dialogs/store"
+  ```
+
+- **Import Order**: Organize imports in the following order:
+  1. Vue and external libraries
+  2. Types (grouped)
+  3. Services
+  4. Shared utilities and components
+  5. Other features
+  6. Current feature (relative paths for closely related files)
+
+- **Relative vs Absolute**:
+  - Use absolute paths for imports across features
+  - Use relative paths only for closely related files in the same directory
+
+- **Utility Scripts**:
+  - `npm run fix:imports`: Fix import paths across the codebase
+  - `./scripts/fix-imports.sh path/to/file.ts`: Fix imports in a specific file
 
 ### Component Structure
 
@@ -198,9 +227,210 @@ function handleEvent() {
 </style>
 ```
 
+## Refactoring Guidelines
+
+### Component Consolidation
+
+To maintain a clean and organized codebase, follow these component consolidation guidelines:
+
+#### Shared Component Organization
+
+Components should be organized based on their usage scope:
+
+- **Feature-specific components**: Keep in `src/features/[module]/components/`
+- **Generic UI components**: Move to appropriate shared directories:
+  - `src/shared/components/avatar/` - Avatar-related components
+  - `src/shared/components/file/` - File handling components
+  - `src/shared/components/layout/` - Layout and navigation components
+  - `src/shared/components/media/` - Media display components
+  - `src/shared/components/dialogs/` - Dialog components
+  - `src/shared/components/input/` - Form and input components
+
+#### Duplicate Component Resolution
+
+When consolidating duplicate components:
+
+1. **Identify the canonical version**: Choose the most complete or appropriately located version
+2. **Update all imports**: Use absolute path imports when moving components
+3. **Verify functionality**: Ensure all usage scenarios still work
+4. **Remove duplicates**: Delete duplicate files after successful migration
+
+Example consolidation:
+```typescript
+// Before - duplicate components
+src/shared/components/AAvatar.vue (duplicate)
+src/shared/components/avatar/AAvatar.vue (keep)
+
+// After - consolidated imports
+import AAvatar from "@shared/components/avatar/AAvatar.vue"
+```
+
+#### Component Naming Standards
+
+- Use PascalCase for component names
+- Fix typos in component names (e.g., `DragableSeparator` → `DraggableSeparator`)
+- Ensure component names are descriptive and follow consistent patterns
+
+### Function Refactoring
+
+Break down complex functions to improve maintainability:
+
+#### Complexity Indicators
+
+Refactor functions that exhibit:
+- **High line count**: Functions with 50+ lines
+- **Deep nesting**: More than 3-4 levels of nested conditionals
+- **Multiple responsibilities**: Functions doing more than one distinct task
+- **Parameter complexity**: Functions with many parameters or complex parameter handling
+
+#### Refactoring Approach
+
+1. **Identify distinct responsibilities** within the function
+2. **Extract helper functions** for each responsibility
+3. **Maintain clear data flow** between functions
+4. **Add comprehensive JSDoc documentation**
+
+Example refactoring pattern:
+```typescript
+// Before - complex function
+async function complexOperation(data, options) {
+  // 90+ lines of mixed responsibilities
+  // Data validation, processing, API calls, error handling
+}
+
+// After - refactored with helper functions
+async function complexOperation(data, options) {
+  const validatedData = validateInput(data);
+  const processedData = processData(validatedData, options);
+  const result = await performApiCall(processedData);
+  return handleResult(result);
+}
+
+function validateInput(data) { /* focused validation logic */ }
+function processData(data, options) { /* focused processing logic */ }
+async function performApiCall(data) { /* focused API logic */ }
+function handleResult(result) { /* focused result handling */ }
+```
+
+### Parameter Standardization
+
+Standardize function parameter patterns for consistency:
+
+#### Parameter Order
+
+Follow this consistent order for function parameters:
+
+1. **Identifiers/Keys**: IDs and key values (e.g., `dialogId`, `messageId`)
+2. **Content/Data**: Main data objects being manipulated
+3. **Options/Configuration**: Optional settings that modify behavior
+4. **Callbacks**: Callback functions for async operations
+
+```typescript
+// Standardized parameter order
+function updateDialogMessage(
+  dialogId: string,              // 1. Identifier
+  messageId: string,             // 1. Identifier
+  message: Partial<DialogMessage>, // 2. Content
+  options?: UpdateOptions,       // 3. Options
+  onComplete?: () => void        // 4. Callback
+) { /* ... */ }
+```
+
+#### Parameter Patterns
+
+- **Simple functions (1-3 parameters)**: Use explicit parameters
+- **Complex functions (4+ parameters)**: Use object destructuring
+- **Optional parameters**: Use TypeScript optional syntax with default values
+
+```typescript
+// Simple function - explicit parameters
+function processText(text: string, maxLength: number = 100): string {
+  return text.length > maxLength ? text.substring(0, maxLength) : text;
+}
+
+// Complex function - object destructuring
+function createDialog(options: {
+  workspaceId: string;
+  title?: string;
+  participants?: string[];
+  settings?: DialogSettings;
+  onCreated?: (dialog: Dialog) => void;
+}) {
+  const { workspaceId, title = 'New Dialog', participants = [], settings, onCreated } = options;
+  // Implementation
+}
+```
+
+#### Parameter Naming
+
+- Use `id` suffix for identifiers: `dialogId`, `messageId`, `workspaceId`
+- Use `options` for configuration objects
+- Use descriptive verb-noun combinations for callbacks: `onComplete`, `onError`, `handleSuccess`
+- Maintain consistency across similar functions
+
+### Store Standardization
+
+Standardize Pinia store organization and naming:
+
+#### Store File Structure
+
+```
+src/
+├── features/
+│   └── [module]/
+│       └── store/
+│           ├── index.ts          # Main store, re-exports others
+│           ├── [substore].ts     # Secondary stores if needed
+│           └── types.ts          # Store-specific types
+└── shared/
+    └── store/
+        ├── index.ts              # Re-exports all shared stores
+        ├── [storeName].ts        # Individual store files
+        └── types.ts              # Shared store types
+```
+
+#### Store Naming Conventions
+
+- **File names**: Use kebab-case without "Store" suffix (`user-preferences.ts`)
+- **Store IDs**: Use kebab-case, dot notation for nested stores (`"user-preferences"`, `"dialogs.messages"`)
+- **Export names**: Use camelCase with "Store" suffix (`useUserPreferencesStore`)
+
+```typescript
+// features/dialogs/store/index.ts
+export const useDialogsStore = defineStore('dialogs', () => {
+  // Main dialogs functionality
+});
+
+// features/dialogs/store/messages.ts
+export const useDialogMessagesStore = defineStore('dialogs.messages', () => {
+  // Messages-specific functionality
+});
+
+// shared/store/user-preferences.ts
+export const useUserPreferencesStore = defineStore('user-preferences', () => {
+  // User preferences functionality
+});
+```
+
+#### Store Re-exports
+
+Always provide clean re-exports through index files:
+
+```typescript
+// features/dialogs/store/index.ts
+export { useDialogsStore } from './main';
+export { useDialogMessagesStore } from './messages';
+export type * from './types';
+
+// shared/store/index.ts
+export { useUserPreferencesStore } from './user-preferences';
+export { useUiStateStore } from './ui-state';
+// ... other stores
+```
+
 ## State Management
 
-AIaW uses Pinia for state management with the following patterns:
+AIaW uses Pinia for state management with standardized patterns:
 
 ### Store Structure
 
@@ -208,61 +438,100 @@ AIaW uses Pinia for state management with the following patterns:
 // features/feature-name/store/index.ts
 import { defineStore } from 'pinia'
 
-export const useFeatureStore = defineStore('feature', {
-  state: () => ({
-    // State properties
-    items: [],
-    isLoading: false
-  }),
-  
-  getters: {
-    // Computed values derived from state
-    filteredItems: (state) => state.items.filter(/* condition */)
-  },
-  
-  actions: {
-    // Methods to change state
-    async fetchItems() {
-      this.isLoading = true
-      try {
-        // API calls or other logic
-        this.items = await someApiCall()
-      } catch (error) {
-        console.error(error)
-      } finally {
-        this.isLoading = false
-      }
+export const useFeatureStore = defineStore('feature', () => {
+  // State
+  const items = ref<Item[]>([])
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
+
+  // Getters
+  const filteredItems = computed(() =>
+    items.value.filter(item => item.active)
+  )
+
+  // Actions
+  async function fetchItems() {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const response = await api.getItems()
+      items.value = response.data
+    } catch (err) {
+      error.value = err.message
+      console.error('Failed to fetch items:', err)
+    } finally {
+      isLoading.value = false
     }
-  },
-  
-  // Optional: persistence configuration
-  persist: {
-    enabled: true,
-    strategies: [
-      {
-        key: 'feature-storage',
-        storage: localStorage
-      }
-    ]
+  }
+
+  function updateItem(id: string, updates: Partial<Item>) {
+    const index = items.value.findIndex(item => item.id === id)
+    if (index !== -1) {
+      items.value[index] = { ...items.value[index], ...updates }
+    }
+  }
+
+  // Return public API
+  return {
+    // State
+    items: readonly(items),
+    isLoading: readonly(isLoading),
+    error: readonly(error),
+
+    // Getters
+    filteredItems,
+
+    // Actions
+    fetchItems,
+    updateItem
   }
 })
 ```
 
-### Store Usage in Components
+### Store Usage Patterns
 
 ```typescript
-import { useFeatureStore } from '../store'
+// In components
+import { useFeatureStore } from '@/features/feature-name/store'
 
-// In component setup
 const featureStore = useFeatureStore()
 
-// Access state
+// Access reactive state
 const items = computed(() => featureStore.filteredItems)
+const isLoading = computed(() => featureStore.isLoading)
 
 // Call actions
-function loadData() {
-  featureStore.fetchItems()
+async function loadData() {
+  await featureStore.fetchItems()
 }
+```
+
+### Store Composition
+
+For complex features, compose multiple stores:
+
+```typescript
+// features/dialogs/store/index.ts
+export const useDialogsStore = defineStore('dialogs', () => {
+  const messagesStore = useDialogMessagesStore()
+  const settingsStore = useDialogSettingsStore()
+
+  // Coordinate between stores
+  async function createDialog(options: CreateDialogOptions) {
+    const dialog = await createDialogRecord(options)
+    messagesStore.initializeMessages(dialog.id)
+    settingsStore.applyDefaults(dialog.id)
+    return dialog
+  }
+
+  return {
+    createDialog,
+    // Re-export from composed stores
+    ...messagesStore,
+    ...settingsStore
+  }
+})
 ```
 
 ## Component Development
@@ -283,15 +552,15 @@ import { ref, computed } from 'vue'
 
 export function useFeatureAction(initialValue: string) {
   const state = ref(initialValue)
-  
+
   const derivedValue = computed(() => {
     return state.value.toUpperCase()
   })
-  
+
   function updateState(newValue: string) {
     state.value = newValue
   }
-  
+
   return {
     state,
     derivedValue,
@@ -339,15 +608,15 @@ describe('MyComponent', () => {
         propName: 'test'
       }
     })
-    
+
     expect(wrapper.text()).toContain('test')
   })
-  
+
   it('emits update event when button is clicked', async () => {
     const wrapper = mount(MyComponent)
-    
+
     await wrapper.find('button').trigger('click')
-    
+
     expect(wrapper.emitted('update')).toBeTruthy()
   })
 })
@@ -453,6 +722,7 @@ export const Variant = {
    - Use `v-memo` for expensive renders
    - Memoize expensive computations
    - Lazy load components and routes
+   - **Function optimization**: Break down complex functions to improve performance and caching
 
 2. **Security**
    - Never expose API keys in client-side code
@@ -468,11 +738,54 @@ export const Variant = {
    - Use try/catch blocks for async operations
    - Provide user-friendly error messages
    - Log errors for debugging
+   - **Centralized error handling**: Use consistent error handling patterns across similar functions
 
 5. **Code Organization**
    - Keep components focused and small
    - Extract complex logic to composables
    - Use TypeScript interfaces for complex data structures
+   - **Follow consolidation guidelines**: Regularly review and consolidate duplicate components
+   - **Apply refactoring principles**: Continuously improve code structure and maintainability
+
+6. **Maintainability**
+   - **Regular refactoring**: Schedule regular code reviews to identify refactoring opportunities
+   - **Documentation**: Maintain up-to-date JSDoc comments for complex functions
+   - **Consistent patterns**: Follow established parameter and naming conventions
+   - **Testing**: Write tests for refactored components to ensure behavior consistency
+
+## Refactoring Checklist
+
+When refactoring code, use this checklist:
+
+### Component Consolidation
+- [ ] Identify duplicate or similar components
+- [ ] Choose the canonical version to keep
+- [ ] Update all imports to use absolute paths
+- [ ] Test functionality after consolidation
+- [ ] Remove duplicate files
+- [ ] Update related documentation
+
+### Function Refactoring
+- [ ] Identify functions with high complexity (50+ lines, deep nesting)
+- [ ] Break down into smaller, focused helper functions
+- [ ] Maintain clear data flow between functions
+- [ ] Add comprehensive JSDoc documentation
+- [ ] Verify all functionality still works
+- [ ] Update tests to cover new function structure
+
+### Parameter Standardization
+- [ ] Review function parameter orders
+- [ ] Standardize parameter naming conventions
+- [ ] Update functions to use consistent patterns
+- [ ] Add TypeScript types for all parameters
+- [ ] Update function calls throughout codebase
+
+### Store Standardization
+- [ ] Review store file naming and structure
+- [ ] Standardize store IDs and export names
+- [ ] Ensure proper re-exports through index files
+- [ ] Update imports throughout the application
+- [ ] Verify store functionality after changes
 
 ## Conclusion
 

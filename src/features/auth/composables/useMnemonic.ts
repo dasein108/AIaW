@@ -1,9 +1,11 @@
+import { ref } from "vue"
+
 import {
   getMnemonic,
   saveMnemonic,
   removeMnemonic,
 } from "@/shared/store/tauriStore"
-import { ref } from "vue"
+
 import { EncryptionService } from "@/services/security/encryption/EncryptionService"
 
 export function useMnemonic () {

@@ -1,10 +1,13 @@
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
-import { useWorkspacesWithSubscription } from "@/features/workspaces/composables/useWorkspacesWithSubscription"
-import { supabase } from "@/services/data/supabase/client"
-import { DefaultWsIndexContent } from "@/shared/utils/template/templates"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
+
+import { DefaultWsIndexContent } from "@/shared/utils/template/templates"
+
+import { useWorkspacesWithSubscription } from "@/features/workspaces/composables/useWorkspacesWithSubscription"
+
+import { supabase } from "@/services/data/supabase/client"
 import type {
   WorkspaceMapped,
   WorkspaceMemberMapped,
@@ -14,6 +17,26 @@ import type {
 
 const SELECT_WORKSPACE_MEMBERS = "*, profile:profiles(id, name)"
 
+/**
+ * Store for managing workspaces and workspace members
+ *
+ * This store provides functionality for:
+ * - Managing workspace CRUD operations (create, read, update, delete)
+ * - Managing workspace members and their roles
+ * - Retrieving workspace membership information
+ *
+ * Workspaces are a fundamental organizational unit in the application that
+ * contain dialogs, assistants, and other resources.
+ *
+ * @dependencies
+ * - {@link useWorkspacesWithSubscription} - For real-time workspace data
+ * - {@link useI18n} - For internationalization of default workspace names
+ *
+ * @database
+ * - Table: "workspaces" - Stores workspace data
+ * - Table: "workspace_members" - Stores workspace membership and roles
+ * - Related to: "profiles" table for member information
+ */
 export const useWorkspacesStore = defineStore("workspaces", () => {
   const { workspaces, isLoaded } = useWorkspacesWithSubscription()
   const workspaceMembers = ref<WorkspaceMemberMapped[]>([])

@@ -25,7 +25,7 @@ export async function corsFetch(
   url: string,
   options?: CorsFetchOptions
 ): Promise<Response> {
-  const { method = "GET", headers = {}, body } = options || {};
+  const { method = "GET", headers = {}, body } = options || {}
 
   if (IsCapacitor || IsTauri) return fetch(url, { method, headers, body })
 

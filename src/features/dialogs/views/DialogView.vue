@@ -304,29 +304,15 @@
 import { until } from "@vueuse/core"
 import Mark from "mark.js"
 import { useQuasar } from "quasar"
+import { computed, inject, nextTick, onUnmounted, ref, toRef, watch } from "vue"
+import { useI18n } from "vue-i18n"
+import { useRoute, useRouter } from "vue-router"
+
 import AbortableBtn from "@/shared/components/AbortableBtn.vue"
-import AddInfoBtn from "@/features/dialogs/components/AddPlugin/AddInfoBtn.vue"
-import EnablePluginsMenu from "@/features/plugins/components/EnablePluginsMenu.vue"
-import MessageFile from "@/features/media/components/MessageFile.vue"
-import MessageImage from "@/features/media/components/MessageImage.vue"
-import MessageItem from "@/features/dialogs/components/MessageItem.vue"
-import ModelOptionsBtn from "@/features/providers/components/ModelOptionsBtn.vue"
-import ModelOverrideMenu from "@/features/providers/components/ModelOverrideMenu.vue"
-import ParseFilesDialog from "../components/ParseFilesDialog.vue"
-import PromptVarInput from "@/features/prompt/components/PromptVarInput.vue"
-import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
-import { useDialogInput } from "@/features/dialogs/composables/useDialogInput"
-import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
-import { useDialogModel } from "@/features/dialogs/composables/useDialogModel"
-import { useLlmDialog } from "@/features/dialogs/composables/useLlmDialog"
 import { useListenKey } from "@/shared/composables"
 import { useSetTitle } from "@/shared/composables/setTitle"
-import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
-import ErrorNotFound from "@/pages/ErrorNotFound.vue"
-import { DialogMessageMapped } from "@/services/data/supabase/types"
-import { useDialogMessagesStore } from "@/features/dialogs/store"
-import { usePluginsStore } from "@/features/plugins/store"
-import { useUiStateStore, useUserDataStore, useUserPerfsStore } from "@shared/store"
+import { useUiStateStore, useUserDataStore, useUserPerfsStore } from "@/shared/store"
+import type { ApiResultItem, Plugin } from "@/shared/types"
 import { MaxMessageFileSizeMB } from "@/shared/utils/config"
 import {
   almostEqual,
@@ -339,21 +325,32 @@ import {
   wrapCode,
   wrapQuote
 } from "@/shared/utils/functions"
-import { scaleBlob } from "@/features/media/utils/imageProcess"
-import { engine } from "@/features/dialogs/utils/templateEngine"
+
+import AddInfoBtn from "@/features/dialogs/components/AddPlugin/AddInfoBtn.vue"
+import MessageItem from "@/features/dialogs/components/MessageItem.vue"
+import { useDialogInput } from "@/features/dialogs/composables/useDialogInput"
+import { useDialogMessages } from "@/features/dialogs/composables/useDialogMessages"
+import { useDialogModel } from "@/features/dialogs/composables/useDialogModel"
+import { useLlmDialog } from "@/features/dialogs/composables/useLlmDialog"
+import { useDialogMessagesStore } from "@/features/dialogs/store"
 import { DialogContent } from "@/features/dialogs/utils/dialogTemplateDefinitions"
-import { Plugin, ApiResultItem } from "@/shared/types"
-import {
-  computed,
-  inject,
-  onUnmounted,
-  ref,
-  toRef,
-  watch,
-  nextTick,
-} from "vue"
-import { useI18n } from "vue-i18n"
-import { useRoute, useRouter } from "vue-router"
+import { engine } from "@/features/dialogs/utils/templateEngine"
+import MessageFile from "@/features/media/components/MessageFile.vue"
+import MessageImage from "@/features/media/components/MessageImage.vue"
+import { scaleBlob } from "@/features/media/utils/imageProcess"
+import EnablePluginsMenu from "@/features/plugins/components/EnablePluginsMenu.vue"
+import { usePluginsStore } from "@/features/plugins/store"
+import PromptVarInput from "@/features/prompt/components/PromptVarInput.vue"
+import ModelOptionsBtn from "@/features/providers/components/ModelOptionsBtn.vue"
+import ModelOverrideMenu from "@/features/providers/components/ModelOverrideMenu.vue"
+import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
+
+import type { DialogMessageMapped } from "@/services/data/supabase/types"
+
+import ParseFilesDialog from "../components/ParseFilesDialog.vue"
+
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
+import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 const { t } = useI18n()
 
 const props = defineProps<{

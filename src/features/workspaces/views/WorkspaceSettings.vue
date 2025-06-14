@@ -124,23 +124,27 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import AAvatar from "@shared/components/avatar/AAvatar.vue"
-import AssistantItem from "@features/assistants/components/AssistantItem.vue"
-import LoadingPanel from "@/shared/components/LoadingPanel.vue"
-import NotificationPanel from "@/shared/components/NotificationPanel.vue"
-import PickAvatarDialog from "@shared/components/avatar/PickAvatarDialog.vue"
-import VarsInput from "@/features/prompt/components/VarsInput.vue"
-import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
-import WorkspaceMembers from "@features/workspaces/components/WorkspaceMembers.vue"
-import { useSetTitle } from "@shared/composables/setTitle"
-import { syncRef } from "@shared/composables/syncRef"
-import { useIsWorkspaceAdmin } from "@features/workspaces/composables/useIsWorkspaceAdmin"
-import { useAssistantsStore } from "@features/assistants/store"
-import { useUserDataStore } from "@shared/store"
-import { useWorkspacesStore } from "@features/workspaces/store"
 import { computed, Ref, inject, toRaw, watch } from "vue"
 import { useI18n } from "vue-i18n"
+
+import AAvatar from "@/shared/components/avatar/AAvatar.vue"
+import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
+import LoadingPanel from "@/shared/components/LoadingPanel.vue"
+import NotificationPanel from "@/shared/components/NotificationPanel.vue"
+import { useSetTitle } from "@/shared/composables/setTitle"
+import { syncRef } from "@/shared/composables/syncRef"
+import { useUserDataStore } from "@/shared/store"
+
+import AssistantItem from "@/features/assistants/components/AssistantItem.vue"
+import { useAssistantsStore } from "@/features/assistants/store"
+import VarsInput from "@/features/prompt/components/VarsInput.vue"
+import WorkspaceMembers from "@/features/workspaces/components/WorkspaceMembers.vue"
+import { useIsWorkspaceAdmin } from "@/features/workspaces/composables/useIsWorkspaceAdmin"
+import { useWorkspacesStore } from "@/features/workspaces/store"
+
 import { WorkspaceMapped } from "@/services/data/supabase/types"
+
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 const { t } = useI18n()
 
 defineEmits(["toggle-drawer"])

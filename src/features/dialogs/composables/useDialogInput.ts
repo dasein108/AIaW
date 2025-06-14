@@ -1,12 +1,16 @@
 import { computed, Ref, watch } from "vue"
+
 import { useStorage } from "@/shared/composables/storage/useStorage"
-import { useDialogMessages } from "./useDialogMessages"
+import { ApiResultItem } from "@/shared/types"
+
 import { UserMessageContent } from "@/features/dialogs/types"
+
 import {
   MessageContentMapped,
   StoredItemMapped,
 } from "@/services/data/supabase/types"
-import { ApiResultItem } from "@/shared/types"
+
+import { useDialogMessages } from "./useDialogMessages"
 
 /**
  * Composable for managing input in a dialog

@@ -1,13 +1,14 @@
-import { ShortcutKey } from "@/shared/types"
 import { onActivated, onDeactivated, onMounted, onUnmounted, Ref } from "vue"
+
+import { ShortcutKey } from "@/shared/types"
 
 /**
  * Composable for handling keyboard shortcuts with lifecycle management
- * 
+ *
  * Sets up a keydown event listener that triggers a callback when a specific
  * keyboard shortcut is pressed. The listener is automatically added and removed
  * during component lifecycle events (mounted, unmounted, activated, deactivated).
- * 
+ *
  * @param shortcutKey - Reference to a ShortcutKey configuration
  * @param callback - Function to call when the shortcut is triggered
  * @param prevent - Whether to prevent the default browser behavior (default: true)
@@ -16,7 +17,7 @@ import { onActivated, onDeactivated, onMounted, onUnmounted, Ref } from "vue"
  * useListenKey(enterKey, () => {
  *   console.log('Enter key pressed');
  * });
- * 
+ *
  * // With modifier keys
  * const saveKey = ref({ key: 'KeyS', withCtrl: true });
  * useListenKey(saveKey, saveDocument);

@@ -1,13 +1,47 @@
-// src/shared/store/utils/createKeyValueDbStore.ts
+// @/shared/store/utils/createKeyValueDbStore.ts
 
 import { isEqual, throttle, cloneDeep } from "lodash"
 import { defineStore } from "pinia"
-import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
-import { supabase } from "@/services/data/supabase/client"
-import { CODE_NO_RECORD_FOUND } from "@/services/data/supabase/consts"
 import { reactive, ref, watch } from "vue"
+
 import { useUserStore } from "@/shared/store/user"
 
+import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
+
+import { supabase } from "@/services/data/supabase/client"
+import { CODE_NO_RECORD_FOUND } from "@/services/data/supabase/consts"
+
+/**
+ * Factory function that creates a key-value store with Supabase persistence
+ *
+ * This function creates a Pinia store that automatically syncs with the Supabase
+ * "user_data" table. It provides reactivity, persistence, and throttled updates
+ * to minimize database operations.
+ *
+ * @dependencies
+ * - {@link useUserStore} - For user identification in the database
+ * - {@link useUserLoginCallback} - For initialization after login
+ *
+ * @database
+ * - Table: "user_data" - Stores user-specific key-value data
+ *
+ * @example
+ * ```typescript
+ * // Creating a preferences store
+ * export const usePrefsStore = createKeyValueDbStore("prefs", {
+ *   theme: "light",
+ *   language: "en"
+ * });
+ *
+ * // Using the store
+ * const prefsStore = usePrefsStore();
+ * prefsStore.data.theme = "dark"; // Automatically synced to database
+ * ```
+ *
+ * @param storeId - Unique identifier for this store, used as the key in the database
+ * @param defaultValue - Default values for the store
+ * @returns A configured Pinia store with automatic persistence
+ */
 export function createKeyValueDbStore<T extends object> (
   storeId: string,
   defaultValue: T

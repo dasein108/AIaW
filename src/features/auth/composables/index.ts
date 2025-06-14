@@ -1,9 +1,9 @@
 import { useAuth } from "./useAuth"
 import { useCheckLogin } from "./useCheckLogin"
-import { useUserLoginCallback } from "./useUserLoginCallback"
+import { useFirstVisit } from "./useFirstVisit"
 import { useMnemonic } from "./useMnemonic"
 import { usePinModal } from "./usePinModal"
-import { useFirstVisit } from "./useFirstVisit"
+import { useUserLoginCallback } from "./useUserLoginCallback"
 
 export {
   useAuth,

@@ -90,13 +90,15 @@
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
-import { AAvatar } from "@shared/components/avatar"
+import { computed, reactive, ref } from "vue"
+
+import { AAvatar } from "@/shared/components/avatar"
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
 import { useUserStore } from "@/shared/store/user"
 import { useUserPrefsStore } from "@/shared/store/userPrefs"
-import { genId } from "@shared/utils/functions"
 import { ApiResultItem, TextAvatar } from "@/shared/types"
-import { computed, reactive, ref } from "vue"
+import { genId } from "@/shared/utils/functions"
+
 import { ChatMessageWithProfile } from "@/services/data/supabase/types"
 
 const props = defineProps<{

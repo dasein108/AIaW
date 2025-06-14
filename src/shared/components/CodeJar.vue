@@ -8,7 +8,6 @@
 import { CodeJar } from "codejar"
 import { withLineNumbers } from "codejar-linenumbers"
 import "codejar-linenumbers/js/codejar-linenumbers.css"
-
 import { computed, onMounted, ref, watchEffect } from "vue"
 
 const props = defineProps<{

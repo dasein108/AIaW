@@ -1,5 +1,6 @@
-import { AssistantMapped } from "@/services/data/supabase/types"
 import { ModelSettings } from "@/shared/types"
+
+import { AssistantMapped } from "@/services/data/supabase/types"
 
 export const getAssistantModelSettings = (
   assistant: AssistantMapped,

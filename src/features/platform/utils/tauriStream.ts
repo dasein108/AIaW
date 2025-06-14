@@ -2,7 +2,7 @@
 // Modified from https://github.com/ChatGPTNextWeb/NextChat/blob/main/app/utils/stream.ts
 
 // using tauri command to send request
-// see src-tauri/src/stream.rs, and src-tauri/src/main.rs
+// see src-tauri/@/stream.rs, and src-tauri/@/main.rs
 // 1. invoke('stream_fetch', {url, method, headers, body}), get response with headers.
 // 2. listen event: `stream-response` multi times to get body
 

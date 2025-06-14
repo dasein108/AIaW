@@ -1,5 +1,7 @@
 import { MdPreviewProps } from "md-editor-v3"
 import { Dark } from "quasar"
+import { watchEffect } from "vue"
+
 import {
   Avatar,
   Model,
@@ -8,7 +10,7 @@ import {
   ShortcutKey,
 } from "@/shared/types"
 import { models } from "@/shared/utils/values"
-import { watchEffect } from "vue"
+
 import { createKeyValueDbStore } from "./utils/createKeyValueDbStore"
 
 interface Prefs {

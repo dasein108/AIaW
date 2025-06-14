@@ -59,11 +59,13 @@
 </template>
 
 <script setup lang="ts">
-import AAvatar from "@/shared/components/avatar/AAvatar.vue"
-import { useProvidersStore } from "@/features/providers/store"
-import { Provider } from "@/shared/types"
 import { computed } from "vue"
+
+import AAvatar from "@/shared/components/avatar/AAvatar.vue"
 import JsonInput from "@/shared/components/input/JsonInput.vue"
+import { Provider } from "@/shared/types"
+
+import { useProvidersStore } from "@/features/providers/store"
 
 defineProps<{
   label?: string

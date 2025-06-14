@@ -1,11 +1,35 @@
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
-import { useChatsWithSubscription } from "@/features/chats/composables/useChatsWithSubscription"
-import { supabase } from "@/services/data/supabase/client"
 import { readonly } from "vue"
+
 import { useUserStore } from "@/shared/store"
+
+import { useChatsWithSubscription } from "@/features/chats/composables/useChatsWithSubscription"
+
+import { supabase } from "@/services/data/supabase/client"
 import { ChatMapped } from "@/services/data/supabase/types"
 
+/**
+ * Store for managing user-to-user chats in the application
+ *
+ * This store provides functionality for:
+ * - Creating, reading, updating, and deleting chats
+ * - Managing chat membership
+ * - Searching chat content
+ * - Handling private chats between users
+ *
+ * Chats are user-to-user communication channels, separate from AI dialogs,
+ * that enable collaboration within workspaces.
+ *
+ * @dependencies
+ * - {@link useChatsWithSubscription} - For real-time chat data
+ * - {@link useUserStore} - For current user information
+ *
+ * @database
+ * - Table: "chats" - Stores chat metadata
+ * - Table: "messages" - Stores chat messages (separate from dialog messages)
+ * - Uses RPC function: "start_private_chat_with" for private chat management
+ */
 export const useChatsStore = defineStore("chats", () => {
   const { chats, isLoaded } = useChatsWithSubscription()
   const userStore = useUserStore()

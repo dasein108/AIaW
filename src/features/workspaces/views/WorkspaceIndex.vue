@@ -20,15 +20,19 @@
 
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
-import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
+import { computed, Ref, inject, toRaw } from "vue"
+
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
 import { useSetTitle } from "@/shared/composables/setTitle"
 import { syncRef } from "@/shared/composables/syncRef"
-import { useWorkspacesStore } from "@/features/workspaces/store"
-import { engine } from "@/features/dialogs/utils/templateEngine"
+
 import { DefaultWsIndexContent } from "@/features/dialogs/utils/dialogTemplateDefinitions"
-import { computed, Ref, inject, toRaw } from "vue"
+import { engine } from "@/features/dialogs/utils/templateEngine"
+import { useWorkspacesStore } from "@/features/workspaces/store"
+
 import { WorkspaceMapped } from "@/services/data/supabase/types"
+
+import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 
 defineEmits(["toggle-drawer"])
 
