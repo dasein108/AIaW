@@ -63,7 +63,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
   async function addDialogMessage(
     dialogId: string,
     parentId: string | null,
-    message: DialogMessageInput,
+    message: Omit<DialogMessageInput, "dialog_id" | "parent_id">,
   ) {
     const { message_contents, ...messageInput } = message
 

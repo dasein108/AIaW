@@ -14,16 +14,24 @@ import { Database } from "./database.types"
 
 type ChatMessage = Database["public"]["Tables"]["messages"]["Row"]
 type Chat = Database["public"]["Tables"]["chats"]["Row"]
+type ChatInsert = Database["public"]["Tables"]["chats"]["Insert"]
 type ChatMember = Database["public"]["Tables"]["chat_members"]["Row"]
 type UserPlugin = Database["public"]["Tables"]["user_plugins"]["Insert"]
 type Workspace = Database["public"]["Tables"]["workspaces"]["Row"]
 type Assistant = Database["public"]["Tables"]["user_assistants"]["Row"]
+
 type Dialog = Database["public"]["Tables"]["dialogs"]["Row"]
+type DialogInsert = Database["public"]["Tables"]["dialogs"]["Insert"]
+
 type DialogMessage = Database["public"]["Tables"]["dialog_messages"]["Row"]
+type DialogMessageInsert = Database["public"]["Tables"]["dialog_messages"]["Insert"]
 type MessageContent = Database["public"]["Tables"]["message_contents"]["Row"]
+type MessageContentInsert = Database["public"]["Tables"]["message_contents"]["Insert"]
 type StoredItem = Database["public"]["Tables"]["stored_items"]["Row"]
+type StoredItemInsert = Database["public"]["Tables"]["stored_items"]["Insert"]
 type WorkspaceMember = Database["public"]["Tables"]["workspace_members"]["Row"]
-// type Artifact = Database['public']['Tables']['artifacts']['Row']
+type Profile = Database["public"]["Tables"]["profiles"]["Row"]
+type ArtifactInsert = Database["public"]["Tables"]["artifacts"]["Insert"]
 type CustomProvider = Database["public"]["Tables"]["custom_providers"]["Row"]
 type Subprovider = Database["public"]["Tables"]["subproviders"]["Row"]
 type UserData = Database["public"]["Tables"]["user_data"]["Row"]
@@ -50,13 +58,13 @@ type UserDataMapped = UserData & {
 
 type ChatType = Database["public"]["Enums"]["chat_type"]
 
-type ChatMapped = Database["public"]["Tables"]["chats"]["Insert"] & {
+type ChatMapped = ChatInsert & {
   avatar?: Avatar
   type?: ChatType
 }
 
 type StoredItemMapped = Omit<
-  Database["public"]["Tables"]["stored_items"]["Insert"],
+  StoredItemInsert,
   "message_content_id" | "dialog_id" | "type"
 > & {
   dialog_id?: string
@@ -75,7 +83,7 @@ type WorkspaceMemberRole = "admin" | "member" | "readonly"
 type WorkspaceRole = "owner" | "admin" | "member" | "readonly" | "none"
 
 type ProfileMapped = Omit<
-  Database["public"]["Tables"]["profiles"]["Row"],
+  Profile,
   "avatar"
 > & {
   avatar?: Avatar
@@ -87,7 +95,7 @@ type WorkspaceMapped = Workspace & {
   index_content?: string
 }
 
-type ArtifactMapped = Database["public"]["Tables"]["artifacts"]["Insert"] & {
+type ArtifactMapped = ArtifactInsert & {
   versions: ArtifactVersion[]
 }
 
@@ -124,7 +132,7 @@ type AssistantMapped = Omit<
 }
 
 type MessageContentMapped = Omit<
-  Database["public"]["Tables"]["message_contents"]["Insert"],
+  MessageContentInsert,
   "message_id" | "stored_items" | "result"
 > & {
   stored_items?: StoredItemMapped[]
@@ -152,21 +160,17 @@ type WorkspaceMemberMapped = WorkspaceMember & {
 
 // TODO: refactor this
 type StoredItemInput = Omit<
-  Database["public"]["Tables"]["stored_items"]["Insert"],
+  StoredItemInsert,
   "message_content_id" | "dialog_id"
 >
 
 type MessageContentInput = Omit<
-  Database["public"]["Tables"]["message_contents"]["Insert"],
+  MessageContentInsert,
   "message_id"
 > & { stored_items?: StoredItemInput[] }
 
-type DialogMessageInput = Omit<
-  Database["public"]["Tables"]["dialog_messages"]["Insert"],
-  "dialog_id"
-> & { message_contents: MessageContentInput[] }
-
-type DialogInput = Database["public"]["Tables"]["dialogs"]["Insert"]
+type DialogMessageInput = DialogMessageInsert
+ & { message_contents: MessageContentInput[] }
 
 export type {
   ChatMessageWithProfile,
@@ -200,7 +204,7 @@ export type {
   MessageContentResult,
   // TODO: refactor this
   DialogMessageInput,
-  DialogInput,
+  DialogInsert,
   MessageContentInput,
   StoredItemInput,
 }

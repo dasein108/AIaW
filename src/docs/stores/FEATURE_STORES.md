@@ -86,7 +86,7 @@ await pluginsStore.enablePluginForAssistant(
 
 ## useDialogsStore
 
-**File:** `/src/features/dialogs/store/dialogs.ts`
+**File:** `/src/features/dialogs/store/index.ts`
 
 **Purpose:** Manages AI conversation dialogs.
 
@@ -95,14 +95,15 @@ await pluginsStore.enablePluginForAssistant(
 - `isLoaded`: Flag indicating if dialogs are loaded
 
 **Key Methods:**
-- `addDialog`: Creates a new dialog
+- `addDialog`: Creates a new dialog (reads default assistant ID from `userDataStore` if available)
 - `removeDialog`: Deletes a dialog
 - `updateDialog`: Updates dialog properties
 - `searchDialogs`: Searches dialog content
 
 **Dependencies:**
-- `useDialogMessagesStore`: For message operations
+- `useDialogMessagesStore`: For message operations (first message is created immediately after dialog creation)
 - `useUserLoginCallback`: For initialization
+- `useUserDataStore`: For reading default assistant IDs per workspace
 
 **Database Integration:**
 - Uses "dialogs" table for dialog metadata
@@ -110,23 +111,21 @@ await pluginsStore.enablePluginForAssistant(
 **Usage Example:**
 ```typescript
 const dialogsStore = useDialogsStore();
+const userDataStore = useUserDataStore();
 
-// Create a new dialog
+// Create a new dialog, using default assistant ID from userDataStore
 const newDialog = await dialogsStore.addDialog({
   name: "New Conversation",
-  assistant_id: assistantId,
+  assistant_id: userDataStore.data.defaultAssistantIds[workspaceId] || null,
   workspace_id: workspaceId
 });
 
-// Add initial message
+// Add initial message (usually done immediately after dialog creation)
 await dialogMessagesStore.addDialogMessage(
   newDialog.id,
   null,
   { role: "user", content: "Hello assistant" }
 );
-
-// Search dialogs
-const results = await dialogsStore.searchDialogs("machine learning");
 ```
 
 ## useDialogMessagesStore
@@ -139,7 +138,7 @@ const results = await dialogsStore.searchDialogs("machine learning");
 - `dialogMessages`: Map of messages by dialog ID
 
 **Key Methods:**
-- `addDialogMessage`: Adds a message to a dialog
+- `addDialogMessage`: Adds a message to a dialog (often called immediately after dialog creation)
 - `updateDialogMessage`: Updates a message
 - `switchActiveDialogMessage`: Changes the active branch
 - `deleteDialogMessage`: Removes a message
@@ -159,7 +158,7 @@ const dialogMessagesStore = useDialogMessagesStore();
 // Fetch messages for a dialog
 const messages = await dialogMessagesStore.fetchDialogMessages(dialogId);
 
-// Add a user message
+// Add a user message (typically the first message after dialog creation)
 await dialogMessagesStore.addDialogMessage(
   dialogId,
   parentId,
@@ -170,13 +169,6 @@ await dialogMessagesStore.addDialogMessage(
       { type: "text", text: "How do I implement a binary search?" }
     ]
   }
-);
-
-// Update message status
-await dialogMessagesStore.updateDialogMessage(
-  dialogId,
-  messageId,
-  { status: "complete" }
 );
 ```
 

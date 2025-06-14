@@ -3,7 +3,7 @@ import { useRouter } from "vue-router"
 
 import { useUserDataStore } from "@/shared/store"
 
-import { useDialogsStore } from "@/features/dialogs/store"
+import { useDialogMessagesStore, useDialogsStore } from "@/features/dialogs/store"
 
 import { Dialog } from "@/services/data/supabase/types"
 
@@ -14,30 +14,38 @@ export function useCreateDialog (workspaceId: string) {
 
   async function createDialog (props: Partial<Dialog> = {}) {
     const userStore = useUserDataStore()
+    const dialogMessagesStore = useDialogMessagesStore()
 
-    const dialog = await dialogsStore.addDialog(
+    await dialogsStore.addDialog(
       {
         workspace_id: workspaceId,
         name: t("createDialog.newDialog"),
         assistant_id: userStore.data.defaultAssistantIds[workspaceId] || null,
         input_vars: {},
         ...props,
-      },
-      {
-        type: "user",
-        message_contents: [
-          {
-            type: "user-message",
-            text: "",
-            name: "",
-            stored_items: [],
-          },
-        ],
-        status: "inputing",
       }
-    )
+    ).then(async ({ id }) => {
+      await dialogMessagesStore.addDialogMessage(
+        id,
+        null as string,
+        {
+          type: "user",
+          message_contents: [
+            {
+              type: "user-message",
+              text: "",
+              name: "",
+              stored_items: [],
+            },
+          ],
+          status: "inputing",
+        }
+      )
 
-    router.push(`/workspaces/${workspaceId}/dialogs/${dialog.id}`)
+      return id
+    }).then((id) => {
+      router.push(`/workspaces/${workspaceId}/dialogs/${id}`)
+    })
   }
 
   return { createDialog }

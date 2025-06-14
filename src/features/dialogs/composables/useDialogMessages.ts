@@ -45,7 +45,7 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   const lastMessageId = computed(() => dialogItems.value.length > 0 ? dialogItems.value[dialogItems.value.length - 1].message.id : null)
   const lastMessage = computed(() => dialogItems.value.length > 0 ? dialogItems.value[dialogItems.value.length - 1].message : null)
 
-  const addMessage = async (parentId: string | null, message: DialogMessageInput) => {
+  const addMessage = async (parentId: string | null, message: Omit<DialogMessageInput, "dialog_id" | "parent_id">) => {
     const newMessage = await addDialogMessage(
       dialog.value.id,
       parentId,

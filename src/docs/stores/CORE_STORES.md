@@ -42,10 +42,10 @@ const userId = userStore.currentUserId;
 
 **File:** `/src/shared/store/userDataStore.ts`
 
-**Purpose:** Persistent storage for user-specific application data.
+**Purpose:** Persistent storage for user-specific application data, including default assistant IDs per workspace (used by useDialogsStore when creating dialogs).
 
 **Key State:**
-- `data`: User preferences and settings
+- `data`: User preferences and settings (including `defaultAssistantIds`)
 - `ready`: Indicates if data is loaded and ready for use
 
 **Key Methods:**
@@ -69,6 +69,9 @@ const lastViewedDialog = userDataStore.data.lastViewedDialog;
 
 // Update user data
 userDataStore.data.lastViewedWorkspace = workspaceId;
+
+// Read default assistant ID for a workspace (used by useDialogsStore)
+const defaultAssistantId = userDataStore.data.defaultAssistantIds[workspaceId];
 ```
 
 ## userPrefsStore
