@@ -115,14 +115,19 @@ export const usePluginsStore = defineStore("plugins", () => {
       if (i.type === "lobechat") {
         return buildLobePlugin(
           i.manifest as LobeChatPluginManifest,
-          i.available
+          { available: i.available }
         )
       } else if (i.type === "gradio") {
         return buildGradioPlugin(
           i.manifest as GradioPluginManifest,
-          i.available
+          { available: i.available }
         )
-      } else return buildMcpPlugin(i.manifest as McpPluginDump, i.available)
+      } else {
+        return buildMcpPlugin(
+        i.manifest as McpPluginDump,
+        { available: i.available }
+        )
+      }
     }),
   ])
 
@@ -163,7 +168,7 @@ export const usePluginsStore = defineStore("plugins", () => {
       throw new Error(t("stores.plugins.stdioRequireDesktop"))
     }
 
-    const dump = await dumpMcpPlugin(manifest)
+    const dump = await dumpMcpPlugin(manifest, { includeCapabilities: true })
     await upsertPlugin({
       key: manifest.id,
       type: "mcp",

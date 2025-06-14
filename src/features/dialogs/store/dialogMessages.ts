@@ -257,7 +257,11 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     )
   }
 
-  async function removeDialogMessage(dialogId: string, messageId: string) {
+  /**
+   * Deletes a dialog message from the database
+   * Uses the delete operation to permanently remove the message
+   */
+  async function deleteDialogMessage(dialogId: string, messageId: string) {
     const { error } = await supabase
       .from("dialog_messages")
       .delete()
@@ -272,7 +276,11 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     await fetchDialogMessages(dialogId)
   }
 
-  async function removeStoredItem(stored_item: StoredItemMapped) {
+  /**
+   * Deletes a stored item from the database
+   * Uses the delete operation to permanently remove the stored item
+   */
+  async function deleteStoredItem(stored_item: StoredItemMapped) {
     // TODO: remove stored item from dialog messages, with message_content_id or without
     const { error } = await supabase
       .from("stored_items")
@@ -310,9 +318,8 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     fetchDialogMessages,
     addDialogMessage,
     updateDialogMessage,
-    removeDialogMessage,
-    removeStoredItem,
+    deleteDialogMessage,
+    deleteStoredItem,
     switchActiveDialogMessage,
-    // messageMap
   }
 })

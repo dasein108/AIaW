@@ -29,11 +29,11 @@ export function useListenKey (
   const addListener = () => {
     document.addEventListener("keydown", listener)
   }
-  const rmListener = () => {
+  const removeListener = () => {
     document.removeEventListener("keydown", listener)
   }
   onMounted(addListener)
-  onUnmounted(rmListener)
+  onUnmounted(removeListener)
   onActivated(addListener)
-  onDeactivated(rmListener)
+  onDeactivated(removeListener)
 }

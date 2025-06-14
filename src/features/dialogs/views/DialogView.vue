@@ -24,7 +24,7 @@
         ref="scrollContainer"
         pos-relative
         :class="{ 'rd-r-lg': rightDrawerAbove }"
-        @scroll="onScroll"
+        @scroll="saveDialogScrollPosition"
       >
         <template
           v-for="(item) in dialogItems"
@@ -76,7 +76,7 @@
             :image="image"
             removable
             h="100px"
-            @remove="deleteStoredItem(image)"
+            @remove="deleteStoredItemWithFile(image)"
             shadow
           />
           <message-file
@@ -86,7 +86,7 @@
             :key="file.id"
             :file="file"
             removable
-            @remove="deleteStoredItem(file)"
+            @remove="deleteStoredItemWithFile(file)"
             shadow
           />
         </div>
@@ -251,7 +251,7 @@
           <abortable-btn
             icon="sym_o_send"
             :label="$t('dialogView.send')"
-            @click="send"
+            @click="sendUserMessageAndGenerateResponse"
             @abort="abortController?.abort()"
             :loading="
               isStreaming || !!dialogItems.at(-2)?.message?.generating_session
@@ -291,8 +291,8 @@
           clearable
           :debounce="30"
           :placeholder="$t('dialogView.chatPlaceholder')"
-          @keydown.enter="onEnter"
-          @paste="onTextPaste"
+          @keydown.enter="handleInputEnterKeyPress"
+          @paste="handleCodePasteFormatting"
         />
       </div>
     </q-page>
@@ -368,7 +368,7 @@ const { assistant } = useActiveWorkspace()
 
 const {
   dialog, workspaceId, dialogItems, switchBranch, fetchMessages,
-  lastMessageId, getMessageContents, createBranch, deleteBranch, deleteStoredItem
+  lastMessageId, getMessageContents, createBranch, deleteBranch, deleteStoredItemWithFile
 } = useDialogMessages(dialogId)
 
 const { addDialogMessage } = useDialogMessagesStore()
@@ -387,7 +387,7 @@ const { data: perfs } = useUserPerfsStore()
 const { model, sdkModel, modelOptions } = useDialogModel(dialog, assistant)
 
 const $q = useQuasar()
-const { genTitle, extractArtifact, stream, isStreaming } = useLlmDialog(
+const { genTitle, extractArtifact, streamLlmResponse, isStreaming } = useLlmDialog(
   workspaceId,
   dialogId,
   assistant
@@ -418,7 +418,7 @@ watch(
 const startStream = async (target: string, insert = false) => {
   preventLockingBottom.value = false
   abortController.value = new AbortController()
-  await stream(target, abortController.value)
+  await streamLlmResponse(target, abortController.value)
 }
 
 function focusInput () {
@@ -459,7 +459,13 @@ async function regenerate(parentId: string) {
   await startStream(parentId)
 }
 
-function onTextPaste (ev: ClipboardEvent) {
+/**
+ * Handles pasting of code from editors like VSCode.
+ * Automatically detects code snippets and formats them with proper markdown syntax.
+ *
+ * @param ev - The clipboard event containing the pasted content
+ */
+function handleCodePasteFormatting (ev: ClipboardEvent) {
   if (!perfs.codePasteOptimize) return
 
   const { clipboardData } = ev
@@ -620,7 +626,11 @@ async function sendCyberlinkPrompt (text: string) {
   await sendPrompt(prompt)
 }
 
-async function send () {
+/**
+ * Sends the current user message and initiates an LLM response generation.
+ * This handles the core interaction flow of submitting user input and getting AI response.
+ */
+async function sendUserMessageAndGenerateResponse () {
   if (!ensureAssistantAndModel()) return
 
   showVars.value = false
@@ -721,14 +731,18 @@ watch(
   { immediate: true }
 )
 
-function onEnter (ev) {
+/**
+ * Handles the enter key press in the message input based on user preferences.
+ * Supports different send key combinations (Enter, Ctrl+Enter, Shift+Enter).
+ */
+function handleInputEnterKeyPress (ev) {
   if (perfs.sendKey === "ctrl+enter") {
-    ev.ctrlKey && send()
+    ev.ctrlKey && sendUserMessageAndGenerateResponse()
   } else if (perfs.sendKey === "shift+enter") {
-    ev.shiftKey && send()
+    ev.shiftKey && sendUserMessageAndGenerateResponse()
   } else {
     if (ev.ctrlKey) document.execCommand("insertText", false, "\n")
-    else if (!ev.shiftKey) send()
+    else if (!ev.shiftKey) sendUserMessageAndGenerateResponse()
   }
 }
 
@@ -933,7 +947,11 @@ if (isPlatformEnabled(perfs.enableShortcutKey)) {
 const uiStateStore = useUiStateStore()
 const scrollTops = uiStateStore.dialogScrollTops
 
-function onScroll (ev) {
+/**
+ * Saves the current scroll position for the active dialog.
+ * This allows restoring the same position when switching between dialogs.
+ */
+function saveDialogScrollPosition (ev) {
   scrollTops[dialogId.value] = ev.target.scrollTop
 }
 watch(

@@ -5,6 +5,11 @@
   />
 </template>
 
+<!--
+  NOTE: This component should be renamed to DraggableSeparator.vue
+  The current name has a typo ('Dragable' instead of 'Draggable')
+-->
+
 <script setup lang="ts">
 const props = defineProps<{
   reverse?: boolean

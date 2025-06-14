@@ -213,10 +213,28 @@ const calculatorPlugin: Plugin = {
   description: t("plugins.calculator.description"),
 }
 
+/**
+ * Options for building a plugin
+ */
+interface PluginBuilderOptions {
+  /** Whether the plugin is available for use */
+  available?: boolean;
+  /** Custom settings to merge with plugin defaults */
+  customSettings?: Record<string, any>;
+}
+
+/**
+ * Builds a LobeChatPlugin from a manifest
+ *
+ * @param manifest - The LobeChatPlugin manifest
+ * @param options - Options for building the plugin
+ * @returns The constructed plugin
+ */
 function buildLobePlugin(
   manifest: LobeChatPluginManifest,
-  available: boolean
+  options?: PluginBuilderOptions
 ): Plugin {
+  const { available = true, customSettings = {} } = options || {};
   const { identifier, meta, settings } = manifest
   const title = meta.title ?? identifier
 
@@ -233,7 +251,7 @@ function buildLobePlugin(
         const res = await corsFetch(url, {
           method: "POST",
           body: JSON.stringify(args),
-          headers: createHeadersWithPluginSettings(settings),
+          headers: createHeadersWithPluginSettings(settings) as Record<string, string>,
         })
 
         if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
@@ -256,6 +274,7 @@ function buildLobePlugin(
     noRoundtrip: manifest.type === "markdown",
     author: manifest.author,
     homepage: manifest.homepage,
+    ...customSettings
   }
 }
 
@@ -309,10 +328,18 @@ function buildGradioSettings(endpoint: GradioManifestEndpoint) {
   return TObject(obj)
 }
 
+/**
+ * Builds a Gradio plugin from a manifest
+ *
+ * @param manifest - The Gradio plugin manifest
+ * @param options - Options for building the plugin
+ * @returns The constructed plugin
+ */
 function buildGradioPlugin(
   manifest: GradioPluginManifest,
-  available: boolean
+  options?: PluginBuilderOptions
 ): Plugin {
+  const { available = true } = options || {};
   const { id, title, description, prompt, promptVars, noRoundtrip } = manifest
   const settings = {
     _hfToken: TOptional(
@@ -437,7 +464,18 @@ function buildGradioPlugin(
   }
 }
 
-function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
+/**
+ * Builds an MCP plugin from a dump
+ *
+ * @param dump - The MCP plugin dump
+ * @param options - Options for building the plugin
+ * @returns The constructed plugin
+ */
+function buildMcpPlugin(
+  dump: McpPluginDump,
+  options?: PluginBuilderOptions
+): Plugin {
+  const { available = true } = options || {};
   const resourceToResultItem = (resource, name?) =>
     resource.text
       ? {
@@ -595,26 +633,55 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
   }
 }
 
+/**
+ * Options for dumping an MCP plugin
+ */
+interface DumpMcpPluginOptions {
+  /** Whether to include capabilities in the dump */
+  includeCapabilities?: boolean;
+}
+
+/**
+ * Dumps an MCP plugin manifest into a full plugin dump
+ *
+ * @param manifest - The MCP plugin manifest
+ * @param options - Options for dumping the plugin
+ * @returns Promise resolving to the plugin dump
+ */
 async function dumpMcpPlugin(
-  manifest: McpPluginManifest
+  manifest: McpPluginManifest,
+  options?: DumpMcpPluginOptions
 ): Promise<McpPluginDump> {
+  const { includeCapabilities = true } = options || {};
   const client = await getClient(manifest.id, manifest.transport)
   const capabilities = client.getServerCapabilities()
-  const { tools } = capabilities.tools
-    ? await client.listTools()
-    : { tools: [] }
-  const { resources } = capabilities.resources
-    ? await client.listResources()
-    : { resources: [] }
-  const res = capabilities.prompts
-    ? await client.listPrompts()
-    : { prompts: [] }
+
+  let tools = [];
+  let resources = [];
+  let prompts = [];
+
+  if (includeCapabilities) {
+    const toolsResult = capabilities.tools
+      ? await client.listTools()
+      : { tools: [] };
+    tools = toolsResult.tools;
+
+    const resourcesResult = capabilities.resources
+      ? await client.listResources()
+      : { resources: [] };
+    resources = resourcesResult.resources;
+
+    const promptsResult = capabilities.prompts
+      ? await client.listPrompts()
+      : { prompts: [] };
+    prompts = promptsResult.prompts;
+  }
 
   return {
     ...manifest,
     tools,
     resources,
-    prompts: res.prompts,
+    prompts,
   }
 }
 
@@ -795,7 +862,7 @@ const whisperPluginManifest: GradioPluginManifest = {
     },
   ],
 }
-const whisperPlugin = buildGradioPlugin(whisperPluginManifest, true)
+const whisperPlugin = buildGradioPlugin(whisperPluginManifest, { available: true })
 whisperPlugin.type = "builtin"
 
 const videoTranscriptPlugin: Plugin = {
@@ -890,7 +957,7 @@ const fluxPluginManifest: GradioPluginManifest = {
   description: t("plugins.flux.description"),
 }
 
-const fluxPlugin: Plugin = buildGradioPlugin(fluxPluginManifest, true)
+const fluxPlugin: Plugin = buildGradioPlugin(fluxPluginManifest, { available: true })
 fluxPlugin.type = "builtin"
 
 const emotionsPrompt = `在回答中，你可以使用 html img 标签插入表情包，使回答更可爱、富有情感。

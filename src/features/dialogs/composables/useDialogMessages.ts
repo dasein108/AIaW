@@ -10,7 +10,7 @@ import { DialogMessageInput, DialogMessageMapped, StoredItemMapped } from "@/ser
 
 export const useDialogMessages = (dialogId: Ref<string>) => {
   const { dialogs } = storeToRefs(useDialogsStore())
-  const { addDialogMessage, updateDialogMessage, switchActiveDialogMessage, removeDialogMessage, removeStoredItem, fetchDialogMessages } = useDialogMessagesStore()
+  const { addDialogMessage, updateDialogMessage, switchActiveDialogMessage, deleteDialogMessage, deleteStoredItem, fetchDialogMessages } = useDialogMessagesStore()
   const { dialogMessages: allDialogMessages } = storeToRefs(useDialogMessagesStore())
   const { workspaces } = storeToRefs(useWorkspacesStore())
   const { deleteFile } = useStorage(FILES_BUCKET)
@@ -96,14 +96,14 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   }
 
   const deleteBranch = async (messageId: string) => {
-    await removeDialogMessage(dialogId.value, messageId)
+    await deleteDialogMessage(dialogId.value, messageId)
     // TODO: set active message to next sibling
   }
 
-  const deleteStoredItem = async (stored_item: StoredItemMapped) => {
+  const deleteStoredItemWithFile = async (stored_item: StoredItemMapped) => {
     console.log("-----deleteStoredItem", stored_item)
     await deleteFile(stored_item.file_url)
-    await removeStoredItem(stored_item)
+    await deleteStoredItem(stored_item)
   }
 
   function switchBranch (item: TreeListItem<DialogMessageMapped>, index: number) {
@@ -127,7 +127,7 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
     createBranch,
     deleteBranch,
     switchBranch,
-    deleteStoredItem,
+    deleteStoredItemWithFile,
     fetchMessages
   }
 }

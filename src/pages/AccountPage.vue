@@ -118,8 +118,11 @@ const profile = syncRef(
   },
   { valueDeep: true }
 )
-const { signOut } = useAuth(loading, () => {
-  router.replace("/")
+const { signOut } = useAuth({
+  loading,
+  onComplete: () => {
+    router.replace("/")
+  }
 })
 
 function pickAvatar () {

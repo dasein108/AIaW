@@ -26,7 +26,14 @@ export function useGetModel () {
     return provider || perfs.provider
   }
 
-  function getModel (model?: Model) {
+  /**
+   * Retrieves the model configuration from user preferences or uses the provided model.
+   * Ensures a valid model configuration is always available.
+   *
+   * @param model - Optional model configuration to use instead of preferences
+   * @returns The provided model or the default model from user preferences
+   */
+  function retrieveModelConfiguration (model?: Model) {
     return model || perfs.model
   }
 
@@ -52,7 +59,7 @@ export function useGetModel () {
 
     if (!sdkProvider) return null
 
-    model = getModel(model)
+    model = retrieveModelConfiguration(model)
 
     if (!model) return null
 
@@ -61,5 +68,5 @@ export function useGetModel () {
     return m && wrapMiddlewares(m)
   }
 
-  return { getProvider, getModel, getSdkProvider, getSdkModel }
+  return { getProvider, getModel: retrieveModelConfiguration, getSdkProvider, getSdkModel }
 }

@@ -2,14 +2,58 @@ import { useQuasar } from "quasar"
 import { supabase } from "@/services/data/supabase/client"
 import { Ref } from "vue"
 
-export function useAuth (loading: Ref<boolean>, onComplete: () => void) {
+/**
+ * Options for the useAuth composable
+ */
+interface UseAuthOptions {
+  /** Loading state reference to track authentication status */
+  loading: Ref<boolean>;
+  /** Callback function to execute after successful authentication */
+  onComplete: () => void;
+}
+
+/**
+ * Authentication credentials
+ */
+interface AuthCredentials {
+  /** User email */
+  email: string;
+  /** User password */
+  password: string;
+}
+
+/**
+ * Authentication options
+ */
+interface AuthOptions {
+  /** Authentication mode - either 'signUp' or 'signIn' */
+  mode?: 'signUp' | 'signIn';
+}
+
+/**
+ * Composable for handling authentication operations
+ *
+ * @param options - Authentication configuration options
+ * @returns Authentication methods (signIn, signUp, signOut)
+ */
+export function useAuth(options: UseAuthOptions) {
+  const { loading, onComplete } = options
   const $q = useQuasar()
 
-  async function auth (
-    email: string,
-    password: string,
-    isSignUp: boolean = false
+  /**
+   * Authenticate user with credentials
+   *
+   * @param credentials - User authentication credentials
+   * @param authOptions - Authentication options
+   */
+  async function authenticate(
+    credentials: AuthCredentials,
+    authOptions?: AuthOptions
   ) {
+    const { email, password } = credentials
+    const { mode = 'signIn' } = authOptions || {}
+    const isSignUp = mode === 'signUp'
+
     try {
       loading.value = true
 
@@ -46,15 +90,13 @@ export function useAuth (loading: Ref<boolean>, onComplete: () => void) {
     } finally {
       loading.value = false
     }
-
-    // supabase.auth.getUser
   }
 
   return {
     signUp: async (email: string, password: string) =>
-      await auth(email, password, true),
+      await authenticate({ email, password }, { mode: 'signUp' }),
     signIn: async (email: string, password: string) =>
-      await auth(email, password, false),
+      await authenticate({ email, password }, { mode: 'signIn' }),
     signOut: async () => {
       await supabase.auth.signOut()
       onComplete()

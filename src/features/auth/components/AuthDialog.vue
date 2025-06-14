@@ -93,5 +93,8 @@ const emailRule = (val) => {
 }
 const { dialogRef, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 
-const { signIn, signUp } = useAuth(loading, onDialogOK)
+const { signIn, signUp } = useAuth({
+  loading,
+  onComplete: onDialogOK
+})
 </script>
