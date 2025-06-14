@@ -1,4 +1,4 @@
-import { useGetModel } from "./getModel"
+import { useGetModel } from "./useGetModel"
 
 export {
   useGetModel

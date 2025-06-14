@@ -99,8 +99,8 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar"
 import SelectFileBtn from "@/features/files/components/SelectFileBtn.vue"
-import { useCloseArtifact } from "@/features/artifacts/composables/closeArtifact"
-import { useCreateArtifact } from "@/features/artifacts/composables/createArtifact"
+import { useCloseArtifact } from "@/features/artifacts/composables/useCloseArtifact"
+import { useCreateArtifact } from "@/features/artifacts/composables/useCreateArtifact"
 import { useUserDataStore } from "@shared/store"
 import { caselessIncludes, getFileExt, isTextFile } from "@shared/utils/functions"
 import { dialogOptions } from "@/shared/utils/values"

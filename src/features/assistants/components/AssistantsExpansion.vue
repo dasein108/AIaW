@@ -97,7 +97,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { useCreateDialog } from "@features/dialogs/composables/createDialog"
+import { useCreateDialog } from "@features/dialogs/composables/useCreateDialog"
 import { useAssistantsStore } from "@features/assistants/store"
 import { useUserPerfsStore } from "@shared/store"
 import { defaultAvatar } from "@shared/utils/functions"

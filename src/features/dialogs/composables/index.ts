@@ -3,7 +3,7 @@ import { useDialogInput } from "./useDialogInput"
 import { useLlmDialog } from "./useLlmDialog"
 import { useAssistantTools } from "./useAssistantTools"
 import { useDialogModel } from "./useDialogModel"
-import { useCreateDialog } from "./createDialog"
+import { useCreateDialog } from "./useCreateDialog"
 
 export {
   useDialogMessages,

@@ -4,7 +4,7 @@
 import { Validator } from "@cfworker/json-schema"
 import { until } from "@vueuse/core"
 import { useQuasar } from "quasar"
-import { useOpenLastWorkspace } from "@features/workspaces/composables/openLastWorkspace"
+import { useOpenLastWorkspace } from "@features/workspaces/composables/useOpenLastWorkspace"
 import { useUserPerfsStore } from "@shared/store"
 import { ProviderSchema } from "@/shared/types"
 import { useI18n } from "vue-i18n"

@@ -151,7 +151,7 @@ import ArtifactItemIcon from "@features/artifacts/components/ArtifactItemIcon.vu
 import ArtifactItemMenu from "@features/artifacts/components/ArtifactItemMenu.vue"
 import ArtifactsExpansion from "@features/artifacts/components/ArtifactsExpansion.vue"
 import DragableSeparator from "@/shared/components/DragableSeparator.vue"
-import { useCloseArtifact } from "@/features/artifacts/composables/closeArtifact"
+import { useCloseArtifact } from "@/features/artifacts/composables/useCloseArtifact"
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 import { useArtifactsStore } from "@/features/artifacts/store"
 import { ListOpen, useUserDataStore } from "@/shared/store/userDataStore"

@@ -1,4 +1,4 @@
-import { useInstallPlugin } from "./installPlugin"
+import { useInstallPlugin } from "./useInstallPlugin"
 
 export {
   useInstallPlugin

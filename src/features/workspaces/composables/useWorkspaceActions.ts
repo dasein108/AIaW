@@ -1,6 +1,6 @@
 import { useQuasar } from "quasar"
 import SelectWorkspaceDialog from "@features/workspaces/components/SelectWorkspaceDialog.vue"
-import { useAssistantsStore } from "@/features/assistants/store"
+import { useAssistantsStore } from "@features/assistants/store"
 import { useUserDataStore, useUserPerfsStore } from "@shared/store"
 import { useWorkspacesStore } from "@features/workspaces/store"
 import { defaultAvatar } from "@shared/utils/functions"
