@@ -117,6 +117,7 @@ module.exports = {
     "space-before-blocks": "off", // "warn" tmp
     "eol-last": "off",
     "semi": "off",
+    "no-trailing-spaces": "off",
     "padding-line-between-statements": [
       "off", // "warn" tmp
       { blankLine: "always", prev: "*", next: "function" },

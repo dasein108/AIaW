@@ -7,11 +7,31 @@ import { MarketAssistantSchema } from "@/shared/types"
 import { toRaw } from "vue"
 import { useI18n } from "vue-i18n"
 
+/**
+ * Composable providing actions for managing assistants within workspaces
+ * 
+ * This composable offers methods to add, update, and manage assistants
+ * associated with specific workspaces.
+ * 
+ * @returns Object containing assistant management methods
+ */
 export function useAssistantActions () {
   const assistantsStore = useAssistantsStore()
   const $q = useQuasar()
   const { t } = useI18n()
 
+  /**
+   * Adds a new assistant to the specified workspace
+   * 
+   * This method:
+   * 1. Validates the assistant data against the MarketAssistantSchema
+   * 2. Extracts relevant fields from the assistant data
+   * 3. Adds the assistant to the store with default values for optional fields
+   * 4. Shows appropriate notification based on success/failure
+   * 
+   * @param item - The assistant data to add
+   * @param workspaceId - The ID of the workspace to add the assistant to
+   */
   function add (item, workspaceId) {
     if (!new Validator(MarketAssistantSchema).validate(item).valid) {
       $q.notify({

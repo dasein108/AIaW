@@ -80,7 +80,6 @@ import { useDialogPluginComponent } from "quasar"
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
 // import { exportFile } from 'src/utils/platform-api'
 import { useStorage } from "@/shared/composables/storage/useStorage"
-import { FILES_BUCKET } from "@/shared/composables/storage/utils"
 import { wrapCode, wrapQuote } from "@/shared/utils/functions"
 import { codeExtensions } from "@/shared/utils/values"
 import { computed, ref, watchEffect } from "vue"
@@ -93,7 +92,7 @@ const props = defineProps<{
 
 defineEmits([...useDialogPluginComponent.emits])
 
-const storage = useStorage(FILES_BUCKET)
+const storage = useStorage()
 
 const { dialogRef, onDialogHide, onDialogOK } = useDialogPluginComponent()
 

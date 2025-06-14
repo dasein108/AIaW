@@ -355,11 +355,11 @@ import MenuItem from "@/shared/components/menu/MenuItem.vue"
 import CopyBtn from "@/shared/components/CopyBtn.vue"
 import TextareaDialog from "@/shared/components/dialogs/TextareaDialog.vue"
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
-import { useUserPrefsStore } from "@/shared/store/userPrefsStore"
+import { useUserPerfsStore } from "@/shared/store"
 import sessions from "@/shared/utils/sessions"
 import { dialogOptions } from "@/shared/utils/values"
 import { useDialogMessages } from "@features/dialogs/composables/useDialogMessages"
-import { useDialogsStore } from "@features/dialogs/store/dialogs"
+import { useDialogsStore } from "@features/dialogs/store"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import PickAvatarDialog from "@shared/components/avatar/PickAvatarDialog.vue"
 import {
@@ -483,7 +483,7 @@ const textContent = computed(
       | AssistantMessageContent
 )
 
-const { data: perfs } = useUserPrefsStore()
+const { data: perfs } = useUserPerfsStore()
 const assistantsStore = useAssistantsStore()
 const pluginsStore = usePluginsStore()
 const dialog = computed(() => dialogsStore.dialogs[props.message.dialog_id])

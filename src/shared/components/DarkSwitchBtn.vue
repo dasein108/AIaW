@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserPrefsStore } from "@/shared/store/userPrefsStore"
+import { useUserPrefsStore } from "@/shared/store/userPrefs"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 

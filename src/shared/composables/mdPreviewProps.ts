@@ -3,7 +3,7 @@ import LinkAttr from "markdown-it-link-attributes"
 import { config, MdPreviewProps, XSSPlugin } from "md-editor-v3"
 import { useQuasar } from "quasar"
 import router from "@/router"
-import { useUserPrefsStore } from "@/shared/store/userPrefsStore"
+import { useUserPerfsStore } from "@/shared/store"
 import { computed } from "vue"
 import "md-editor-v3/lib/preview.css"
 
@@ -80,7 +80,7 @@ customElements.define("router-link", RouterLink)
 
 export function useMdPreviewProps () {
   const $q = useQuasar()
-  const { data: perfs } = useUserPrefsStore()
+  const { data: perfs } = useUserPerfsStore()
 
   return computed<Partial<MdPreviewProps>>(() => ({
     theme: $q.dark.isActive ? "dark" : "light",

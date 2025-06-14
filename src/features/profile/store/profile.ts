@@ -6,7 +6,7 @@ import { supabase } from "@/services/data/supabase/client"
 import { defaultTextAvatar } from "@shared/utils/functions"
 import { Avatar } from "@/shared/types"
 import { computed, ref } from "vue"
-import { useUserStore } from "@/shared/store/userStore"
+import { useUserStore } from "@/shared/store"
 import { ProfileMapped } from "@/services/data/supabase/types"
 
 function mapProfileTypes (item: any): ProfileMapped {

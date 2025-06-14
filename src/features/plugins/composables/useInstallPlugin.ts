@@ -11,11 +11,35 @@ import {
 import { toRaw } from "vue"
 import { useI18n } from "vue-i18n"
 
+/**
+ * Composable for installing plugins from different sources
+ * 
+ * Provides a unified method to install plugins from various formats:
+ * - URL string (fetches and parses the manifest)
+ * - JSON string (parses the manifest)
+ * - Object (uses the object directly as manifest)
+ * 
+ * Supports multiple plugin formats (Gradio, HuggingFace, Lobe, MCP)
+ * and validates against appropriate schemas.
+ * 
+ * @returns Object with the install method
+ */
 export function useInstallPlugin () {
   const store = usePluginsStore()
   const $q = useQuasar()
   const { t } = useI18n()
 
+  /**
+   * Installs a plugin from the provided source
+   * 
+   * This method:
+   * 1. Extracts plugin manifest from various source formats
+   * 2. Validates the manifest against supported plugin schemas
+   * 3. Installs the plugin using the appropriate store method
+   * 4. Shows notifications for success/failure
+   * 
+   * @param source - The plugin source (URL string, JSON string, or manifest object)
+   */
   async function install (source) {
     let manifest
 

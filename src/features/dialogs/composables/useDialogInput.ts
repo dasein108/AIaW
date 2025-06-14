@@ -1,6 +1,5 @@
 import { computed, Ref, watch } from "vue"
 import { useStorage } from "@/shared/composables/storage/useStorage"
-import { FILES_BUCKET } from "@/shared/composables/storage/utils"
 import { useDialogMessages } from "./useDialogMessages"
 import { UserMessageContent } from "@/features/dialogs/types"
 import {
@@ -9,13 +8,27 @@ import {
 } from "@/services/data/supabase/types"
 import { ApiResultItem } from "@/shared/types"
 
+/**
+ * Composable for managing input in a dialog
+ *
+ * Provides utilities for managing the input message content in a dialog,
+ * including updating text and adding stored items.
+ *
+ * @param dialogId - Reference to the dialog ID
+ * @returns Object with functions and computed properties for managing dialog input
+ */
 export const useDialogInput = (
   dialogId: Ref<string>,
 ) => {
   const { updateMessage, lastMessageId, lastMessage } = useDialogMessages(dialogId)
-  const storage = useStorage(FILES_BUCKET)
+  const storage = useStorage()
 
-  async function updateInputText (text) {
+  /**
+   * Updates the text content of the input message
+   *
+   * @param text - The new text content
+   */
+  async function updateInputText(text: string): Promise<void> {
     await updateMessage(
       lastMessageId.value,
       {
@@ -31,7 +44,15 @@ export const useDialogInput = (
     )
   }
 
-  async function addInputItems (items: ApiResultItem[]) {
+  /**
+   * Adds items to the input message's stored items
+   *
+   * Converts API result items to stored items and adds them to the
+   * input message.
+   *
+   * @param items - API result items to add
+   */
+  async function addInputItems(items: ApiResultItem[]): Promise<void> {
     const storedItems: StoredItemMapped[] = await storage.saveApiResultItems(items, { dialog_id: dialogId.value })
 
     await updateMessage(
@@ -50,19 +71,30 @@ export const useDialogInput = (
     )
   }
 
-  const inputMessageContent = computed(
-    () =>
-      lastMessage.value?.message_contents[0] as UserMessageContent
+  /**
+   * The content of the input message
+   */
+  const inputMessageContent = computed<UserMessageContent>(
+    () => lastMessage.value?.message_contents[0] as UserMessageContent
   )
-  const inputContentItems = computed(
-    () => inputMessageContent.value.stored_items
+
+  /**
+   * The stored items in the input message
+   */
+  const inputContentItems = computed<StoredItemMapped[]>(
+    () => inputMessageContent.value?.stored_items || []
   )
-  const inputEmpty = computed(
+
+  /**
+   * Whether the input message is empty (no text and no stored items)
+   */
+  const inputEmpty = computed<boolean>(
     () =>
       !inputMessageContent.value?.text &&
       !inputMessageContent.value?.stored_items.length
   )
 
+  // Debug logging
   watch(lastMessage, (newMessage) => {
     console.log("-----useDialogInput lastMessage", newMessage)
   })

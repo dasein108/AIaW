@@ -6,13 +6,13 @@ import {
 import { pickBy } from "lodash"
 import { useQuasar } from "quasar"
 import { useStorage } from "@/shared/composables/storage/useStorage"
-import { FILES_BUCKET, getFileUrl } from "@/shared/composables/storage/utils"
+import { getFileUrl } from "@/shared/composables/storage/utils"
 import {
   generateTitle,
   generateArtifactName,
   generateExtractArtifact,
 } from "@/services/ai/llm/utils"
-import { useDialogsStore } from "@features/dialogs/store/dialogs"
+import { useDialogsStore } from "@features/dialogs/store"
 import { useUserPerfsStore } from "@shared/store"
 import { getAssistantModelSettings } from "@features/assistants/utils/assistantUtils"
 import { storedItemResultContent } from "@features/dialogs/utils/dialogMessageUtils"
@@ -51,7 +51,7 @@ export const useLlmDialog = (
 
   const { model, sdkModel, systemSdkModel } = useDialogModel(dialog, assistant)
   const { callApi } = useCallApi(workspaceId, dialogId)
-  const storage = useStorage(FILES_BUCKET)
+  const storage = useStorage()
   const { getAssistantTools } = useAssistantTools(assistant, workspaceId, dialogId)
   const isStreaming = ref(false)
 

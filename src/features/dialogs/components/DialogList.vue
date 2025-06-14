@@ -83,7 +83,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
 import { useQuasar } from "quasar"
-import { useDialogsStore } from "@features/dialogs/store/dialogs"
+import { useDialogsStore } from "@features/dialogs/store"
 import { dialogOptions } from "@/shared/utils/values"
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"

@@ -1,10 +1,8 @@
 import { storeToRefs } from "pinia"
 import { useStorage } from "@shared/composables/storage/useStorage"
-import { useDialogMessagesStore } from "@features/dialogs/store/dialogMessages"
-import { useDialogsStore } from "@features/dialogs/store/dialogs"
+import { useDialogsStore, useDialogMessagesStore } from "@features/dialogs/store"
 import { useWorkspacesStore } from "@/features/workspaces/store"
 import { computed, Ref, watch } from "vue"
-import { FILES_BUCKET } from "@/shared/composables/storage/utils"
 import { getBranchList, getDialogItemList, TreeListItem } from "./utils/dialogTreeUtils"
 import { DialogMessageInput, DialogMessageMapped, StoredItemMapped } from "@/services/data/supabase/types"
 
@@ -13,7 +11,7 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   const { addDialogMessage, updateDialogMessage, switchActiveDialogMessage, deleteDialogMessage, deleteStoredItem, fetchDialogMessages } = useDialogMessagesStore()
   const { dialogMessages: allDialogMessages } = storeToRefs(useDialogMessagesStore())
   const { workspaces } = storeToRefs(useWorkspacesStore())
-  const { deleteFile } = useStorage(FILES_BUCKET)
+  const { deleteFile } = useStorage()
   const dialog = computed(() => dialogs.value[dialogId.value])
   const workspaceId = computed(() => dialog.value.workspace_id)
   const workspace = computed(() => workspaces.value.find(ws => ws.id === dialog.value.workspace_id))

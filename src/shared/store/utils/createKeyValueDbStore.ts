@@ -6,7 +6,7 @@ import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCa
 import { supabase } from "@/services/data/supabase/client"
 import { CODE_NO_RECORD_FOUND } from "@/services/data/supabase/consts"
 import { reactive, ref, watch } from "vue"
-import { useUserStore } from "../userStore"
+import { useUserStore } from "@/shared/store/user"
 
 export function createKeyValueDbStore<T extends object> (
   storeId: string,

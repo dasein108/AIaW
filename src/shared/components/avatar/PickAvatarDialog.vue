@@ -160,7 +160,7 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from "quasar"
 import { useStorage } from "@/shared/composables/storage/useStorage"
-import { useUserPrefsStore } from "@/shared/store/userPrefsStore"
+import { useUserPrefsStore } from "@/shared/store/userPrefs"
 import { genId } from "@shared/utils/functions"
 import { cropSquareBlob } from "@/features/media/utils/imageProcess"
 import { Avatar } from "@/shared/types"
@@ -258,7 +258,7 @@ function setText (text: string) {
 
 async function prunePreviousFile () {
   if (initialAvatar.type === "image") {
-    await storage.deleteFile(initialAvatar.imageId)
+    await storage.deleteAvatar(initialAvatar.imageId)
   }
 }
 
@@ -268,7 +268,7 @@ async function onImageInput (file: File) {
 
   const id = genId()
   const newFile = new File([blob], `${id}.${ext}`, { type: file.type })
-  const path = await storage.uploadFile(newFile)
+  const path = await storage.uploadAvatar(newFile)
   selected.value = { type: "image", imageId: path }
 }
 

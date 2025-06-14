@@ -84,7 +84,7 @@
 <script setup lang="ts">
 import Mark from "mark.js"
 import { QList, useDialogPluginComponent } from "quasar"
-import { useDialogsStore } from "@/features/dialogs/store/dialogs"
+import { useDialogsStore } from "@/features/dialogs/store"
 import { escapeRegex } from "@/shared/utils/functions"
 import { nextTick, watch, ref, watchEffect } from "vue"
 
