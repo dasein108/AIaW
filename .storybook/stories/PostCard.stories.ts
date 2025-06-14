@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { fn } from '@storybook/test'
-import PostCard from '../components/PostCardWithGallery.vue'
+import PostCard from '../components/PostCard.vue'
 
 const meta: Meta<typeof PostCard> = {
   title: 'Social/PostCard',

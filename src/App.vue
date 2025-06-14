@@ -9,35 +9,34 @@
 </template>
 
 <script setup lang="ts">
-// import { createDbService } from './services/database/Db'
 
 import { until } from "@vueuse/core"
 import { storeToRefs } from "pinia"
 import { useQuasar } from "quasar"
-import { useUserStore } from "src/stores/user"
 import { computed, onMounted, provide, watch } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
-import PinModal from "./components/PinModal.vue"
-import { useFirstVisit } from "./composables/first-visit"
-import { useSetTheme } from "./composables/set-theme"
-import { usePinModal } from "./composables/use-pin-modal"
-import { createCosmosSigner } from "./services/cosmos/CosmosWallet"
-import type { CosmosWallet } from "./services/cosmos/CosmosWallet"
-import { EncryptionService } from "./services/encryption/EncryptionService"
-import { createKeplerWallet } from "./services/kepler/KeplerWallet"
-import { useAssistantsStore } from "./stores/assistants"
-import { useAuthStore } from "./stores/auth"
-import { useChatMessagesStore } from "./stores/chat-messages"
-import { useChatsStore } from "./stores/chats"
-import { useDialogsStore } from "./stores/dialogs"
-import { usePluginsStore } from "./stores/plugins"
-import { getMnemonic } from "./stores/tauri-store"
 
-import { useUserDataStore } from "./stores/user-data"
-import { useUserPerfsStore } from "./stores/user-perfs"
-import { IsTauri, IsWeb } from "./utils/platform-api"
-import { checkUpdate, ready } from "./utils/update"
+import { useSetTheme } from "@/shared/composables/setTheme"
+import { useUserStore, getMnemonic, useUserDataStore, useUserPerfsStore } from "@/shared/store"
+
+import { useAssistantsStore } from "@/features/assistants/store"
+import PinModal from "@/features/auth/components/PinModal.vue"
+import { useFirstVisit } from "@/features/auth/composables/useFirstVisit"
+import { usePinModal } from "@/features/auth/composables/usePinModal"
+import { useAuthStore } from "@/features/auth/store/auth"
+import { useChatsStore } from "@/features/chats/store"
+import { useChatMessagesStore } from "@/features/chats/store/chatMessages"
+import { useDialogsStore } from "@/features/dialogs/store/dialogs"
+import { usePluginsStore } from "@/features/plugins/store"
+
+import type { CosmosWallet } from "@/services/blockchain/cosmos/CosmosWallet"
+import { createCosmosSigner } from "@/services/blockchain/cosmos/CosmosWallet"
+import { createKeplerWallet } from "@/services/blockchain/kepler/KeplerWallet"
+import { EncryptionService } from "@/services/security/encryption/EncryptionService"
+
+import { IsTauri, IsWeb } from "./shared/utils/platformApi"
+import { checkUpdate, ready } from "./shared/utils/update"
 defineOptions({
   name: "App",
 })
@@ -125,6 +124,7 @@ router.beforeEach(async (to, from, next) => {
   return next()
 })
 
+// TODO: refactor this, move to composable
 const handlePinSubmit = async (pin: string) => {
   try {
     const authStore = useAuthStore()

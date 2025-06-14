@@ -14,8 +14,7 @@ import {
   QSeparator,
   QAvatar,
   QChip,
-  QLinearProgress,
-  useQuasar
+  QLinearProgress
 } from 'quasar'
 
 // Common render function that handles modal state and events

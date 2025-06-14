@@ -1,7 +1,7 @@
 import { ref, provide, computed } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
-import { useAssistantsStore } from '../../src/stores/assistants'
-import { useUserPerfsStore } from '../../src/stores/user-perfs'
+import { useAssistantsStore } from '@features/assistants/store'
+import { useUserPerfsStore } from '@shared/store/userPerfs'
 import { mockAssistants, mockItems, mockUserPerfs, setupGlobalMocks } from '../mocks/MessageItem.mocks'
 
 export const createMessageItemDecorator = (customPerfs?: any) => {

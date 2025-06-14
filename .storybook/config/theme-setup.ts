@@ -1,4 +1,4 @@
-import { useUserPerfsStore } from "../../src/stores/user-perfs";
+import { useUserPerfsStore } from "@shared/store"
 import { themeToggle } from "../theme-toggle";
 
 // Create a mock user preferences store for Storybook

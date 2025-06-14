@@ -53,3 +53,5 @@ dexie-cloud.key
 /supabase/.temp
 
 *storybook.log
+
+**/.claude/settings.local.json

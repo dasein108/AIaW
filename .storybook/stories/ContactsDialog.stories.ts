@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import { ref } from 'vue'
 import ContactsDialog from '../components/ContactsDialog.vue'
 
 const meta: Meta<typeof ContactsDialog> = {

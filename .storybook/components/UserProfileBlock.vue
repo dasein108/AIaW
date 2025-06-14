@@ -65,8 +65,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Avatar } from 'src/utils/types'
-import AAvatar from '../../src/components/AAvatar.vue'
+import { Avatar } from '@shared/utils/types'
+import AAvatar from '@shared/components/AAvatar.vue'
 import UserProfileStatus from './UserProfileStatus.vue'
 
 // Type definitions

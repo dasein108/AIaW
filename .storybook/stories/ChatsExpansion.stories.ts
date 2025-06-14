@@ -1,9 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref, provide } from 'vue'
-import { action } from '@storybook/addon-actions'
-import { fn } from '@storybook/test'
 import { vueRouter } from 'storybook-vue3-router'
-import ChatsExpansion from '../../src/components/chats/ChatsExpansion.vue'
+import ChatsExpansion from '@features/chats/components/ChatsExpansion.vue'
 
 // Simple routes for the router
 const routes = [

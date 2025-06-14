@@ -1,7 +1,6 @@
 import { fn } from '@storybook/test'
 import type { Meta, StoryObj } from '@storybook/vue3'
-import { h } from 'vue'
-import { QBanner, QBtn, QIcon, QCard, useQuasar } from 'quasar'
+import { QBanner, QBtn, QIcon, useQuasar } from 'quasar'
 
 const meta = {
   title: 'Modals/Alert Components',

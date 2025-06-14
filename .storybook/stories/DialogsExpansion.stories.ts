@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref, provide } from 'vue'
-import { action } from '@storybook/addon-actions'
 import { vueRouter } from 'storybook-vue3-router'
-import DialogsExpansion from '../../src/components/DialogsExpansion.vue'
+import DialogsExpansion from '@features/dialogs/components/DialogsExpansion.vue'
 
 const routes = [
   {

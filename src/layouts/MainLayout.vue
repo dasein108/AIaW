@@ -116,20 +116,23 @@
 
 <script setup>
 import { useQuasar } from "quasar"
-import AddDialogItem from "src/components/AddDialogItem.vue"
-import { useOpenLastWorkspace } from "src/composables/open-last-workspace"
-import { useActiveWorkspace } from "src/composables/workspaces/useActiveWorkspace"
-import { usePluginsStore } from "src/stores/plugins"
-import { useUiStateStore } from "src/stores/ui-state"
-import version from "src/version.json"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRoute } from "vue-router"
-import AssistantSelector from "./AssistantSelector.vue"
-import LastDialogs from "./LastDialogs.vue"
-import PinnedChats from "./PinnedChats.vue"
-import TabsItem from "./TabsItem.vue"
-import WorkspaceSelector from "./WorkspaceSelector.vue"
+
+import AssistantSelector from "@/shared/components/layout/AssistantSelector.vue"
+import LastDialogs from "@/shared/components/layout/LastDialogs.vue"
+import PinnedChats from "@/shared/components/layout/PinnedChats.vue"
+import TabsItem from "@/shared/components/layout/TabsItem.vue"
+import { useUiStateStore } from "@/shared/store"
+
+import AddDialogItem from "@/features/dialogs/components/AddDialogItem.vue"
+import { usePluginsStore } from "@/features/plugins/store"
+import WorkspaceSelector from "@/features/workspaces/components/WorkspaceSelector.vue"
+import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
+import { useOpenLastWorkspace } from "@/features/workspaces/composables/useOpenLastWorkspace"
+
+import version from "@/version.json"
 
 defineOptions({
   name: "MainLayout",

@@ -67,6 +67,18 @@ module.exports = {
     "import/extensions": "off",
     "import/no-unresolved": "off",
     "import/no-extraneous-dependencies": "off",
+    "import/no-relative-packages": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["@features/*", "@shared/*", "@services/*", "src/*"],
+            "message": "Use @/ prefix for path aliases (e.g., @/features/*, @/shared/*, @/services/*)"
+          }
+        ]
+      }
+    ],
 
     // The core 'import/named' rules
     // does not work with type definitions
@@ -88,7 +100,6 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": "off",
 
     "space-before-function-paren": "off",
-    "space-before-blocks": "warn",
     "no-prototype-builtins": "off",
 
     "@typescript-eslint/no-explicit-any": "off",
@@ -102,7 +113,7 @@ module.exports = {
 
     "unused-imports/no-unused-imports": "warn",
     "import/order": [
-      "error",
+      "warn",
       {
         groups: [
           "builtin",
@@ -112,9 +123,36 @@ module.exports = {
           "sibling",
           "index",
         ],
+        pathGroups: [
+          {
+            pattern: "vue",
+            group: "external",
+            position: "before"
+          },
+          {
+            pattern: "@/shared/**",
+            group: "internal",
+            position: "after"
+          },
+          {
+            pattern: "@/features/**",
+            group: "internal",
+            position: "after"
+          },
+          {
+            pattern: "@/services/**",
+            group: "internal",
+            position: "after"
+          }
+        ],
+        "newlines-between": "always",
         alphabetize: { order: "asc", caseInsensitive: true },
       },
     ],
+    "space-before-blocks": "warn",
+    "eol-last": "warn",
+    "semi": "warn",
+    "no-trailing-spaces": "warn",
     "padding-line-between-statements": [
       "warn",
       { blankLine: "always", prev: "*", next: "function" },

@@ -268,7 +268,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useQuasar } from 'quasar'
-import AAvatar from '../AAvatar.vue'
+import AAvatar from '@shared/components/AAvatar.vue'
 
 // Types
 interface PostAuthor {

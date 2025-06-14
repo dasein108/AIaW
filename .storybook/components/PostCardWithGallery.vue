@@ -208,7 +208,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useQuasar } from 'quasar'
-import AAvatar from '../../src/components/AAvatar.vue'
+import AAvatar from '@shared/components/AAvatar.vue'
 import PostImageGallery from './PostImageGallery.vue'
 
 // Types
