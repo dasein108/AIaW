@@ -160,15 +160,15 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from "quasar"
 import { useStorage } from "@/shared/composables/storage/useStorage"
-import { useUserPerfsStore } from "@shared/store/userPerfs"
+import { useUserPrefsStore } from "@/shared/store/userPrefsStore"
 import { genId } from "@shared/utils/functions"
 import { cropSquareBlob } from "@/features/media/utils/imageProcess"
-import { Avatar } from "@shared/utils/types"
+import { Avatar } from "@/shared/types"
 import { materialSymbols } from "@/shared/utils/values"
 import { ref, toRaw } from "vue"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import AvatarPanel from "./AvatarPanel.vue"
-import HueSlider from "@/shared/components/ui/HueSlider.vue"
+import HueSlider from "@/shared/components/HueSlider.vue"
 import ImageInputArea from "@/features/media/components/ImageInputArea.vue"
 
 const props = defineProps<{
@@ -180,7 +180,7 @@ defineEmits([...useDialogPluginComponent.emits])
 
 const tab = ref(props.defaultTab)
 
-const { data: perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPrefsStore()
 const storage = useStorage()
 const selected = ref<Avatar>({ ...props.model })
 const initialAvatar = toRaw(selected.value)

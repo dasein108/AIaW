@@ -72,10 +72,10 @@
 
 <script setup lang="ts">
 import { useProvidersStore } from "@/features/providers/store"
-import { Model } from "@shared/utils/types"
+import { Model } from "@/shared/types"
 import { InputTypes, models } from "@/shared/utils/values"
-import AutocompleteInput from "@/shared/components/ui/AutocompleteInput.vue"
-import ListInput from "@/shared/components/ui/ListInput.vue"
+import AutocompleteInput from "@/shared/components/input/AutocompleteInput.vue"
+import ListInput from "@/shared/components/input/ListInput.vue"
 import ModelItem from "./ModelItem.vue"
 
 const model = defineModel<Model>()

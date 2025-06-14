@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { getFileUrl } from "@/shared/composables/storage/utils"
-import { StoredItem } from "@/services/supabase/types"
+import { StoredItem } from "@/services/data/supabase/types"
 
 const props = defineProps<{
   audio: StoredItem

@@ -7,7 +7,7 @@ import {
   PluginsPrompt,
 } from "@features/dialogs/utils/templates"
 import { MessageContentMapped } from "@services/data/supabase/types"
-import { PluginPrompt } from "@shared/utils/types"
+import { PluginPrompt } from "@/shared/types"
 
 const generateTitle = async (
   model: LanguageModelV1,

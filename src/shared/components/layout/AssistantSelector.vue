@@ -32,7 +32,7 @@ import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import AssistantList from "@features/assistants/components/AssistantList.vue"
 import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
 import { avatarKey } from "@shared/utils/functions"
-import { IconAvatar } from "@shared/utils/types"
+import { IconAvatar } from "@/shared/types"
 import { computed } from "vue"
 
 const { assistant, workspace } = useActiveWorkspace()

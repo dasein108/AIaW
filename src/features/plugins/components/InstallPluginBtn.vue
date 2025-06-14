@@ -15,7 +15,7 @@
 import { useQuasar } from "quasar"
 import { useInstallPlugin } from "@/features/plugins/composables"
 import { usePluginsStore } from "@/features/plugins/store"
-import { PluginManifest } from "@shared/utils/types"
+import { PluginManifest } from "@/shared/types"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 

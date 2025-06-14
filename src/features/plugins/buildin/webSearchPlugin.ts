@@ -9,7 +9,7 @@ import {
 import { i18n } from "@/boot/i18n"
 import { SearxngBaseURL } from "@/shared/utils/config"
 import { fetch } from "@/shared/utils/platformApi"
-import { Plugin, PluginData } from "@/shared/utils/types"
+import { Plugin, PluginData } from "@/shared/types"
 
 const { t } = i18n.global
 

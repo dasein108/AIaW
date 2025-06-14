@@ -498,7 +498,7 @@ import { useAssistantsStore } from "@/features/assistants/store"
 import { pageFhStyle } from "@/shared/utils/functions"
 import { exportFile } from "@/shared/utils/platformApi"
 import { computed, inject, toRaw } from "vue"
-import { AssistantMapped } from "@/services/supabase/types"
+import { AssistantMapped } from "@/services/data/supabase/types"
 
 const props = defineProps<{
   id: string

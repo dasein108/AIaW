@@ -1,9 +1,9 @@
 import { defaultData } from "@/features/plugins/utils/plugins"
-import { createUserDataStore } from "@/shared/store/utils/createUserDataStore"
-import { PluginData } from "@/shared/utils/types"
+import { createKeyValueDbStore } from "@/shared/store/utils/createKeyValueDbStore"
+import { PluginData } from "@/shared/types"
 
 export const useUserPluginsStore = () => {
-  return createUserDataStore<Record<string, PluginData>>(
+  return createKeyValueDbStore<Record<string, PluginData>>(
     "user-plugins",
     defaultData
   )()

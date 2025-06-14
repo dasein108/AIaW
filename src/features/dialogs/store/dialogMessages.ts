@@ -1,7 +1,6 @@
-import { LanguageModelUsage } from "ai"
 import merge from "lodash/merge"
 import { defineStore } from "pinia"
-import { supabase } from "@/services/supabase/client"
+import { supabase } from "@/services/data/supabase/client"
 import { reactive } from "vue"
 import {
   DialogMessageMapped,
@@ -9,16 +8,9 @@ import {
   StoredItemMapped,
   DialogMessageInput,
 
-} from "@/services/supabase/types"
+} from "@/services/data/supabase/types"
 
 const SELECT_DIALOG_MESSAGES = "*, message_contents(*, stored_items(*))"
-
-const mapDialogMessage = (message): DialogMessageMapped => {
-  return {
-    ...message,
-    usage: message.usage as LanguageModelUsage,
-  }
-}
 
 export const useDialogMessagesStore = defineStore("dialogMessages", () => {
   const dialogMessages = reactive<Record<string, DialogMessageMapped[]>>({})
@@ -34,7 +26,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     }
 
     if (data) {
-      dialogMessages[dialogId] = data.map(mapDialogMessage)
+      dialogMessages[dialogId] = data as DialogMessageMapped[]
     } else {
       dialogMessages[dialogId] = []
     }
@@ -175,7 +167,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
         throw error
       }
 
-      dialogMessage = merge(mapDialogMessage(data), dialogMessage)
+      dialogMessage = merge(data as DialogMessageMapped, dialogMessage)
     }
 
     console.log("-----updateDialogMessage: 2. message_contents", dialogMessage.message_contents)

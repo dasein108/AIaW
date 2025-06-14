@@ -2,12 +2,12 @@
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
 import { useUserLoginCallback } from "@features/auth/composables/useUserLoginCallback"
-import { supabase } from "@/services/supabase/client"
+import { supabase } from "@/services/data/supabase/client"
 import { defaultTextAvatar } from "@shared/utils/functions"
-import { Avatar } from "@shared/utils/types"
+import { Avatar } from "@/shared/types"
 import { computed, ref } from "vue"
-import { useUserStore } from "@shared/store/user"
-import { ProfileMapped } from "@/services/supabase/types"
+import { useUserStore } from "@/shared/store/userStore"
+import { ProfileMapped } from "@/services/data/supabase/types"
 
 function mapProfileTypes (item: any): ProfileMapped {
   const { avatar, ...rest } = item

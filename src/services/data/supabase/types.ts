@@ -8,7 +8,7 @@ import {
   ModelSettings,
   PromptVar,
   Provider,
-} from "@shared/utils/types"
+} from "@/shared/types"
 
 type ChatMessage = Database["public"]["Tables"]["messages"]["Row"]
 type Chat = Database["public"]["Tables"]["chats"]["Row"]
@@ -153,14 +153,17 @@ type StoredItemInput = Omit<
   Database["public"]["Tables"]["stored_items"]["Insert"],
   "message_content_id" | "dialog_id"
 >
+
 type MessageContentInput = Omit<
   Database["public"]["Tables"]["message_contents"]["Insert"],
   "message_id"
 > & { stored_items?: StoredItemInput[] }
+
 type DialogMessageInput = Omit<
   Database["public"]["Tables"]["dialog_messages"]["Insert"],
   "dialog_id"
 > & { message_contents: MessageContentInput[] }
+
 type DialogInput = Database["public"]["Tables"]["dialogs"]["Insert"]
 
 export type {

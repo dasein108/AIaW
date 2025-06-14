@@ -92,7 +92,7 @@
 <script setup lang="ts">
 import { QPageContainer, QPage, useQuasar } from "quasar"
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
-import NotificationPanel from "@/shared/components/ui/NotificationPanel.vue"
+import NotificationPanel from "@/shared/components/NotificationPanel.vue"
 import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
 import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 

@@ -1,7 +1,7 @@
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
 import { useWorkspacesWithSubscription } from "@/features/workspaces/composables/useWorkspacesWithSubscription"
-import { supabase } from "@/services/supabase/client"
+import { supabase } from "@/services/data/supabase/client"
 import { DefaultWsIndexContent } from "@/shared/utils/template/templates"
 import { ref } from "vue"
 import { useI18n } from "vue-i18n"
@@ -10,7 +10,7 @@ import type {
   WorkspaceMemberMapped,
   WorkspaceMemberRole,
   WorkspaceRole,
-} from "@/services/supabase/types"
+} from "@/services/data/supabase/types"
 
 const SELECT_WORKSPACE_MEMBERS = "*, profile:profiles(id, name)"
 

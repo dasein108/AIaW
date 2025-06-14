@@ -25,10 +25,8 @@ export function useFirstVisit () {
   watch(
     () => isLoggedIn && assistantsStore.isLoaded && workspaceStore.isLoaded,
     async (val) => {
-      // TODO: refactor, add default workspace&assistant in db layer
       if (val) {
         if (assistantsStore.assistants.length === 0) {
-          const workspace = workspaceStore.workspaces[0]
           await assistantsStore.add({
             name: t("db.defaultAssistant"),
             avatar: defaultAvatar("AI"),
@@ -41,7 +39,7 @@ export function useFirstVisit () {
             plugins: {},
             prompt_role: "system",
             stream: true,
-            workspace_id: workspace.id,
+            workspace_id: null, // Global Assistant
           })
         }
       }

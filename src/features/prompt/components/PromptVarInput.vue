@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { PromptVar, PromptVarValue } from "@/shared/utils/types"
+import { PromptVar, PromptVarValue } from "@/shared/types"
 import UnifiedInput from "@/shared/components/input/UnifiedInput.vue"
 
 const props = defineProps<{

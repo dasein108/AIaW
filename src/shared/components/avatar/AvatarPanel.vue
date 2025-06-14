@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { Avatar } from "@shared/utils/types"
+import { Avatar } from "@/shared/types"
 import { computed } from "vue"
 import AAvatar from "./AAvatar.vue"
 

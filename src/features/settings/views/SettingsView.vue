@@ -547,11 +547,11 @@
 import { useQuasar } from "quasar"
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
 import AuthzGrantModal from "@/features/auth/components/AuthzGrantModal.vue"
-import CopyBtn from "@/shared/components/ui/CopyBtn.vue"
+import CopyBtn from "@/shared/components/CopyBtn.vue"
 import CosmosWallet from "@/features/auth/components/CosmosWallet.vue"
 import GetModelList from "@/features/providers/components/GetModelList.vue"
-import HctPreviewCircle from "@/shared/components/ui/HctPreviewCircle.vue"
-import HueSliderDialog from "@/shared/components/ui/HueSliderDialog.vue"
+import HctPreviewCircle from "@/shared/components/HctPreviewCircle.vue"
+import HueSliderDialog from "@/shared/components/dialogs/HueSliderDialog.vue"
 import KeplerWallet from "@/features/auth/components/KeplerWallet.vue"
 import ModelDragSortDialog from "@/features/providers/components/ModelDragSortDialog.vue"
 import ModelInputItems from "@/features/providers/components/ModelInputItems.vue"
@@ -563,7 +563,7 @@ import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 import { useGetModel } from "@/features/providers/composables/getModel"
 import { useLocateId } from "@/shared/composables/locateId"
 import { useAuthStore } from "@/features/auth/store/auth"
-import { useUserPerfsStore } from "@/shared/store/userPerfs"
+import { useUserPrefsStore } from "@/shared/store/userPrefsStore"
 import { pageFhStyle } from "@/shared/utils/functions"
 import { localData } from "@/shared/utils/localData"
 import { IsTauri } from "@/shared/utils/platformApi"
@@ -577,7 +577,7 @@ const { t } = useI18n()
 
 const isTauri = computed(() => IsTauri)
 
-const { data: perfs, restore } = useUserPerfsStore()
+const { data: perfs, restore } = useUserPrefsStore()
 const darkModeOptions = [
   { label: t("settingsView.followSystem"), value: "auto" },
   { label: t("settingsView.light"), value: false },

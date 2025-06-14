@@ -1,6 +1,6 @@
 import { useChatsStore } from "@/features/chats/store"
 import { computed, Ref } from "vue"
-import { ChatMapped } from "@/services/supabase/types"
+import { ChatMapped } from "@/services/data/supabase/types"
 
 export function useWorkspaceChats (workspaceId: Ref<string | null>) {
   const chatsStore = useChatsStore()

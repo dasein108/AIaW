@@ -94,7 +94,7 @@ import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import MessageAudio from "@/features/media/components/MessageAudio.vue"
 import MessageImage from "@/features/media/components/MessageImage.vue"
 import { AssistantToolContent } from "@/features/dialogs/types"
-import { StoredItemMapped } from "@/services/supabase/types"
+import { StoredItemMapped } from "@/services/data/supabase/types"
 
 const { t } = useI18n()
 

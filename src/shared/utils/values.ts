@@ -14,7 +14,7 @@ import { Object, String } from "@sinclair/typebox"
 import { createOllama } from "ollama-ai-provider"
 import { i18n } from "@/boot/i18n"
 import { fetch } from "./platformApi"
-import { Model, ProviderType } from "./types"
+import { Model, ProviderType } from "../types"
 
 const { t } = i18n.global
 

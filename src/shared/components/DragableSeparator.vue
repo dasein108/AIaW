@@ -1,7 +1,7 @@
 <template>
   <div
     cursor-ew-resize
-    @mousedown="onMounseDown"
+    @mousedown="onMouseDown"
   />
 </template>
 
@@ -13,7 +13,7 @@ const props = defineProps<{
 }>()
 const model = defineModel<number>()
 
-function onMounseDown (ev: MouseEvent) {
+function onMouseDown (ev: MouseEvent) {
   const initial = model.value
   const startX = ev.clientX
 

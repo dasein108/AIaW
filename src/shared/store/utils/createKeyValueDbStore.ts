@@ -1,14 +1,14 @@
-// src/shared/store/utils/createUserDataStore.ts
+// src/shared/store/utils/createKeyValueDbStore.ts
 
 import { isEqual, throttle, cloneDeep } from "lodash"
 import { defineStore } from "pinia"
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
-import { supabase } from "@/services/supabase/client"
-import { CODE_NO_RECORD_FOUND } from "@/services/supabase/consts"
+import { supabase } from "@/services/data/supabase/client"
+import { CODE_NO_RECORD_FOUND } from "@/services/data/supabase/consts"
 import { reactive, ref, watch } from "vue"
-import { useUserStore } from "../user"
+import { useUserStore } from "../userStore"
 
-export function createUserDataStore<T extends object> (
+export function createKeyValueDbStore<T extends object> (
   storeId: string,
   defaultValue: T
 ) {

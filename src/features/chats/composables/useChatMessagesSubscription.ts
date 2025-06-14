@@ -1,8 +1,8 @@
-import { supabase } from "@/services/supabase/client"
+import { supabase } from "@/services/data/supabase/client"
 import type {
   ChatMessageWithProfile,
   ProfileMapped,
-} from "@/services/supabase/types"
+} from "@/services/data/supabase/types"
 import { useProfileStore } from "@features/profile/store"
 import { useUserLoginCallback } from "@features/auth/composables/useUserLoginCallback"
 

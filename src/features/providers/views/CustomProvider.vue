@@ -99,7 +99,7 @@ import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 import {
   CustomProviderMapped,
   SubproviderMapped,
-} from "@/services/supabase/types"
+} from "@/services/data/supabase/types"
 import { useProvidersStore } from "@/features/providers/store"
 import { pageFhStyle } from "@/shared/utils/functions"
 import { computed, toRaw } from "vue"

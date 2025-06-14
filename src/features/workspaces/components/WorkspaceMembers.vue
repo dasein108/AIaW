@@ -56,7 +56,7 @@ import type {
   ProfileMapped,
   WorkspaceMemberMapped,
   WorkspaceMemberRole,
-} from "@/services/supabase/types"
+} from "@/services/data/supabase/types"
 
 const props = defineProps<{
   workspaceId: string

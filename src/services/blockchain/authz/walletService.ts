@@ -10,7 +10,7 @@ import { MsgGrant, MsgRevoke } from "cosmjs-types/cosmos/authz/v1beta1/tx"
 import { SendAuthorization } from "cosmjs-types/cosmos/bank/v1beta1/authz"
 import { Any } from "cosmjs-types/google/protobuf/any"
 import { EncryptionService } from "@services/security/encryption/EncryptionService"
-import { config } from "@services/blockchain/constants"
+import { chainConfig } from "@/services/blockchain/consts"
 
 export interface WalletInfo {
   address: string
@@ -142,7 +142,7 @@ export class WalletService {
           },
         ],
         {
-          amount: coins("150000", config.FEE_DENOM),
+          amount: coins("150000", chainConfig.FEE_DENOM),
           gas: "150000",
         }
       )
@@ -192,7 +192,7 @@ export class WalletService {
           },
         ],
         {
-          amount: coins("120000", config.FEE_DENOM),
+          amount: coins("120000", chainConfig.FEE_DENOM),
           gas: "120000",
         }
       )
@@ -214,7 +214,7 @@ export class WalletService {
   ): Promise<{ hasMsgExecGrant: boolean; hasMsgSendGrant: boolean }> {
     try {
       const response = await fetch(
-        `${config.LCD_URL}/cosmos/authz/v1beta1/grants?granter=${granterAddress}&grantee=${granteeAddress}`
+        `${chainConfig.LCD_URL}/cosmos/authz/v1beta1/grants?granter=${granterAddress}&grantee=${granteeAddress}`
       )
 
       if (!response.ok) {
@@ -248,7 +248,7 @@ export class WalletService {
   async sendTokensToGrantee (
     granterSigner: OfflineDirectSigner,
     granteeAddress: string,
-    amountDenom: string = config.FEE_DENOM,
+    amountDenom: string = chainConfig.FEE_DENOM,
     amountValue: string = "1000000"
   ): Promise<void> {
     if (!granterSigner) {
@@ -303,7 +303,7 @@ export class WalletService {
       })
 
       const sendAuth = SendAuthorization.fromPartial({
-        spendLimit: coins(spendLimit, config.FEE_DENOM),
+        spendLimit: coins(spendLimit, chainConfig.FEE_DENOM),
       })
 
       const grantMsg: MsgGrant = {
@@ -334,7 +334,7 @@ export class WalletService {
           },
         ],
         {
-          amount: coins("150000", config.FEE_DENOM),
+          amount: coins("150000", chainConfig.FEE_DENOM),
           gas: "150000",
         }
       )
@@ -414,7 +414,7 @@ export class WalletService {
         const sendAuth = SendAuthorization.fromPartial({
           spendLimit: coins(
             grants.msgSendSpendLimit || "10000000000",
-            config.FEE_DENOM
+            chainConfig.FEE_DENOM
           ),
         })
 
@@ -453,11 +453,11 @@ export class WalletService {
         messagesCount: messages.length,
         gasLimit,
         gasAmount,
-        feeCoins: `${gasAmount}${config.FEE_DENOM}`,
+        feeCoins: `${gasAmount}${chainConfig.FEE_DENOM}`,
       })
 
       const result = await client.signAndBroadcast(granterAddress, messages, {
-        amount: coins(gasAmount, config.FEE_DENOM),
+        amount: coins(gasAmount, chainConfig.FEE_DENOM),
         gas: gasLimit,
       })
 
@@ -479,7 +479,7 @@ export class WalletService {
   ): Promise<{ hasTokens: boolean; balance: string }> {
     try {
       const response = await fetch(
-        `${config.LCD_URL}/cosmos/bank/v1beta1/balances/${granteeAddress}`
+        `${chainConfig.LCD_URL}/cosmos/bank/v1beta1/balances/${granteeAddress}`
       )
 
       if (!response.ok) {
@@ -491,7 +491,7 @@ export class WalletService {
 
       // Find balance for our fee denomination (ustake)
       const tokenBalance = balances.find(
-        (balance: any) => balance.denom === config.FEE_DENOM
+        (balance: any) => balance.denom === chainConfig.FEE_DENOM
       )
       const balanceAmount = tokenBalance ? tokenBalance.amount : "0"
 
@@ -519,12 +519,12 @@ export class WalletService {
     }
 
     return SigningStargateClient.connectWithSigner(
-      config.NODE_RPC_URL,
+      chainConfig.NODE_RPC_URL,
       signer,
       {
         gasPrice: {
-          amount: Decimal.fromUserInput(config.GAS_PRICE_AMOUNT, 6),
-          denom: config.FEE_DENOM,
+          amount: Decimal.fromUserInput(chainConfig.GAS_PRICE_AMOUNT, 6),
+          denom: chainConfig.FEE_DENOM,
         },
       }
     )

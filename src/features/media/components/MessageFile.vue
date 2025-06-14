@@ -15,7 +15,7 @@ import { useQuasar } from "quasar"
 import { codeExtensions } from "@/shared/utils/values"
 import { computed } from "vue"
 import ViewFileDialog from "@/features/media/components/ViewFileDialog.vue"
-import { StoredItemMapped } from "@/services/supabase/types"
+import { StoredItemMapped } from "@/services/data/supabase/types"
 
 const props = defineProps<{
   file: StoredItemMapped

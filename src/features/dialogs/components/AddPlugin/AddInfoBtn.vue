@@ -60,11 +60,11 @@ import {
   AssistantPlugins,
   Plugin,
   PluginApi,
-} from "@shared/utils/types"
+} from "@/shared/types"
 import { computed, inject, Ref } from "vue"
 import { useI18n } from "vue-i18n"
 import JsonInputDialog from "./JsonInputDialog.vue"
-import { DialogMapped, WorkspaceMapped } from "@/services/supabase/types"
+import { DialogMapped, WorkspaceMapped } from "@/services/data/supabase/types"
 
 const props = defineProps<{
   plugins: Plugin[]

@@ -6,8 +6,8 @@ import { UserMessageContent } from "@/features/dialogs/types"
 import {
   MessageContentMapped,
   StoredItemMapped,
-} from "@/services/supabase/types"
-import { ApiResultItem } from "@shared/utils/types"
+} from "@/services/data/supabase/types"
+import { ApiResultItem } from "@/shared/types"
 
 export const useDialogInput = (
   dialogId: Ref<string>,

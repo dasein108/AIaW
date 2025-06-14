@@ -92,12 +92,12 @@ import { MdPreview } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
 import { AAvatar } from "@shared/components/avatar"
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
-import { useUserStore } from "@/shared/store/user"
-import { useUserPerfsStore } from "@/shared/store/userPerfs"
+import { useUserStore } from "@/shared/store/userStore"
+import { useUserPrefsStore } from "@/shared/store/userPrefsStore"
 import { genId } from "@shared/utils/functions"
-import { ApiResultItem, TextAvatar } from "@shared/utils/types"
+import { ApiResultItem, TextAvatar } from "@/shared/types"
 import { computed, reactive, ref } from "vue"
-import { ChatMessageWithProfile } from "@/services/supabase/types"
+import { ChatMessageWithProfile } from "@/services/data/supabase/types"
 
 const props = defineProps<{
   message: ChatMessageWithProfile
@@ -121,7 +121,7 @@ const emit = defineEmits<{
   stream: [string]
 }>()
 
-const { data: perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPrefsStore()
 
 const denseMode = computed(() => $q.screen.lt.md)
 const colMode = computed(() => denseMode.value && !isMine.value)

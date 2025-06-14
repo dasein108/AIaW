@@ -84,8 +84,8 @@ import { FILES_BUCKET } from "@/shared/composables/storage/utils"
 import { wrapCode, wrapQuote } from "@/shared/utils/functions"
 import { codeExtensions } from "@/shared/utils/values"
 import { computed, ref, watchEffect } from "vue"
-import CopyBtn from "@/shared/components/ui/CopyBtn.vue"
-import { StoredItem } from "@/services/supabase/types"
+import CopyBtn from "@/shared/components/CopyBtn.vue"
+import { StoredItem } from "@/services/data/supabase/types"
 
 const props = defineProps<{
   file: StoredItem

@@ -2,7 +2,7 @@ import { useArtifactsStore } from "@features/artifacts/store"
 import { useUserDataStore } from "@/shared/store"
 import { Ref } from "vue"
 import { useRouter } from "vue-router"
-import { ArtifactMapped } from "@/services/supabase/types"
+import { ArtifactMapped } from "@/services/data/supabase/types"
 
 export function useCreateArtifact (workspaceId: Ref<string>) {
   const router = useRouter()

@@ -10,12 +10,12 @@
 </template>
 
 <script setup lang="ts">
-import { useUserPerfsStore } from "@/shared/store/userPerfs"
+import { useUserPrefsStore } from "@/shared/store/userPrefsStore"
 import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 
 const { t } = useI18n()
-const { data: perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPrefsStore()
 
 const options = new Map()
 options.set("auto", {

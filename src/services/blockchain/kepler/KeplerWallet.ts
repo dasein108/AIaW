@@ -5,7 +5,7 @@ import {
 } from "@cosmjs/cosmwasm-stargate"
 import { GasPrice } from "@cosmjs/stargate"
 import { ref, watch } from "vue"
-import { config } from "@services/blockchain/constants"
+import { chainConfig } from "@/services/blockchain/consts"
 import type { KeplerWalletState, TxStatusResponse } from "@services/blockchain/kepler/types"
 import { parseTxStatus } from "@services/blockchain/kepler/utils"
 
@@ -34,10 +34,10 @@ export const getLocalStorageWalletState = () => {
 
 // Chain suggestion configuration for Keplr
 const CHAIN_INFO = {
-  chainId: config.CHAIN_ID,
+  chainId: chainConfig.CHAIN_ID,
   chainName: "Cyber TESTNET",
-  rpc: config.NODE_RPC_URL,
-  rest: config.LCD_URL,
+  rpc: chainConfig.NODE_RPC_URL,
+  rest: chainConfig.LCD_URL,
   bip44: {
     coinType: 118,
   },
@@ -51,20 +51,20 @@ const CHAIN_INFO = {
   },
   currencies: [
     {
-      coinDenom: config.DENOM,
-      coinMinimalDenom: config.DENOM.toLowerCase(),
+      coinDenom: chainConfig.DENOM,
+      coinMinimalDenom: chainConfig.DENOM.toLowerCase(),
       coinDecimals: 6,
     },
     {
-      coinDenom: config.FEE_DENOM,
-      coinMinimalDenom: config.FEE_DENOM.toLowerCase(),
+      coinDenom: chainConfig.FEE_DENOM,
+      coinMinimalDenom: chainConfig.FEE_DENOM.toLowerCase(),
       coinDecimals: 6,
     },
   ],
   feeCurrencies: [
     {
-      coinDenom: config.FEE_DENOM,
-      coinMinimalDenom: config.FEE_DENOM.toLowerCase(),
+      coinDenom: chainConfig.FEE_DENOM,
+      coinMinimalDenom: chainConfig.FEE_DENOM.toLowerCase(),
       coinDecimals: 6,
       gasPriceStep: {
         low: 0.1,
@@ -74,8 +74,8 @@ const CHAIN_INFO = {
     },
   ],
   stakeCurrency: {
-    coinDenom: config.DENOM,
-    coinMinimalDenom: config.DENOM.toLowerCase(),
+    coinDenom: chainConfig.DENOM,
+    coinMinimalDenom: chainConfig.DENOM.toLowerCase(),
     coinDecimals: 6,
   },
 }
@@ -88,7 +88,7 @@ export function createKeplerWallet () {
 
   // Initialize CosmWasmClient
   if (typeof window !== "undefined") {
-    CosmWasmClient.connect(config.NODE_RPC_URL)
+    CosmWasmClient.connect(chainConfig.NODE_RPC_URL)
       .then((cosmWasmClient) => {
         client.value = cosmWasmClient
       })
@@ -116,10 +116,10 @@ export function createKeplerWallet () {
       await window.keplr.experimentalSuggestChain(CHAIN_INFO)
 
       // Enable access to chain
-      await window.keplr.enable(config.CHAIN_ID)
+      await window.keplr.enable(chainConfig.CHAIN_ID)
 
       // Get the offline signer
-      const offlineSigner = window.keplr.getOfflineSigner(config.CHAIN_ID)
+      const offlineSigner = window.keplr.getOfflineSigner(chainConfig.CHAIN_ID)
 
       // Get user's Kepler account
       const accounts = await offlineSigner.getAccounts()
@@ -142,18 +142,18 @@ export function createKeplerWallet () {
         throw new Error("Keplr extension not installed")
       }
 
-      const offlineSigner = window.keplr.getOfflineSigner(config.CHAIN_ID)
+      const offlineSigner = window.keplr.getOfflineSigner(chainConfig.CHAIN_ID)
       const accounts = await offlineSigner.getAccounts()
 
       // Create a new signDoc with our chain configuration
       const newSignDoc: StdSignDoc = {
         ...signDoc,
-        chain_id: config.CHAIN_ID,
+        chain_id: chainConfig.CHAIN_ID,
         fee: {
           ...signDoc.fee,
           amount: signDoc.fee.amount.map((coin) => ({
             ...coin,
-            denom: config.FEE_DENOM,
+            denom: chainConfig.FEE_DENOM,
           })),
         },
       }
@@ -175,16 +175,16 @@ export function createKeplerWallet () {
       }
 
       // Get the offline signer
-      const offlineSigner = window.keplr.getOfflineSigner(config.CHAIN_ID)
+      const offlineSigner = window.keplr.getOfflineSigner(chainConfig.CHAIN_ID)
       const accounts = await offlineSigner.getAccounts()
       const sender = accounts[0]
 
       // Create signing client
       const gasPrice = GasPrice.fromString(
-        `${config.GAS_PRICE_AMOUNT}${config.FEE_DENOM}`
+        `${chainConfig.GAS_PRICE_AMOUNT}${chainConfig.FEE_DENOM}`
       )
       const signingClient = await SigningCosmWasmClient.connectWithSigner(
-        config.NODE_RPC_URL,
+        chainConfig.NODE_RPC_URL,
         offlineSigner,
         { gasPrice }
       )
@@ -247,7 +247,7 @@ export function createKeplerWallet () {
       throw new Error("Keplr extension not installed")
     }
 
-    return window.keplr.getOfflineSigner(config.CHAIN_ID)
+    return window.keplr.getOfflineSigner(chainConfig.CHAIN_ID)
   }
 
   return {

@@ -1,13 +1,13 @@
 import { defineStore } from "pinia"
 import { useUserLoginCallback } from "@features/auth/composables/useUserLoginCallback"
-import { supabase } from "@/services/supabase/client"
+import { supabase } from "@/services/data/supabase/client"
 import { reactive, ref } from "vue"
 import { useDialogMessagesStore } from "./dialogMessages"
 import {
   DialogInput,
   DialogMapped,
   DialogMessageInput,
-} from "@/services/supabase/types"
+} from "@/services/data/supabase/types"
 
 export const useDialogsStore = defineStore("dialogs", () => {
   const dialogs = reactive<Record<string, DialogMapped>>({})

@@ -1,13 +1,13 @@
 import { Object as TObject } from "@sinclair/typebox"
 import { defineStore } from "pinia"
 import { useUserLoginCallback } from "@features/auth/composables/useUserLoginCallback"
-import { supabase } from "@/services/supabase/client"
+import { supabase } from "@/services/data/supabase/client"
 import {
   CustomProviderMapped,
   SubproviderMapped,
-} from "@/services/supabase/types"
+} from "@/services/data/supabase/types"
 import { removeDuplicates } from "@shared/utils/functions"
-import { ProviderType, Provider, Avatar } from "@shared/utils/types"
+import { ProviderType, Provider, Avatar } from "@/shared/types"
 
 import {
   modelOptions as baseModelOptions,

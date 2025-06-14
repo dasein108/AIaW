@@ -6,7 +6,7 @@ import { useWorkspacesStore } from "@/features/workspaces/store"
 import { computed, Ref, watch } from "vue"
 import { FILES_BUCKET } from "@/shared/composables/storage/utils"
 import { getBranchList, getDialogItemList, TreeListItem } from "./utils/dialogTreeUtils"
-import { DialogMessageInput, DialogMessageMapped, StoredItemMapped } from "@/services/supabase/types"
+import { DialogMessageInput, DialogMessageMapped, StoredItemMapped } from "@/services/data/supabase/types"
 
 export const useDialogMessages = (dialogId: Ref<string>) => {
   const { dialogs } = storeToRefs(useDialogsStore())

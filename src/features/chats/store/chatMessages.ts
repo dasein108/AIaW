@@ -1,8 +1,8 @@
 import { defineStore } from "pinia"
 import { useChatMessagesSubscription } from "@/features/chats/composables/useChatMessagesSubscription"
-import { supabase } from "@/services/supabase/client"
+import { supabase } from "@/services/data/supabase/client"
 import { ref } from "vue"
-import { ChatMessage, ChatMessageWithProfile } from "@/services/supabase/types"
+import { ChatMessage, ChatMessageWithProfile } from "@/services/data/supabase/types"
 
 export const useChatMessagesStore = defineStore("chat-messages", () => {
   const messagesByChat = ref<Record<string, ChatMessageWithProfile[]>>({})

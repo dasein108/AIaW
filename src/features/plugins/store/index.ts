@@ -3,7 +3,7 @@ import { defineStore, storeToRefs } from "pinia"
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import authzPlugin from "@/features/plugins/buildin/cosmosAuthz"
 import { keplerPlugin } from "@/features/plugins/buildin/keplerPlugin"
-import { supabase } from "@/services/supabase/client"
+import { supabase } from "@/services/data/supabase/client"
 import artifacts from "@/features/plugins/buildin/artifactsPlugin"
 import { IsTauri } from "@/shared/utils/platformApi"
 import {
@@ -29,13 +29,13 @@ import {
   HuggingPluginManifest,
   McpPluginDump,
   McpPluginManifest,
-} from "@/shared/utils/types"
+} from "@/shared/types"
 import webSearchPlugin from "@/features/plugins/buildin/webSearchPlugin"
 import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useAssistantsStore } from "@/features/assistants/store"
 import { useUserPluginsStore } from "./userPlugins"
-import { UserPlugin } from "@/services/supabase/types"
+import { UserPlugin } from "@/services/data/supabase/types"
 
 export const usePluginsStore = defineStore("plugins", () => {
   const assistantsStore = useAssistantsStore()

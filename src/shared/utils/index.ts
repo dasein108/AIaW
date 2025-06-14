@@ -42,7 +42,7 @@ export {
   LobePluginManifestSchema,
   MarketAssistantSchema,
   ProviderSchema,
-} from "./types"
+} from "../types"
 
 export type {
   Provider,
@@ -95,4 +95,4 @@ export type {
   ArtifactVersion,
   PluginPrompt,
   ToolResultContent,
-} from "./types"
+} from "../types"

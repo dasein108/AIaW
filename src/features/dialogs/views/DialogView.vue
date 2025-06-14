@@ -304,8 +304,8 @@
 import { until } from "@vueuse/core"
 import Mark from "mark.js"
 import { useQuasar } from "quasar"
-import AbortableBtn from "@/shared/components/ui/AbortableBtn.vue"
-import AddInfoBtn from "@/shared/components/ui/AddInfoBtn.vue"
+import AbortableBtn from "@/shared/components/AbortableBtn.vue"
+import AddInfoBtn from "@/features/dialogs/components/AddPlugin/AddInfoBtn.vue"
 import EnablePluginsMenu from "@/features/plugins/components/EnablePluginsMenu.vue"
 import MessageFile from "@/features/media/components/MessageFile.vue"
 import MessageImage from "@/features/media/components/MessageImage.vue"
@@ -323,7 +323,7 @@ import { useListenKey } from "@/shared/composables"
 import { useSetTitle } from "@/shared/composables/setTitle"
 import { useActiveWorkspace } from "@/features/workspaces/composables/useActiveWorkspace"
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"
-import { DialogMessageMapped } from "@/services/supabase/types"
+import { DialogMessageMapped } from "@/services/data/supabase/types"
 import { useDialogMessagesStore } from "@/features/dialogs/store/dialogMessages"
 import { usePluginsStore } from "@/features/plugins/store"
 import { useUiStateStore, useUserDataStore, useUserPerfsStore } from "@shared/store"
@@ -342,7 +342,7 @@ import {
 import { scaleBlob } from "@/features/media/utils/imageProcess"
 import { engine } from "@/features/dialogs/utils/templateEngine"
 import { DialogContent } from "@/features/dialogs/utils/templates"
-import { Plugin, ApiResultItem } from "@/shared/utils/types"
+import { Plugin, ApiResultItem } from "@/shared/types"
 import {
   computed,
   inject,

@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { CustomProviderMapped } from "@/services/supabase/types"
+import { CustomProviderMapped } from "@/services/data/supabase/types"
 import { useProvidersStore } from "@/features/providers/store"
 import { useUserPerfsStore } from "@shared/store"
 import { useI18n } from "vue-i18n"

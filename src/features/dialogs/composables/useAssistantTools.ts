@@ -3,12 +3,12 @@ import { storeToRefs } from "pinia"
 import { useQuasar } from "quasar"
 import { useCallApi } from "@/shared/composables"
 import { useGetModel } from "@features/providers/composables/getModel"
-import { getSystemPrompt } from "@/services/llm/utils"
+import { getSystemPrompt } from "@/services/ai/llm/utils"
 import {
   ArtifactMapped,
   AssistantMapped,
   StoredItem,
-} from "@/services/supabase/types"
+} from "@/services/data/supabase/types"
 import { usePluginsStore } from "@/features/plugins/store"
 import { useUserDataStore, useUserPerfsStore } from "@shared/store"
 import artifactsPlugin from "@/features/plugins/buildin/artifactsPlugin"
@@ -20,7 +20,7 @@ import {
   PluginApi,
   ApiResultItem,
   ApiCallError,
-} from "@/shared/utils/types"
+} from "@/shared/types"
 import { Ref, computed, inject } from "vue"
 import { useI18n } from "vue-i18n"
 import { useDialogMessages } from "./useDialogMessages"

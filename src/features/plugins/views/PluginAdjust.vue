@@ -126,8 +126,8 @@
 </template>
 
 <script setup lang="ts">
-import HintCard from "@/shared/components/ui/HintCard.vue"
-import JsonInput from "@/shared/components/ui/JsonInput.vue"
+import HintCard from "@/shared/components/HintCard.vue"
+import JsonInput from "@/shared/components/input/JsonInput.vue"
 import PromptVarInput from "@/features/prompt/components/PromptVarInput.vue"
 import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 import { useSetTitle } from "@/shared/composables/setTitle"
@@ -135,10 +135,10 @@ import { syncRef } from "@/shared/composables/syncRef"
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 import { useAssistantsStore } from "@/features/assistants/store"
 import { usePluginsStore } from "@/features/plugins/store"
-import { PluginApi } from "@/shared/utils/types"
+import { PluginApi } from "@/shared/types"
 import { computed, toRaw } from "vue"
 import { useI18n } from "vue-i18n"
-import { AssistantMapped } from "@/services/supabase/types"
+import { AssistantMapped } from "@/services/data/supabase/types"
 
 defineEmits(["toggle-drawer"])
 

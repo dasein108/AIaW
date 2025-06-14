@@ -63,7 +63,7 @@ import { useRoute } from "vue-router"
 import { useWorkspaceChats } from "@/features/chats/composables/useWorkspaceChats"
 import MenuButton from "@/shared/components/menu/MenuButton.vue"
 import MenuItem from "@/shared/components/menu/MenuItem.vue"
-import { ChatMapped } from "@/services/supabase/types"
+import { ChatMapped } from "@/services/data/supabase/types"
 
 const props = defineProps<{
   chat: ChatMapped

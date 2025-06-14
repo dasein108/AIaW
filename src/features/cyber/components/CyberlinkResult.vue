@@ -32,7 +32,7 @@ import { CosmosWallet } from "@/services/blockchain/cosmos/CosmosWallet"
 import {
   DialogMessageMapped,
   StoredItemMapped,
-} from "@/services/supabase/types"
+} from "@/services/data/supabase/types"
 
 const props = defineProps<{
   result: StoredItemMapped[]

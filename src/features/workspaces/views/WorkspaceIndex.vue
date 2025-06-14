@@ -28,7 +28,7 @@ import { useWorkspacesStore } from "@/features/workspaces/store"
 import { engine } from "@/features/dialogs/utils/templateEngine"
 import { DefaultWsIndexContent } from "@/features/dialogs/utils/templates"
 import { computed, Ref, inject, toRaw } from "vue"
-import { WorkspaceMapped } from "@/services/supabase/types"
+import { WorkspaceMapped } from "@/services/data/supabase/types"
 
 defineEmits(["toggle-drawer"])
 

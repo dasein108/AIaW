@@ -126,8 +126,8 @@
 import { useQuasar } from "quasar"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import AssistantItem from "@features/assistants/components/AssistantItem.vue"
-import LoadingPanel from "@/shared/components/ui/LoadingPanel.vue"
-import NotificationPanel from "@/shared/components/ui/NotificationPanel.vue"
+import LoadingPanel from "@/shared/components/LoadingPanel.vue"
+import NotificationPanel from "@/shared/components/NotificationPanel.vue"
 import PickAvatarDialog from "@shared/components/avatar/PickAvatarDialog.vue"
 import VarsInput from "@/features/prompt/components/VarsInput.vue"
 import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
@@ -140,7 +140,7 @@ import { useUserDataStore } from "@shared/store"
 import { useWorkspacesStore } from "@features/workspaces/store"
 import { computed, Ref, inject, toRaw, watch } from "vue"
 import { useI18n } from "vue-i18n"
-import { WorkspaceMapped } from "@/services/supabase/types"
+import { WorkspaceMapped } from "@/services/data/supabase/types"
 const { t } = useI18n()
 
 defineEmits(["toggle-drawer"])

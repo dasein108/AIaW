@@ -1,1 +1,1 @@
-export { useAvatarImage } from "./avatar-image"
+export { useAvatarImage } from "./useAvatarImage"

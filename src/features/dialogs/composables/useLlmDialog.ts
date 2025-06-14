@@ -13,7 +13,7 @@ import {
   generateTitle,
   generateArtifactName,
   generateExtractArtifact,
-} from "@/services/llm/utils"
+} from "@/services/ai/llm/utils"
 import { useDialogsStore } from "@features/dialogs/store/dialogs"
 import { useUserPerfsStore } from "@shared/store"
 import { getAssistantModelSettings } from "@features/assistants/utils/assistantUtils"
@@ -34,8 +34,8 @@ import {
   DialogMessageMapped,
   MessageContentMapped,
   MessageContentResult,
-} from "@/services/supabase/types"
-import { ConvertArtifactOptions, Plugin, PluginApi } from "@/shared/utils/types"
+} from "@/services/data/supabase/types"
+import { ConvertArtifactOptions, Plugin, PluginApi } from "@/shared/types"
 
 export const useLlmDialog = (
   workspaceId: Ref<string>,

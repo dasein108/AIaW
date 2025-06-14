@@ -6,7 +6,7 @@ import { until } from "@vueuse/core"
 import { useQuasar } from "quasar"
 import { useOpenLastWorkspace } from "@features/workspaces/composables/openLastWorkspace"
 import { useUserPerfsStore } from "@shared/store"
-import { ProviderSchema } from "@shared/utils/types"
+import { ProviderSchema } from "@/shared/types"
 import { useI18n } from "vue-i18n"
 import { useRoute } from "vue-router"
 

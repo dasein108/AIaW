@@ -44,7 +44,7 @@ import {
   McpPluginDump,
   McpPluginManifest,
   Avatar,
-} from "@/shared/utils/types"
+} from "@/shared/types"
 import webSearchPlugin from "../buildin/webSearchPlugin"
 
 const { t } = i18n.global

@@ -61,9 +61,9 @@
 <script setup lang="ts">
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
 import { useProvidersStore } from "@/features/providers/store"
-import { Provider } from "@/shared/utils/types"
+import { Provider } from "@/shared/types"
 import { computed } from "vue"
-import JsonInput from "@/shared/components/ui/JsonInput.vue"
+import JsonInput from "@/shared/components/input/JsonInput.vue"
 
 defineProps<{
   label?: string

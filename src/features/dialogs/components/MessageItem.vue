@@ -352,10 +352,10 @@ import MessageImage from "@/features/media/components/MessageImage.vue"
 import ToolContent from "@/features/plugins/components/ToolContent.vue"
 import { usePluginsStore } from "@/features/plugins/store"
 import MenuItem from "@/shared/components/menu/MenuItem.vue"
-import CopyBtn from "@/shared/components/ui/CopyBtn.vue"
-import TextareaDialog from "@/shared/components/ui/TextareaDialog.vue"
+import CopyBtn from "@/shared/components/CopyBtn.vue"
+import TextareaDialog from "@/shared/components/dialogs/TextareaDialog.vue"
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
-import { useUserPerfsStore } from "@/shared/store/userPerfs"
+import { useUserPrefsStore } from "@/shared/store/userPrefsStore"
 import sessions from "@/shared/utils/sessions"
 import { dialogOptions } from "@/shared/utils/values"
 import { useDialogMessages } from "@features/dialogs/composables/useDialogMessages"
@@ -370,7 +370,7 @@ import {
   textBeginning,
   wrapCode,
 } from "@shared/utils/functions"
-import { ApiResultItem, ConvertArtifactOptions } from "@shared/utils/types"
+import { ApiResultItem, ConvertArtifactOptions } from "@/shared/types"
 import { MdCatalog, MdPreview } from "md-editor-v3"
 import { copyToClipboard, useQuasar } from "quasar"
 import {
@@ -395,7 +395,7 @@ import {
 import {
   DialogMessageMapped,
   MessageContentMapped,
-} from "@/services/supabase/types"
+} from "@/services/data/supabase/types"
 
 const props = defineProps<{
   message: DialogMessageMapped
@@ -483,7 +483,7 @@ const textContent = computed(
       | AssistantMessageContent
 )
 
-const { data: perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPrefsStore()
 const assistantsStore = useAssistantsStore()
 const pluginsStore = usePluginsStore()
 const dialog = computed(() => dialogsStore.dialogs[props.message.dialog_id])

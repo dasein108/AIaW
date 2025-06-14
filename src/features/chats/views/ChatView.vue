@@ -123,22 +123,22 @@ import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 
 import { useChatMessagesStore } from "@/features/chats/store/chatMessages"
 import { useChatsStore } from "@/features/chats/store"
-import { useUiStateStore } from "@/shared/store/uiState"
-import { useUserStore } from "@/shared/store/user"
-import { useUserPerfsStore } from "@/shared/store/userPerfs"
+import { useUiStateStore } from "@/shared/store/uiStateStore"
+import { useUserStore } from "@/shared/store/userStore"
+import { useUserPrefsStore } from "@/shared/store/userPrefsStore"
 import {
   almostEqual,
   isPlatformEnabled,
   pageFhStyle,
 } from "@/shared/utils/functions"
 import { computed, inject, nextTick, ref, watch } from "vue"
-import { ChatMapped, ChatMessageWithProfile } from "@/services/supabase/types"
+import { ChatMapped, ChatMessageWithProfile } from "@/services/data/supabase/types"
 const props = defineProps<{
   id: string
 }>()
 
 const scrollContainer = ref<HTMLElement>()
-const { data: perfs } = useUserPerfsStore()
+const { data: perfs } = useUserPrefsStore()
 const lockingBottom = ref(false)
 let lastScrollTop
 

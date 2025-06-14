@@ -7,7 +7,7 @@ import {
   HuggingPluginManifestSchema,
   LobePluginManifestSchema,
   McpPluginManifestSchema,
-} from "@/shared/utils/types"
+} from "@/shared/types"
 import { toRaw } from "vue"
 import { useI18n } from "vue-i18n"
 

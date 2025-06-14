@@ -1,7 +1,7 @@
-import { ChainConfig } from "./kepler/types"
+import { ChainConfig } from "./types"
 
 // Chain configuration
-export const config: ChainConfig = {
+export const chainConfig: ChainConfig = {
   CHAIN_ID: "cyber42-1",
   FEE_DENOM: "ustake",
   DENOM: "STAKE",

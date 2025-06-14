@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { codeExtensions } from "@/shared/utils/values"
 import { computed } from "vue"
-import { ArtifactMapped } from "@/services/supabase/types"
+import { ArtifactMapped } from "@/services/data/supabase/types"
 
 const props = defineProps<{
   artifact: ArtifactMapped

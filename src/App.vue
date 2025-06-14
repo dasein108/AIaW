@@ -21,9 +21,9 @@ import PinModal from "@features/auth/components/PinModal.vue"
 import { useFirstVisit } from "@features/auth/composables/firstVisit"
 import { useSetTheme } from "@/shared/composables/setTheme"
 import { usePinModal } from "@/features/auth/composables/usePinModal"
-import { createCosmosSigner } from "./services/cosmos/CosmosWallet"
-import type { CosmosWallet } from "./services/cosmos/CosmosWallet"
-import { EncryptionService } from "./services/encryption/EncryptionService"
+import { createCosmosSigner } from "@/services/blockchain/cosmos/CosmosWallet"
+import type { CosmosWallet } from "@/services/blockchain/cosmos/CosmosWallet"
+import { EncryptionService } from "@/services/security/encryption/EncryptionService"
 import { createKeplerWallet } from "@/services/blockchain/kepler/KeplerWallet"
 import { useAssistantsStore } from "@features/assistants/store"
 import { useAuthStore } from "@features/auth/store/auth"
@@ -121,6 +121,7 @@ router.beforeEach(async (to, from, next) => {
   return next()
 })
 
+// TODO: refactor this, move to composable
 const handlePinSubmit = async (pin: string) => {
   try {
     const authStore = useAuthStore()

@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import SelectFileBtn from "@/shared/components/ui/SelectFileBtn.vue"
+import SelectFileBtn from "@/features/files/components/SelectFileBtn.vue"
 import { useCloseArtifact } from "@/features/artifacts/composables/closeArtifact"
 import { useCreateArtifact } from "@/features/artifacts/composables/createArtifact"
 import { useUserDataStore } from "@shared/store"
@@ -110,7 +110,7 @@ import { useRouter, useRoute } from "vue-router"
 import ArtifactItemIcon from "./ArtifactItemIcon.vue"
 import ArtifactItemMenu from "./ArtifactItemMenu.vue"
 import ATip from "@shared/components/ATip.vue"
-import { ArtifactMapped, Workspace } from "@/services/supabase/types"
+import { ArtifactMapped, Workspace } from "@/services/data/supabase/types"
 
 const artifacts: Ref<ArtifactMapped[]> = inject("artifacts")
 

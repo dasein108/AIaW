@@ -6,12 +6,12 @@ import {
   PlatformEnabled,
   Provider,
   ShortcutKey,
-} from "@shared/utils/types"
+} from "@/shared/types"
 import { models } from "@/shared/utils/values"
 import { watchEffect } from "vue"
-import { createUserDataStore } from "./utils/createUserDataStore"
+import { createKeyValueDbStore } from "./utils/createKeyValueDbStore"
 
-interface Perfs {
+interface Prefs {
   darkMode: boolean | "auto"
   themeHue: number
   provider: Provider
@@ -56,7 +56,7 @@ interface Perfs {
   showWarnings: boolean
 }
 
-const defaultPerfs: Perfs = {
+const defaultPrefs: Prefs = {
   darkMode: "auto",
   themeHue: 300,
   provider: null,
@@ -115,8 +115,8 @@ const defaultPerfs: Perfs = {
   showWarnings: false,
 }
 
-export const useUserPerfsStore = () => {
-  const store = createUserDataStore<Perfs>("user-perfs", defaultPerfs)()
+export const useUserPrefsStore = () => {
+  const store = createKeyValueDbStore<Prefs>("user-prefs", defaultPrefs)()
 
   watchEffect(() => {
     Dark.set(store.data.darkMode)

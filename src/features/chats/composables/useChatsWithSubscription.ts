@@ -1,8 +1,8 @@
-import { supabase } from "@/services/supabase/client"
-import type { ChatMapped } from "@/services/supabase/types"
+import { supabase } from "@/services/data/supabase/client"
+import type { ChatMapped } from "@/services/data/supabase/types"
 import { useUserStore } from "@shared/store"
 import { defaultTextAvatar } from "@shared/utils/functions"
-import type { Avatar } from "@shared/utils/types"
+import type { Avatar } from "@/shared/types"
 import { ref, readonly, watch } from "vue"
 const chats = ref<ChatMapped[]>([])
 let isSubscribed = false

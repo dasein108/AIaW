@@ -76,7 +76,7 @@
 import { useDialogPluginComponent } from "quasar"
 import { idDateString } from "@shared/utils/functions"
 import { computed } from "vue"
-import type { DialogMessageMapped } from "@/services/supabase/types"
+import type { DialogMessageMapped } from "@/services/data/supabase/types"
 
 const props = defineProps<{
   message: DialogMessageMapped

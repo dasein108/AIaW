@@ -34,7 +34,7 @@ import { useUserDataStore } from "@shared/store"
 import { useWorkspacesStore } from "@features/workspaces/store"
 import { useRouter, useRoute } from "vue-router"
 import WorkspaceListSelect from "./WorkspaceListSelect.vue"
-import type { WorkspaceMapped } from "@/services/supabase/types"
+import type { WorkspaceMapped } from "@/services/data/supabase/types"
 
 const { addWorkspace, addFolder } = useWorkspaceActions()
 const userDataStore = useUserDataStore()

@@ -16,7 +16,7 @@ import {
 } from "@/shared/store/tauriStore"
 import { IsTauri } from "@/shared/utils/platformApi"
 import { ref } from "vue"
-import { config } from "@services/blockchain/constants"
+import { chainConfig } from "@/services/blockchain/consts"
 import { EncryptionService } from "@services/security/encryption/EncryptionService"
 import { CYBER_CONTRACT_ADDRESS } from "@services/blockchain/kepler/KeplerWallet"
 import type { TxStatusResponse } from "@services/blockchain/kepler/types"
@@ -44,7 +44,7 @@ export function createCosmosSigner () {
 
   // Initialize CosmWasmClient
   if (typeof window !== "undefined") {
-    CosmWasmClient.connect(config.NODE_RPC_URL)
+    CosmWasmClient.connect(chainConfig.NODE_RPC_URL)
       .then((cosmWasmClient) => {
         client.value = cosmWasmClient
       })
@@ -69,10 +69,10 @@ export function createCosmosSigner () {
       }
 
       // Enable access to chain
-      await window.keplr.enable(config.CHAIN_ID)
+      await window.keplr.enable(chainConfig.CHAIN_ID)
 
       // Get the offline signer
-      offlineSigner = window.keplr.getOfflineSigner(config.CHAIN_ID)
+      offlineSigner = window.keplr.getOfflineSigner(chainConfig.CHAIN_ID)
 
       // Get user's account
       const accounts = await offlineSigner.getAccounts()
@@ -134,12 +134,12 @@ export function createCosmosSigner () {
       // Create a new signDoc with our chain configuration
       const newSignDoc: StdSignDoc = {
         ...signDoc,
-        chain_id: config.CHAIN_ID,
+        chain_id: chainConfig.CHAIN_ID,
         fee: {
           ...signDoc.fee,
           amount: signDoc.fee.amount.map((coin) => ({
             ...coin,
-            denom: config.FEE_DENOM,
+            denom: chainConfig.FEE_DENOM,
           })),
         },
       }
@@ -169,10 +169,10 @@ export function createCosmosSigner () {
 
       // Create signing client
       const gasPrice = GasPrice.fromString(
-        `${config.GAS_PRICE_AMOUNT}${config.FEE_DENOM}`
+        `${chainConfig.GAS_PRICE_AMOUNT}${chainConfig.FEE_DENOM}`
       )
       const signingClient = await SigningCosmWasmClient.connectWithSigner(
-        config.NODE_RPC_URL,
+        chainConfig.NODE_RPC_URL,
         offlineSigner,
         { gasPrice }
       )

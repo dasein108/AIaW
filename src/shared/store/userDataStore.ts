@@ -1,4 +1,4 @@
-import { createUserDataStore } from "./utils/createUserDataStore"
+import { createKeyValueDbStore } from "./utils/createKeyValueDbStore"
 
 export type ListOpen = {
   assistants: boolean
@@ -32,5 +32,5 @@ const defaultUserData: UserData = {
 }
 
 export const useUserDataStore = () => {
-  return createUserDataStore<UserData>("user-data", defaultUserData)()
+  return createKeyValueDbStore<UserData>("user-data", defaultUserData)()
 }

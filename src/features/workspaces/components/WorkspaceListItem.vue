@@ -125,7 +125,7 @@ import { useRootWorkspace } from "@features/workspaces/composables"
 import AAvatar from "@shared/components/avatar/AAvatar.vue"
 import MenuButton from "@/shared/components/menu/MenuButton.vue"
 import MenuItem from "@/shared/components/menu/MenuItem.vue"
-import type { WorkspaceMapped } from "@/services/supabase/types"
+import type { WorkspaceMapped } from "@/services/data/supabase/types"
 
 const props = defineProps<{
   item: WorkspaceMapped

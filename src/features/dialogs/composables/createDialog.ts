@@ -2,7 +2,7 @@ import { useDialogsStore } from "@features/dialogs/store/dialogs"
 import { useUserDataStore } from "@/shared/store"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
-import { Dialog } from "@/services/supabase/types"
+import { Dialog } from "@/services/data/supabase/types"
 
 export function useCreateDialog (workspaceId: string) {
   const router = useRouter()
