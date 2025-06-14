@@ -1,4 +1,9 @@
 /* eslint-disable no-useless-escape */
+/**
+ * This file contains all prompt template definitions used in the dialog system.
+ * It defines standardized templates for various AI-related tasks like title generation,
+ * artifact extraction, and assistant system prompts.
+ */
 import { Boolean, Object, Optional, Static, String } from "@sinclair/typebox"
 import { i18n } from "src/boot/i18n"
 

@@ -5,7 +5,7 @@ import {
   NameArtifactPrompt,
   ExtractArtifactPrompt,
   PluginsPrompt,
-} from "@features/dialogs/utils/templates"
+} from "@features/dialogs/utils/dialogTemplateDefinitions"
 import { MessageContentMapped } from "@services/data/supabase/types"
 import { PluginPrompt } from "@/shared/types"
 

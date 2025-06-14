@@ -17,7 +17,7 @@ import {
 import { useDialogsStore } from "@features/dialogs/store/dialogs"
 import { useUserPerfsStore } from "@shared/store"
 import { getAssistantModelSettings } from "@features/assistants/utils/assistantUtils"
-import { storedItemResultContent } from "@features/dialogs/utils/dialog"
+import { storedItemResultContent } from "@features/dialogs/utils/dialogMessageUtils"
 import { genId, mimeTypeMatch } from "@shared/utils/functions"
 import sessions from "@/shared/utils/sessions"
 import { ExtractArtifactResult } from "@/shared/utils/template/templates"

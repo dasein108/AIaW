@@ -1,3 +1,7 @@
+/**
+ * Index file for dialog utility functions and templates.
+ * Re-exports all utilities for easier importing.
+ */
 export { engine } from "./templateEngine"
 
 export {
@@ -10,8 +14,8 @@ export {
   ExtractArtifactPrompt,
   ExtractArtifactSchema,
   NameArtifactPrompt,
-} from "./templates"
+} from "./dialogTemplateDefinitions"
 
-export type { ExtractArtifactResult } from "./templates"
+export type { ExtractArtifactResult } from "./dialogTemplateDefinitions"
 
-export { storedItemResultContent } from "./dialog"
+export { storedItemResultContent } from "./dialogMessageUtils"

@@ -1,3 +1,8 @@
+/**
+ * Utility functions for handling dialog messages and their content.
+ * This file contains functions for transforming stored message content
+ * into formats needed for display or for sending to language models.
+ */
 import { pickBy } from "lodash"
 import { getFileUrl } from "@/shared/composables/storage/utils"
 import { ToolResultContent } from "@/shared/types"

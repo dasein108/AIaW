@@ -341,7 +341,7 @@ import {
 } from "@/shared/utils/functions"
 import { scaleBlob } from "@/features/media/utils/imageProcess"
 import { engine } from "@/features/dialogs/utils/templateEngine"
-import { DialogContent } from "@/features/dialogs/utils/templates"
+import { DialogContent } from "@/features/dialogs/utils/dialogTemplateDefinitions"
 import { Plugin, ApiResultItem } from "@/shared/types"
 import {
   computed,
