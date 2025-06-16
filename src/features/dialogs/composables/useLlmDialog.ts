@@ -28,13 +28,10 @@ import {
   generateArtifactName,
   generateExtractArtifact,
 } from "@/services/ai/llm/utils"
-import {
-  AssistantMapped,
-  DialogMessageMapped,
-  MessageContentMapped,
-  MessageContentResult,
-  StoredItemMapped,
-} from "@/services/data/supabase/types"
+import { Assistant } from "@/services/data/types/assistant"
+import { DialogMessageNested, DialogMessageNestedUpdate } from "@/services/data/types/dialogMessage"
+import { MessageContentNested, MessageContentNestedUpdate } from "@/services/data/types/messageContents"
+import { StoredItem, StoredItemResult } from "@/services/data/types/storedItem"
 
 import { useAssistantTools } from "./useAssistantTools"
 import { useDialogMessages } from "./useDialogMessages"
@@ -43,7 +40,7 @@ import { useDialogModel } from "./useDialogModel"
 export const useLlmDialog = (
   workspaceId: Ref<string>,
   dialogId: Ref<string>,
-  assistant: Ref<AssistantMapped>
+  assistant: Ref<Assistant>
 ) => {
   const dialogsStore = useDialogsStore()
   const { createArtifact } = useCreateArtifact(workspaceId)
@@ -59,7 +56,7 @@ export const useLlmDialog = (
   const { getAssistantTools } = useAssistantTools(assistant, workspaceId, dialogId)
   const isStreaming = ref(false)
 
-  const genTitle = async (contents: Readonly<MessageContentMapped[]>) => {
+  const genTitle = async (contents: Readonly<MessageContentNested[]>) => {
     try {
       const title = await generateTitle(
         systemSdkModel.value,
@@ -82,7 +79,7 @@ export const useLlmDialog = (
   }
 
   const extractArtifact = async (
-    message: DialogMessageMapped,
+    message: DialogMessageNested,
     text: string,
     pattern,
     options: ConvertArtifactOptions
@@ -103,12 +100,12 @@ export const useLlmDialog = (
     if (options.reserveOriginal) return
 
     const to = `> ${t("dialogView.convertedToArtifact")}: <router-link to="?openArtifact=${id}">${name}</router-link>\n`
-    const index = message.message_contents.findIndex((c) =>
+    const index = message.messageContents.findIndex((c) =>
       ["assistant-message", "user-message"].includes(c.type)
     )
 
     await updateMessage(message.id, {
-      message_contents: message.message_contents.map((c, i) =>
+      messageContents: message.messageContents.map((c, i) =>
         i === index
           ? { ...c, text: c.text.replace(pattern, to) }
           : c
@@ -117,8 +114,8 @@ export const useLlmDialog = (
   }
 
   async function autoExtractArtifact(
-    message: DialogMessageMapped,
-    contents: MessageContentMapped[]
+    message: DialogMessageNested,
+    contents: MessageContentNested[]
   ) {
     const text = await generateExtractArtifact(systemSdkModel.value, contents)
     const object: ExtractArtifactResult = JSON.parse(text)
@@ -126,7 +123,7 @@ export const useLlmDialog = (
     if (!object.found) return
 
     const reg = new RegExp(`(\`{3,}.*\\n)?(${object.regex})(\\s*\`{3,})?`)
-    const content = message.message_contents.find(
+    const content = message.messageContents.find(
       (c) => c.type === "assistant-message"
     )
     const match = content.text.match(reg)
@@ -160,18 +157,18 @@ export const useLlmDialog = (
       type: "assistant-message",
       text: "",
     }
-    const contents: MessageContentMapped[] = [messageContent]
+    const contents: MessageContentNestedUpdate[] = [messageContent]
 
     // Add assistant message
-    const { id } = await addMessage(
+    const { id, messageContents } = await addMessage(
       targetId,
       {
         type: "assistant",
-        assistant_id: assistant.value.id,
-        message_contents: contents,
+        assistantId: assistant.value.id,
+        messageContents: contents,
         status: "pending",
-        generating_session: sessions.id,
-        model_name: model.value.name,
+        generatingSession: sessions.id,
+        modelName: model.value.name,
       },
     )
 
@@ -183,17 +180,16 @@ export const useLlmDialog = (
     // Add empty user message
     await addMessage(id, {
       type: "user",
-      message_contents: [
+      messageContents: [
         {
           type: "user-message",
           text: "",
-          stored_items: [],
         },
       ],
       status: "inputing",
     })
 
-    return { id, messageContent, contents }
+    return { id, messageContent, contents: messageContents }
   }
 
   /**
@@ -203,7 +199,7 @@ export const useLlmDialog = (
    * @returns Function that updates the message with given content
    */
   function createMessageUpdater(id: string) {
-    return async (contentUpdate: Partial<DialogMessageMapped> = {}) => {
+    return async (contentUpdate: Partial<DialogMessageNested> = {}) => {
       await updateMessage(id, contentUpdate)
     }
   }
@@ -222,13 +218,13 @@ export const useLlmDialog = (
     plugin: Plugin,
     api: PluginApi,
     args: any,
-    contents: MessageContentMapped[],
-    updateFn: (update?: Partial<DialogMessageMapped>) => Promise<void>
+    contents: MessageContentNestedUpdate[],
+    updateFn: (update?: Partial<DialogMessageNestedUpdate>) => Promise<void>
   ) {
     // Create tool content
-    const content: MessageContentMapped = {
+    const content: MessageContentNestedUpdate = {
       type: "assistant-tool",
-      plugin_id: plugin.id,
+      pluginId: plugin.id,
       name: api.name,
       args,
       status: "calling",
@@ -236,16 +232,16 @@ export const useLlmDialog = (
 
     // Add to message
     contents.push(content)
-    await updateFn({ message_contents: contents })
+    await updateFn({ messageContents: contents })
 
     // Call API
     const { result: apiResult, error } = await callApi(plugin, api, args)
     const storedItems = await storage.saveApiResultItems(
       apiResult,
-      { dialog_id: dialogId.value }
+      { dialogId: dialogId.value }
     )
 
-    content.stored_items = storedItems
+    content.storedItems = storedItems
 
     // Handle result or error
     if (error) {
@@ -255,17 +251,17 @@ export const useLlmDialog = (
       content.status = "completed"
       // Save result based on stored items without arrayBuffer
       const contentResult = storedItems.map((i) => {
-        const { type, mime_type, content_text, file_url } = i
+        const { type, mimeType, contentText, fileUrl } = i
 
         return pickBy(
-          { type, mime_type, content_text, file_url },
+          { type, mimeType, contentText, fileUrl },
           (v) => v !== undefined
-        ) as MessageContentResult
+        ) as StoredItemResult
       })
       content.result = contentResult
     }
 
-    await updateFn({ message_contents: contents })
+    await updateFn({ messageContents: contents })
 
     return { result: apiResult, error }
   }
@@ -284,8 +280,8 @@ export const useLlmDialog = (
     params: any,
     id: string,
     messageContent: AssistantMessageContent,
-    contents: MessageContentMapped[],
-    updateFn: (update?: Partial<DialogMessageMapped>) => Promise<void>
+    contents: MessageContentNested[],
+    updateFn: (update?: Partial<DialogMessageNested>) => Promise<void>
   ) {
     // Start streaming
     const result = streamText(params)
@@ -295,11 +291,11 @@ export const useLlmDialog = (
     for await (const part of result.fullStream) {
       if (part.type === "text-delta") {
         messageContent.text += part.textDelta
-        await updateFn({ message_contents: contents })
+        await updateFn({ messageContents: contents })
       } else if (part.type === "reasoning") {
         messageContent.reasoning =
           (messageContent.reasoning ?? "") + part.textDelta
-        await updateFn({ message_contents: contents })
+        await updateFn({ messageContents: contents })
       } else if (part.type === "error") {
         throw part.error
       }
@@ -336,9 +332,9 @@ export const useLlmDialog = (
    */
   async function finalizeResponse(
     id: string,
-    contents: MessageContentMapped[],
+    contents: MessageContentNested[],
     result: any,
-    updateFn: (update?: Partial<DialogMessageMapped>) => Promise<void>
+    updateFn: (update?: Partial<DialogMessageNested>) => Promise<void>
   ) {
     const usage = await result.usage
     const warnings = (await result.warnings).map((w) =>
@@ -348,9 +344,9 @@ export const useLlmDialog = (
     )
 
     await updateFn({
-      message_contents: contents,
+      messageContents: contents,
       status: "default",
-      generating_session: null,
+      generatingSession: null,
       warnings,
       usage,
     })
@@ -361,7 +357,7 @@ export const useLlmDialog = (
    *
    * @param message - The message to process
    */
-  async function handlePostResponseActions(message: DialogMessageMapped) {
+  async function handlePostResponseActions(message: DialogMessageNested) {
     // Auto extract artifacts if enabled
     if (perfs.artifactsAutoExtract) {
       await autoExtractArtifact(message, getMessageContents(-3, -1))
@@ -383,16 +379,16 @@ export const useLlmDialog = (
    */
   async function handleStreamingError(
     id: string,
-    contents: MessageContentMapped[],
+    contents: MessageContentNested[],
     error: any,
-    updateFn: (update?: Partial<DialogMessageMapped>) => Promise<void>
+    updateFn: (update?: Partial<DialogMessageNested>) => Promise<void>
   ) {
     console.error(error)
     await updateFn({
-      message_contents: contents,
+      messageContents: contents,
       error: error.message || error.toString(),
       status: "failed",
-      generating_session: null,
+      generatingSession: null,
     })
   }
 
@@ -410,7 +406,7 @@ export const useLlmDialog = (
   ) {
     let id: string
     let messageContent: AssistantMessageContent
-    let contents: MessageContentMapped[]
+    let contents: MessageContentNested[]
 
     isStreaming.value = true
 
@@ -436,7 +432,7 @@ export const useLlmDialog = (
 
       if (systemPrompt) {
         messages.unshift({
-          role: assistant.value.prompt_role,
+          role: assistant.value.promptRole,
           content: systemPrompt,
         })
       }
@@ -458,7 +454,7 @@ export const useLlmDialog = (
         )
       } else {
         result = await processNonStreamingResponse(params, messageContent)
-        await updateFn({ message_contents: contents })
+        await updateFn({ messageContents: contents })
       }
 
       // Step 5: Finalize response
@@ -479,11 +475,11 @@ export const useLlmDialog = (
    * Gets relevant dialog items based on context window and filters out inputing messages
    * @returns Flattened array of message contents
    */
-  function getRelevantDialogItems(): MessageContentMapped[] {
+  function getRelevantDialogItems(): MessageContentNested[] {
     return dialogItems.value
-      .slice(-assistant.value.context_num || 0)
+      .slice(-assistant.value.contextNum || 0)
       .filter((item) => item.message.status !== "inputing")
-      .map((item) => item.message.message_contents)
+      .map((item) => item.message.messageContents as MessageContentNested[])
       .flat()
   }
 
@@ -492,19 +488,19 @@ export const useLlmDialog = (
    * @param item The stored item to process
    * @returns Processed text item or null
    */
-  function processTextItem(item: StoredItemMapped) {
+  function processTextItem(item: StoredItem) {
     if (item.type === "file") {
       return {
         type: "text" as const,
-        text: `<file_content filename="${item.name}">\n${item.content_text}\n</file_content>`,
+        text: `<file_content filename="${item.name}">\n${item.contentText}\n</file_content>`,
       }
     } else if (item.type === "quote") {
       return {
         type: "text" as const,
-        text: `<quote name="${item.name}">${item.content_text}</quote>`,
+        text: `<quote name="${item.name}">${item.contentText}</quote>`,
       }
     } else {
-      return { type: "text" as const, text: item.content_text }
+      return { type: "text" as const, text: item.contentText }
     }
   }
 
@@ -513,20 +509,20 @@ export const useLlmDialog = (
    * @param item The stored item to process
    * @returns Processed media item or null if not supported
    */
-  function processNonTextItem(item: StoredItemMapped) {
-    if (!mimeTypeMatch(item.mime_type, model.value.inputTypes.user)) {
+  function processNonTextItem(item: StoredItem) {
+    if (!mimeTypeMatch(item.mimeType, model.value.inputTypes.user)) {
       return null
-    } else if (item.mime_type.startsWith("image/")) {
+    } else if (item.mimeType.startsWith("image/")) {
       return {
         type: "image" as const,
-        image: getFileUrl(item.file_url),
-        mimeType: item.mime_type,
+        image: getFileUrl(item.fileUrl),
+        mimeType: item.mimeType,
       }
     } else {
       return {
         type: "file" as const,
-        mimeType: item.mime_type,
-        data: getFileUrl(item.file_url),
+        mimeType: item.mimeType,
+        data: getFileUrl(item.fileUrl),
       }
     }
   }
@@ -536,9 +532,9 @@ export const useLlmDialog = (
    * @param storedItems Array of stored items
    * @returns Array of processed items
    */
-  function processStoredItems(storedItems: StoredItemMapped[]) {
+  function processStoredItems(storedItems: StoredItem[]) {
     return storedItems.map((item) => {
-      if (item.content_text != null) {
+      if (item.contentText != null) {
         return processTextItem(item)
       } else {
         return processNonTextItem(item)
@@ -551,12 +547,12 @@ export const useLlmDialog = (
    * @param content The message content
    * @returns CoreMessage for the user message
    */
-  function processUserMessage(content: MessageContentMapped): CoreMessage {
+  function processUserMessage(content: MessageContentNested): CoreMessage {
     return {
       role: "user",
       content: [
         { type: "text", text: content.text },
-        ...processStoredItems(content.stored_items),
+        ...processStoredItems(content.storedItems),
       ],
     }
   }
@@ -566,7 +562,7 @@ export const useLlmDialog = (
    * @param content The message content
    * @returns CoreMessage for the assistant message
    */
-  function processAssistantMessage(content: MessageContentMapped): CoreMessage {
+  function processAssistantMessage(content: MessageContentNested): CoreMessage {
     return {
       role: "assistant",
       content: [{ type: "text", text: content.text }],
@@ -578,10 +574,10 @@ export const useLlmDialog = (
    * @param content The tool call content
    * @returns Array of CoreMessages for the tool call and result
    */
-  function processAssistantTool(content: MessageContentMapped): CoreMessage[] {
+  function processAssistantTool(content: MessageContentNested): CoreMessage[] {
     if (content.status !== "completed") return []
 
-    const { name, args, result, plugin_id } = content
+    const { name, args, result, pluginId } = content
     const id = genId()
 
     // Create tool call message
@@ -590,7 +586,7 @@ export const useLlmDialog = (
       content: [
         {
           type: "tool-call",
-          toolName: `${plugin_id}-${name}`,
+          toolName: `${pluginId}-${name}`,
           toolCallId: id,
           args,
         },
@@ -604,7 +600,7 @@ export const useLlmDialog = (
       content: [
         {
           type: "tool-result",
-          toolName: `${plugin_id}-${name}`,
+          toolName: `${pluginId}-${name}`,
           toolCallId: id,
           result: resultContent,
         },

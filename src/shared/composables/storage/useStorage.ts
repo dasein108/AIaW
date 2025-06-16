@@ -4,7 +4,7 @@ import { ApiResultItem } from "@/shared/types"
 import { genId } from "@/shared/utils/functions"
 
 import { supabase } from "@/services/data/supabase/client"
-import { StoredItemMapped } from "@/services/data/supabase/types"
+import { StoredItem } from "@/services/data/types/storedItem"
 
 import { BucketName } from "./types"
 import { BASE_URL } from "./utils"
@@ -234,10 +234,10 @@ export function useStorage () {
 
         return {
           name,
-          file_url: path,
-          mime_type: fileType.mime,
+          fileUrl: path,
+          mimeType: fileType.mime,
           type: "file", // fileType.mime.startsWith('image/') ? 'image' : 'file'
-        } as StoredItemMapped
+        } as StoredItem
       } else {
         throw Error("Failed to detect mime type")
       }
@@ -267,8 +267,8 @@ export function useStorage () {
   // TODO: move outside storage
   const saveApiResultItem = async (
     item: ApiResultItem,
-    storedItemData: Partial<StoredItemMapped>
-  ): Promise<StoredItemMapped | null> => {
+    storedItemData: Partial<StoredItem>
+  ) => {
     if (item.type === "file") {
       const fileItem = await uploadApiResultItem(item)
 
@@ -282,8 +282,9 @@ export function useStorage () {
 
     // Text items store in DB, not in storage
     return {
-      content_text: item.contentText,
+      contentText: item.contentText,
       type: item.type,
+      name: item.name,
       ...storedItemData,
     }
   }
@@ -296,19 +297,19 @@ export function useStorage () {
    *
    * @param items - Array of API result items to process and save
    * @param storedItemData - Common metadata to apply to all stored items
-   * @returns Promise resolving to array of StoredItemMapped objects (or null for failed items)
+   * @returns Promise resolving to array of StoredItem objects (or null for failed items)
    *
    * @example
    * ```typescript
    * const items = [fileItem1, textItem1, fileItem2]
-   * const metadata = { workspace_id: 'ws123', user_id: 'user456' }
+   * const metadata = { workspaceId: 'ws123', user_id: 'user456' }
    * const results = await saveApiResultItems(items, metadata)
    * const successCount = results.filter(r => r !== null).length
    * ```
    */
   const saveApiResultItems = async (
     items: ApiResultItem[],
-    storedItemData: Partial<StoredItemMapped>
+    storedItemData: Partial<StoredItem>
   ) => {
     return Promise.all(items.map((item) => saveApiResultItem(item, storedItemData)))
   }

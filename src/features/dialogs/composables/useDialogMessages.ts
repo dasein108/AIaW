@@ -6,7 +6,9 @@ import { useStorage } from "@/shared/composables/storage/useStorage"
 import { useDialogsStore, useDialogMessagesStore } from "@/features/dialogs/store"
 import { useWorkspacesStore } from "@/features/workspaces/store"
 
-import { DialogMessageInput, DialogMessageMapped, StoredItemMapped } from "@/services/data/supabase/types"
+import { DialogMessageNested, DialogMessageNestedUpdate, DbDialogMessageUpdate } from "@/services/data/types/dialogMessage"
+import { DbMessageContentUpdate } from "@/services/data/types/messageContents"
+import { DbStoredItemUpdate, StoredItem } from "@/services/data/types/storedItem"
 
 import { getBranchList, getDialogItemList, TreeListItem } from "./utils/dialogTreeUtils"
 
@@ -17,14 +19,14 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   const { workspaces } = storeToRefs(useWorkspacesStore())
   const { deleteFile } = useStorage()
   const dialog = computed(() => dialogs.value[dialogId.value])
-  const workspaceId = computed(() => dialog.value.workspace_id)
-  const workspace = computed(() => workspaces.value.find(ws => ws.id === dialog.value.workspace_id))
+  const workspaceId = computed(() => dialog.value.workspaceId)
+  const workspace = computed(() => workspaces.value.find(ws => ws.id === dialog.value.workspaceId))
 
   const fetchMessages = async () => {
     await fetchDialogMessages(dialogId.value)
   }
 
-  const dialogMessages = computed(
+  const dialogMessages = computed<DialogMessageNested[]>(
     () => allDialogMessages.value[dialogId.value] || []
   )
 
@@ -32,12 +34,12 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   //   console.log("-----useDialogMessages dialogMessages", dialogMessages.value)
   // })
 
-  const messageMap = computed<Record<string, DialogMessageMapped>>(() =>
+  const messageMap = computed<Record<string, DialogMessageNested>>(() =>
     Object.fromEntries(dialogMessages.value.map((m) => [m.id, m]))
   )
 
   const branchList = computed(() => getBranchList(messageMap.value))
-  const dialogItems = computed<TreeListItem<DialogMessageMapped>[]>(() => getDialogItemList(null, messageMap.value, branchList.value, []))
+  const dialogItems = computed<TreeListItem<DialogMessageNested>[]>(() => getDialogItemList(null, messageMap.value, branchList.value, []))
 
   watch(dialogItems, () => {
     console.log("-----useDialogMessages dialogItems", dialogItems.value)
@@ -45,29 +47,26 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   const lastMessageId = computed(() => dialogItems.value.length > 0 ? dialogItems.value[dialogItems.value.length - 1].message.id : null)
   const lastMessage = computed(() => dialogItems.value.length > 0 ? dialogItems.value[dialogItems.value.length - 1].message : null)
 
-  const addMessage = async (parentId: string | null, message: Omit<DialogMessageInput, "dialog_id" | "parent_id">) => {
+  const addMessage = async (parentId: string | null, message: DialogMessageNestedUpdate) => {
     const newMessage = await addDialogMessage(
       dialog.value.id,
       parentId,
       {
         ...message,
-        is_active: true,
+        isActive: true,
       }
     )
 
     return newMessage
   }
 
-  const updateMessage = async (messageId: string, message: Partial<DialogMessageInput>) => {
+  const updateMessage = async (messageId: string, message: DialogMessageNested<DbDialogMessageUpdate, DbMessageContentUpdate, DbStoredItemUpdate>) => {
     await updateDialogMessage(dialog.value.id, messageId, message)
   }
 
   const switchActiveMessage = async (messageId: string) => {
     for (const branch of branchList.value.values()) {
-      // console.log("-----switchActiveMessage", messageId, branch.includes(messageId))
-
       if (branch.includes(messageId)) {
-        console.log("-----switchActiveMessage2222", messageId, branch)
         await switchActiveDialogMessage(dialog.value.id, messageId, branch)
 
         return true
@@ -80,17 +79,16 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   function getMessageContents (from: number = 1, to: number = -1) {
     return dialogItems.value
       .slice(from, to)
-      .map((item) => item.message.message_contents)
+      .map((item) => item.message.messageContents)
       .flat()
   }
 
-  async function createBranch(message: DialogMessageMapped) {
-    const { type, message_contents, parent_id } = message
+  async function createBranch(message: DialogMessageNested) {
+    const { parentId, id: _, ...messageRaw } = message
 
     console.log("-----createBranch", message)
-    const { id } = await addMessage(parent_id, {
-      type,
-      message_contents,
+    const { id } = await addMessage(parentId, {
+      ...messageRaw,
       status: "inputing",
     })
 
@@ -102,13 +100,13 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
     // TODO: set active message to next sibling
   }
 
-  const deleteStoredItemWithFile = async (stored_item: StoredItemMapped) => {
-    console.log("-----deleteStoredItem", stored_item)
-    await deleteFile(stored_item.file_url)
-    await deleteStoredItem(stored_item)
+  const deleteStoredItemWithFile = async (storedItem: StoredItem) => {
+    console.log("-----deleteStoredItem", storedItem)
+    await deleteFile(storedItem.fileUrl)
+    await deleteStoredItem(storedItem)
   }
 
-  function switchBranch (item: TreeListItem<DialogMessageMapped>, index: number) {
+  function switchBranch (item: TreeListItem<DialogMessageNested>, index: number) {
     console.log("----switchBranch", item, index)
     switchActiveMessage(item.siblingMessageIds[index - 1])
   }

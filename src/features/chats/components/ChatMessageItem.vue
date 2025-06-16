@@ -99,7 +99,7 @@ import { useUserPrefsStore } from "@/shared/store/userPrefs"
 import { ApiResultItem, TextAvatar } from "@/shared/types"
 import { genId } from "@/shared/utils/functions"
 
-import { ChatMessageWithProfile } from "@/services/data/supabase/types"
+import { ChatMessageWithProfile } from "@/services/data/types/chat"
 
 const props = defineProps<{
   message: ChatMessageWithProfile
@@ -108,7 +108,7 @@ const props = defineProps<{
 
 const userStore = useUserStore()
 const isMine = computed(
-  () => props.message.sender_id === userStore.currentUserId
+  () => props.message.sender?.id === userStore.currentUserId
 )
 const mdId = `md-${genId()}`
 

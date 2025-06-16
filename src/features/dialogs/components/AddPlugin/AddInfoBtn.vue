@@ -65,7 +65,8 @@ import {
   PluginApi,
 } from "@/shared/types"
 
-import { DialogMapped, WorkspaceMapped } from "@/services/data/supabase/types"
+import { Dialog } from "@/services/data/types/dialogs"
+import { Workspace } from "@/services/data/types/workspace"
 
 import JsonInputDialog from "./JsonInputDialog.vue"
 
@@ -74,8 +75,8 @@ const props = defineProps<{
   assistantPlugins: AssistantPlugins
 }>()
 
-const workspace = inject<Ref<WorkspaceMapped>>("workspace")
-const dialog = inject<Ref<DialogMapped>>("dialog")
+const workspace = inject<Ref<Workspace>>("workspace")
+const dialog = inject<Ref<Dialog>>("dialog")
 
 const workspaceId = computed(() => workspace.value.id)
 const dialogId = computed(() => dialog.value.id)
