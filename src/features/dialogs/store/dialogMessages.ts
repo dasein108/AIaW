@@ -102,12 +102,28 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     parentId: string | null,
     message: DialogMessageNested<DbDialogMessageUpdate, DbMessageContentUpdate, DbStoredItemUpdate>,
   ) {
-    const dialogMessage = await upserDialogMessage(dialogId, { ...message, parentId })
+    const dialogMessage = await upsertDialogMessage(dialogId, { ...message, parentId })
 
     return dialogMessage
   }
 
-  async function upserDialogMessage<T extends DialogMessageNested<DbDialogMessageUpdate, DbMessageContentUpdate, DbStoredItemUpdate>>(
+  function updateDialogMessageCache(dialogId: string, message: DialogMessageNested) {
+    if (dialogMessages[dialogId]) {
+      const hasMessage = dialogMessages[dialogId].find((m) => m.id === message.id)
+
+      if (hasMessage) {
+        dialogMessages[dialogId] = dialogMessages[dialogId].map((m) =>
+          m.id === message.id ? message : m
+        )
+      } else {
+        dialogMessages[dialogId].push(message)
+      }
+    } else {
+      dialogMessages[dialogId] = [message]
+    }
+  }
+
+  async function upsertDialogMessage<T extends DialogMessageNested<DbDialogMessageUpdate, DbMessageContentUpdate, DbStoredItemUpdate>>(
     dialogId: string,
     message: T,
   ) {
@@ -132,7 +148,10 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
       }
     }
 
-    return result
+    // update dialogMessages cache
+    updateDialogMessageCache(dialogId, result)
+
+    return result as DialogMessageNested
   }
 
   async function switchActiveDialogMessage(dialogId: string, activeMessageId: string, siblingMessageIds: string[]) {
@@ -178,19 +197,12 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
       dialogMessage.status &&
       !["streaming", "inputing", "pending"].includes(dialogMessage.status)
 
+
     if (!shouldSave) {
-      dialogMessages[dialogId] = dialogMessages[dialogId].map((m) =>
-        m.id === messageId ? dialogMessage : m
-      )
-
-      return
+      updateDialogMessageCache(dialogId, dialogMessage)
+    } else {
+      await upsertDialogMessage(dialogId, dialogMessage)
     }
-
-    const dialogMessageResult = await upserDialogMessage(dialogId, dialogMessage)
-
-    dialogMessages[dialogId] = dialogMessages[dialogId].map((m) =>
-      m.id === messageId ? dialogMessageResult : m
-    )
   }
 
   /**

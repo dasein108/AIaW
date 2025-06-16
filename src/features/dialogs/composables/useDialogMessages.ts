@@ -19,8 +19,8 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   const { workspaces } = storeToRefs(useWorkspacesStore())
   const { deleteFile } = useStorage()
   const dialog = computed(() => dialogs.value[dialogId.value])
-  const workspaceId = computed(() => dialog.value.workspaceId)
-  const workspace = computed(() => workspaces.value.find(ws => ws.id === dialog.value.workspaceId))
+  const workspaceId = computed(() => dialog.value?.workspaceId || null)
+  const workspace = computed(() => workspaces.value.find(ws => ws.id === dialog.value?.workspaceId))
 
   const fetchMessages = async () => {
     await fetchDialogMessages(dialogId.value)

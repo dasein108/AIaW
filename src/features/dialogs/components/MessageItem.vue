@@ -244,7 +244,7 @@
             @click="deleteBranch"
           />
         </template>
-        <template v-if="['default', 'failed'].includes(message.status)">
+        <template v-if="['default', 'failed'].includes(message.status) && textContent">
           <copy-btn
             round
             flat
