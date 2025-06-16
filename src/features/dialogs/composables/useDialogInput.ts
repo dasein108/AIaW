@@ -5,7 +5,7 @@ import { ApiResultItem } from "@/shared/types"
 
 import { UserMessageContent } from "@/features/dialogs/types"
 
-import { DbMessageContentInsert, TMessageContentNested } from "@/services/data/types/messageContents"
+import { DbMessageContentInsert, MessageContentNested } from "@/services/data/types/messageContents"
 import { StoredItem } from "@/services/data/types/storedItem"
 
 import { useDialogMessages } from "./useDialogMessages"
@@ -40,7 +40,7 @@ export const useDialogInput = (
             ...inputMessageContent.value,
             text,
           },
-        ] as TMessageContentNested<DbMessageContentInsert>[],
+        ] as MessageContentNested<DbMessageContentInsert>[],
         status: "inputing",
       }
     )

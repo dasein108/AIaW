@@ -3,36 +3,37 @@ import { DtoToEntity, OverrideProps, TContentNested } from "@/shared/utils/dto/t
 
 import { Database } from "@/services/data/supabase/database.types"
 
-import { mapDbToStoredItem, StoredItemResult, DbStoredItem, TStoredItem, StoredItemDbType, DbStoredItemUpdate } from "./storedItem"
+import { mapDbToStoredItem, StoredItemResult, DbStoredItem, StoredItem, StoredItemDbType, DbStoredItemUpdate } from "./storedItem"
 
-type DbMessageContent = Database["public"]["Tables"]["message_contents"]["Row"]
+type DbMessageContentRow = Database["public"]["Tables"]["message_contents"]["Row"]
 type DbMessageContentInsert = Database["public"]["Tables"]["message_contents"]["Insert"]
 type DbMessageContentUpdate = Database["public"]["Tables"]["message_contents"]["Update"]
+
+type MessageContentDbType = DbMessageContentRow | DbMessageContentInsert | DbMessageContentUpdate
+
 type MessageContentResult = StoredItemResult
-type MessageContentDbType = DbMessageContent | DbMessageContentInsert | DbMessageContentUpdate
 
-type MessageContent<T extends MessageContentDbType> = DtoToEntity<T>
+// type MessageContent<T extends MessageContentDbType> = DtoToEntity<T>
 
-type TDbMessageContentNested<T extends MessageContentDbType = DbMessageContent,
+type TDbMessageContentNested<T extends MessageContentDbType = DbMessageContentRow,
 N extends StoredItemDbType = DbStoredItem> =
   TContentNested<T, N, "stored_items">
 
-type TMessageContent<T extends MessageContentDbType = DbMessageContent> = OverrideProps<DtoToEntity<T>, {
+type MessageContent<T extends MessageContentDbType = DbMessageContentRow> = OverrideProps<DtoToEntity<T>, {
   result: MessageContentResult[] | null
   args: Record<string, any> | any[] | null
 }>
 
-type TMessageContentNested<T extends MessageContentDbType = DbMessageContent,
+type MessageContentNested<T extends MessageContentDbType = DbMessageContentRow,
 N extends StoredItemDbType = DbStoredItem> =
-  TContentNested<TMessageContent<T>,
-  TStoredItem<N>,
+  TContentNested<MessageContent<T>,
+  StoredItem<N>,
   "storedItems">
 
-type MessageContentNested = TMessageContentNested<DbMessageContent>
-type MessageContentNestedUpdate = TMessageContentNested<DbMessageContentUpdate, DbStoredItemUpdate>
+type MessageContentNestedUpdate = MessageContentNested<DbMessageContentUpdate, DbStoredItemUpdate>
 
 const mapDbToMessageContent = <T extends MessageContentDbType>(item: T) => {
-  return dtoToEntity(item) as unknown as TMessageContent<DbMessageContent>
+  return dtoToEntity(item) as unknown as MessageContent<DbMessageContentRow>
 }
 
 const mapDbToMessageContentNested = <T extends MessageContentDbType>(item: TDbMessageContentNested<T>) => {
@@ -41,17 +42,17 @@ const mapDbToMessageContentNested = <T extends MessageContentDbType>(item: TDbMe
   const result = dtoToEntity({
     ...mapDbToMessageContent(messageContent),
     storedItems: stored_items.map(mapDbToStoredItem)
-  }) as TMessageContentNested<DbMessageContent>
+  }) as MessageContentNested<DbMessageContentRow>
 
   return result
 }
 
-const mapMessageContentToDb = <T extends MessageContentDbType>(messageContent: TMessageContent<T>) => {
+const mapMessageContentToDb = <T extends MessageContentDbType>(messageContent: MessageContent<T>) => {
   return entityToDto(messageContent) as T
 }
 
 export { mapDbToMessageContent, mapMessageContentToDb, mapDbToMessageContentNested }
 export type {
-  MessageContent, MessageContentNested, MessageContentNestedUpdate,
-  DbMessageContent, DbMessageContentInsert, DbMessageContentUpdate, MessageContentDbType, TMessageContentNested, TMessageContent
+  MessageContentNested, MessageContentNestedUpdate,
+  DbMessageContentRow, DbMessageContentInsert, DbMessageContentUpdate, MessageContentDbType, MessageContent
 }

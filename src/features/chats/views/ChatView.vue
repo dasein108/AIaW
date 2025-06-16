@@ -133,7 +133,7 @@ import ChatMessageItem from "@/features/chats/components/ChatMessageItem.vue"
 import { useChatsStore } from "@/features/chats/store"
 import { useChatMessagesStore } from "@/features/chats/store/chatMessages"
 
-import { ChatMessageWithProfile, Chat, mapChatMessageToDb, DbChatMessageInsert, ChatMessage } from "@/services/data/types/chat"
+import { ChatMessage, Chat, mapChatMessageToDb, DbChatMessageInsert } from "@/services/data/types/chat"
 
 import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 const props = defineProps<{
@@ -289,7 +289,7 @@ const rightDrawerAbove = inject("rightDrawerAbove")
 
 const chatsStore = useChatsStore()
 const chatMessagesStore = useChatMessagesStore()
-const messages = computed<ChatMessageWithProfile[]>(
+const messages = computed<ChatMessage[]>(
   () => chatMessagesStore.messagesByChat[props.id] ?? []
 )
 const chat = computed<Chat>(() =>

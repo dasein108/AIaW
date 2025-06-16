@@ -5,7 +5,8 @@ import type { Avatar } from "@/shared/types"
 import { defaultTextAvatar } from "@/shared/utils/functions"
 
 import { supabase } from "@/services/data/supabase/client"
-import { mapDbToChat, mapDbToChatMember, type Chat } from "@/services/data/types/chat"
+import { mapDbToChat, type Chat } from "@/services/data/types/chat"
+import { mapDbToUserProfile } from "@/services/data/types/profile"
 const chats = ref<Chat[]>([])
 let isSubscribed = false
 let subscription: ReturnType<typeof supabase.channel> | null = null
@@ -31,7 +32,7 @@ async function extendChatsWithDisplayName (
         }
 
         // Find first member that is not myself
-        const other = members.map(mapDbToChatMember).find((m: any) => m.userId !== currentUserId)
+        const other = members.map(mapDbToUserProfile).find((m: any) => m.userId !== currentUserId)
         const displayName = other?.profile?.name || chat.name || ""
 
         return {

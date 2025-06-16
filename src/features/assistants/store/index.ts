@@ -11,7 +11,7 @@ import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCa
 import { AssistantDefaultPrompt } from "@/features/dialogs/utils/dialogTemplateDefinitions"
 
 import { supabase } from "@/services/data/supabase/client"
-import { Assistant, AssistantDbType, mapDbToAssistant } from "@/services/data/types/assistant"
+import { Assistant, mapDbToAssistant } from "@/services/data/types/assistant"
 
 /**
  * Store for managing AI assistants in the application
@@ -86,7 +86,7 @@ export const useAssistantsStore = defineStore("assistants", () => {
       console.error("Error adding assistant:", error)
     }
 
-    assistants.value.push(mapDbToAssistant(data as AssistantDbType))
+    assistants.value.push(mapDbToAssistant(data))
 
     return data
   }

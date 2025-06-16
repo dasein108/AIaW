@@ -4,12 +4,12 @@ import { ref } from "vue"
 import { useChatMessagesSubscription } from "@/features/chats/composables/useChatMessagesSubscription"
 
 import { supabase } from "@/services/data/supabase/client"
-import { ChatMessage, ChatMessageWithProfile, DbChatMessageInsert, mapChatMessageToDb, mapDbToChatMessage } from "@/services/data/types/chat"
+import { ChatMessage, DbChatMessageInsert, mapChatMessageToDb, mapDbToChatMessage } from "@/services/data/types/chat"
 
 export const useChatMessagesStore = defineStore("chat-messages", () => {
-  const messagesByChat = ref<Record<string, ChatMessageWithProfile[]>>({})
+  const messagesByChat = ref<Record<string, ChatMessage[]>>({})
 
-  const onNewMessage = (message: ChatMessageWithProfile) => {
+  const onNewMessage = (message: ChatMessage) => {
     if (!messagesByChat.value[message.chatId]) {
       messagesByChat.value[message.chatId] = []
     }

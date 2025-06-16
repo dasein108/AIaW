@@ -1,14 +1,15 @@
 import { AssistantPlugins, Avatar, Model, ModelSettings, PromptVar, Provider } from "@/shared/types"
+import { mapAvatarOrDefault } from "@/shared/utils/avatar"
 import { dtoToEntity, entityToDto } from "@/shared/utils/dto/helpers"
-import { DtoToEntity } from "@/shared/utils/dto/types"
-import { defaultTextAvatar } from "@/shared/utils/functions"
+import { DtoToEntity, OverrideProps } from "@/shared/utils/dto/types"
 
 import { Database } from "../supabase/database.types"
 
-type DbAssistant = Database["public"]["Tables"]["user_assistants"]["Row"]
+type DbAssistantRow = Database["public"]["Tables"]["user_assistants"]["Row"]
 type DbAssistantInsert = Database["public"]["Tables"]["user_assistants"]["Insert"]
+type DbAssistant = DbAssistantRow | DbAssistantInsert
 
-type Assistant = DtoToEntity<Omit<DbAssistant, 'model_overrige' | 'input_vars'>> & {
+type Assistant<T extends DbAssistant = DbAssistantRow> = OverrideProps<DtoToEntity<T>, {
   model: Model
   avatar: Avatar
   promptVars: PromptVar[]
@@ -16,24 +17,16 @@ type Assistant = DtoToEntity<Omit<DbAssistant, 'model_overrige' | 'input_vars'>>
   modelSettings: ModelSettings
   plugins: AssistantPlugins
   promptRole: "system" | "user" | "assistant"
+}>
+
+const mapDbToAssistant = (item: DbAssistant) => {
+  const result = dtoToEntity(item) as Assistant
+
+  return mapAvatarOrDefault(result, result.name)
 }
 
-type AssistantDbType = DbAssistant | DbAssistantInsert
-
-const mapDbToAssistant = (dbDialog: DbAssistant | DbAssistantInsert) => {
-  const assistant = dtoToEntity(dbDialog) as Assistant
-
-  return {
-    ...assistant,
-    avatar: assistant.avatar ?? defaultTextAvatar(assistant.name),
-  }
-}
-
-const mapAssistantToDb = (assistant: Partial<Assistant>) => {
-  const dbAssistant = entityToDto(assistant) as DbAssistantInsert | DbAssistant
-
-  return dbAssistant
-}
+const mapAssistantToDb = (assistant: Partial<Assistant>) =>
+   entityToDto(assistant) as DbAssistantInsert | DbAssistantRow
 
 export { mapDbToAssistant, mapAssistantToDb }
-export type { Assistant, AssistantDbType }
+export type { Assistant, DbAssistant }

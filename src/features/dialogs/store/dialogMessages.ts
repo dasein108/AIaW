@@ -4,8 +4,8 @@ import { reactive } from "vue"
 
 import { supabase } from "@/services/data/supabase/client"
 import { DbDialogMessageUpdate, mapDbToDialogMessageNested, mapDialogMessageToDb, DialogMessageNested } from "@/services/data/types/dialogMessage"
-import { DbMessageContentInsert, DbMessageContentUpdate, mapDbToMessageContentNested, mapMessageContentToDb, MessageContentDbType, TMessageContentNested } from "@/services/data/types/messageContents"
-import { DbStoredItemInsert, DbStoredItemUpdate, mapDbToStoredItem, mapStoredItemToDb, StoredItem, StoredItemDbType, TStoredItem } from "@/services/data/types/storedItem"
+import { DbMessageContentInsert, DbMessageContentUpdate, mapDbToMessageContentNested, mapMessageContentToDb, MessageContentDbType, MessageContentNested } from "@/services/data/types/messageContents"
+import { DbStoredItemInsert, DbStoredItemUpdate, mapDbToStoredItem, mapStoredItemToDb, StoredItem, StoredItemDbType } from "@/services/data/types/storedItem"
 
 // const SELECT_DIALOG_MESSAGES = "*, message_contents(*, stored_items(*))"
 
@@ -57,7 +57,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
   }
 
   // Insert or update message content with stored items
-  async function upsertMessageContent<T extends TMessageContentNested<MessageContentDbType, StoredItemDbType>>(dialogId: string, messageId: string, messageContent: T) {
+  async function upsertMessageContent<T extends MessageContentNested<MessageContentDbType, StoredItemDbType>>(dialogId: string, messageId: string, messageContent: T) {
     const { storedItems = [], ...messageContentRaw } = messageContent
 
     // const query = "id" in messageContentRaw && messageContentRaw.id
@@ -78,7 +78,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     const result = mapDbToMessageContentNested(data)
 
     for (const item of storedItems) {
-      const storedItem = await upsertStoredItem(dialogId, result.id, item)
+      const storedItem = await upserStoredItem(dialogId, result.id, item)
       result.storedItems.push(storedItem)
     }
 
@@ -86,7 +86,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
   }
 
   // Insert or update stored item related to message content
-  async function upsertStoredItem<T extends TStoredItem<StoredItemDbType>>(dialogId: string, messageContentId: string, storedItem: T) {
+  async function upserStoredItem<T extends StoredItem<StoredItemDbType>>(dialogId: string, messageContentId: string, storedItem: T) {
     // const queryFrom = supabase.from("stored_items")
     // const query = "id" in storedItem && storedItem.id
     //   ? queryFrom.update(mapStoredItemToDb({ ...storedItem, messageContentId }))
@@ -97,7 +97,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     //   .select()
     //   .single()
     const { data, error } = await supabase.from("stored_items")
-      .upsert(mapStoredItemToDb({ ...storedItem, dialogId, messageContentId } as TStoredItem<DbStoredItemInsert>))
+      .upsert(mapStoredItemToDb({ ...storedItem, dialogId, messageContentId } as StoredItem<DbStoredItemInsert>))
       .select()
       .single()
 

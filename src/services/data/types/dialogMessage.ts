@@ -6,17 +6,17 @@ import { DtoToEntity, OverrideProps, TContentNested } from "@/shared/utils/dto/t
 import { Database } from "../supabase/database.types"
 
 import {
-  DbMessageContent,
+  DbMessageContentRow,
   DbMessageContentUpdate,
   MessageContentDbType,
-  TMessageContentNested
+  MessageContentNested
 } from "./messageContents"
 import { DbStoredItem, DbStoredItemUpdate, StoredItemDbType } from "./storedItem"
 
-type DbDialogMessage = Database["public"]["Tables"]["dialog_messages"]["Row"]
+type DbDialogMessageRow = Database["public"]["Tables"]["dialog_messages"]["Row"]
 type DbDialogMessageInsert = Database["public"]["Tables"]["dialog_messages"]["Insert"]
 type DbDialogMessageUpdate = Database["public"]["Tables"]["dialog_messages"]["Update"]
-type DialogMessageDbType = DbDialogMessage | DbDialogMessageInsert | DbDialogMessageUpdate
+type DbDialogMessage = DbDialogMessageRow | DbDialogMessageInsert | DbDialogMessageUpdate
 
 type DialogMessageStatus =
   | "pending"
@@ -33,29 +33,27 @@ type DialogMessageMap = {
   status?: DialogMessageStatus
 }
 
-type DialogMessage<T extends DialogMessageDbType = DbDialogMessage> = OverrideProps<DtoToEntity<T>, DialogMessageMap>
+type DialogMessage<T extends DbDialogMessage = DbDialogMessageRow> = OverrideProps<DtoToEntity<T>, DialogMessageMap>
 
-type DialogMessageNested<T extends DialogMessageDbType = DbDialogMessage,
- N extends MessageContentDbType = DbMessageContent,
+type DialogMessageNested<T extends DbDialogMessage = DbDialogMessageRow,
+ N extends MessageContentDbType = DbMessageContentRow,
  S extends StoredItemDbType = DbStoredItem> =
   TContentNested<DialogMessage<T>,
-  TMessageContentNested<N, S>,
+  MessageContentNested<N, S>,
   "messageContents">
 
 type DialogMessageNestedUpdate = DialogMessageNested<DbDialogMessageUpdate, DbMessageContentUpdate, DbStoredItemUpdate>
 
-const mapDbToDialogMessage = (dbDialogMessage: DbDialogMessage | DbDialogMessageInsert) => {
+const mapDbToDialogMessage = (dbDialogMessage: DbDialogMessageRow | DbDialogMessageInsert) => {
   return dtoToEntity(dbDialogMessage) as DialogMessage
 }
 
-const mapDialogMessageToDb = (dialogMessage: Partial<DialogMessage>) => {
-  return entityToDto(dialogMessage) as DbDialogMessage | DbDialogMessageInsert
+const mapDialogMessageToDb = <T extends DbDialogMessage = DbDialogMessageRow>(dialogMessage: Partial<DialogMessage<T>>): T => {
+  return entityToDto(dialogMessage) as T
 }
 
-const mapDbToDialogMessageNested = (item: DialogMessageDbType) => {
+const mapDbToDialogMessageNested = (item: DbDialogMessage) => {
   const result = dtoToEntity(item) as DialogMessageNested
-
-  console.log("-----mapDbToDialogMessageNested", item, result)
 
   return result
 }
@@ -64,5 +62,5 @@ export { mapDbToDialogMessage, mapDialogMessageToDb, mapDbToDialogMessageNested 
 
 export type {
   DialogMessage, DialogMessageNested,
-  DbDialogMessageInsert, DbDialogMessage, DbDialogMessageUpdate, DialogMessageNestedUpdate
+  DbDialogMessageInsert, DbDialogMessageRow, DbDialogMessageUpdate, DialogMessageNestedUpdate
 }
