@@ -55,7 +55,8 @@ import { useUserStore } from "@/shared/store"
 import UserListDialog from "@/features/chats/components/UserListDialog.vue"
 import { useWorkspacesStore } from "@/features/workspaces/store"
 
-import { Profile, WorkspaceMember, WorkspaceMemberRole } from "@/services/data/types/workspace"
+import { Profile } from "@/services/data/types/profile"
+import { WorkspaceMember, WorkspaceMemberRole } from "@/services/data/types/workspace"
 
 const props = defineProps<{
   workspaceId: string

@@ -3,7 +3,7 @@ import { ref, readonly } from "vue"
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 
 import { supabase } from "@/services/data/supabase/client"
-import { DbWorkspace, mapDbToWorkspace, Workspace } from "@/services/data/types/workspace"
+import { mapDbToWorkspace, Workspace, DbWorkspaceRow } from "@/services/data/types/workspace"
 
 const workspaces = ref<Workspace[]>([])
 let isSubscribed = false
@@ -43,7 +43,7 @@ function subscribeToWorkspaces () {
         table: "workspaces",
       },
       async (payload) => {
-        workspaces.value.unshift(mapDbToWorkspace(payload.new as DbWorkspace))
+        workspaces.value.unshift(mapDbToWorkspace(payload.new as DbWorkspaceRow))
       }
     )
     .on(
@@ -54,7 +54,7 @@ function subscribeToWorkspaces () {
         table: "workspaces",
       },
       (payload) => {
-        const deletedId = (payload.old as DbWorkspace).id
+        const deletedId = (payload.old as DbWorkspaceRow).id
         workspaces.value = workspaces.value.filter((c) => c.id !== deletedId)
       }
     )
@@ -66,7 +66,7 @@ function subscribeToWorkspaces () {
         table: "workspaces",
       },
       async (payload) => {
-        const updated = mapDbToWorkspace(payload.new as DbWorkspace)
+        const updated = mapDbToWorkspace(payload.new as DbWorkspaceRow)
         workspaces.value = workspaces.value.map((c) =>
           c.id === updated.id ? updated : c
         )

@@ -200,6 +200,7 @@ export const useLlmDialog = (
    */
   function createMessageUpdater(id: string) {
     return async (contentUpdate: Partial<DialogMessageNested> = {}) => {
+      console.log("---createMessageUpdater contentUpdate", contentUpdate)
       await updateMessage(id, contentUpdate)
     }
   }
@@ -261,7 +262,7 @@ export const useLlmDialog = (
       content.result = contentResult
     }
 
-    await updateFn({ messageContents: contents })
+    await updateFn({ ...content, messageContents: contents })
 
     return { result: apiResult, error }
   }

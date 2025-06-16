@@ -4,49 +4,46 @@ import { DtoToEntity, OverrideProps } from "@/shared/utils/dto/types"
 
 import { Database } from "../supabase/database.types"
 
-type DbCustomProvider = Database["public"]["Tables"]["custom_providers"]["Row"]
-type DbSubprovider = Database["public"]["Tables"]["subproviders"]["Row"]
-
+type DbCustomProviderRow = Database["public"]["Tables"]["custom_providers"]["Row"]
 type DbCustomProviderInsert = Database["public"]["Tables"]["custom_providers"]["Insert"]
+type DbCustomProvider = DbCustomProviderRow | DbCustomProviderInsert
+
 type DbSubproviderInsert = Database["public"]["Tables"]["subproviders"]["Insert"]
+type DbSubproviderRow = Database["public"]["Tables"]["subproviders"]["Row"]
+type DbSubprovider = DbSubproviderRow | DbSubproviderInsert
 
-type CustomProviderDbType = DbCustomProvider | DbCustomProviderInsert
-type SubproviderDbType = DbSubprovider | DbSubproviderInsert
-
-type DbCustomProviderWithSubproviders = DbCustomProvider & {
-  subproviders: DbSubprovider[]
+type DbCustomProviderWithSubproviders = DbCustomProviderRow & {
+  subproviders: DbSubproviderRow[]
 }
 
-type Subprovider<T extends SubproviderDbType = SubproviderDbType> = OverrideProps<DtoToEntity<T>, {
+type Subprovider<T extends DbSubprovider = DbSubprovider> = OverrideProps<DtoToEntity<T>, {
   provider: Provider
   modelMap: Record<string, string>
 }>
 
-type CustomProvider<T extends CustomProviderDbType = CustomProviderDbType> = OverrideProps<DtoToEntity<T>, {
+type CustomProvider<T extends DbCustomProvider = DbCustomProvider> = OverrideProps<DtoToEntity<T>, {
   avatar: Avatar
   fallbackProvider: Provider
 }> & {
   subproviders: Subprovider[]
 }
 
-const mapDbToSubprovider = (dbSubprovider: DbSubprovider) => {
+const mapDbToSubprovider = (dbSubprovider: DbSubproviderRow) => {
   return {
     ...dtoToEntity(dbSubprovider),
-    provider: dtoToEntity(dbSubprovider.provider),
+    provider: dtoToEntity(dbSubprovider.provider) as Provider,
   } as Subprovider
 }
 
 const mapSubproviderToDb = (providerId: string, subprovider: Subprovider) => {
-  const item = entityToDto(subprovider)
-
   return {
-    ...item,
+    ...entityToDto(subprovider),
     custom_provider_id: providerId,
   }
 }
 
-const mapDbToCustomProvider = (dbCustomProvider: DbCustomProviderWithSubproviders) => {
-  const entity = dtoToEntity(dbCustomProvider)
+const mapDbToCustomProvider = (item: DbCustomProviderWithSubproviders) => {
+  const entity = dtoToEntity(item)
 
   return {
     ...entity,
@@ -56,7 +53,7 @@ const mapDbToCustomProvider = (dbCustomProvider: DbCustomProviderWithSubprovider
       hue: Math.floor(Math.random() * 360),
     },
     fallbackProvider: entity.fallbackProvider ? entity.fallbackProvider : null,
-    subproviders: dbCustomProvider.subproviders.map(mapDbToSubprovider),
+    subproviders: item.subproviders.map(mapDbToSubprovider),
   } as CustomProvider
 }
 
@@ -69,4 +66,4 @@ const mapCustomProviderToDb = (customProvider: CustomProvider) => {
 
 export { mapDbToCustomProvider, mapCustomProviderToDb, mapDbToSubprovider, mapSubproviderToDb }
 
-export type { CustomProvider, Subprovider, DbCustomProvider, DbSubprovider, DbCustomProviderWithSubproviders }
+export type { CustomProvider, Subprovider }

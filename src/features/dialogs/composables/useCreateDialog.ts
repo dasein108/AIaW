@@ -34,8 +34,6 @@ export function useCreateDialog (workspaceId: string) {
             {
               type: "user-message",
               text: "",
-              name: "",
-              status: "inputing",
             },
           ],
           status: "inputing",

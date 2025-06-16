@@ -1,26 +1,28 @@
 import { Model } from "@/shared/types"
 import { dtoToEntity, entityToDto } from "@/shared/utils/dto/helpers"
-import { DtoToEntity } from "@/shared/utils/dto/types"
+import { DtoToEntity, OverrideProps } from "@/shared/utils/dto/types"
 
 import { Database } from "../supabase/database.types"
 
 import { Assistant } from "./assistant"
 
-type DbDialog = Database["public"]["Tables"]["dialogs"]["Row"]
+type DbDialogRow = Database["public"]["Tables"]["dialogs"]["Row"]
 type DbDialogInsert = Database["public"]["Tables"]["dialogs"]["Insert"]
+type DbDialog = DbDialogRow | DbDialogInsert
 
-type Dialog = DtoToEntity<Omit<DbDialog, 'model_overrige' | 'input_vars'>> & {
+type DialogMap = {
   modelOverride: Model
   inputVars?: Record<string, string>
   assistant: Assistant
 }
 
-const mapDbToDialog = (dbDialog: DbDialog | DbDialogInsert) => {
-  return dtoToEntity(dbDialog) as Dialog
-}
+type Dialog<T extends DbDialog = DbDialogRow> = OverrideProps<DtoToEntity<T>, DialogMap>
 
-const mapDialogToDb = (dialog: Partial<Dialog>) => {
-  return entityToDto(dialog) as DbDialogInsert
-}
+const mapDbToDialog = (dbDialog: DbDialog) =>
+  dtoToEntity(dbDialog) as Dialog
 
-export { mapDbToDialog, mapDialogToDb, type Dialog }
+const mapDialogToDb = <T extends DbDialog = DbDialogRow>(dialog: Dialog<T>): T =>
+  entityToDto(dialog) as T
+
+export { mapDbToDialog, mapDialogToDb }
+export type { DbDialogInsert, Dialog }

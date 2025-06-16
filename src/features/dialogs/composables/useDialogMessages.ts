@@ -61,6 +61,7 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   }
 
   const updateMessage = async (messageId: string, message: DialogMessageNested<DbDialogMessageUpdate, DbMessageContentUpdate, DbStoredItemUpdate>) => {
+    console.log("---updateMessage message", message)
     await updateDialogMessage(dialog.value.id, messageId, message)
   }
 

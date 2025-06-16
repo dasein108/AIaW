@@ -4,7 +4,7 @@ import { reactive, ref } from "vue"
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 
 import { supabase } from "@/services/data/supabase/client"
-import { Dialog, mapDbToDialog, mapDialogToDb } from "@/services/data/types/dialogs"
+import { DbDialogInsert, Dialog, mapDbToDialog, mapDialogToDb } from "@/services/data/types/dialogs"
 
 /**
  * Store for managing dialogs in the application
@@ -111,7 +111,7 @@ export const useDialogsStore = defineStore("dialogs", () => {
   ) {
     const { data, error } = await supabase
       .from("dialogs")
-      .insert(mapDialogToDb(dialog))
+      .insert(mapDialogToDb(dialog as Dialog<DbDialogInsert>))
       .select()
       .single()
 

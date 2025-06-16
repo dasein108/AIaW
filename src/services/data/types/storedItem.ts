@@ -3,11 +3,11 @@ import { DtoToEntity, OverrideProps } from "@/shared/utils/dto/types"
 
 import { Database } from "@/services/data/supabase/database.types"
 
-type DbStoredItem = Database["public"]["Tables"]["stored_items"]["Row"]
+type DbStoredItemRow = Database["public"]["Tables"]["stored_items"]["Row"]
 type DbStoredItemInsert = Database["public"]["Tables"]["stored_items"]["Insert"]
 type DbStoredItemUpdate = Database["public"]["Tables"]["stored_items"]["Update"]
 
-type StoredItemDbType = DbStoredItem | DbStoredItemInsert | DbStoredItemUpdate
+type DbStoredItem = DbStoredItemRow | DbStoredItemInsert | DbStoredItemUpdate
 
 type StoredItemContentType = "text" | "file" | "quote"
 
@@ -15,7 +15,7 @@ type StoredItemMap = {
   type: StoredItemContentType
 }
 
-type StoredItem<T extends StoredItemDbType = DbStoredItem> = OverrideProps<DtoToEntity<T>, StoredItemMap>
+type StoredItem<T extends DbStoredItem = DbStoredItemRow> = OverrideProps<DtoToEntity<T>, StoredItemMap>
 
 type StoredItemResult = {
   type?: StoredItemContentType
@@ -24,17 +24,15 @@ type StoredItemResult = {
   mimeType?: string
 }
 
-const mapDbToStoredItem = (dbStoredItem: DbStoredItem): StoredItem => {
-  return dtoToEntity(dbStoredItem) as StoredItem
-}
+const mapDbToStoredItem = (dbStoredItem: DbStoredItemRow): StoredItem =>
+   dtoToEntity(dbStoredItem) as StoredItem
 
-const mapStoredItemToDb = <T extends StoredItemDbType>(storedItem: StoredItem<T>): T => {
-  return entityToDto(storedItem) as T
-}
+const mapStoredItemToDb = <T extends DbStoredItem>(storedItem: StoredItem<T>): T =>
+   entityToDto(storedItem) as T
 
 export { mapDbToStoredItem, mapStoredItemToDb }
 
 export type {
   StoredItem, StoredItemResult,
-  StoredItemDbType, DbStoredItem, DbStoredItemInsert, DbStoredItemUpdate
+  DbStoredItemRow, DbStoredItemInsert, DbStoredItemUpdate, DbStoredItem
 }

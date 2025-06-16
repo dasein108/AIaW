@@ -4,24 +4,23 @@ import { DtoToEntity, OverrideProps } from "@/shared/utils/dto/types"
 
 import { Database } from "../supabase/database.types"
 
-type DbProfile = Database["public"]["Tables"]["profiles"]["Row"]
+type DbProfileRow = Database["public"]["Tables"]["profiles"]["Row"]
 
-type Profile = DtoToEntity<Omit<DbProfile, 'avatar'>> & {
+type Profile = DtoToEntity<Omit<DbProfileRow, 'avatar'>> & {
   avatar: Avatar
 }
 
 type DbUserProfile = {
   user_id: string
-  profile: DbProfile
+  profile: DbProfileRow
 }
 
 type UserProfile = OverrideProps<DtoToEntity<DbUserProfile>, {
   profile: Profile
 }>
 
-const mapDbToProfile = (dbProfile: DbProfile) => {
-  return dtoToEntity(dbProfile) as Profile
-}
+const mapDbToProfile = (dbProfile: DbProfileRow) =>
+  dtoToEntity(dbProfile) as Profile
 
 const mapDbToUserProfile = (member: DbUserProfile): UserProfile => {
   return {
@@ -31,4 +30,4 @@ const mapDbToUserProfile = (member: DbUserProfile): UserProfile => {
 }
 
 export { mapDbToProfile, mapDbToUserProfile }
-export type { Profile, DbProfile, DbUserProfile, UserProfile }
+export type { Profile, UserProfile }
