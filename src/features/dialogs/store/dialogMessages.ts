@@ -15,7 +15,7 @@ type UpdateSingleEntityParams = {
   message?: DialogMessageNestedUpdate
   messageContent?: MessageContentNestedUpdate
   storedItem?: StoredItem
-  saveDb?: boolean
+  cacheOnly?: boolean
 }
 /**
  * Store for managing dialog messages in AI conversations
@@ -68,7 +68,6 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
   async function upsertMessageContent<T extends MessageContentNested<DbMessageContentUpdate, DbStoredItemUpdate>>(dialogId: string, messageId: string, messageContent: T) {
     const { storedItems = [], ...messageContentRaw } = messageContent
     const dbItem = mapMessageContentToDb({ ...messageContentRaw, messageId })
-    console.log("---upsertMessageContent messageContentRaw", messageContentRaw)
 
     const { data, error } = await supabase.from("message_contents")
       .upsert(dbItem as DbMessageContentInsert)
@@ -170,8 +169,6 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
       }
     }
 
-    console.log("[---! upsertDialogMessageNested AFTER", result.messageContents)
-
     // update dialogMessages cache
     updateDialogMessageCache(dialogId, result)
 
@@ -247,6 +244,35 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     await fetchDialogMessages(dialogId)
   }
 
+  async function addStoredItem(messageContentId: string, storedItem: StoredItem) {
+    const { data, error } = await supabase.from("stored_items")
+      .insert(mapStoredItemToDb(storedItem) as DbStoredItemInsert)
+      .select()
+      .single()
+
+    if (error) {
+      console.error(error)
+      throw error
+    }
+
+    const result = mapDbToStoredItem(data)
+
+    const messageContent = dialogMessages[storedItem.dialogId].find((m) => m.id === messageContentId)?.messageContents.find((c) => c.id === result.messageContentId)
+
+    // TODO: simplify caching
+    if (messageContent) {
+      messageContent.storedItems = [...messageContent.storedItems, result]
+    }
+
+    dialogMessages[storedItem.dialogId] = dialogMessages[storedItem.dialogId].map((m) =>
+      m.id === messageContentId
+        ? { ...m, messageContents: [...m.messageContents, messageContent] }
+        : m
+    )
+
+    return result
+  }
+
   /**
    * Deletes a stored item from the database
    * Uses the delete operation to permanently remove the stored item
@@ -291,8 +317,8 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     const messageContents = message?.messageContents
 
     if (entity.message) {
-      const { messageContents, ...messageRaw } = entity.message
-      const resultMessage = !entity.saveDb ? merge(message, entity.message) : await upsertDialogMessage(entity.dialogId, messageRaw)
+      const { messageContents: _, ...messageRaw } = entity.message
+      const { messageContents: __, ...resultMessage } = entity.cacheOnly ? merge(message, entity.message) : await upsertDialogMessage(entity.dialogId, messageRaw)
 
       dialogMessages[entity.dialogId] = dialogMessages[entity.dialogId].map((m) =>
         m.id === entity.messageId ? { ...m, ...resultMessage } : m
@@ -302,7 +328,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
 
     if (entity.messageContent) {
       const cacheMessageContent = messageContents.find((c) => c.id === entity.messageContent.id)
-      const messageContent = !entity.saveDb ? merge(cacheMessageContent, entity.messageContent) : await upsertMessageContent(entity.dialogId, entity.messageId, entity.messageContent)
+      const messageContent = entity.cacheOnly ? merge(cacheMessageContent, entity.messageContent) : await upsertMessageContent(entity.dialogId, entity.messageId, entity.messageContent)
 
       if (entity.messageContent.id) {
         const newMessageContents = messageContents.map((c) =>
@@ -350,6 +376,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     deleteDialogMessage,
     deleteStoredItem,
     switchActiveDialogMessage,
-    upsertSingleEntity
+    upsertSingleEntity,
+    addStoredItem
   }
 })

@@ -6,8 +6,8 @@ import { Database } from "../supabase/database.types"
 
 type DbArtifactInsert = Database["public"]["Tables"]["artifacts"]["Insert"]
 type DbArtifactRow = Database["public"]["Tables"]["artifacts"]["Row"]
-
-type DbArtifact = DbArtifactRow | DbArtifactInsert
+type DbArtifactUpdate = Database["public"]["Tables"]["artifacts"]["Update"]
+type DbArtifact = DbArtifactRow | DbArtifactInsert | DbArtifactUpdate
 
 type ArtifactMap = {
   versions: ArtifactVersion[]
@@ -21,4 +21,4 @@ const mapArtifactToDb = <T extends DbArtifact>(artifact: Artifact<T>): T =>
    entityToDto(artifact) as T
 
 export { mapDbToArtifact, mapArtifactToDb, type Artifact }
-export type { DbArtifactInsert, DbArtifactRow }
+export type { DbArtifactInsert, DbArtifactRow, DbArtifactUpdate }

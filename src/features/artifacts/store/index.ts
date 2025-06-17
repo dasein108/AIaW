@@ -1,11 +1,11 @@
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
-import { reactive, computed } from "vue"
+import { reactive, computed, ref } from "vue"
 
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 
 import { supabase } from "@/services/data/supabase/client"
-import { Artifact, DbArtifactInsert, mapArtifactToDb } from "@/services/data/types/artifact"
+import { Artifact, DbArtifactInsert, DbArtifactUpdate, mapArtifactToDb, mapDbToArtifact } from "@/services/data/types/artifact"
 
 /**
  * Store for managing code and document artifacts
@@ -29,6 +29,7 @@ import { Artifact, DbArtifactInsert, mapArtifactToDb } from "@/services/data/typ
  * - Used by {@link EditArtifact} view for artifact editing
  */
 export const useArtifactsStore = defineStore("artifacts", () => {
+  const isLoaded = ref(false)
   const workspaceArtifacts = reactive<
     Record<string, Record<string, Artifact>>
   >({})
@@ -39,13 +40,15 @@ export const useArtifactsStore = defineStore("artifacts", () => {
   )
 
   const fetchArtifacts = async () => {
-    const { data, error } = await supabase.from("artifacts").select("*") as { data: Artifact[], error: Error }
+    const { data, error } = await supabase.from("artifacts").select("*")
 
     if (error) {
       console.error(error)
     }
 
-    for (const artifact of data) {
+    const artifacts = data.map((a) => mapDbToArtifact(a))
+
+    for (const artifact of artifacts) {
       if (!(artifact.workspaceId in workspaceArtifacts)) {
         workspaceArtifacts[artifact.workspaceId] = {} as Record<string, Artifact>
       }
@@ -54,33 +57,35 @@ export const useArtifactsStore = defineStore("artifacts", () => {
     }
   }
 
-  async function add (artifact: Artifact<DbArtifactInsert>) {
+  async function add (item: Artifact<DbArtifactInsert>) {
     const { data, error } = await supabase
       .from("artifacts")
-      .insert(mapArtifactToDb(artifact))
-      .select("*")
-      .single() as { data: Artifact, error: Error }
+      .insert(mapArtifactToDb(item))
+      .select()
+      .single()
 
     if (error) {
       console.error(error)
     }
 
-    if (!(data.workspaceId in workspaceArtifacts)) {
-      workspaceArtifacts[data.workspaceId] = {}
+    const artifact = mapDbToArtifact(data)
+
+    if (!(artifact.workspaceId in workspaceArtifacts)) {
+      workspaceArtifacts[artifact.workspaceId] = {}
     }
 
-    workspaceArtifacts[data.workspaceId][data.id] = data as Artifact
+    workspaceArtifacts[artifact.workspaceId][artifact.id] = artifact
 
-    return data as Artifact
+    return artifact
   }
 
   // background update with throttle, for "no save button" UI
-  const throttledUpdate = throttle((artifact: Partial<Artifact>) => {
+  const throttledUpdate = throttle((item: Artifact<DbArtifactUpdate>) => {
     supabase
       .from("artifacts")
-      .update(artifact)
-      .eq("id", artifact.id)
-      .select("*")
+      .update(mapArtifactToDb(item))
+      .eq("id", item.id)
+      .select()
       .single()
       .then((res) => {
         if (res.error) {
@@ -89,7 +94,7 @@ export const useArtifactsStore = defineStore("artifacts", () => {
       })
   }, 2000)
 
-  async function update (artifact: Partial<Artifact>) {
+  async function update (artifact: Artifact<DbArtifactUpdate>) {
     throttledUpdate(artifact)
     workspaceArtifacts[artifact.workspaceId][artifact.id] = {
       ...workspaceArtifacts[artifact.workspaceId][artifact.id],
@@ -111,13 +116,17 @@ export const useArtifactsStore = defineStore("artifacts", () => {
   }
 
   async function init () {
+    isLoaded.value = false
     Object.assign(workspaceArtifacts, {})
     await fetchArtifacts()
+    isLoaded.value = true
   }
 
   useUserLoginCallback(init)
 
   return {
+    isLoaded: computed(() => isLoaded.value),
+
     artifacts,
     workspaceArtifacts,
     init,

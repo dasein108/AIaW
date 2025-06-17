@@ -31,8 +31,6 @@ function getChainMessages(dialogItems: TreeListItem<DialogMessageNested>[], mime
   const messages = getRelevantDialogItems(dialogItems, contextNum)
   let result: CoreMessage[] = []
 
-  console.log("-----getChainMessages", dialogItems, messages)
-
   for (const content of messages) {
     if (content.type === "user-message") {
       result.push(processUserMessage(content, mimeTypes))

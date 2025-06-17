@@ -1,4 +1,4 @@
-import { computed, Ref, watch } from "vue"
+import { computed, Ref } from "vue"
 
 import { useStorage } from "@/shared/composables/storage/useStorage"
 import { ApiResultItem } from "@/shared/types"
@@ -55,7 +55,7 @@ export const useDialogInput = (
    * @param items - API result items to add
    */
   async function addInputItems(items: ApiResultItem[]): Promise<void> {
-    const storedItemsResults = await storage.saveApiResultItems(items, { dialogId: dialogId.value })
+    const storedItemsResults = await storage.saveApiResultItems(items, { dialogId: dialogId.value, messageContentId: lastMessageId.value })
 
     await updateMessage(
       lastMessageId.value,
@@ -95,11 +95,6 @@ export const useDialogInput = (
       !inputMessageContent.value?.text &&
       !inputMessageContent.value?.storedItems.length
   )
-
-  // Debug logging
-  watch(lastMessage, (newMessage) => {
-    console.log("-----useDialogInput lastMessage", newMessage)
-  })
 
   return {
     updateInputText,

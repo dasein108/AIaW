@@ -28,7 +28,7 @@ export function useCloseArtifact () {
           ? saveArtifactChanges(artifact)
           : restoreArtifactChanges(artifact)
         artifactsStore.update({
-          id: artifact.id,
+          ...artifact,
           ...changes,
         })
         userDataStore.data.openedArtifacts =

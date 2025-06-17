@@ -14,7 +14,10 @@ import { getBranchList, getDialogItemList, TreeListItem } from "./utils/dialogTr
 
 export const useDialogMessages = (dialogId: Ref<string>) => {
   const { dialogs } = storeToRefs(useDialogsStore())
-  const { addDialogMessage, updateDialogMessageNested, upsertSingleEntity, switchActiveDialogMessage, deleteDialogMessage, deleteStoredItem, fetchDialogMessages } = useDialogMessagesStore()
+  const {
+    addDialogMessage, updateDialogMessageNested, upsertSingleEntity, switchActiveDialogMessage, deleteDialogMessage,
+    deleteStoredItem, fetchDialogMessages, addStoredItem: addStoredItemToMessageContent
+  } = useDialogMessagesStore()
   const { dialogMessages: allDialogMessages } = storeToRefs(useDialogMessagesStore())
   const { workspaces } = storeToRefs(useWorkspacesStore())
   const { deleteFile } = useStorage()
@@ -58,7 +61,6 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   }
 
   const updateMessage = async (messageId: string, message: DialogMessageNested<DbDialogMessageUpdate, DbMessageContentUpdate, DbStoredItemUpdate>) => {
-    console.log("---updateMessage message", message)
     await updateDialogMessageNested(dialog.value.id, messageId, message)
   }
 
@@ -104,13 +106,20 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   }
 
   const deleteStoredItemWithFile = async (storedItem: StoredItem) => {
-    console.log("-----deleteStoredItem", storedItem)
     await deleteFile(storedItem.fileUrl)
-    await deleteStoredItem(storedItem)
+    console.log("---deleteStoredItemWithFile", storedItem)
+
+    if (storedItem.id) {
+      await deleteStoredItem(storedItem)
+    }
+  }
+
+  // TODO: implement this in useDialogInput
+  const addStoredItem = async (messageId: string, storedItem: StoredItem) => {
+    await addStoredItemToMessageContent(messageId, storedItem)
   }
 
   function switchBranch (item: TreeListItem<DialogMessageNested>, index: number) {
-    console.log("----switchBranch", item, index)
     switchActiveMessage(item.siblingMessageIds[index - 1])
   }
 
@@ -132,6 +141,7 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
     switchBranch,
     deleteStoredItemWithFile,
     fetchMessages,
-    upsertSingleEntity
+    upsertSingleEntity,
+    addStoredItem
   }
 }

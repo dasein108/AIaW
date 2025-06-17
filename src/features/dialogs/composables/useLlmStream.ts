@@ -206,17 +206,15 @@ export const useLlmStream = (workspaceId: Ref<string>,
       messageId: currentMessageId.value,
       message: { ...currentMessage.value, ...update }
     })
-    console.log("---updateCurrentMessage currentMessage", update, currentMessage.value)
   }
 
   async function updateCurrentMessageContent(update: MessageContentNestedUpdate) {
-    const cacheOnly = currentMessage.value.status && ["streaming", "inputing", "pending"].includes(currentMessage.value.status)
-    console.log("---updateCurrentMessageContent currentMessageContent", cacheOnly, update, currentMessageContent.value, currentMessage.value)
+    const cacheOnly = !currentMessage.value.status || ["streaming", "inputing", "pending"].includes(currentMessage.value.status)
     await upsertSingleEntity({
       dialogId: dialogId.value,
       messageId: currentMessageId.value,
       messageContent: { ...currentMessageContent.value, ...update },
-      saveDb: !cacheOnly
+      cacheOnly
     })
   }
 
@@ -238,13 +236,16 @@ export const useLlmStream = (workspaceId: Ref<string>,
         throw part.error
       }
     }
+    await finalizeResponse(result)
+
+    await updateCurrentMessageContent(currentMessageContent.value)
 
     return result
   }
 
   async function processNonStreamingResponse(params: any) {
     const result = await generateText(params)
-
+    await finalizeResponse(result)
     await updateCurrentMessageContent({
       text: result.text,
       reasoning: result.reasoning,
