@@ -7,7 +7,8 @@ import { Database } from "../supabase/database.types"
 
 type DbAssistantRow = Database["public"]["Tables"]["user_assistants"]["Row"]
 type DbAssistantInsert = Database["public"]["Tables"]["user_assistants"]["Insert"]
-type DbAssistant = DbAssistantRow | DbAssistantInsert
+type DbAssistantUpdate = Database["public"]["Tables"]["user_assistants"]["Update"]
+type DbAssistant = DbAssistantRow | DbAssistantInsert | DbAssistantUpdate
 
 type Assistant<T extends DbAssistant = DbAssistantRow> = OverrideProps<DtoToEntity<T>, {
   model: Model
@@ -29,4 +30,4 @@ const mapAssistantToDb = (assistant: Partial<Assistant>) =>
    entityToDto(assistant) as DbAssistantInsert | DbAssistantRow
 
 export { mapDbToAssistant, mapAssistantToDb }
-export type { Assistant, DbAssistant }
+export type { Assistant, DbAssistant, DbAssistantUpdate }

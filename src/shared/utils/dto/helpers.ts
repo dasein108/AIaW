@@ -3,7 +3,7 @@ import { Json } from '@/services/data/supabase/database.types'
 import { EntityToDto, DtoToEntity } from './types'
 
 export const snakeToCamel = (str: string) =>
-  str.replace(/([-_][a-z])/g, (group) =>
+  str.replace(/([_][a-z])/g, (group) =>
     group.toUpperCase().replace('-', '').replace('_', '')
   )
 

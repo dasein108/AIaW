@@ -11,7 +11,7 @@ import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCa
 import { AssistantDefaultPrompt } from "@/features/dialogs/utils/dialogTemplateDefinitions"
 
 import { supabase } from "@/services/data/supabase/client"
-import { Assistant, mapDbToAssistant } from "@/services/data/types/assistant"
+import { Assistant, DbAssistantUpdate, mapAssistantToDb, mapDbToAssistant } from "@/services/data/types/assistant"
 
 /**
  * Store for managing AI assistants in the application
@@ -44,8 +44,6 @@ export const useAssistantsStore = defineStore("assistants", () => {
     if (error) {
       console.error("Error fetching assistants:", error)
     }
-
-    console.log("[DEBUG] Fetch assistants", data)
 
     assistants.value = data.map(mapDbToAssistant)
     isLoaded.value = true
@@ -91,10 +89,10 @@ export const useAssistantsStore = defineStore("assistants", () => {
     return data
   }
 
-  async function update (id: string, changes) {
+  async function update (id: string, changes: Assistant<DbAssistantUpdate>) {
     const { data, error } = await supabase
       .from("user_assistants")
-      .update(changes)
+      .update(mapAssistantToDb(changes))
       .eq("id", id)
       .select()
       .single()
@@ -105,11 +103,12 @@ export const useAssistantsStore = defineStore("assistants", () => {
       return null
     }
 
+    const result = mapDbToAssistant(data)
     assistants.value = assistants.value.map((a) =>
-      a.id === id ? mapDbToAssistant(data) : a
+      a.id === id ? result : a
     )
 
-    return data
+    return result
   }
 
   const throttledUpdate = throttle(async (assistant: Assistant) => {
