@@ -4,7 +4,6 @@ import { useI18n } from "vue-i18n"
 
 import { useUserPerfsStore } from "@/shared/store"
 import { ConvertArtifactOptions } from "@/shared/types"
-import { ExtractArtifactResult } from "@/shared/utils/template/templates"
 
 import { useCreateArtifact } from "@/features/artifacts/composables/useCreateArtifact"
 import { useDialogsStore } from "@/features/dialogs/store"
@@ -17,6 +16,8 @@ import {
 import { Assistant } from "@/services/data/types/assistant"
 import { DialogMessageNested } from "@/services/data/types/dialogMessage"
 import { MessageContentNested } from "@/services/data/types/messageContents"
+
+import { ExtractArtifactResult } from "../utils"
 
 import { useDialogMessages } from "./useDialogMessages"
 import { useDialogModel } from "./useDialogModel"

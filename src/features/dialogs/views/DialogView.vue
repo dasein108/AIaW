@@ -611,12 +611,6 @@ async function sendPrompt (prompt: string) {
     }
   )
 
-  // TODO: ?????
-  // const parentChildrenCount = dialog.value.msg_tree[parentId]?.length ?? 1
-  // const newRoute = [...dialog.value.msg_route]
-  // newRoute[chain.value.indexOf(parentId)] = parentChildrenCount - 1
-  // await dialogsStore.updateDialog({ id: dialog.value.id, msg_route: newRoute })
-
   await nextTick()
   await startStream(newUserMessageId)
 }

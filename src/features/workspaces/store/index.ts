@@ -4,8 +4,8 @@ import { ref } from "vue"
 import { useI18n } from "vue-i18n"
 
 import { IconAvatar } from "@/shared/types"
-import { DefaultWsIndexContent } from "@/shared/utils/template/templates"
 
+import { DefaultWsIndexContent } from "@/features/dialogs/utils"
 import { useWorkspacesWithSubscription } from "@/features/workspaces/composables/useWorkspacesWithSubscription"
 
 import { supabase } from "@/services/data/supabase/client"
