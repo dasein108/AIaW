@@ -1,5 +1,5 @@
 import { storeToRefs } from "pinia"
-import { computed, Ref, watch } from "vue"
+import { computed, Ref } from "vue"
 
 import { useStorage } from "@/shared/composables/storage/useStorage"
 
@@ -14,7 +14,7 @@ import { getBranchList, getDialogItemList, TreeListItem } from "./utils/dialogTr
 
 export const useDialogMessages = (dialogId: Ref<string>) => {
   const { dialogs } = storeToRefs(useDialogsStore())
-  const { addDialogMessage, updateDialogMessage, switchActiveDialogMessage, deleteDialogMessage, deleteStoredItem, fetchDialogMessages } = useDialogMessagesStore()
+  const { addDialogMessage, updateDialogMessageNested, upsertSingleEntity, switchActiveDialogMessage, deleteDialogMessage, deleteStoredItem, fetchDialogMessages } = useDialogMessagesStore()
   const { dialogMessages: allDialogMessages } = storeToRefs(useDialogMessagesStore())
   const { workspaces } = storeToRefs(useWorkspacesStore())
   const { deleteFile } = useStorage()
@@ -41,9 +41,6 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   const branchList = computed(() => getBranchList(messageMap.value))
   const dialogItems = computed<TreeListItem<DialogMessageNested>[]>(() => getDialogItemList(null, messageMap.value, branchList.value, []))
 
-  watch(dialogItems, () => {
-    console.log("-----useDialogMessages dialogItems", dialogItems.value)
-  })
   const lastMessageId = computed(() => dialogItems.value.length > 0 ? dialogItems.value[dialogItems.value.length - 1].message.id : null)
   const lastMessage = computed(() => dialogItems.value.length > 0 ? dialogItems.value[dialogItems.value.length - 1].message : null)
 
@@ -62,7 +59,7 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
 
   const updateMessage = async (messageId: string, message: DialogMessageNested<DbDialogMessageUpdate, DbMessageContentUpdate, DbStoredItemUpdate>) => {
     console.log("---updateMessage message", message)
-    await updateDialogMessage(dialog.value.id, messageId, message)
+    await updateDialogMessageNested(dialog.value.id, messageId, message)
   }
 
   const switchActiveMessage = async (messageId: string) => {
@@ -129,6 +126,7 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
     deleteBranch,
     switchBranch,
     deleteStoredItemWithFile,
-    fetchMessages
+    fetchMessages,
+    upsertSingleEntity
   }
 }
