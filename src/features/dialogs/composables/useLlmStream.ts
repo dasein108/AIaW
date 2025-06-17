@@ -90,7 +90,7 @@ export const useLlmStream = (workspaceId: Ref<string>,
     args: any,
   ) {
     // Create tool content
-    const content: MessageContentNestedUpdate = {
+    let content: MessageContentNestedUpdate = {
       type: "assistant-tool",
       pluginId: plugin.id,
       name: api.name,
@@ -99,11 +99,13 @@ export const useLlmStream = (workspaceId: Ref<string>,
     }
 
     // Add to message
-    await upsertSingleEntity({
+    const { messageContent } = await upsertSingleEntity({
       dialogId: dialogId.value,
       messageId: currentMessageId.value,
       messageContent: content
     })
+
+    content = messageContent
 
     // Call API
     const { result: apiResult, error } = await callApi(plugin, api, args)
@@ -204,15 +206,17 @@ export const useLlmStream = (workspaceId: Ref<string>,
       messageId: currentMessageId.value,
       message: { ...currentMessage.value, ...update }
     })
+    console.log("---updateCurrentMessage currentMessage", update, currentMessage.value)
   }
 
   async function updateCurrentMessageContent(update: MessageContentNestedUpdate) {
-    const cacheOnly = !currentMessage.value.status || !["streaming", "inputing", "pending"].includes(currentMessage.value.status)
+    const cacheOnly = currentMessage.value.status && ["streaming", "inputing", "pending"].includes(currentMessage.value.status)
+    console.log("---updateCurrentMessageContent currentMessageContent", cacheOnly, update, currentMessageContent.value, currentMessage.value)
     await upsertSingleEntity({
       dialogId: dialogId.value,
       messageId: currentMessageId.value,
       messageContent: { ...currentMessageContent.value, ...update },
-      cacheOnly
+      saveDb: !cacheOnly
     })
   }
 

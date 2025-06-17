@@ -15,7 +15,7 @@ type UpdateSingleEntityParams = {
   message?: DialogMessageNestedUpdate
   messageContent?: MessageContentNestedUpdate
   storedItem?: StoredItem
-  cacheOnly?: boolean
+  saveDb?: boolean
 }
 /**
  * Store for managing dialog messages in AI conversations
@@ -135,8 +135,6 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     dialogId: string,
     message: DialogMessageNestedUpdate,
   ) {
-    console.log("---upsertDialogMessage message", message)
-
     const { data, error } = await supabase.from("dialog_messages")
       .upsert(mapDialogMessageToDb({ ...message, dialogId }))
       .select("*, message_contents(*, stored_items(*))")
@@ -161,9 +159,18 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
     if (messageContents) {
       for (const content of messageContents) {
         const messageContent = await upsertMessageContent(dialogId, result.id, content)
-        result.messageContents.push(messageContent)
+
+        if (content.id) {
+          result.messageContents = result.messageContents.map((c) =>
+            c.id === content.id ? messageContent : c
+          )
+        } else {
+          result.messageContents.push(messageContent)
+        }
       }
     }
+
+    console.log("[---! upsertDialogMessageNested AFTER", result.messageContents)
 
     // update dialogMessages cache
     updateDialogMessageCache(dialogId, result)
@@ -285,7 +292,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
 
     if (entity.message) {
       const { messageContents, ...messageRaw } = entity.message
-      const resultMessage = entity.cacheOnly ? merge(message, entity.message) : await upsertDialogMessage(entity.dialogId, messageRaw)
+      const resultMessage = !entity.saveDb ? merge(message, entity.message) : await upsertDialogMessage(entity.dialogId, messageRaw)
 
       dialogMessages[entity.dialogId] = dialogMessages[entity.dialogId].map((m) =>
         m.id === entity.messageId ? { ...m, ...resultMessage } : m
@@ -295,7 +302,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
 
     if (entity.messageContent) {
       const cacheMessageContent = messageContents.find((c) => c.id === entity.messageContent.id)
-      const messageContent = entity.cacheOnly ? merge(cacheMessageContent, entity.messageContent) : await upsertMessageContent(entity.dialogId, entity.messageId, entity.messageContent)
+      const messageContent = !entity.saveDb ? merge(cacheMessageContent, entity.messageContent) : await upsertMessageContent(entity.dialogId, entity.messageId, entity.messageContent)
 
       if (entity.messageContent.id) {
         const newMessageContents = messageContents.map((c) =>
@@ -331,6 +338,8 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
 
       result.storedItem = storedItem
     }
+
+    return result
   }
 
   return {

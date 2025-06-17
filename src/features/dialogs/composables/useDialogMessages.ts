@@ -84,9 +84,14 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
   async function createBranch(message: DialogMessageNested) {
     const { parentId, id: _, ...messageRaw } = message
 
-    console.log("-----createBranch", message)
+    // create raw message without any id
     const { id } = await addMessage(parentId, {
       ...messageRaw,
+      messageContents: messageRaw.messageContents.map((c) => {
+        const { id: _, ...contentRaw } = c
+
+        return contentRaw
+      }),
       status: "inputing",
     })
 

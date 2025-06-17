@@ -38,7 +38,7 @@
             :message="item.message"
             :child-num="item.siblingMessageIds.length"
             :scroll-container
-            @update:model-value="switchActiveMessage(item.siblingMessageIds[$event - 1])"
+            @update:model-value="switchBranch(item, $event)"
             @edit="edit(item.message)"
             @regenerate="regenerate(item.message.parentId)"
             @delete="deleteBranch(item.message.id)"
@@ -201,6 +201,8 @@
           <add-info-btn
             :plugins="activePlugins"
             :assistant-plugins="assistant?.plugins || {}"
+            :dialog-id="dialogId"
+            :workspace-id="workspaceId"
             @add="addInputItems"
             flat
             round
@@ -364,7 +366,7 @@ const dialogId = computed(() => props.id)
 const { assistant } = useActiveWorkspace()
 
 const {
-  dialog, workspaceId, dialogItems, fetchMessages, switchActiveMessage,
+  dialog, workspaceId, dialogItems, fetchMessages, switchBranch,
   lastMessageId, getMessageContents, createBranch, deleteBranch, deleteStoredItemWithFile
 } = useDialogMessages(dialogId)
 

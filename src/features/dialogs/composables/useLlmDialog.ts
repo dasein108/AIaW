@@ -39,6 +39,7 @@ export const useLlmDialog = (
 
   const genTitle = async (contents: Readonly<MessageContentNested[]>) => {
     try {
+      console.log("[---! genTitle", contents, systemSdkModel.value)
       const title = await generateTitle(
         systemSdkModel.value,
         contents,
