@@ -214,7 +214,6 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
   }
 
   async function addStoredItem(dialogId: string, messageId: string, storedItem: StoredItem<DbStoredItemInsert>) {
-    debugger
     const { data, error } = await supabase.from("stored_items")
       .insert(mapStoredItemToDb(storedItem))
       .select()
