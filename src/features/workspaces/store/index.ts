@@ -1,6 +1,6 @@
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { useI18n } from "vue-i18n"
 
 import { IconAvatar } from "@/shared/types"
@@ -37,8 +37,16 @@ export const useWorkspacesStore = defineStore("workspaces", () => {
   const { workspaces, isLoaded } = useWorkspacesWithSubscription()
   const workspaceMembers = ref<WorkspaceMember[]>([])
   const { t } = useI18n()
+  const isSaving = ref(false)
+  const hasChanges = ref(false)
+
+  watch(workspaces, () => {
+    hasChanges.value = true
+  }, { deep: true })
 
   async function addWorkspace (props: Partial<Workspace>) {
+    isSaving.value = true
+
     const workspace = {
       name: t("stores.workspaces.newWorkspace"),
       type: "workspace",
@@ -49,16 +57,30 @@ export const useWorkspacesStore = defineStore("workspaces", () => {
       ...props,
     } as Workspace
 
+    setTimeout(() => {
+      isSaving.value = false
+      hasChanges.value = false
+    })
+
     return insertItem(workspace)
   }
 
   const update = async (id: string, changes:Workspace<DbWorkspaceUpdate>) => {
-    return await supabase
+    isSaving.value = true
+
+    const result = await supabase
       .from("workspaces")
       .update(mapWorkspaceToDb(changes) as DbWorkspaceUpdate)
       .eq("id", id)
       .select()
       .single()
+
+    setTimeout(() => {
+      isSaving.value = false
+      hasChanges.value = false
+    })
+
+    return result
   }
 
   const throttledUpdate = throttle(
@@ -87,11 +109,18 @@ export const useWorkspacesStore = defineStore("workspaces", () => {
   }
 
   async function insertItem (workspace: Workspace) {
+    isSaving.value = true
+
     const { data, error } = await supabase
       .from("workspaces")
       .insert(mapWorkspaceToDb(workspace) as DbWorkspaceInsert)
       .select()
       .single()
+
+    setTimeout(() => {
+      isSaving.value = false
+      hasChanges.value = false
+    })
 
     if (error) {
       console.error("❌ Failed to put workspace:", error.message)
@@ -237,5 +266,7 @@ export const useWorkspacesStore = defineStore("workspaces", () => {
     updateWorkspaceMember,
     getWorkspaceMembers,
     isUserWorkspaceAdmin,
+    isSaving,
+    hasChanges,
   }
 })
