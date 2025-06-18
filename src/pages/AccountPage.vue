@@ -92,6 +92,8 @@
 </template>
 
 <script setup lang="ts">
+defineEmits(['toggle-drawer'])
+
 import { useQuasar } from "quasar"
 import { computed, ref, toRaw, toRefs } from "vue"
 import { useRouter } from "vue-router"

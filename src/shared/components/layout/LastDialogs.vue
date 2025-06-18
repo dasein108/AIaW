@@ -50,6 +50,10 @@ const workspacesStore = useWorkspacesStore()
 const { dialogs } = storeToRefs(useDialogsStore())
 const dialogsMapped = computed(() => Object.values<Dialog>(dialogs.value))
 
+// FIXME: Heavy array operations in computed property
+// This computed creates new array copy, sorts with Date parsing, and slices on every change.
+// For large dialog lists, this could impact performance. Consider memoizing or moving to store.
+// Alternative: cache sorted results or use a computed store getter with memoization.
 const lastDialogs = computed(() => {
   return [...dialogsMapped.value]
     .sort(
@@ -59,6 +63,10 @@ const lastDialogs = computed(() => {
     .slice(0, MAX_LAST_DIALOGS)
 })
 
+// FIXME: Nested array operations in computed property
+// This computed maps over dialogs and finds workspace for each one, creating new objects.
+// The find() operation in map() creates O(n²) complexity. Consider pre-indexing workspaces by ID.
+// Alternative: create workspace lookup map in store or cache the result.
 const lastDialogsWithWorkspace = computed(() =>
   workspacesStore.workspaces.length > 0
     ? lastDialogs.value.map((d) => {

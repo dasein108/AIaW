@@ -45,6 +45,10 @@ const store = useWorkspacesStore()
 const workspaceId = computed(() => props.id)
 const workspace = computed(() => store.workspaces.find(w => w.id === workspaceId.value))
 
+// FIXME: Heavy rendering operation in computed property
+// This computed calls engine.parseAndRenderSync synchronously on every workspace change,
+// which can block the UI thread. Consider using watch with debounce or cache the result.
+// Alternative: pre-process workspace.indexContent in store or use async rendering.
 const contentMd = computed(() =>
   workspace.value ? engine.parseAndRenderSync(workspace.value.indexContent, {
     workspace: workspace.value || DefaultWsIndexContent,
