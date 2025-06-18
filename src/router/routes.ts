@@ -19,6 +19,7 @@ import { i18n } from "@/boot/i18n"
 import MainLayout from "@/layouts/MainLayout.vue"
 import AccountPage from "@/pages/AccountPage.vue"
 import AssistantsPage from "@/pages/AssistantsPage.vue"
+import AuthCallbackPage from "@/pages/AuthCallbackPage.vue"
 import ChatsPage from "@/pages/ChatsPage.vue"
 import CyberlinksPage from "@/pages/CyberlinksPage.vue"
 import EmptyPage from "@/pages/EmptyPage.vue"
@@ -152,6 +153,11 @@ const routes: RouteRecordRaw[] = [
         path: "/cyberlinks",
         component: CyberlinksPage,
         meta: { title: t("routes.cyberlinks") },
+      },
+      {
+        path: "/auth/callback",
+        component: AuthCallbackPage,
+        meta: { title: t("auth.processingLogin") },
       },
       { path: "/", component: EmptyPage },
 

@@ -1,14 +1,24 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Request, Response, UploadFile, Form, File
+from fastapi import FastAPI, HTTPException, Request, Response, UploadFile, Form, File, Header, Depends
 from fastapi.responses import FileResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import aiohttp
 from typing import Optional, Dict, Any
 from fastapi.staticfiles import StaticFiles
 from llama_parse import LlamaParse
 import os
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения из .env файла
+load_dotenv()
+
+# Импорт нашего модуля аутентификации
+from auth import privy_authenticator
 
 http_client = None
+security = HTTPBearer()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,6 +28,15 @@ async def lifespan(app: FastAPI):
     await http_client.close()
 
 app = FastAPI(lifespan=lifespan)
+
+# Добавляем CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # В продакшене укажите конкретные домены
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 ALLOWED_PREFIXES = [
     'https://lobehub.search1api.com/api/search',
@@ -30,6 +49,62 @@ class ProxyRequest(BaseModel):
     url: str
     headers: Optional[Dict[str, str]] = None
     body: Optional[Any] = None
+
+class TokenExchangeRequest(BaseModel):
+    privy_token: str
+
+# === AUTH ENDPOINTS ===
+
+@app.post('/auth/exchange')
+async def exchange_privy_token(request: TokenExchangeRequest):
+    """
+    Обменивает Privy JWT токен на Supabase-совместимый JWT токен
+    """
+    try:
+        result = await privy_authenticator.exchange_token(request.privy_token)
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal server error: {str(e)}"
+        )
+
+@app.get('/auth/verify')
+async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    Верифицирует Supabase JWT токен (для проверки авторизации)
+    """
+    try:
+        # Это будет Supabase токен, поэтому проверяем его как HS256
+        import jwt
+        payload = jwt.decode(
+            credentials.credentials,
+            privy_authenticator.supabase_jwt_secret,
+            algorithms=['HS256'],
+            options={"verify_exp": True}
+        )
+        return {
+            "valid": True,
+            "user": {
+                "id": payload.get("sub"),
+                "email": payload.get("email"),
+                "phone": payload.get("phone")
+            }
+        }
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token has expired"
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token"
+        )
+
+# === EXISTING ENDPOINTS ===
 
 @app.post('/cors/proxy')
 async def proxy(request: ProxyRequest):

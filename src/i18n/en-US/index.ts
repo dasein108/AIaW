@@ -1,3 +1,4 @@
+import auth from "./auth"
 import components from "./components"
 import composables from "./composables"
 import others from "./others"
@@ -7,6 +8,7 @@ import views from "./views"
 export default {
   ...components,
   ...composables,
+  ...auth,
   ...pages,
   ...views,
   ...others,

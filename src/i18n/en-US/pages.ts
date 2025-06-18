@@ -3,6 +3,10 @@ export default {
     accountTitle: "Account",
     infoHeader: "Information",
     emailLabel: "Email",
+    phoneLabel: "Phone",
+    linkedAccounts: "Linked Accounts",
+    notLoggedIn: "Not Logged In",
+    loginRequired: "Please log in to access your account information",
     cloudSyncHeader: "Cloud Sync",
     cloudSyncDescription:
       "Real-time cloud synchronization service across devices, which can synchronize all data such as workspaces, conversations, assistants, settings, and plugins.",

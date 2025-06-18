@@ -15,7 +15,7 @@
     >
       <q-menu max-height="50vh">
         <q-list>
-          <div v-if="isLoggedIn">
+          <div v-if="privyAuthStore.isAuthenticated">
             <q-item
               clickable
               to="/assistants"
@@ -112,7 +112,7 @@
       </q-menu>
     </q-btn>
 
-    <account-btn
+    <privy-account-btn
       flat
       no-caps
     />
@@ -120,17 +120,16 @@
 </template>
 
 <script setup>
-import { storeToRefs } from "pinia"
 import { useI18n } from "vue-i18n"
 
 import DarkSwitchBtn from "@/shared/components/DarkSwitchBtn.vue"
 import MenuItem from "@/shared/components/menu/MenuItem.vue"
-import { useUserStore } from "@/shared/store/user"
 import { IsWeb } from "@/shared/utils/platformApi"
 
-import AccountBtn from "@/features/auth/components/AccountBtn.vue"
+import PrivyAccountBtn from "@/features/auth/components/PrivyAccountBtn.vue"
+import { usePrivyAuthStore } from "@/features/auth/store/privyAuth"
 
-const { isLoggedIn } = storeToRefs(useUserStore())
+const privyAuthStore = usePrivyAuthStore()
 
 const { t } = useI18n()
 </script>
