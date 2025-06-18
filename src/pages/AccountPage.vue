@@ -78,14 +78,10 @@
       </q-list>
 
       <!-- Sticky Save Button -->
-      <q-btn
-        fab
-        icon="sym_o_save"
-        color="primary"
-        class="sticky-save-btn"
+      <sticky-save-button
         @click="saveProfile"
         :loading="profileStore.isSaving"
-        :disable="!profileStore.hasChanges"
+        :disabled="!profileStore.hasChanges"
       />
     </q-page>
   </q-page-container>

@@ -41,7 +41,12 @@
             {{ $t("chatsPage.isPublic") }}
           </q-item-section>
           <q-item-section side>
-            <q-toggle v-model="chatPublic" />
+            <q-toggle
+              :model-value="chatPublic"
+              @update:model-value="handleChatPublicToggle"
+              :loading="toggleLoading"
+              :disable="toggleLoading"
+            />
           </q-item-section>
         </q-item>
         <q-item>
@@ -51,7 +56,7 @@
           <q-item-section>
             <q-input
               :model-value="chat.name"
-              @update:model-value="(value) => chatsStore.update(chat.id, { name: String(value) })"
+              @update:model-value="handleNameUpdate"
               autogrow
               filled
               clearable
@@ -66,7 +71,7 @@
           <q-item-section>
             <q-input
               :model-value="chat.description"
-              @update:model-value="(value) => chatsStore.update(chat.id, { description: String(value) })"
+              @update:model-value="handleDescriptionUpdate"
               autogrow
               filled
               clearable
@@ -90,15 +95,11 @@
       </q-list>
 
       <!-- Sticky Save Button -->
-      <q-btn
-        fab
-        icon="sym_o_save"
-        color="primary"
-        class="sticky-save-btn"
+      <sticky-save-button
         @click="saveChat"
         :loading="chatsStore.isSaving"
-        :disable="!chatsStore.hasChanges"
-        v-if="chat && chat.type !== 'private'"
+        :disabled="!chatsStore.hasChanges"
+        :show="chat && chat.type !== 'private'"
       />
     </q-page>
   </q-page-container>
@@ -106,7 +107,7 @@
 
 <script setup lang="ts">
 import { QPageContainer, QPage, useQuasar } from "quasar"
-import { computed, toRaw } from "vue"
+import { computed, ref, toRaw, watch } from "vue"
 
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
 import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
@@ -131,15 +132,72 @@ const workspaceStore = useWorkspacesStore()
 
 const chatId = computed(() => props.id)
 const chat = computed(() => chatsStore.chats.find(c => c.id === chatId.value))
-const chatPublic = computed({
-  get: () => chat.value?.type === "workspace",
-  set: async (value) => {
-    if (chat.value) {
-      const newType = value ? "workspace" : "group"
-      await chatsStore.update(chat.value.id, { type: newType })
-    }
+
+// Replace problematic computed with separate ref and method
+const chatPublic = ref(false)
+const toggleLoading = ref(false)
+
+// Watch for chat changes to update local state
+watch(chat, (newChat) => {
+  if (newChat) {
+    chatPublic.value = newChat.type === "workspace"
   }
-})
+}, { immediate: true })
+
+// Method to handle toggle change
+async function handleChatPublicToggle(value: boolean) {
+  if (!chat.value || toggleLoading.value) return
+
+  const previousValue = chatPublic.value
+  chatPublic.value = value // Optimistic update
+  toggleLoading.value = true
+
+  try {
+    const newType = value ? "workspace" : "group"
+    await chatsStore.update(chat.value.id, { type: newType })
+    $q.notify({
+      type: 'positive',
+      message: 'Chat visibility updated'
+    })
+  } catch (error) {
+    // Revert on error
+    chatPublic.value = previousValue
+    $q.notify({
+      type: 'negative',
+      message: 'Error updating chat visibility'
+    })
+  } finally {
+    toggleLoading.value = false
+  }
+}
+
+// Method to handle name update with error handling
+async function handleNameUpdate(value: string) {
+  if (!chat.value) return
+
+  try {
+    await chatsStore.update(chat.value.id, { name: String(value) })
+  } catch (error) {
+    $q.notify({
+      type: 'negative',
+      message: 'Error updating chat name'
+    })
+  }
+}
+
+// Method to handle description update with error handling
+async function handleDescriptionUpdate(value: string) {
+  if (!chat.value) return
+
+  try {
+    await chatsStore.update(chat.value.id, { description: String(value) })
+  } catch (error) {
+    $q.notify({
+      type: 'negative',
+      message: 'Error updating chat description'
+    })
+  }
+}
 
 const workspace = computed(() => workspaceStore.workspaces.find(w => w.id === chat.value?.workspaceId))
 

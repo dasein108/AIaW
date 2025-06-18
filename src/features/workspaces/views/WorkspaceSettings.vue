@@ -125,15 +125,11 @@
       />
 
       <!-- Sticky Save Button -->
-      <q-btn
-        fab
-        icon="sym_o_save"
-        color="primary"
-        class="sticky-save-btn"
+      <sticky-save-button
         @click="saveWorkspace"
         :loading="store.isSaving"
-        :disable="!store.hasChanges"
-        v-if="isAdmin"
+        :disabled="!store.hasChanges"
+        :show="isAdmin"
       />
     </q-page>
   </q-page-container>

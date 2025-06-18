@@ -476,14 +476,10 @@
       </q-list>
 
       <!-- Sticky Save Button -->
-      <q-btn
-        fab
-        icon="sym_o_save"
-        color="primary"
-        class="sticky-save-btn"
+      <sticky-save-button
         @click="saveAssistant"
         :loading="store.isSaving"
-        :disable="!store.hasChanges"
+        :disabled="!store.hasChanges"
       />
     </q-page>
   </q-page-container>

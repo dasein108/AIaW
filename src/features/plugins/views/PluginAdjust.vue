@@ -122,15 +122,11 @@
       />
 
       <!-- Sticky Save Button -->
-      <q-btn
-        fab
-        icon="sym_o_save"
-        color="primary"
-        class="sticky-save-btn"
+      <sticky-save-button
         @click="saveAssistant"
         :loading="assistantsStore.isSaving"
-        :disable="!assistantsStore.hasChanges"
-        :title="assistantsStore.hasChanges ? $t('Save changes to assistant') : $t('Changes saved')"
+        :disabled="!assistantsStore.hasChanges"
+        :tooltip="assistantsStore.hasChanges ? $t('Save changes to assistant') : $t('Changes saved')"
       />
     </q-page>
   </q-page-container>
