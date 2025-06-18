@@ -529,7 +529,6 @@ function pickAvatar () {
       defaultTab: "ai",
     },
   }).onOk((avatar) => {
-    console.log("---pickAvatar avatar", avatar)
     assistant.value.avatar = avatar
   })
 }

@@ -49,7 +49,6 @@ export const useLlmStream = (workspaceId: Ref<string>,
       type: "assistant-message",
       text: "",
     }
-
     // Add assistant message
     const { id, messageContents } = await addMessage(
       targetId,
@@ -89,23 +88,24 @@ export const useLlmStream = (workspaceId: Ref<string>,
     api: PluginApi,
     args: any,
   ) {
+    // Add to message
+    // const { messageContent } = await upsertSingleEntity({
+    //   dialogId: dialogId.value,
+    //   messageId: currentMessageId.value,
+    //   messageContent: content
+    // })
+    // content = messageContent
+
     // Create tool content
-    let content: MessageContentNestedUpdate = {
+
+    const toolMessageContent = await addOrUpdateCurrentMessageContent({
       type: "assistant-tool",
       pluginId: plugin.id,
       name: api.name,
       args,
       status: "calling",
-    }
-
-    // Add to message
-    const { messageContent } = await upsertSingleEntity({
-      dialogId: dialogId.value,
-      messageId: currentMessageId.value,
-      messageContent: content
     })
-
-    content = messageContent
+    console.log("---handleToolCall1", toolMessageContent)
 
     // Call API
     const { result: apiResult, error } = await callApi(plugin, api, args)
@@ -114,14 +114,14 @@ export const useLlmStream = (workspaceId: Ref<string>,
       { dialogId: dialogId.value }
     )
 
-    content.storedItems = storedItems
+    toolMessageContent.storedItems = storedItems
 
     // Handle result or error
     if (error) {
-      content.status = "failed"
-      content.error = error
+      toolMessageContent.status = "failed"
+      toolMessageContent.error = error
     } else {
-      content.status = "completed"
+      toolMessageContent.status = "completed"
       // Save result based on stored items without arrayBuffer
       const contentResult = storedItems.map((i) => {
         const { type, mimeType, contentText, fileUrl } = i
@@ -131,14 +131,16 @@ export const useLlmStream = (workspaceId: Ref<string>,
           (v) => v !== undefined
         ) as StoredItemResult
       })
-      content.result = contentResult
+      toolMessageContent.result = contentResult
     }
 
-    await upsertSingleEntity({
-      dialogId: dialogId.value,
-      messageId: currentMessageId.value,
-      messageContent: content
-    })
+    // await upsertSingleEntity({
+    //   dialogId: dialogId.value,
+    //   messageId: currentMessageId.value,
+    //   messageContent: content
+    // })
+    console.log("---handleToolCall2", toolMessageContent)
+    await addOrUpdateCurrentMessageContent(toolMessageContent)
 
     return { result: apiResult, error }
   }
@@ -208,14 +210,20 @@ export const useLlmStream = (workspaceId: Ref<string>,
     })
   }
 
-  async function updateCurrentMessageContent(update: MessageContentNestedUpdate) {
-    const cacheOnly = !currentMessage.value.status || ["streaming", "inputing", "pending"].includes(currentMessage.value.status)
-    await upsertSingleEntity({
+  async function addOrUpdateCurrentMessageContent(messageContent: MessageContentNestedUpdate, cacheOnly = false) {
+    // const cacheOnly = !currentMessage.value.status || ["streaming", "inputing", "pending"].includes(currentMessage.value.status)
+    const { messageContent: result } = await upsertSingleEntity({
       dialogId: dialogId.value,
       messageId: currentMessageId.value,
-      messageContent: { ...currentMessageContent.value, ...update },
+      messageContent,
       cacheOnly
     })
+
+    return result
+  }
+
+  async function updateCurrentMessageContent(update: MessageContentNestedUpdate, cacheOnly = false) {
+    return addOrUpdateCurrentMessageContent({ ...currentMessageContent.value, ...update }, cacheOnly)
   }
 
   async function processStreamingResponse(params: any) {
@@ -227,29 +235,29 @@ export const useLlmStream = (workspaceId: Ref<string>,
       if (part.type === "text-delta") {
         await updateCurrentMessageContent({
           text: currentMessageContent.value.text + part.textDelta,
-        })
+        }, true)
       } else if (part.type === "reasoning") {
         await updateCurrentMessageContent({
           reasoning: currentMessageContent.value.reasoning + part.textDelta,
-        })
+        }, true)
       } else if (part.type === "error") {
         throw part.error
       }
     }
-    await finalizeResponse(result)
-
     await updateCurrentMessageContent(currentMessageContent.value)
+
+    await finalizeResponse(result)
 
     return result
   }
 
   async function processNonStreamingResponse(params: any) {
     const result = await generateText(params)
-    await finalizeResponse(result)
     await updateCurrentMessageContent({
       text: result.text,
       reasoning: result.reasoning,
     })
+    await finalizeResponse(result)
 
     return result
   }
@@ -261,6 +269,7 @@ export const useLlmStream = (workspaceId: Ref<string>,
         ? w.details
         : w.message
     )
+
     await updateCurrentMessage({ status: "default", generatingSession: null, warnings, usage })
   }
 

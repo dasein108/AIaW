@@ -124,7 +124,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar"
-import { computed, Ref, inject, toRaw, watch } from "vue"
+import { computed, Ref, inject, toRaw } from "vue"
 import { useI18n } from "vue-i18n"
 
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
@@ -161,9 +161,6 @@ const workspace = syncRef(
 const workspaceId = computed(() => workspace.value.id)
 const { isAdmin, isLoaded } = useIsWorkspaceAdmin(workspaceId)
 
-watch(isAdmin, (newVal) => {
-  console.log("----isAdmin", newVal)
-})
 const assistantsStore = useAssistantsStore()
 const assistantOptions = computed(() =>
   assistantsStore.assistants

@@ -76,7 +76,7 @@
             :image="image"
             removable
             h="100px"
-            @remove="deleteStoredItemWithFile(image)"
+            @remove="deleteStoredItemWithFile(inputMessageId, image)"
             shadow
           />
           <message-file
@@ -86,7 +86,7 @@
             :key="file.id"
             :file="file"
             removable
-            @remove="deleteStoredItemWithFile(file)"
+            @remove="deleteStoredItemWithFile(inputMessageId, file)"
             shadow
           />
         </div>
@@ -373,6 +373,7 @@ const {
 const { addDialogMessage } = useDialogMessagesStore()
 
 const {
+  inputMessageId,
   updateInputText,
   inputMessageContent,
   inputContentItems,
@@ -384,9 +385,7 @@ const pluginsStore = usePluginsStore()
 const { data: perfs } = useUserPerfsStore()
 
 const { model, sdkModel, modelOptions } = useDialogModel(dialog, assistant)
-watch(model, () => {
-  console.log("---model", model.value)
-})
+
 const $q = useQuasar()
 const { genTitle, extractArtifact, streamLlmResponse, isStreaming } = useLlmDialog(
   workspaceId,

@@ -40,6 +40,7 @@ function getChainMessages(dialogItems: TreeListItem<DialogMessageNested>[], mime
       result = result.concat(processAssistantTool(content))
     }
   }
+  console.log("---getChainMessages", result)
 
   return result
 }

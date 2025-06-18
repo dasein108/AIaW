@@ -33,10 +33,6 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
     () => allDialogMessages.value[dialogId.value] || []
   )
 
-  // watch(dialogMessages, () => {
-  //   console.log("-----useDialogMessages dialogMessages", dialogMessages.value)
-  // })
-
   const messageMap = computed<Record<string, DialogMessageNested>>(() =>
     Object.fromEntries(dialogMessages.value.map((m) => [m.id, m]))
   )
@@ -60,8 +56,10 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
     return newMessage
   }
 
-  const updateMessage = async (messageId: string, message: DialogMessageNested<DbDialogMessageUpdate, DbMessageContentUpdate, DbStoredItemUpdate>) => {
-    await updateDialogMessageNested(dialog.value.id, messageId, message)
+  const updateMessage = async (messageId: string,
+    message: DialogMessageNested<DbDialogMessageUpdate, DbMessageContentUpdate, DbStoredItemUpdate>,
+    cacheOnly = false) => {
+    await updateDialogMessageNested(dialog.value.id, messageId, message, cacheOnly)
   }
 
   const switchActiveMessage = async (messageId: string) => {
@@ -105,18 +103,17 @@ export const useDialogMessages = (dialogId: Ref<string>) => {
     // TODO: set active message to next sibling
   }
 
-  const deleteStoredItemWithFile = async (storedItem: StoredItem) => {
+  const deleteStoredItemWithFile = async (messageId: string, storedItem: StoredItem) => {
     await deleteFile(storedItem.fileUrl)
-    console.log("---deleteStoredItemWithFile", storedItem)
 
     if (storedItem.id) {
-      await deleteStoredItem(storedItem)
+      await deleteStoredItem(dialogId.value, messageId, storedItem)
     }
   }
 
   // TODO: implement this in useDialogInput
   const addStoredItem = async (messageId: string, storedItem: StoredItem) => {
-    await addStoredItemToMessageContent(messageId, storedItem)
+    await addStoredItemToMessageContent(dialogId.value, messageId, storedItem)
   }
 
   function switchBranch (item: TreeListItem<DialogMessageNested>, index: number) {

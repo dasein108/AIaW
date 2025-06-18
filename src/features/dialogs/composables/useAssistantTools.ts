@@ -105,8 +105,6 @@ export const useAssistantTools = (
   function toToolResultContent (items: (ApiResultItem | StoredItem)[]) {
     const val = []
     for (const item of items) {
-      console.log("-----toToolResultContent item", item)
-
       if (!item) continue // TODO: in case if tool failed ignore it
 
       if (item.type === "text") {

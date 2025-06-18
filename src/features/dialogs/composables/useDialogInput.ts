@@ -42,7 +42,7 @@ export const useDialogInput = (
           },
         ] as MessageContentNested<DbMessageContentInsert>[],
         status: "inputing",
-      }
+      }, true
     )
   }
 
@@ -97,6 +97,7 @@ export const useDialogInput = (
   )
 
   return {
+    inputMessageId: lastMessageId,
     updateInputText,
     inputMessageContent,
     inputContentItems,

@@ -103,7 +103,6 @@ const $q = useQuasar()
 
 function setDefaultAssistant (id) {
   userData.value.defaultAssistantIds[props.workspaceId] = id
-  console.log("------userData", props.workspaceId, id, userData.value)
 }
 
 function move (id, workspaceId) {
