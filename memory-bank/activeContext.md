@@ -4,6 +4,7 @@
 - Refactoring dialog message handling in `src/features/dialogs`
 - Consolidating duplicate UI components (avatars, dialog controls)
 - Standardizing store initialization patterns across features
+- Documented core code patterns in systemPatterns.md
 
 ## Key Technical Focus Areas
 1. **Component Architecture**
@@ -41,3 +42,6 @@
 - Complete store relationship documentation in `STORE_DIAGRAM.md`
 - Implement cross-tab synchronization for real-time collaboration
 - Finalize plugin manifest validation schema
+- Create shared wallet interface package
+- Introduce DialogService abstraction layer
+- Develop plugin dependency injection system
