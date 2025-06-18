@@ -64,7 +64,7 @@ export const useDialogMessagesStore = defineStore("dialogMessages", () => {
   async function upsertMessageContent<T extends MessageContentNested<DbMessageContentUpdate, DbStoredItemUpdate>>(dialogId: string, messageId: string, messageContent: T) {
     const { storedItems = [], ...messageContentRaw } = messageContent
     const dbItem = mapMessageContentToDb({ ...messageContentRaw, messageId })
-    console.log("----upsertMessageContent", dbItem)
+
     const { data, error } = await supabase.from("message_contents")
       .upsert(dbItem as DbMessageContentInsert)
       .select("*, stored_items(*)")

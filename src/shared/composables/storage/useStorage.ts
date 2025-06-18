@@ -307,6 +307,7 @@ export function useStorage () {
    * const successCount = results.filter(r => r !== null).length
    * ```
    */
+  // TODO: move storedItems part -> dialogMessages
   const saveApiResultItems = async (
     items: ApiResultItem[],
     storedItemData: Partial<StoredItem>

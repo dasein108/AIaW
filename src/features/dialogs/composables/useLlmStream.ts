@@ -88,16 +88,7 @@ export const useLlmStream = (workspaceId: Ref<string>,
     api: PluginApi,
     args: any,
   ) {
-    // Add to message
-    // const { messageContent } = await upsertSingleEntity({
-    //   dialogId: dialogId.value,
-    //   messageId: currentMessageId.value,
-    //   messageContent: content
-    // })
-    // content = messageContent
-
     // Create tool content
-
     const toolMessageContent = await addOrUpdateCurrentMessageContent({
       type: "assistant-tool",
       pluginId: plugin.id,
@@ -105,8 +96,6 @@ export const useLlmStream = (workspaceId: Ref<string>,
       args,
       status: "calling",
     })
-    console.log("---handleToolCall1", toolMessageContent)
-
     // Call API
     const { result: apiResult, error } = await callApi(plugin, api, args)
     const storedItems = await storage.saveApiResultItems(
@@ -134,12 +123,6 @@ export const useLlmStream = (workspaceId: Ref<string>,
       toolMessageContent.result = contentResult
     }
 
-    // await upsertSingleEntity({
-    //   dialogId: dialogId.value,
-    //   messageId: currentMessageId.value,
-    //   messageContent: content
-    // })
-    console.log("---handleToolCall2", toolMessageContent)
     await addOrUpdateCurrentMessageContent(toolMessageContent)
 
     return { result: apiResult, error }
@@ -156,7 +139,6 @@ export const useLlmStream = (workspaceId: Ref<string>,
       await setupMessageForStreaming(targetId)
 
       // Step 2: Setup tools
-
       const { noRoundtrip, tools, systemPrompt } =
         await getAssistantTools(handleToolCall)
 

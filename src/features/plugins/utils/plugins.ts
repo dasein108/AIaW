@@ -369,7 +369,6 @@ function buildGradioPlugin(
       ...settings[endpoint.name],
       ...args,
     })
-    console.log("----GradioPlugin predict", data, endpoint, args, settings)
 
     return await Promise.all(
       endpoint.outputIdxs.map(async (i) => {
