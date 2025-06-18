@@ -3,9 +3,9 @@ import { DtoToEntity, OverrideProps } from "@/shared/utils/dto/types"
 
 import { Database } from "@/services/data/supabase/database.types"
 
-type DbStoredItemRow = Omit<Database["public"]["Tables"]["stored_items"]["Row"], "dialog_id">
-type DbStoredItemInsert = Omit<Database["public"]["Tables"]["stored_items"]["Insert"], "dialog_id">
-type DbStoredItemUpdate = Omit<Database["public"]["Tables"]["stored_items"]["Update"], "dialog_id">
+type DbStoredItemRow = Database["public"]["Tables"]["stored_items"]["Row"]
+type DbStoredItemInsert = Database["public"]["Tables"]["stored_items"]["Insert"]
+type DbStoredItemUpdate = Database["public"]["Tables"]["stored_items"]["Update"]
 
 type DbStoredItem = DbStoredItemRow | DbStoredItemInsert | DbStoredItemUpdate
 
