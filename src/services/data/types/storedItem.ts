@@ -3,13 +3,13 @@ import { DtoToEntity, OverrideProps } from "@/shared/utils/dto/types"
 
 import { Database } from "@/services/data/supabase/database.types"
 
-type DbStoredItemRow = Database["public"]["Tables"]["stored_items"]["Row"]
-type DbStoredItemInsert = Database["public"]["Tables"]["stored_items"]["Insert"]
-type DbStoredItemUpdate = Database["public"]["Tables"]["stored_items"]["Update"]
+type DbStoredItemRow = Omit<Database["public"]["Tables"]["stored_items"]["Row"], "dialog_id">
+type DbStoredItemInsert = Omit<Database["public"]["Tables"]["stored_items"]["Insert"], "dialog_id">
+type DbStoredItemUpdate = Omit<Database["public"]["Tables"]["stored_items"]["Update"], "dialog_id">
 
 type DbStoredItem = DbStoredItemRow | DbStoredItemInsert | DbStoredItemUpdate
 
-type StoredItemContentType = "text" | "file" | "quote"
+type StoredItemContentType = "image" | "file" | "text" | "quote"
 
 type StoredItemMap = {
   type: StoredItemContentType
