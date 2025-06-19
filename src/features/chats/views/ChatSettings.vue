@@ -4,10 +4,10 @@
       {{ $t("chatsPage.chatSettings") }}
       <q-chip
         size="md"
-        v-if="workspace"
+        v-if="workspace?.avatar"
       >
         <a-avatar
-          :avatar="workspace?.avatar"
+          :avatar="workspace.avatar"
           size="md"
         />
         {{ workspace?.name }}

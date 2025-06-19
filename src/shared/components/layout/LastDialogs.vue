@@ -15,13 +15,23 @@
       <q-item-section
         side
         class="q-mr-xs q-pa-none"
+        v-if="dialog.workspace?.avatar"
       >
         <AAvatar
-          :avatar="dialog.workspace?.avatar"
+          :avatar="dialog.workspace.avatar"
           :label="dialog.workspace?.name"
           :flat="true"
           size="xs"
         />
+      </q-item-section>
+      <q-item-section
+        side
+        class="q-mr-xs q-pa-none"
+        v-else
+      >
+        <q-avatar size="xs">
+          {{ dialog.workspace?.name?.charAt(0) || 'D' }}
+        </q-avatar>
       </q-item-section>
       <q-item-section class="q-pa-none q-pt-xs q-pl-xs">
         <div class="text-body2 ellipsis">

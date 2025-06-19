@@ -11,13 +11,23 @@
       <q-item-section
         side
         class="q-mr-xs q-pa-none"
+        v-if="chat.workspace?.avatar"
       >
         <AAvatar
-          :avatar="chat.workspace?.avatar"
+          :avatar="chat.workspace.avatar"
           :label="chat.workspace?.name"
           :flat="true"
           size="xs"
         />
+      </q-item-section>
+      <q-item-section
+        side
+        class="q-mr-xs q-pa-none"
+        v-else
+      >
+        <q-avatar size="xs">
+          {{ chat.workspace?.name?.charAt(0) || 'C' }}
+        </q-avatar>
       </q-item-section>
       <q-item-section class="q-pa-none q-pt-xs q-pl-xs">
         <div class="text-body2 ellipsis">
