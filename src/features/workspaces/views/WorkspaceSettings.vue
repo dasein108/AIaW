@@ -119,10 +119,17 @@
           placeholder: $t('workspaceSettings.inputPlaceholder'),
         }"
       />
-      <workspace-members
-        v-if="workspace && !workspace.isPublic"
-        :workspace-id="workspace.id"
-      />
+      <!-- Participant Management -->
+      <template v-if="workspace?.type === 'workspace' && workspace?.id && isLoaded">
+        <q-separator spaced />
+        <participant-manager
+          type="workspace"
+          :id="workspace.id"
+          :is-admin="isAdmin"
+          :workspace-owner-id="workspace.ownerId"
+        />
+        <q-separator spaced />
+      </template>
 
       <!-- Sticky Save Button -->
       <sticky-save-button
@@ -144,13 +151,13 @@ import AAvatar from "@/shared/components/avatar/AAvatar.vue"
 import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
 import LoadingPanel from "@/shared/components/LoadingPanel.vue"
 import NotificationPanel from "@/shared/components/NotificationPanel.vue"
+import ParticipantManager from "@/shared/components/user/ParticipantManager.vue"
 import { useSetTitle } from "@/shared/composables/setTitle"
 import { useUserDataStore } from "@/shared/store"
 
 import AssistantItem from "@/features/assistants/components/AssistantItem.vue"
 import { useAssistantsStore } from "@/features/assistants/store"
 import VarsInput from "@/features/prompt/components/VarsInput.vue"
-import WorkspaceMembers from "@/features/workspaces/components/WorkspaceMembers.vue"
 import { useIsWorkspaceAdmin } from "@/features/workspaces/composables/useIsWorkspaceAdmin"
 import { useWorkspacesStore } from "@/features/workspaces/store"
 
@@ -168,8 +175,6 @@ const $q = useQuasar()
 
 const workspaceId = computed(() => props.id)
 const workspace = computed(() => store.workspaces.find(w => w.id === workspaceId.value))
-
-console.log("[DEBUG] workspace", workspaceId)
 
 const { isAdmin, isLoaded } = useIsWorkspaceAdmin(workspaceId)
 
