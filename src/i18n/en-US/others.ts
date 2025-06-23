@@ -51,6 +51,12 @@ export default {
   mcpClient: {
     connectingMcpServer: "Connecting to MCP server...",
   },
+  presence: {
+    online: "Online",
+    away: "Away",
+    busy: "Busy",
+    offline: "Offline",
+  },
   plugins: {
     time: {
       title: "Time and Date",

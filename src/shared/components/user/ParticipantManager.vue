@@ -178,6 +178,8 @@ import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/shared/store'
 
 import UserListDialog from '@/features/chats/components/UserListDialog.vue'
+// import { useChatsStore } from '@/features/chats/store' // For future chat member management
+import { usePresenceStore } from '@/features/profile/store/presence'
 import { useWorkspacesStore } from '@/features/workspaces/store'
 
 import { WorkspaceMember, WorkspaceMemberRole } from '@/services/data/types/workspace'
@@ -212,6 +214,7 @@ const $q = useQuasar()
 const { t } = useI18n()
 const userStore = useUserStore()
 const workspacesStore = useWorkspacesStore()
+const presenceStore = usePresenceStore()
 // Reactive state
 const loading = ref(false)
 const searchQuery = ref('')
@@ -423,8 +426,7 @@ const isWorkspaceMember = (participant: Participant): participant is WorkspaceMe
 }
 
 const getParticipantStatus = (participant: Participant): 'online' | 'away' | 'busy' | 'offline' => {
-  // For now, return a default status. In a real app, this would come from user presence data
-  return 'online'
+  return presenceStore.getUserStatus(participant.userId)
 }
 
 const getParticipantSubtitle = (participant: Participant): string => {
