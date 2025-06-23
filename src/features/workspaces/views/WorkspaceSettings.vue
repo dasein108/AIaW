@@ -15,7 +15,15 @@
         v-else-if="!isAdmin"
         :title="$t('common.noAdmin')"
         :warning="true"
-      />
+      >
+        <div class="text-body2 text-white">
+          Only workspace administrators can modify these settings. If you need to make changes, please contact:
+        </div>
+        <div class="q-mt-sm q-ml-md text-white">
+          <div>• Workspace owner</div>
+          <div>• Current administrators</div>
+        </div>
+      </notification-panel>
       <q-list v-else>
         <q-item v-if="workspace">
           <q-item-section>

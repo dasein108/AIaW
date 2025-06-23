@@ -29,7 +29,15 @@
         v-else-if="!isAdmin"
         :title="$t('common.noAdmin')"
         :warning="true"
-      />
+      >
+        <div class="text-body2 text-white">
+          Only workspace administrators can modify chat settings. If you need to make changes, please contact:
+        </div>
+        <div class="q-mt-sm q-ml-md text-white">
+          <div>• Workspace owner</div>
+          <div>• Current administrators</div>
+        </div>
+      </notification-panel>
       <notification-panel
         v-if="chat && chat.type === 'private'"
         :title="$t('chatsPage.privateChat')"

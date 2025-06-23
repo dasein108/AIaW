@@ -14,6 +14,7 @@ export default {
     guest: "Guest",
     owner: "Owner",
     you: "You",
+    noAdmin: "Access Denied - Administrator Privileges Required",
     addedSuccessfully: "Added successfully",
     removedSuccessfully: "Removed successfully",
     updatedSuccessfully: "Updated successfully",
