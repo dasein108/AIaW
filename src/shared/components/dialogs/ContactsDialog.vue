@@ -156,7 +156,6 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { ref, computed, onMounted, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import AAvatar from '@/shared/components/AAvatar.vue'
 import UserProfileStatus from '@/shared/components/user/UserProfileStatus.vue'
@@ -180,13 +179,7 @@ const props = withDefaults(defineProps<Props>(), {
   excludeUserIds: () => []
 })
 
-// Emits
-const emit = defineEmits<{
-  'add-contact': []
-}>()
-
 // Composables
-const { t } = useI18n()
 const profileStore = useProfileStore()
 const presenceStore = usePresenceStore()
 
@@ -237,13 +230,6 @@ const handleContactClick = (contact: Profile) => {
 
 const handleSelectContact = (contact: Profile) => {
   onDialogOK(contact.id)
-}
-
-const handleAddContact = () => {
-  emit('add-contact')
-  // For now, just close the dialog
-  // In the future, this could open another dialog to add new contacts
-  onDialogCancel()
 }
 
 const loadInitialContacts = () => {
