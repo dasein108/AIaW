@@ -5,34 +5,52 @@ import { useRoute } from "vue-router"
 import { useUserDataStore } from "@/shared/store"
 
 import { useAssistantsStore } from "@/features/assistants/store"
-import { useWorkspacesStore } from "@/features/workspaces/store"
+import { useUserWorkspacesManager } from "@/features/workspaces/composables/useUserWorkspacesManager"
 
 /**
  * Returns the active workspace and assistant, if no workspace is selected, the default workspace is used
+ * Only returns workspaces that the current user has access to
  * @returns {Object} - The active workspace and assistant
- * @returns {Workspace} workspace - The active workspace
+ * @returns {Workspace} workspace - The active workspace (only if user has access)
  * @returns {Assistant} assistant - The active assistant
  */
 export function useActiveWorkspace () {
   const route = useRoute()
   const { data: userData } = storeToRefs(useUserDataStore())
-  const workspacesStore = useWorkspacesStore()
   const { assistants } = storeToRefs(useAssistantsStore())
+  const { currentUserWorkspaces, loading } = useUserWorkspacesManager()
+
   const routeWorkspaceId = computed(() => route.params.workspaceId as string)
-  const workspaceId = computed(() =>
-    workspacesStore.isLoaded
-      ? routeWorkspaceId.value ||
-        userData.value.lastWorkspaceId ||
-        workspacesStore.workspaces?.[0]?.id
-      : null
-  )
-  const workspace = computed(() =>
-    workspacesStore.workspaces
-      ? workspacesStore.workspaces.find(
-        (workspace) => workspace.id === workspaceId.value
-      )
-      : null
-  )
+
+  const workspaceId = computed(() => {
+    // Wait for user workspaces to load
+    if (loading.value) return null
+
+    const routeId = routeWorkspaceId.value
+    const lastId = userData.value.lastWorkspaceId
+    const firstAccessibleId = currentUserWorkspaces.value[0]?.workspaceId
+
+    // Validate that the user has access to the workspace
+    const hasAccessToRoute = routeId &&
+      currentUserWorkspaces.value.some(uw => uw.workspaceId === routeId)
+    const hasAccessToLast = lastId &&
+      currentUserWorkspaces.value.some(uw => uw.workspaceId === lastId)
+
+    return hasAccessToRoute ? routeId
+      : hasAccessToLast ? lastId
+        : firstAccessibleId || null
+  })
+
+  const workspace = computed(() => {
+    if (!workspaceId.value) return null
+
+    const userWorkspace = currentUserWorkspaces.value.find(
+      uw => uw.workspaceId === workspaceId.value
+    )
+
+    return userWorkspace?.workspace || null
+  })
+
   const workspaceAssistantId = computed(
     () => userData.value.defaultAssistantIds[workspaceId.value]
   )
