@@ -5,7 +5,7 @@ import { useRoute } from "vue-router"
 import { useUserDataStore } from "@/shared/store"
 
 import { useAssistantsStore } from "@/features/assistants/store"
-import { useUserWorkspacesManager } from "@/features/workspaces/composables/useUserWorkspacesManager"
+import { useUserWorkspacesManager, hasUserWorkspaceAccess, findUserWorkspace } from "@/features/workspaces/composables/useUserWorkspacesManager"
 
 /**
  * Returns the active workspace and assistant, if no workspace is selected, the default workspace is used
@@ -30,11 +30,9 @@ export function useActiveWorkspace () {
     const lastId = userData.value.lastWorkspaceId
     const firstAccessibleId = currentUserWorkspaces.value[0]?.workspaceId
 
-    // Validate that the user has access to the workspace
-    const hasAccessToRoute = routeId &&
-      currentUserWorkspaces.value.some(uw => uw.workspaceId === routeId)
-    const hasAccessToLast = lastId &&
-      currentUserWorkspaces.value.some(uw => uw.workspaceId === lastId)
+    // Validate that the user has access to the workspace using utility function
+    const hasAccessToRoute = routeId && hasUserWorkspaceAccess(currentUserWorkspaces.value, routeId)
+    const hasAccessToLast = lastId && hasUserWorkspaceAccess(currentUserWorkspaces.value, lastId)
 
     return hasAccessToRoute ? routeId
       : hasAccessToLast ? lastId
@@ -44,9 +42,8 @@ export function useActiveWorkspace () {
   const workspace = computed(() => {
     if (!workspaceId.value) return null
 
-    const userWorkspace = currentUserWorkspaces.value.find(
-      uw => uw.workspaceId === workspaceId.value
-    )
+    // Use utility function to find user workspace
+    const userWorkspace = findUserWorkspace(currentUserWorkspaces.value, workspaceId.value)
 
     return userWorkspace?.workspace || null
   })

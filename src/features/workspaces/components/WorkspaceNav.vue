@@ -56,17 +56,15 @@ import { useWorkspaceActions } from "@/features/workspaces/composables/useWorksp
 import WorkspaceListSelect from "./WorkspaceListSelect.vue"
 
 const { addWorkspace } = useWorkspaceActions()
-const { currentUserWorkspaces } = useUserWorkspacesManager()
+const { findUserWorkspace } = useUserWorkspacesManager()
 const userDataStore = useUserDataStore()
 
 const router = useRouter()
 const route = useRoute()
 
 async function goTo (id: string) {
-  // Find workspace from user's accessible workspaces
-  const userWorkspace = currentUserWorkspaces.value.find(
-    (uw) => uw.workspaceId === id
-  )
+  // Find workspace from user's accessible workspaces using utility function
+  const userWorkspace = findUserWorkspace(id)
 
   if (!userWorkspace) {
     console.warn(`User does not have access to workspace ${id}`)
