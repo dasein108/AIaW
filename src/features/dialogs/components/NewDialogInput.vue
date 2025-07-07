@@ -14,6 +14,7 @@
       :input-text="inputText"
       :input-vars="inputVars"
       :add-input-items="addInputItems"
+      :process-other-files="processOtherFiles"
       @send="initDialog"
       @update-input-vars="(name, value) => inputVars[name] = value"
       @update-input-text="inputText = $event"
@@ -90,13 +91,14 @@ function initDialog () {
   }, message).then(async (dialog) => {
     dialogId.value = dialog.id
 
-    await Promise.all(inputItems.value.map(item => addApiResultStoredItem(lastMessage.value.id,
-      lastMessage.value.messageContents[0].id, item)))
+    await Promise.all(inputItems.value.map(item => {
+      return addApiResultStoredItem(lastMessage.value.id, lastMessage.value.messageContents[0].id, item)
+    }))
   })
 }
 
 async function addInputItems (items: ApiResultItem[]) {
-  inputItems.value = items
+  inputItems.value.push(...items)
 }
 
 function focusInput () {
@@ -146,7 +148,6 @@ async function parseFiles (files: File[]) {
     })
   })
 
-  // addInputItems(parsedItems)
   addInputItems(parsedItems)
 
   if (otherFiles.length) {
@@ -154,7 +155,7 @@ async function parseFiles (files: File[]) {
       component: ParseFilesDialog,
       componentProps: { files: otherFiles, plugins: assistant.value.plugins }
     }).onOk((files: ApiResultItem[]) => {
-      // addInputItems(files)
+      addInputItems(files)
     })
   }
 }
@@ -183,5 +184,21 @@ const activePlugins = computed<Plugin[]>(() =>
 
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, "focusDialogInputKey"), () => focusInput())
+}
+
+async function processOtherFiles (files: File[]) {
+  if (!files.length) return
+
+  return new Promise<void>((resolve) => {
+    $q.dialog({
+      component: ParseFilesDialog,
+      componentProps: { files, plugins: assistant.value.plugins }
+    }).onOk((processedFiles: ApiResultItem[]) => {
+      addInputItems(processedFiles)
+      resolve()
+    }).onCancel(() => {
+      resolve()
+    })
+  })
 }
 </script>

@@ -171,7 +171,6 @@
         min-h="2.7em"
       />
       <add-info-btn
-
         :plugins="props.activePlugins"
         :assistant-plugins="props.assistant?.plugins || {}"
         :dialog-id="props.dialogId"
@@ -288,6 +287,7 @@ interface Props {
   workspaceId?: string
   initDialog?: boolean
   addInputItems?: (items: any[]) => Promise<void>
+  processOtherFiles?: (files: File[]) => Promise<void>
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -304,6 +304,7 @@ const props = withDefaults(defineProps<Props>(), {
   dialogId: undefined,
   workspaceId: undefined,
   addInputItems: undefined,
+  processOtherFiles: undefined,
 })
 
 const emit = defineEmits<{
@@ -315,6 +316,7 @@ const emit = defineEmits<{
   'keydown-enter': [event: KeyboardEvent]
   'paste': [event: ClipboardEvent]
   'assistant-change': [assistantId: string]
+  'process-files': [files: any[]]
 }>()
 
 const imageInput = ref()
@@ -381,7 +383,7 @@ async function handleSend() {
   if (pendingFiles.value.length > 0 && props.addInputItems) {
     isProcessingFiles.value = true
     try {
-      const { parsedItems } = await parseFilesToApiResultItems(
+      const { parsedItems, otherFiles } = await parseFilesToApiResultItems(
         pendingFiles.value,
         props.model?.inputTypes?.user || [],
         (maxFileSize, file) => {
@@ -389,7 +391,21 @@ async function handleSend() {
           console.warn(`File ${file.name} is too large (max: ${maxFileSize}MB)`)
         }
       )
-      await props.addInputItems(parsedItems)
+
+      // Add directly parsable files
+      if (parsedItems.length > 0) {
+        await props.addInputItems(parsedItems)
+      }
+
+      // Process files that need plugin processing
+      if (otherFiles.length > 0) {
+        if (props.processOtherFiles) {
+          await props.processOtherFiles(otherFiles)
+        } else {
+          emit('process-files', otherFiles)
+        }
+      }
+
       clearAllFiles()
     } finally {
       isProcessingFiles.value = false
