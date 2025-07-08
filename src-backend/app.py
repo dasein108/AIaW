@@ -10,16 +10,123 @@ import os
 from dotenv import load_dotenv, find_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 
+# SuperTokens imports
+from supertokens_python import init, InputAppInfo
+from supertokens_python.framework.fastapi import get_middleware
+from supertokens_python.recipe import (
+    session,
+    emailpassword,
+    thirdparty,
+    emailverification
+)
+from supertokens_python.recipe.thirdparty.interfaces import APIInterface, APIOptions
+from supertokens_python.recipe.session.interfaces import APIInterface as SessionAPIInterface
+from supertokens_python.recipe.session.types import SessionContainer
+import jwt
+from datetime import datetime, timedelta
+
 # Загружаем переменные окружения из .env файла
 load_dotenv()
 load_dotenv(find_dotenv('.env.local'), override=True)
 
 http_client = None
 
+# SuperTokens configuration
+def get_app_info() -> InputAppInfo:
+    port = int(os.environ.get('PORT', 8000))
+    api_base_path = '/auth/'
+
+    # Use environment variables or fallback to localhost
+    website_domain = os.environ.get('APP_URL', os.environ.get('VITE_APP_URL', f'http://localhost:{port}'))
+
+    return InputAppInfo(
+        app_name='AIaW - AI as Workspace',
+        website_domain=website_domain,
+        api_domain=website_domain,
+        api_base_path=api_base_path,
+    )
+
+def get_backend_config():
+    return {
+        'framework': 'fastapi',
+        'supertokens': {
+            'connection_uri': os.environ.get('SUPERTOKENS_CONNECTION_URI', 'https://try.supertokens.com'),
+            'api_key': os.environ.get('SUPERTOKENS_API_KEY'),
+        },
+        'app_info': get_app_info(),
+        'recipe_list': [
+            emailverification.init(mode='REQUIRED'),
+            thirdparty.init(
+                sign_in_and_up_feature={
+                    'providers': [
+                        thirdparty.ProviderInput(
+                            config=thirdparty.ProviderConfig(
+                                third_party_id='google',
+                                clients=[
+                                    thirdparty.ProviderClientConfig(
+                                        client_id=os.environ.get('GOOGLE_CLIENT_ID'),
+                                        client_secret=os.environ.get('GOOGLE_CLIENT_SECRET'),
+                                    ),
+                                ],
+                            ),
+                        ),
+                        thirdparty.ProviderInput(
+                            config=thirdparty.ProviderConfig(
+                                third_party_id='github',
+                                clients=[
+                                    thirdparty.ProviderClientConfig(
+                                        client_id=os.environ.get('GITHUB_CLIENT_ID'),
+                                        client_secret=os.environ.get('GITHUB_CLIENT_SECRET'),
+                                    ),
+                                ],
+                            ),
+                        ),
+                        thirdparty.ProviderInput(
+                            config=thirdparty.ProviderConfig(
+                                third_party_id='apple',
+                                clients=[
+                                    thirdparty.ProviderClientConfig(
+                                        client_id=os.environ.get('APPLE_CLIENT_ID'),
+                                        additional_config={
+                                            'keyId': os.environ.get('APPLE_KEY_ID'),
+                                            'privateKey': os.environ.get('APPLE_PRIVATE_KEY', '').replace('\\n', '\n'),
+                                            'teamId': os.environ.get('APPLE_TEAM_ID'),
+                                        },
+                                    ),
+                                ],
+                            ),
+                        ),
+                    ],
+                },
+            ),
+            emailpassword.init(),
+            session.init(),
+        ],
+        'is_in_serverless_env': True,
+    }
+
+# Create Supabase JWT token
+def create_supabase_jwt(user_id: str) -> str:
+    jwt_secret = os.environ.get('JWT_SECRET', 'your-super-secret-jwt-token-with-at-least-32-characters-long')
+    payload = {
+        'sub': user_id,
+        'user_id': user_id,
+        'exp': int((datetime.utcnow() + timedelta(hours=1)).timestamp()),
+        'iat': int(datetime.utcnow().timestamp()),
+        'iss': 'supertokens',
+        'aud': 'authenticated',
+    }
+
+    return jwt.encode(payload, jwt_secret, algorithm='HS256')
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global http_client
     http_client = aiohttp.ClientSession()
+
+    # Initialize SuperTokens
+    init(get_backend_config())
+
     yield
     await http_client.close()
 
@@ -40,6 +147,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add SuperTokens middleware
+app.add_middleware(get_middleware())
 
 ALLOWED_PREFIXES = [
     'https://lobehub.search1api.com/api/search',
@@ -210,6 +320,12 @@ async def searxng(request: Request):
             )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# SuperTokens auth endpoints
+@app.get('/auth/test')
+async def auth_test():
+    """Test endpoint to verify SuperTokens is working"""
+    return {"message": "SuperTokens is working!"}
 
 # if IS_PRODUCTION:
 app.mount('/', StaticFiles(directory='static', html=True), name='static')

@@ -20,7 +20,8 @@ export default configure((ctx) => {
       'i18n',
       'pinia-persist',
       'unocss',
-      'global-components'
+      'global-components',
+      'supertokens'
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css

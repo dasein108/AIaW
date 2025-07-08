@@ -1,7 +1,9 @@
-fastapi==0.115.5
-uvicorn==0.32.1
-aiohttp==3.11.7
-python-multipart==0.0.18
-llama-index-core==0.12.1
-llama-parse==0.5.15
-python-dotenv==1.0.1
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+aiohttp==3.9.1
+python-dotenv==1.0.0
+llama-parse==0.3.4
+PyJWT==2.8.0
+
+# SuperTokens dependencies
+supertokens-python==0.12.0

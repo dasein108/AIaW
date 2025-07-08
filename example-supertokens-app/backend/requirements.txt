@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+supertokens-python
+pyjwt
+aiohttp
+python-dotenv

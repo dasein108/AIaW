@@ -22,6 +22,7 @@ import { i18n } from "@/boot/i18n"
 import MainLayout from "@/layouts/MainLayout.vue"
 import AccountPage from "@/pages/AccountPage.vue"
 import AssistantsPage from "@/pages/AssistantsPage.vue"
+import AuthPage from "@/pages/AuthPage.vue"
 import CyberlinksPage from "@/pages/CyberlinksPage.vue"
 import EmptyPage from "@/pages/EmptyPage.vue"
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"
@@ -39,6 +40,11 @@ const routes: RouteRecordRaw[] = [
     path: "/login",
     component: LoginPage,
     meta: { title: "Login", public: true },
+  },
+  {
+    path: "/auth",
+    component: AuthPage,
+    meta: { title: "Authentication", public: true },
   },
   {
     path: "/",

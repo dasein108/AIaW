@@ -1,11 +1,13 @@
 <template>
-  <div v-if="isAppReady">
-    <router-view />
-  </div>
-  <pin-modal
-    v-model="showPinModal"
-    @submit="handlePinSubmit"
-  />
+  <SuperTokensProvider>
+    <div v-if="isAppReady">
+      <router-view />
+    </div>
+    <pin-modal
+      v-model="showPinModal"
+      @submit="handlePinSubmit"
+    />
+  </SuperTokensProvider>
 </template>
 
 <script setup lang="ts">
@@ -23,9 +25,11 @@ import { useUserStore, getMnemonic, useUserDataStore, useUserPerfsStore } from "
 import { useArtifactsStore } from "@/features/artifacts/store"
 import { useAssistantsStore } from "@/features/assistants/store"
 import PinModal from "@/features/auth/components/PinModal.vue"
+import SuperTokensProvider from "@/features/auth/components/SuperTokensProvider.vue"
 import { useOnboarding } from "@/features/auth/composables/useOnboarding"
 import { usePinModal } from "@/features/auth/composables/usePinModal"
 import { useAuthStore } from "@/features/auth/store/auth"
+import { useSuperTokensStore } from "@/features/auth/store/supertokens"
 import { useChatsStore } from "@/features/chats/store"
 import { useChatMessagesStore } from "@/features/chats/store/chatMessages"
 import { useDialogsStore } from "@/features/dialogs/store/dialogs"
@@ -53,12 +57,14 @@ const $q = useQuasar()
 pinModalService.initialize()
 
 const userStore = useUserStore()
+const superTokensStore = useSuperTokensStore()
 const { onboarding } = useOnboarding()
 
 $q.loading.show()
 
 // TODO: investigate how to load all with sigle request
 const { isInitialized: userInitialized, isLoggedIn } = storeToRefs(userStore)
+const { isLoggedIn: superTokensLoggedIn } = storeToRefs(superTokensStore)
 const { isLoaded: assistantsLoaded } = storeToRefs(useAssistantsStore())
 const { isLoaded: chatsLoaded } = storeToRefs(useChatsStore())
 const { isLoaded: dialogsLoaded } = storeToRefs(useDialogsStore())
@@ -131,13 +137,16 @@ router.beforeEach(async (to, from, next) => {
   if (!to.meta.public) {
     await until(() => userInitialized.value).toBeTruthy()
 
-    if (!isLoggedIn.value) {
+    // Check both traditional auth and SuperTokens auth
+    const isAuthenticated = isLoggedIn.value || superTokensLoggedIn.value
+
+    if (!isAuthenticated) {
       $q.notify({
         message: t("common.pleaseLogin"),
         color: "negative",
       })
 
-      return next("/login")
+      return next("/auth")
     }
   }
 
