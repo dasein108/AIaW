@@ -1,97 +1,64 @@
 <template>
-  <q-expansion-item>
-    <template #header>
-      <q-item-section avatar>
-        <q-icon name="sym_o_article" />
-      </q-item-section>
-      <q-item-section> Artifacts </q-item-section>
-    </template>
-    <template #default>
-      <!-- <a-tip
-        tip-key="artifacts-usage"
-        rd-0
+  <select-file-btn @input="artifactFromFiles" />
+  <icon-side-button
+    :title="$t('mainLayout.createArtifact')"
+    icon="sym_o_add"
+    flat
+    dense
+    @click="createEmptyArtifact"
+  />
+  <q-list>
+    <div p="x-4 y-2">
+      <a-input
+        dense
+        outlined
+        v-model="filter"
+        clearable
+        :placeholder="$t('artifactsExpansion.searchPlaceholder')"
+      />
+    </div>
+    <q-item
+      v-for="artifact in filteredArtifacts"
+      :key="artifact.id"
+      clickable
+      @click="
+        route.query.artifactId !== artifact.id &&
+          router.push({ query: { openArtifact: artifact.id } })
+      "
+      :class="{ 'route-active': openedArtifacts.includes(artifact.id) }"
+      item-rd
+      min-h="32px"
+      py-1
+      px-3
+    >
+      <q-item-section
+        avatar
+        min-w-0
+        pr-2
       >
-        {{ $t("artifactsExpansion.artifactsGuide") }}
-        <a
-          href="https://docs.aiaw.app/usage/artifacts.html"
-          target="_blank"
-          pri-link
-        >
-          {{ $t("artifactsExpansion.artifactsGuideLink") }}
-        </a>
-      </a-tip> -->
-      <div class="flex flex-col">
-        <select-file-btn
-          @input="artifactFromFiles"
+        <artifact-item-icon
+          size="16px"
+          :artifact
         />
-        <icon-side-button
-          icon="sym_o_add"
-          small
-          @click="createEmptyArtifact"
-          :title="$t('mainLayout.createArtifact')"
+      </q-item-section>
+      <q-item-section>
+        {{ artifact.name }}
+      </q-item-section>
+      <q-item-section side>
+        <q-btn
+          v-if="openedArtifacts.includes(artifact.id)"
+          flat
+          dense
+          round
+          icon="sym_o_close"
+          :title="$t('artifactsExpansion.close')"
+          size="sm"
+          @click.prevent.stop="closeArtifact(artifact)"
         />
-      </div>
-      <q-list pt-1>
-        <div
-          p="x-4 y-2"
-          v-if="artifacts.length > 0"
-        >
-          <a-input
-            dense
-            outlined
-            v-model="filter"
-            clearable
-            :placeholder="$t('artifactsExpansion.searchPlaceholder')"
-          />
-        </div>
-        <empty-item
-          v-if="filteredArtifacts.length === 0"
-          text="No artifacts"
-        />
-        <q-item
-          v-for="artifact in filteredArtifacts"
-          :key="artifact.id"
-          clickable
-          @click="
-            route.query.artifactId !== artifact.id &&
-              router.push({ query: { openArtifact: artifact.id } })
-          "
-          :class="{ 'route-active': openedArtifacts.includes(artifact.id) }"
-          item-rd
-          min-h="32px"
-          py-1
-          px-3
-        >
-          <q-item-section
-            avatar
-            min-w-0
-            pr-2
-          >
-            <artifact-item-icon
-              size="16px"
-              :artifact
-            />
-          </q-item-section>
-          <q-item-section>
-            {{ artifact.name }}
-          </q-item-section>
-          <q-item-section side>
-            <q-btn
-              v-if="openedArtifacts.includes(artifact.id)"
-              flat
-              dense
-              round
-              icon="sym_o_close"
-              :title="$t('artifactsExpansion.close')"
-              size="sm"
-              @click.prevent.stop="closeArtifact(artifact)"
-            />
-          </q-item-section>
-          <artifact-item-menu :artifact />
-        </q-item>
-      </q-list>
-    </template>
-  </q-expansion-item>
+      </q-item-section>
+      <artifact-item-menu :artifact />
+    </q-item>
+  </q-list>
 </template>
 
 <script setup lang="ts">
@@ -100,7 +67,6 @@ import { computed, inject, ref, Ref, toRef } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter, useRoute } from "vue-router"
 
-import EmptyItem from "@/shared/components/layout/EmptyItem.vue"
 import IconSideButton from "@/shared/components/layout/IconSideButton.vue"
 import { useUserDataStore } from "@/shared/store"
 import { caselessIncludes, getFileExt, isTextFile } from "@/shared/utils/functions"
@@ -115,6 +81,7 @@ import { Workspace } from "@/services/data/types/workspace"
 
 import ArtifactItemIcon from "./ArtifactItemIcon.vue"
 import ArtifactItemMenu from "./ArtifactItemMenu.vue"
+
 const artifacts: Ref<Artifact[]> = inject("artifacts")
 
 const filter = ref(null)
