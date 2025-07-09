@@ -563,6 +563,13 @@ watch(
 
         if (to.query.goto) {
           const { route, highlight } = JSON.parse(to.query.goto as string)
+          // TODO: fix this
+          // if (
+          //   !JSONEqual(route, dialog.value.msg_route.slice(0, route.length))
+          // ) {
+          //   updateMsgRoute(route)
+          //   await until(chain).changed()
+          // }
           await nextTick()
           const { items } = getEls()
           const item = items[route.length - 1]
@@ -718,11 +725,79 @@ function scroll (
   container.scrollTo({ top: top + 2, behavior: "smooth" })
 }
 
+// TODO: fix this
+// function regenerateCurr () {
+//   const { container, items } = getEls()
+//   const index = items.findIndex(
+//     (item, i) =>
+//       itemInView(item, container) &&
+//       messageMap.value[chain.value[i + 1]].type === "assistant"
+//   )
+
+//   if (index === -1) return
+
+//   regenerate(index + 1)
+// }
+
+// function editCurr () {
+//   const { container, items } = getEls()
+//   const index = items.findIndex(
+//     (item, i) =>
+//       itemInView(item, container) &&
+//       messageMap.value[chain.value[i + 1]].type === "user"
+//   )
+
+//   if (index === -1) return
+
+//   edit(index + 1)
+// }
+
+// function switchTo (target: "prev" | "next" | "first" | "last") {
+//   console.log("switchTo", target)
+
+//   const { container, items } = getEls()
+
+//   const index = items.findIndex(
+//     (item, i) =>
+//       itemInView(item, container) &&
+//       dialogItems.value.length > 1
+//   )
+
+//   if (index === -1) return
+
+// const id = chain.value[index]
+// let to
+// const curr = dialog.value.msg_route[index]
+// const num = dialog.value.msg_tree[id].length
+
+// if (target === "first") {
+//   to = 0
+// } else if (target === "last") {
+//   to = num - 1
+// } else if (target === "prev") {
+//   to = curr - 1
+// } else if (target === "next") {
+//   to = curr + 1
+// }
+
+// if (to < 0 || to >= num || to === curr) return
+
+// switchChain(index, to)
+// }
+
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, "scrollUpKeyV2"), () => scroll("up"))
   useListenKey(toRef(perfs, "scrollDownKeyV2"), () => scroll("down"))
   useListenKey(toRef(perfs, "scrollTopKey"), () => scroll("top"))
   useListenKey(toRef(perfs, "scrollBottomKey"), () => scroll("bottom"))
+  // TODO: fix this
+
+  // useListenKey(toRef(perfs, "switchPrevKeyV2"), () => switchTo("prev"))
+  // useListenKey(toRef(perfs, "switchNextKeyV2"), () => switchTo("next"))
+  // useListenKey(toRef(perfs, "switchFirstKey"), () => switchTo("first"))
+  // useListenKey(toRef(perfs, "switchLastKey"), () => switchTo("last"))
+  // useListenKey(toRef(perfs, "regenerateCurrKey"), () => regenerateCurr())
+  // useListenKey(toRef(perfs, "editCurrKey"), () => editCurr())
   useListenKey(toRef(perfs, "focusDialogInputKey"), () => focusInput())
 }
 
