@@ -133,7 +133,7 @@
         </div>
         <MessageInputControl
           ref="messageInputControl"
-          :model="model"
+          :supported-input-types="model?.inputTypes?.user || []"
           :loading="isStreaming || !!dialogItems.at(-2)?.message?.generatingSession"
           :input-empty="inputEmpty"
           :input-text="inputMessageContent?.text"
@@ -154,11 +154,18 @@
               :model-options="modelOptions"
               @update:model-options="modelOptions = $event"
               :active-plugins="activePlugins"
-              :usage="usage"
               :input-vars="dialog?.inputVars || {}"
               :dialog-id="dialogId"
               :workspace-id="workspaceId"
               @update-input-vars="(name, value) => dialog && (dialog.inputVars[name] = value)"
+            />
+          </template>
+
+          <template #tokens-consumption>
+            <AssistantInputExtension
+              :assistant="assistant"
+              :usage="usage"
+              :usage-only="true"
             />
           </template>
 

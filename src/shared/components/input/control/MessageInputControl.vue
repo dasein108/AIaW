@@ -113,7 +113,7 @@
     >
       <!-- Core file upload buttons -->
       <q-btn
-        v-if="props.allowImageUpload && props.model && mimeTypeMatch('image/webp', props.model.inputTypes?.user || [])"
+        v-if="props.allowImageUpload && mimeTypeMatch('image/webp', props.supportedInputTypes)"
         flat
         icon="sym_o_image"
         :title="$t('dialogView.addImage')"
@@ -162,6 +162,9 @@
 
       <q-space />
 
+      <!-- Named slot for token consumption display -->
+      <slot name="tokens-consumption" />
+
       <!-- Send button -->
       <abortable-btn
         icon="sym_o_send"
@@ -200,7 +203,7 @@ interface Props {
   placeholder?: string
   allowFileUpload?: boolean
   allowImageUpload?: boolean
-  model?: any
+  supportedInputTypes?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -212,7 +215,7 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: undefined,
   allowFileUpload: true,
   allowImageUpload: true,
-  model: undefined,
+  supportedInputTypes: () => [],
 })
 
 const emit = defineEmits<{
@@ -289,7 +292,7 @@ async function handleSend() {
     try {
       const { parsedItems, otherFiles } = await parseFilesToApiResultItems(
         pendingFiles.value,
-        props.model?.inputTypes?.user || [], // Restore model-aware parsing
+        props.supportedInputTypes,
         (maxFileSize, file) => {
           // Handle file too large - could emit a notification or similar
           console.warn(`File ${file.name} is too large (max: ${maxFileSize}MB)`)

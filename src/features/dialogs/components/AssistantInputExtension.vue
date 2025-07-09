@@ -1,105 +1,112 @@
 <template>
   <div class="assistant-input-extension">
-    <!-- Assistant-specific control buttons (only show if not prompt-vars-only mode) -->
-    <template v-if="assistant && !promptVarsOnly">
-      <q-btn
-        v-if="assistant?.promptVars?.length"
-        flat
-        icon="sym_o_tune"
-        :title="showVars ? $t('dialogView.hideVars') : $t('dialogView.showVars')"
-        round
-        min-w="2.7em"
-        min-h="2.7em"
-        @click="showVars = !showVars"
-        :class="{ 'text-ter': showVars }"
-      />
-
-      <model-options-btn
-        v-if="sdkModel"
-        :provider-name="sdkModel.provider"
-        :model-id="sdkModel.modelId"
-        :model-value="modelOptions"
-        @update:model-value="$emit('update:model-options', $event)"
-        flat
-        round
-        min-w="2.7em"
-        min-h="2.7em"
-      />
-
-      <add-info-btn
-        :plugins="activePlugins"
-        :assistant-plugins="assistant?.plugins || {}"
-        :dialog-id="dialogId"
-        :workspace-id="workspaceId"
-        flat
-        round
-        min-w="2.7em"
-        min-h="2.7em"
-      />
-
-      <q-btn
-        flat
-        :round="!activePlugins.length"
-        :class="{ 'px-2': activePlugins.length }"
-        min-w="2.7em"
-        min-h="2.7em"
-        icon="sym_o_extension"
-        :title="$t('dialogView.plugins')"
+    <!-- Usage display only mode -->
+    <template v-if="usageOnly">
+      <div
+        v-if="usage"
+        my-2
+        flex
+        items-center
+        gap-1
       >
+        <q-icon
+          name="sym_o_generating_tokens"
+          size="24px"
+        />
         <code
-          v-if="activePlugins.length"
           bg-sur-c-high
-          px="6px"
-        >{{ activePlugins.length }}</code>
-        <enable-plugins-menu :assistant-id="assistant.id" />
-      </q-btn>
+          px-2
+          py-1
+        >{{ usage.promptTokens }}+{{ usage.completionTokens }}</code>
+        <q-tooltip>
+          {{ $t("dialogView.messageTokens") }}<br>
+          {{ $t("dialogView.tokenPrompt") }}：{{ usage.promptTokens }}，{{
+            $t("dialogView.tokenCompletion")
+          }}：{{ usage.completionTokens }}
+        </q-tooltip>
+      </div>
     </template>
 
-    <!-- Usage display (only show if not prompt-vars-only mode) -->
-    <div
-      v-if="usage && !promptVarsOnly"
-      my-2
-      ml-2
-    >
-      <q-icon
-        name="sym_o_generating_tokens"
-        size="24px"
-      />
-      <code
-        bg-sur-c-high
-        px-2
-        py-1
-      >{{ usage.promptTokens }}+{{ usage.completionTokens }}</code>
-      <q-tooltip>
-        {{ $t("dialogView.messageTokens") }}<br>
-        {{ $t("dialogView.tokenPrompt") }}：{{ usage.promptTokens }}，{{
-          $t("dialogView.tokenCompletion")
-        }}：{{ usage.completionTokens }}
-      </q-tooltip>
-    </div>
+    <!-- Regular mode: buttons and other controls -->
+    <template v-else>
+      <!-- Assistant-specific control buttons (only show if not prompt-vars-only mode) -->
+      <template v-if="assistant && !promptVarsOnly">
+        <q-btn
+          v-if="assistant?.promptVars?.length"
+          flat
+          icon="sym_o_tune"
+          :title="showVars ? $t('dialogView.hideVars') : $t('dialogView.showVars')"
+          round
+          min-w="2.7em"
+          min-h="2.7em"
+          @click="showVars = !showVars"
+          :class="{ 'text-ter': showVars }"
+        />
 
-    <!-- Prompt variables section -->
-    <div
-      v-if="assistant && showVars && assistant.promptVars?.length"
-      class="prompt-vars-section"
-      flex
-      pb-2
-      mt-2
-    >
-      <prompt-var-input
-        class="mt-2 mr-2"
-        v-for="promptVar of assistant.promptVars"
-        :key="promptVar.id"
-        :prompt-var="promptVar"
-        :model-value="inputVars[promptVar.name]"
-        @update:model-value="$emit('update-input-vars', promptVar.name, $event)"
-        :input-props="{
-          dense: true,
-          outlined: true,
-        }"
-        component="input"
-      />
-    </div>
+        <model-options-btn
+          v-if="sdkModel"
+          :provider-name="sdkModel.provider"
+          :model-id="sdkModel.modelId"
+          :model-value="modelOptions"
+          @update:model-value="$emit('update:model-options', $event)"
+          flat
+          round
+          min-w="2.7em"
+          min-h="2.7em"
+        />
+
+        <add-info-btn
+          :plugins="activePlugins"
+          :assistant-plugins="assistant?.plugins || {}"
+          :dialog-id="dialogId"
+          :workspace-id="workspaceId"
+          flat
+          round
+          min-w="2.7em"
+          min-h="2.7em"
+        />
+
+        <q-btn
+          flat
+          :round="!activePlugins.length"
+          :class="{ 'px-2': activePlugins.length }"
+          min-w="2.7em"
+          min-h="2.7em"
+          icon="sym_o_extension"
+          :title="$t('dialogView.plugins')"
+        >
+          <code
+            v-if="activePlugins.length"
+            bg-sur-c-high
+            px="6px"
+          >{{ activePlugins.length }}</code>
+          <enable-plugins-menu :assistant-id="assistant.id" />
+        </q-btn>
+      </template>
+
+      <!-- Prompt variables section -->
+      <div
+        v-if="assistant && showVars && assistant.promptVars?.length"
+        class="prompt-vars-section"
+        flex
+        pb-2
+        mt-2
+      >
+        <prompt-var-input
+          class="mt-2 mr-2"
+          v-for="promptVar of assistant.promptVars"
+          :key="promptVar.id"
+          :prompt-var="promptVar"
+          :model-value="inputVars[promptVar.name]"
+          @update:model-value="$emit('update-input-vars', promptVar.name, $event)"
+          :input-props="{
+            dense: true,
+            outlined: true,
+          }"
+          component="input"
+        />
+      </div>
+    </template>
   </div>
 </template>
 
@@ -123,6 +130,7 @@ interface Props {
   dialogId?: string
   workspaceId?: string
   promptVarsOnly?: boolean
+  usageOnly?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
@@ -136,6 +144,7 @@ withDefaults(defineProps<Props>(), {
   dialogId: undefined,
   workspaceId: undefined,
   promptVarsOnly: false,
+  usageOnly: false,
 })
 
 defineEmits<{
