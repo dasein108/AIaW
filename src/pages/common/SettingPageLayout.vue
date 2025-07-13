@@ -20,6 +20,7 @@
   <q-page-container>
     <q-page
       :style-fn="isMobile ? pageFhStyle : undefined"
+      bg-sur-c
       class="relative-position"
       p-8
     >
