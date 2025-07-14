@@ -1,5 +1,5 @@
 import { useQuasar } from "quasar"
-import { computed, ref } from "vue"
+import { computed, ref, watch, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
 
 import { useUserStore } from "@/shared/store"
@@ -148,14 +148,58 @@ export function useWorkspaceManager() {
       }))
   })
 
-  // Optimized filtered workspaces with shallow reference for better performance
-  const filteredAvailableWorkspaces = computed(() => {
-    // Use spread operator only when arrays change, not on every access
-    const available = availableWorkspaces.value
-    const my = myWorkspaces.value
+  // Stable workspace list that maintains order and updates membership status in place
+  const stableWorkspaceList = ref<any[]>([])
 
-    // Return cached array if dependencies haven't changed
-    return [...available, ...my]
+  // Initialize stable list on first load or when workspaces change significantly
+  function updateStableList() {
+    const current = stableWorkspaceList.value
+    const my = myWorkspaces.value
+    const available = availableWorkspaces.value
+
+    // If this is the first load or the lists have changed dramatically, rebuild
+    if (current.length === 0) {
+      // Sort: joined workspaces at the top, then available workspaces
+      stableWorkspaceList.value = [...my, ...available]
+
+      return
+    }
+
+    // Update existing items in place without changing order
+    const allWorkspaces = [...my, ...available]
+    const workspaceMap = new Map(allWorkspaces.map(w => [w.id, w]))
+
+    // Update existing items with new membership status
+    stableWorkspaceList.value = stableWorkspaceList.value.map(existing => {
+      const updated = workspaceMap.get(existing.id)
+
+      return updated || existing
+    })
+
+    // Add any new workspaces that weren't in the stable list
+    const existingIds = new Set(stableWorkspaceList.value.map(w => w.id))
+    const newWorkspaces = allWorkspaces.filter(w => !existingIds.has(w.id))
+
+    // Add new joined workspaces at the top
+    const newJoined = newWorkspaces.filter(w => w.isJoined)
+    // Add new available workspaces at the bottom
+    const newAvailable = newWorkspaces.filter(w => !w.isJoined)
+
+    stableWorkspaceList.value = [...newJoined, ...stableWorkspaceList.value, ...newAvailable]
+  }
+
+  // Watch for workspace changes and update the stable list
+  watch([myWorkspaces, availableWorkspaces], updateStableList, { deep: true })
+
+  // Initialize on component mount
+  onMounted(() => {
+    updateStableList()
+  })
+
+  // Optimized filtered workspaces with stable ordering
+  const filteredAvailableWorkspaces = computed(() => {
+    // Return the stable list which maintains order and updates membership status in place
+    return stableWorkspaceList.value
   })
 
   // Generic handler for workspace actions
@@ -278,6 +322,9 @@ export function useWorkspaceManager() {
       if (!profileStore.isInitialized) {
         await profileStore.fetchProfiles()
       }
+
+      // Force refresh the stable list to ensure proper initial sorting
+      forceRefreshStableList()
     } catch (error) {
       console.error('Failed to load workspace data:', error)
     } finally {
@@ -294,6 +341,12 @@ export function useWorkspaceManager() {
         console.error('Failed to refresh user workspaces:', error)
       }
     }
+  }
+
+  // Force refresh the stable list (useful for page reload or major changes)
+  function forceRefreshStableList() {
+    stableWorkspaceList.value = []
+    updateStableList()
   }
 
   // Utility function for date formatting
@@ -337,6 +390,7 @@ export function useWorkspaceManager() {
     deleteWorkspace,
     initializeWorkspaces,
     refreshUserWorkspaces,
+    forceRefreshStableList,
     formatDate,
     isWorkspaceOwner,
     isWorkspaceAdmin,
