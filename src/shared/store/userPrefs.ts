@@ -56,6 +56,7 @@ interface Prefs {
   streamingLockBottom: boolean
   messageCatalog: boolean
   showWarnings: boolean
+  voiceRecognition: boolean
 }
 
 // default to litellm
@@ -120,6 +121,7 @@ const defaultPrefs: Prefs = {
   streamingLockBottom: true,
   messageCatalog: true,
   showWarnings: false,
+  voiceRecognition: true,
 }
 
 export const useUserPrefsStore = () => {
