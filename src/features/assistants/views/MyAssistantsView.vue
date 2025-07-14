@@ -88,12 +88,17 @@ import { useRouter, useRoute } from 'vue-router'
 import CardItem from '@/shared/components/cards/CardItem.vue'
 import CardView from '@/shared/components/cards/CardView.vue'
 import MenuItem from '@/shared/components/menu/MenuItem.vue'
+import { DEFAULT_BUILTIN_PLUGINS, DEFAULT_BUILDIN_MCP_PLUGINS } from '@/shared/consts'
 import { useUserPerfsStore, useUserDataStore } from '@/shared/store'
 import { defaultAvatar } from '@/shared/utils/functions'
+import { generateName } from '@/shared/utils/random'
 
 import { useAssistantsStore } from '@/features/assistants/store'
+import { usePluginsStore } from '@/features/plugins/store'
 import SelectWorkspaceDialog from '@/features/workspaces/components/SelectWorkspaceDialog.vue'
 import { useActiveWorkspace } from '@/features/workspaces/composables/useActiveWorkspace'
+
+import { Assistant } from '@/services/data/types/assistant'
 
 import ViewCommonHeader from '@/layouts/components/ViewCommonHeader.vue'
 
@@ -159,14 +164,32 @@ function navigateToAssistants() {
   router.push(`/assistants`)
 }
 
+async function enableDefaultPlugins (assistant: Assistant) {
+  const pluginsStore = usePluginsStore()
+  for (const pluginId of [...DEFAULT_BUILTIN_PLUGINS, ...DEFAULT_BUILDIN_MCP_PLUGINS.map(p => p.id)]) {
+    const plugin = pluginsStore.plugins.find(p => p.id === pluginId)
+    console.log("-----plugin", plugin, pluginId)
+
+    if (!plugin) {
+      console.error(`Plugin ${pluginId} not found`)
+      continue
+    }
+
+    await assistantsStore.setPlugin(assistant, plugin, true)
+  }
+}
+
 async function addAssistant () {
   const assistant = await assistantsStore.add({
-    name: "New Assistant",
+    name: generateName(),
     workspaceId,
     avatar: defaultAvatar("AI"),
     provider: perfs.value.provider,
     model: perfs.value.model,
   })
+
+  await enableDefaultPlugins(assistant)
+
   router.push(`/workspaces/${workspaceId}/assistants/${assistant.id}`)
 }
 </script>

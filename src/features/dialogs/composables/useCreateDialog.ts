@@ -1,3 +1,4 @@
+import { useQuasar } from "quasar"
 import { Ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
@@ -14,12 +15,23 @@ export function useCreateDialog (workspaceId: Ref<string>) {
   const router = useRouter()
   const dialogsStore = useDialogsStore()
   const { t } = useI18n()
+  const $q = useQuasar()
 
   async function createDialog (props: Partial<Dialog> = {},
     message?: DialogMessage<DbDialogMessageUpdate>,
     items: ApiResultItem[] = []) {
     const userStore = useUserDataStore()
     const dialogMessagesStore = useDialogMessagesStore()
+    const assistantId = userStore.data.defaultAssistantIds[workspaceId.value] || null
+
+    if (!assistantId) {
+      $q.notify({
+        message: t("dialogList.noAssistant"),
+        color: "negative",
+      })
+
+      return
+    }
 
     return await dialogsStore.addDialog(
       {

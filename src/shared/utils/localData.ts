@@ -10,7 +10,7 @@ interface LocalData {
 const localData = localReactive<LocalData>("local-data", {
   lastReloadTimestamp: null,
   visited: false,
-  language: null,
+  language: "en-US",
   ignoredUpdate: null,
 })
 

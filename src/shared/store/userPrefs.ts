@@ -2,14 +2,14 @@ import { MdPreviewProps } from "md-editor-v3"
 import { Dark } from "quasar"
 import { watchEffect } from "vue"
 
+import { DEFAULT_PROVIDER_DATA } from "@/shared/consts"
 import {
-  Avatar,
   Model,
   PlatformEnabled,
   Provider,
   ShortcutKey,
 } from "@/shared/types"
-import { models } from "@/shared/utils/values"
+import { models, ProviderTypes } from "@/shared/utils/values"
 
 import { createKeyValueDbStore } from "./utils/createKeyValueDbStore"
 
@@ -20,7 +20,7 @@ interface Prefs {
   model: Model
   systemProvider: Provider
   systemModel: Model
-  userAvatar: Avatar
+  // userAvatar: Avatar
   // commonModelOptions: string[]
   autoGenTitle: boolean
   sendKey: "ctrl+enter" | "shift+enter" | "enter"
@@ -58,18 +58,23 @@ interface Prefs {
   showWarnings: boolean
 }
 
+// default to litellm
+
+const defaultProvider = {
+  type: DEFAULT_PROVIDER_DATA.name,
+  settings: ProviderTypes.find((p) => p.name === DEFAULT_PROVIDER_DATA.name)?.initialSettings || {}
+}
+
+// default to gpt-4o
+const defaultModel = models.find((m) => m.name === DEFAULT_PROVIDER_DATA.model)
+
 const defaultPrefs: Prefs = {
   darkMode: "auto",
   themeHue: 300,
-  provider: null,
-  model: models.find((m) => m.name === "gpt-4.1"),
-  systemProvider: null,
-  systemModel: models.find((m) => m.name === "gpt-4o-mini"),
-  userAvatar: {
-    type: "text",
-    text: "U",
-    hue: 300,
-  },
+  provider: defaultProvider,
+  model: defaultModel,
+  systemProvider: defaultProvider,
+  systemModel: defaultModel,
   // commonModelOptions: [
   //   "gpt-4.1",
   //   "gpt-4.1-mini",

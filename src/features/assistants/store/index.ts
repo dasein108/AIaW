@@ -1,9 +1,10 @@
 /* eslint-disable camelcase */
 import { throttle } from "lodash"
 import { defineStore } from "pinia"
-import { ref, watch } from "vue"
+import { ref, toRaw, watch } from "vue"
 import { useI18n } from "vue-i18n"
 
+import { AssistantPlugin, Plugin } from "@/shared/types"
 import { defaultAvatar } from "@/shared/utils/functions"
 
 import { defaultModelSettings } from "@/features/assistants/consts"
@@ -127,9 +128,10 @@ export const useAssistantsStore = defineStore("assistants", () => {
       console.error("Error adding assistant:", error)
     }
 
-    assistants.value.push(mapDbToAssistant(data))
+    const result = mapDbToAssistant(data)
+    assistants.value.push(result)
 
-    return data
+    return result
   }
 
   async function update (id: string, changes: Assistant<DbAssistantUpdate>) {
@@ -194,6 +196,44 @@ export const useAssistantsStore = defineStore("assistants", () => {
     assistants.value = assistants.value.filter((a) => a.id !== id)
   }
 
+  async function setPlugin (assistant: Assistant, plugin: Plugin, enabled: boolean) {
+    if (enabled) {
+      const assistantPlugin: AssistantPlugin = {
+        enabled: true,
+        infos: [],
+        tools: [],
+        resources: [],
+        vars: {},
+      }
+      const currentPlugin = assistant.plugins[plugin.id]
+
+      // Todo sync tools and infos, if plugin tool not persisted, set enabled to true,
+      // if persisted before, but plugin was updated, do not include it in the new plugin
+
+      plugin.apis.forEach((api) => {
+        if (api.type === "tool") {
+          const currentTool = currentPlugin?.tools.find((t) => t.name === api.name)
+          assistantPlugin.tools.push({
+            name: api.name,
+            enabled: currentTool !== undefined ? currentTool.enabled : true,
+          })
+        } else if (api.type === "info") {
+          const currentInfo = currentPlugin?.infos.find((i) => i.name === api.name)
+          assistantPlugin.infos.push({
+            name: api.name,
+            enabled: currentInfo !== undefined ? currentInfo.enabled : true,
+            args: {},
+          })
+        }
+      })
+      assistant.plugins[plugin.id] = assistantPlugin
+    } else {
+      assistant.plugins[plugin.id].enabled = enabled
+    }
+
+    return await put(toRaw(assistant))
+  }
+
   return {
     init,
     assistants,
@@ -205,5 +245,6 @@ export const useAssistantsStore = defineStore("assistants", () => {
     isSaving,
     hasChanges,
     fetchGlobalAssistants,
+    setPlugin,
   }
 })
