@@ -7,6 +7,8 @@ import { removeUndefinedProps } from "@/shared/utils/functions"
 
 import { usePluginsStore } from "@/features/plugins/store"
 
+import { entityToDto } from "../utils/dto/helpers"
+
 /**
  * Composable for calling plugin APIs with proper validation and error handling
  *
@@ -73,12 +75,18 @@ export function useCallApi(
     api: PluginApi,
     args: Record<string, any>
   ): Promise<{ result?: ApiResultItem[]; error?: string }> {
+    const isSnakeCase = Object.keys(api.parameters.properties).some(name => name.indexOf("_") > -1)
+    // convert args to snake_case if the api parameters are in snake_case
+    const trueArgs = isSnakeCase ? entityToDto(args) : args
+    console.log("----callApi: trueArgs", trueArgs, isSnakeCase)
     // Validate API arguments
-    const { valid: argValid } = new Validator(
+    const { valid: argValid, errors } = new Validator(
       api.parameters as Schema
-    ).validate(args)
+    ).validate(trueArgs)
 
     if (!argValid) {
+      console.log(`callApi: '${plugin.title}' validate args errors`, errors)
+
       return { result: [], error: t("callApi.argValidationFailed") }
     }
 
@@ -91,7 +99,7 @@ export function useCallApi(
 
     // Execute API and handle errors
     try {
-      const result = await api.execute(args, settings)
+      const result = await api.execute(trueArgs, settings)
 
       return { result, error: null }
     } catch (e) {

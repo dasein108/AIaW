@@ -93,6 +93,6 @@ watch(currentAssistant, (newAssistant) => {
 const pluginsStore = usePluginsStore()
 
 async function setPlugin (plugin: Plugin, enabled: boolean) {
-  assistant.value = await store.setPlugin(assistant.value, plugin, enabled)
+  assistant.value = await store.setPlugin(currentAssistant.value, plugin, enabled)
 }
 </script>
