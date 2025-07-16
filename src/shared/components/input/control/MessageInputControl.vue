@@ -167,8 +167,8 @@
       />
       <!-- Send button -->
       <abortable-btn
-        icon="sym_o_send"
-        :label="filesProcessing ? $t('dialogView.uploading') : $t('dialogView.send')"
+        :icon="props.sendIcon || 'sym_o_send'"
+        :label="filesProcessing ? $t('dialogView.uploading') : props.sendCaption || $t('dialogView.send')"
         @click="handleSend"
         @abort="$emit('abort')"
         :loading="props.loading"
@@ -185,7 +185,7 @@
 
 <script setup lang="ts">
 import { until } from '@vueuse/core'
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AbortableBtn from '@/shared/components/AbortableBtn.vue'
@@ -207,6 +207,8 @@ interface Props {
   allowImageUpload?: boolean
   mimeInputTypes?: string[]
   parserPlugins?: AssistantPlugins
+  sendCaption?: string
+  sendIcon?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -215,13 +217,16 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: undefined,
   allowFileUpload: true,
   allowImageUpload: true,
+  sendCaption: undefined,
+  sendIcon: () => 'sym_o_send',
   mimeInputTypes: () => ["*"],
   parserPlugins: () => null,
 })
 
 const emit = defineEmits<{
   'send': [text: string, items: ApiResultItem[]]
-  'abort': []
+  'abort': [],
+  'on-text-change': [text: string]
 }>()
 
 const imageInput = ref()
@@ -309,6 +314,10 @@ async function handleSend() {
   emit('send', inputValue.value, items)
   inputValue.value = ""
 }
+
+watch(inputValue, (newVal) => {
+  emit('on-text-change', newVal)
+})
 
 function handleInputEnterKeyPress (ev: KeyboardEvent) {
   // Check if the command overlay handled the event

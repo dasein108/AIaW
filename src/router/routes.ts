@@ -26,6 +26,7 @@ import CyberlinksPage from "@/pages/CyberlinksPage.vue"
 import EmptyPage from "@/pages/EmptyPage.vue"
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 import LoginPage from "@/pages/LoginPage.vue"
+import PersonalBook from "@/pages/PersonalBook.vue"
 import PluginsPage from "@/pages/PluginsPage.vue"
 import SetProvider from "@/pages/SetProvider.vue"
 import SettingsPage from "@/pages/SettingsPage.vue"
@@ -60,6 +61,11 @@ const routes: RouteRecordRaw[] = [
             meta: { title: t("routes.myWorkspaces") },
           },
         ],
+      },
+      {
+        path: "/personal-book",
+        component: PersonalBook,
+        meta: { title: t("personalBook.title") },
       },
       {
         path: "/workspaces/:workspaceId/",

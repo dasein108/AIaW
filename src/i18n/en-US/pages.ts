@@ -184,7 +184,13 @@ export default {
     createArtifact: "Create Artifact",
     cyberlinks: "Cyberlinks",
     logout: "Logout",
-
+  },
+  personalBook: {
+    title: "Personal Graph",
+    process: "Process",
+    send: "Build graph",
+    edit: "Edit",
+    help: "Help",
   },
   myWorkspaces: {
     noDescription: "No description",

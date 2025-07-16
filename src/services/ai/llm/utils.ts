@@ -41,6 +41,23 @@ const generateArtifactName = async (
   return text
 }
 
+const processPromptRequest = async (
+  model: LanguageModelV1,
+  promptTemplate: string,
+  context: Record<string, any>,
+  tools?: Record<string, any>
+) => {
+  const response = await generateText({
+    model,
+    prompt: engine.parseAndRenderSync(promptTemplate, context),
+    tools,
+  })
+
+  console.log("---processPromptRequest response", response)
+
+  return response.text
+}
+
 const generateExtractArtifact = async (
   model: LanguageModelV1,
   content: MessageContentNested[],
@@ -76,4 +93,5 @@ export {
   generateArtifactName,
   generateExtractArtifact,
   getSystemPrompt,
+  processPromptRequest
 }

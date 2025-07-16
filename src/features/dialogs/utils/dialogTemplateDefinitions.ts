@@ -126,6 +126,7 @@ const ExtractArtifactSchema = Object({
   ),
 })
 type ExtractArtifactResult = Static<typeof ExtractArtifactSchema>
+
 const ExtractArtifactPrompt = `
 <instruction>
 Your task is to determine whether there are artifacts in the conversation record between the user and the AI assistant, and if so, extract them.
@@ -172,6 +173,190 @@ Please name the file according to its content. Requirements:
 
 const ExampleWsIndexContent = DefaultWsIndexContent
 
+const PersonalGraphSummaryPrompt = `
+<instructions>
+  Your task is to Analyze the input and extract concise, well-structured pieces of information related to the user, such as:
+
+	- Events (e.g., graduated, traveled)
+	- Skills (e.g., programming languages, hobbies)
+	- Interests (e.g., topics, activities)
+	- Desires or goals (e.g., wishes, plans)
+	- Characteristics or personality traits
+  As input accept any user’s language, generate output in plain English
+</instructions>
+
+<input>
+  <description>CRaw text transcription of a user’s speech. The content can be about personality, facts, or wishlist descriptions.</description>
+  <user_profile>
+  {{ profile }}
+  </user_profile>
+  <user_brief>
+  {{ brief }}
+  </user_brief>
+</input>
+
+<output_specifications>
+  <format_description>Markdown format, Each point is a bullet item </format_description>
+  <language_rule>Use simple, clear language. Must be in English.</language_rule>
+  <length_rule>1-3 short sentences, with preference for brevity</length_rule>
+</output_specifications>
+
+<examples>
+  <example name="personality">
+	- Lives in Portugal
+	- Speaks English, Portugesse, Chinesse
+	- Software developer
+	- Skilled in Python and data analysis.
+	- Interested in traveling and learning new languages.
+	- Describes self as detail-oriented and curious.
+  </example>
+  <example name="facts">
+	- Just read the book "the Capital" of Karl Marx
+	- Wached movie "Titanic"
+	- Graduated from university in 2020 with a degree in Computer Science.
+	- Worked in the company "Cybernet" from May 2020 till September 2022
+	- Plan to travel into China in September 2025
+	- Does manicure for money at the moment
+	- Provides psychotherapist services
+	- Traveled to India from 01.07.2025 to 20.07.2025
+  </example>
+  <example name="wishlist">
+	- Want's to sell "Macbook" model "M4, 512 GB SSD, 32 GB RAM" for 2000$
+	- Looking for frontend developer for AI project, with stack: "react", "supabase", "material-ui".
+	- Looking for backend developer position for AI project with stack "graphiti", "puthon", "llm", "fastAPU"
+	- Looking for travel partner into "China" for September 2025
+	- Looking for clients for psychotherapy sessions for donation
+	- Wants to buy an island
+	- Цants to found an ecovillage
+  </example>
+</examples>
+
+<final_instruction>
+  Based *only* on the profile and brief provided in the \`<input>\` section, generate the summary points according to all the rules and examples specified above. Output *only* the formatted markdown.
+</final_instruction>
+`
+
+// const PersonalGraphAddMemoryPrompt = `
+// <instructions>
+//   Your task is: For each bullet point in user items and user profile items, generate a separate \`add_memory\` tool call with the following structure:
+// {
+//   "name": "user profile id",
+//   "source": "text",
+//   "groupId": "<category name in lowercase, no spaces>",
+//   "episodeBody": "<full bullet point text>",
+//   "sourceDescription": "user profile id and category"
+// }
+// After all tool calls are generated, output the user memories related to same user '<user profile id>' and same '<category>' in markdown format, each point is a bullet item.
+// </instructions>
+
+// <input>
+//   <description>Profile data and list items that should be added to graph</description>
+//   <category>
+//   {{ category }}
+//   </category>
+//   <user_profile>
+//   {{ profile }}
+//   </user_profile>
+//   <user_items>
+//   {{ brief }}
+//   </user_items>
+// </input>
+// <output_specifications>
+//   Markdown format, Each point is a bullet item
+// </output_specifications>
+// <examples>
+//   <example name="personality">
+// 	<input>
+// 		<category>personality</category>
+// 		<user_profile>
+// 		- ID: user_456
+// 		- Email: max@example.com
+// 		- Name: Satoshi Nakamoto
+// 		</user_profile>
+// 		<user_items>
+// 		- Born in Latvia
+// 		- Speaks: English, Japan
+// 		- Software developer
+// 		</user_items>
+// 	</input>
+// 	<tool_calls>
+// 	[
+// 	  {
+// 	    "name": "user_456",
+// 	    "source": "text",
+// 	    "groupId": "personality",
+// 	    "episodeBody": "Born in Latvia",
+// 	    "sourceDescription": "user_456 personality"
+// 	  },
+// 	  {
+// 	    "name": "user_456",
+// 	    "source": "text",
+// 	    "groupId": "personality",
+// 	    "episodeBody": "Speaks: English, Japan",
+// 	    "sourceDescription": "user_456 personality"
+// 	  },
+// 	  {
+// 	    "name": "user_456",
+// 	    "source": "text",
+// 	    "groupId": "personality",
+// 	    "episodeBody": "Software developer",
+// 	    "sourceDescription": "user_456 personality"
+// 	  }
+// 	]
+// 	</tool_calls>
+//   </example>
+// </examples>
+// <final_instruction>
+//   Based *only* on the profile and brief provided in the \`<input>\` section, create comprehensive graph for actual profile based on brief points according to all the rules and examples specified above.
+// </final_instruction>
+// `
+
+const PersonalGraphAddMemoryPrompt = `
+<instructions>
+  Your task is: For each bullet point in user items, determine graph related tool and arguments and populate graph with that knoweledge, use user_profile, and category as additional information.
+</instructions>
+
+<input>
+  <description>Profile data and list items that should be added to graph</description>
+  <category>
+  {{ category }}
+  </category>
+  <user_profile>
+  {{ profile }}
+  </user_profile>
+  <user_items>
+  {{ brief }}
+  </user_items>
+</input>
+<output_specifications>
+  Markdown format, Each point is a bullet item
+</output_specifications>
+`
+
+const PersonalGraphFetchPrompt = `
+<instructions>
+  Your task is: For each bullet point in user items, determine graph related tool and arguments and
+  retrive 'user_profile' related graph graph related to 'category'.
+  Use most relevant tool to retrieve data from graph and return it in markdown format.
+</instructions>
+
+<input>
+  <description>User profile and category to use for fetch from graph</description>
+  <category>
+  {{ category }}
+  </category>
+  <user_profile>
+  {{ profile }}
+  </user_profile>
+  <user_items>
+  {{ brief }}
+  </user_items>
+</input>
+<output_specifications>
+  Response in markdown format
+</output_specifications>
+`
+
 export {
   GenDialogTitle,
   DialogContent,
@@ -182,6 +367,9 @@ export {
   ExtractArtifactPrompt,
   ExtractArtifactSchema,
   NameArtifactPrompt,
+  PersonalGraphSummaryPrompt,
+  PersonalGraphAddMemoryPrompt,
+  PersonalGraphFetchPrompt
 }
 
 export type { ExtractArtifactResult }

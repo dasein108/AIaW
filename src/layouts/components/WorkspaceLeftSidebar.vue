@@ -1,6 +1,12 @@
 <template>
   <div pt-2>
     <icon-side-button
+      bg-sur-c-high
+      icon="sym_o_person_book"
+      :title="t('personalBook.title')"
+      :to="'/personal-book'"
+    />
+    <icon-side-button
       v-if="canViewCyberlinks"
       icon="sym_o_hub"
       :title="$t('mainLayout.cyberlinks')"
@@ -30,6 +36,9 @@
     <dialog-list
       :workspace-id="workspaceId"
     />
+    <personal-book
+      v-model="showPersonalBook"
+    />
   <!-- <sidebar-title title="Last Dialogs" />
   <q-item>
     <last-dialogs />
@@ -42,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRoute } from "vue-router"
 
@@ -54,6 +63,7 @@ import { IconAvatar } from "@/shared/types"
 
 import DialogList from "@/features/dialogs/components/DialogList.vue"
 import { usePluginsStore } from "@/features/plugins/store"
+import PersonalBook from "@/features/profile/components/PersonalBook.vue"
 import { useActiveWorkspace, useOpenLastWorkspace } from "@/features/workspaces/composables"
 
 const emptyAvatar = { type: "icon", icon: "sym_o_sentiment_very_dissatisfied" } as IconAvatar
@@ -66,6 +76,8 @@ const { openLastWorkspace } = useOpenLastWorkspace()
 route.path === "/" && openLastWorkspace()
 
 const { t } = useI18n()
+
+const showPersonalBook = ref<boolean>(false)
 
 const pluginsStore = usePluginsStore()
 
