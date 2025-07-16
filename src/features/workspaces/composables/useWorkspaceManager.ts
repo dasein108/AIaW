@@ -159,8 +159,17 @@ export function useWorkspaceManager() {
 
     // If this is the first load or the lists have changed dramatically, rebuild
     if (current.length === 0) {
-      // Sort: joined workspaces at the top, then available workspaces
-      stableWorkspaceList.value = [...my, ...available]
+      // 📌 Stable positioning & 📅 Base order: maintain database order (newest first by created_at)
+      // 🔝 Joined workspaces (at the top) - COMMENTED OUT
+      // 🔽 Available workspaces (at the bottom) - COMMENTED OUT
+      // stableWorkspaceList.value = [...my, ...available]
+
+      // Combine all workspaces without sorting by membership status, maintain database order
+      const allWorkspaces = [...my, ...available]
+      // Sort by original database order (created_at descending) instead of membership status
+      stableWorkspaceList.value = allWorkspaces.sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
 
       return
     }
@@ -180,12 +189,14 @@ export function useWorkspaceManager() {
     const existingIds = new Set(stableWorkspaceList.value.map(w => w.id))
     const newWorkspaces = allWorkspaces.filter(w => !existingIds.has(w.id))
 
-    // Add new joined workspaces at the top
-    const newJoined = newWorkspaces.filter(w => w.isJoined)
-    // Add new available workspaces at the bottom
-    const newAvailable = newWorkspaces.filter(w => !w.isJoined)
+    // 📌 Stable positioning: add new workspaces at the end to maintain order
+    // 🔝 Joined workspaces (at the top) - COMMENTED OUT
+    // const newJoined = newWorkspaces.filter(w => w.isJoined)
+    // 🔽 Available workspaces (at the bottom) - COMMENTED OUT
+    // const newAvailable = newWorkspaces.filter(w => !w.isJoined)
 
-    stableWorkspaceList.value = [...newJoined, ...stableWorkspaceList.value, ...newAvailable]
+    // stableWorkspaceList.value = [...newJoined, ...stableWorkspaceList.value, ...newAvailable]
+    stableWorkspaceList.value = [...stableWorkspaceList.value, ...newWorkspaces]
   }
 
   // Watch for workspace changes and update the stable list
