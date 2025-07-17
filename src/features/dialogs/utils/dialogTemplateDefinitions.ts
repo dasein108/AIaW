@@ -335,9 +335,8 @@ const PersonalGraphAddMemoryPrompt = `
 
 const PersonalGraphFetchPrompt = `
 <instructions>
-  Your task is: For each bullet point in user items, determine graph related tool and arguments and
-  retrive 'user_profile' related graph graph related to 'category'.
-  Use most relevant tool to retrieve data from graph and return it in markdown format.
+  Your task is: search graph memories for name=<user_profile name> and group_id=<category> using relevant tools.
+  Represent and returntool result in Markdown format, each point is a bullet item.
 </instructions>
 
 <input>
@@ -353,7 +352,7 @@ const PersonalGraphFetchPrompt = `
   </user_items>
 </input>
 <output_specifications>
-  Response in markdown format
+  Text in markdown format
 </output_specifications>
 `
 

@@ -2,10 +2,15 @@
   <div
     v-if="isLoading"
   >
-    <q-linear-progress indeterminate />
+    <!-- <q-linear-progress indeterminate /> -->
     <q-skeleton
       type="rect"
-      class="flex full-width h-50"
+      class="flex full-width h-60"
+      mb-4
+    />
+    <q-skeleton
+      type="rect"
+      class="flex full-width h-40"
     />
   </div>
   <div v-else>

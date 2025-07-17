@@ -28,6 +28,8 @@
       :model-value="text || intro"
       v-bind="mdPreviewProps"
       bg-sur
+      max-h="400px"
+      overflow-y-auto
     />
   </div>
 </template>

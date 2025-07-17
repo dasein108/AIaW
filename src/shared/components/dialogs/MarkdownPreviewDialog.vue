@@ -13,7 +13,7 @@
           :model-value="markdown"
           v-bind="mdPreviewProps"
           bg-sur-c-low
-          max-h="50vh"
+          max-h="70vh"
         />
       </q-card-section>
       <q-card-actions bg-sur-c-low>

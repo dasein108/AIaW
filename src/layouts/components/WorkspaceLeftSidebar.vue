@@ -36,9 +36,7 @@
     <dialog-list
       :workspace-id="workspaceId"
     />
-    <personal-book
-      v-model="showPersonalBook"
-    />
+
   <!-- <sidebar-title title="Last Dialogs" />
   <q-item>
     <last-dialogs />
@@ -63,7 +61,6 @@ import { IconAvatar } from "@/shared/types"
 
 import DialogList from "@/features/dialogs/components/DialogList.vue"
 import { usePluginsStore } from "@/features/plugins/store"
-import PersonalBook from "@/features/profile/components/PersonalBook.vue"
 import { useActiveWorkspace, useOpenLastWorkspace } from "@/features/workspaces/composables"
 
 const emptyAvatar = { type: "icon", icon: "sym_o_sentiment_very_dissatisfied" } as IconAvatar
