@@ -1,26 +1,19 @@
 <template>
   <sidebar-page-layout
-    :title="$t('personalBook.title')"
+    :title="$t('personalGraph.title')"
     @toggle-drawer="$emit('toggle-drawer')"
   >
     <template #drawer>
       <icon-side-button
         icon="sym_o_person_book"
-        :to="`/personal-book`"
-        :title="$t('personalBook.personalGraph')"
+        :to="`/social-graph`"
+        :title="$t('personalGraph.personalGraph')"
       />
       <icon-side-button
         icon="sym_o_data_loss_prevention"
-        :to="`/personal-book/search`"
-        :title="$t('personalBook.search')"
+        :to="`/social-graph/search`"
+        :title="$t('personalGraph.search')"
       />
-    </template>
-    <template #page>
-      <div
-        class=" page-width"
-      >
-        <personal-book />
-      </div>
     </template>
   </sidebar-page-layout>
 </template>
@@ -33,8 +26,6 @@ import { useRoute } from "vue-router"
 
 import IconSideButton from "@/shared/components/layout/IconSideButton.vue"
 import { useUserStore } from "@/shared/store/user"
-
-import PersonalBook from "@/features/profile/components/PersonalBookBuilder.vue"
 
 import SidebarPageLayout from "./common/SidebarPageLayout.vue"
 // const profileStore = useProfileStore()

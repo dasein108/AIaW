@@ -13,7 +13,7 @@
         color="warning"
         mb-2
         :icon="'sym_o_info'"
-        :label="$t('personalBook.help')"
+        :label="$t('personalGraph.help')"
         @click="openHelp"
       />
     </div>
@@ -34,8 +34,8 @@ import { computed } from "vue"
 import MarkdownPreviewDialog from "@/shared/components/dialogs/MarkdownPreviewDialog.vue"
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
 
-import { PERSONAL_GRAPH_ADVICES } from "./consts"
-import { PersonalGraphType } from "./types"
+import { PERSONAL_GRAPH_ADVICES } from "../consts"
+import { PersonalGraphType } from "../types"
 const mdPreviewProps = useMdPreviewProps()
 
 const props = defineProps<{

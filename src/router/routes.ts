@@ -8,6 +8,8 @@ import MyAssistantsView from "@/features/assistants/views/MyAssistantsView.vue"
 import ChatSettings from "@/features/chats/views/ChatSettings.vue"
 import ChatView from "@/features/chats/views/ChatView.vue"
 import DialogView from "@/features/dialogs/views/DialogView.vue"
+import PersonalGraphBuilder from "@/features/personalGraph/view/PersonalGraphBuilder.vue"
+import PersonalGraphSearch from "@/features/personalGraph/view/PersonalGraphSearch.vue"
 import PluginAdjust from "@/features/plugins/views/PluginAdjust.vue"
 import PluginSettings from "@/features/plugins/views/PluginSettings.vue"
 import PluginsMarket from "@/features/plugins/views/PluginsMarket.vue"
@@ -26,7 +28,7 @@ import CyberlinksPage from "@/pages/CyberlinksPage.vue"
 import EmptyPage from "@/pages/EmptyPage.vue"
 import ErrorNotFound from "@/pages/ErrorNotFound.vue"
 import LoginPage from "@/pages/LoginPage.vue"
-import PersonalBook from "@/pages/PersonalBook.vue"
+import PersonalGraph from "@/pages/PersonalGraph.vue"
 import PluginsPage from "@/pages/PluginsPage.vue"
 import SetProvider from "@/pages/SetProvider.vue"
 import SettingsPage from "@/pages/SettingsPage.vue"
@@ -63,9 +65,13 @@ const routes: RouteRecordRaw[] = [
         ],
       },
       {
-        path: "/personal-book",
-        component: PersonalBook,
-        meta: { title: t("personalBook.title") },
+        path: "/social-graph",
+        component: PersonalGraph,
+        meta: { title: t("personalGraph.title") },
+        children: [
+          { path: "", component: PersonalGraphBuilder },
+          { path: "search", component: PersonalGraphSearch },
+        ],
       },
       {
         path: "/workspaces/:workspaceId/",

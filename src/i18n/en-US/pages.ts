@@ -185,7 +185,7 @@ export default {
     cyberlinks: "Cyberlinks",
     logout: "Logout",
   },
-  personalBook: {
+  personalGraph: {
     title: "Social Graph",
     personalGraph: "My Graph",
     search: "Explore Graph",
@@ -193,6 +193,7 @@ export default {
     send: "Build Graph",
     edit: "Edit",
     help: "Help",
+    searchPlaceholder: "Search in graph using natural language...",
   },
   myWorkspaces: {
     noDescription: "No description",

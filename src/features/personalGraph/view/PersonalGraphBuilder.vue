@@ -1,5 +1,5 @@
 <template>
-  <personal-book-navigation
+  <personal-graph-navigation
     :next="step < 3 ? () => { step++ } : undefined"
     :back="step > 1 ? () => { step-- } : undefined"
   >
@@ -17,7 +17,7 @@
         icon="sym_o_article_person"
         dense
       >
-        <personal-book-container
+        <personal-graph-container
           text=""
           graph-type="personality"
         >
@@ -44,7 +44,7 @@
               />
             </div>
           </template>
-        </personal-book-container>
+        </personal-graph-container>
       </q-step>
 
       <q-step
@@ -54,7 +54,7 @@
         icon="sym_o_data_check"
         dense
       >
-        <personal-book-container
+        <personal-graph-container
           text=""
           graph-type="facts"
         />
@@ -67,13 +67,13 @@
         icon="sym_o_mystery"
         dense
       >
-        <personal-book-container
+        <personal-graph-container
           text=""
           graph-type="wishlist"
         />
       </q-step>
     </q-stepper>
-  </personal-book-navigation>
+  </personal-graph-navigation>
 </template>
 <script setup lang="ts">
 import { experimental_createMCPClient } from 'ai'
@@ -82,8 +82,8 @@ import { onMounted, provide, ref } from 'vue'
 
 import { GRAPHITI_MCP_URL } from '@/shared/consts'
 
-import PersonalBookContainer from "./PersonalBookContaner.vue"
-import PersonalBookNavigation from "./PersonalBookNavigation.vue"
+import PersonalGraphContainer from "../components/PersonalGraphContainer.vue"
+import PersonalGraphNavigation from "../components/PersonalGraphNavigation.vue"
 
 const $q = useQuasar()
 

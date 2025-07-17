@@ -3,8 +3,8 @@
     <icon-side-button
       bg-sur-c-high
       icon="sym_o_person_book"
-      :title="t('personalBook.title')"
-      :to="'/personal-book'"
+      :title="t('personalGraph.title')"
+      :to="'/social-graph'"
     />
     <icon-side-button
       v-if="canViewCyberlinks"
