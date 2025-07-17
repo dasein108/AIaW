@@ -57,7 +57,8 @@ const processPromptRequest = async (
 
   console.log("---processPromptRequest response", response)
 
-  return response.text
+  // If response.text is exactly '""', return empty string instead
+  return response.text === '""' ? '' : response.text
 }
 
 const generateExtractArtifact = async (

@@ -10,6 +10,7 @@
       :send-caption="$t('personalBook.process')"
       :send-icon="'sym_o_wallpaper'"
       :loading="isLoading"
+      :placeholder="`Describe your personality, facts, or anything else you want to add to your graph`"
       @send="process"
     />
   </div>

@@ -48,13 +48,6 @@
             :label="$t('viewFileDialog.ok')"
             @click="onDialogOK"
           />
-          <q-btn
-            flat
-            color="primary"
-            icon="sym_o_check_small"
-            :label="$t('viewFileDialog.ok')"
-            @click="onDialogOK"
-          />
         </template>
       </q-card-actions>
     </q-card>

@@ -104,7 +104,6 @@ onMounted(async () => {
     }
   }).then(async client => {
     tools.value = await client.tools()
-    console.log("---tools2", tools.value)
   }).catch(error => {
     console.error("Error creating MCP client:", error)
     $q.notify({

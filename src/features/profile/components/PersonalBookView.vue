@@ -6,7 +6,6 @@
     min-h-25
   >
     <div
-      v-if="!text"
       class="flex row items-center justify-end"
     >
       <q-btn
@@ -15,14 +14,8 @@
         mb-2
         :icon="'sym_o_info'"
         :label="$t('personalBook.help')"
-      >
-        <q-tooltip>
-          <MdPreview
-            :model-value="intro"
-            v-bind="mdPreviewProps"
-          />
-        </q-tooltip>
-      </q-btn>
+        @click="openHelp"
+      />
     </div>
     <MdPreview
       :model-value="text || intro"
@@ -35,13 +28,14 @@
 </template>
 <script setup lang="ts">
 import { MdPreview } from "md-editor-v3"
+import { useQuasar } from "quasar"
 import { computed } from "vue"
 
+import MarkdownPreviewDialog from "@/shared/components/dialogs/MarkdownPreviewDialog.vue"
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
 
 import { PERSONAL_GRAPH_ADVICES } from "./consts"
 import { PersonalGraphType } from "./types"
-
 const mdPreviewProps = useMdPreviewProps()
 
 const props = defineProps<{
@@ -50,4 +44,15 @@ const props = defineProps<{
 }>()
 
 const intro = computed(() => PERSONAL_GRAPH_ADVICES[props.graphType])
+
+const $q = useQuasar()
+
+const openHelp = () => {
+  $q.dialog({
+    component: MarkdownPreviewDialog,
+    componentProps: {
+      markdown: intro.value,
+    },
+  })
+}
 </script>

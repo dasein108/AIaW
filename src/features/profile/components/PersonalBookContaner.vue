@@ -83,7 +83,7 @@ const process = async (brief: string) => {
         {
           label: "Change",
           icon: "sym_o_edit",
-          onClick: () => {
+          onClick: async() => {
             editText.value = result
 
             return Promise.resolve()
@@ -93,10 +93,9 @@ const process = async (brief: string) => {
         {
           label: "Add to graph",
           icon: "sym_o_wallpaper",
-          onClick: () => {
-            buildGraph()
-
-            return Promise.resolve()
+          onClick: async () => {
+            await buildGraph()
+            await fetchMyGraph()
           },
         },
       ],
@@ -131,15 +130,13 @@ const buildGraph = async () => {
   isLoading.value = true
 
   const profileAsMarkdown = profileToMarkdown(myProfile.value)
-  const text = await processPromptRequest(systemSdkModel.value, PersonalGraphAddMemoryPrompt,
-    { brief: graphDataMarkdown.value, profile: profileAsMarkdown, category: props.graphType }, tools)
-  editText.value = text
-  graphDataMarkdown.value = ""
-  $q.dialog({
-    component: MarkdownPreviewDialog,
-    componentProps: {
-      markdown: text,
-    },
+  await processPromptRequest(systemSdkModel.value, PersonalGraphAddMemoryPrompt,
+    { brief: graphDataMarkdown.value, profile: profileAsMarkdown, category: props.graphType }, tools.value).then(() => {
+    $q.notify({
+      message: "Your data is queued for processing\n\n" +
+          "It will be available in your graph in a few minutes",
+      color: "positive",
+    })
   })
   isLoading.value = false
 }

@@ -313,7 +313,9 @@ const PersonalGraphSummaryPrompt = `
 
 const PersonalGraphAddMemoryPrompt = `
 <instructions>
-  Your task is: For each bullet point in user items, determine graph related tool and arguments and populate graph with that knoweledge, use user_profile, and category as additional information.
+  Your task is: For each bullet point in user items,
+   determine graph related tool and arguments and populate graph with that knoweledge,
+   use user_profile, and category as additional information.
 </instructions>
 
 <input>
@@ -328,9 +330,6 @@ const PersonalGraphAddMemoryPrompt = `
   {{ brief }}
   </user_items>
 </input>
-<output_specifications>
-  Markdown format, Each point is a bullet item
-</output_specifications>
 `
 
 const PersonalGraphFetchPrompt = `
@@ -338,6 +337,7 @@ const PersonalGraphFetchPrompt = `
   Your task is: search graph facts for name=<user_profile name> and group_id=<category> using relevant tools.
   Represent and return tool result in Markdown format, each point is a bullet item.
   If some fact is similar type group it as second level bullet item.
+  If no facts found, return empty string.
 </instructions>
 
 <input>
