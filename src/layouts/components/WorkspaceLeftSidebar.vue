@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRoute } from "vue-router"
 
@@ -73,8 +73,6 @@ const { openLastWorkspace } = useOpenLastWorkspace()
 route.path === "/" && openLastWorkspace()
 
 const { t } = useI18n()
-
-const showPersonalBook = ref<boolean>(false)
 
 const pluginsStore = usePluginsStore()
 

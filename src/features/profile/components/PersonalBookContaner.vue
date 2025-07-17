@@ -15,33 +15,11 @@
   </div>
   <div v-else>
     <personal-book-view
-      :text="preparedTextData"
+      :text="graphDataMarkdown"
       :graph-type="graphType"
       pb-4
     />
-    <div
-      v-if="preparedTextData"
-      class="flex row justify-center items-center"
-    >
-      <q-btn
-        :label="$t('personalBook.edit')"
-        color="secondary"
-        :icon="'sym_o_edit'"
-        flat
-        size="md"
-        @click="edit"
-        mr-8
-      />
-      <q-btn
-        :label="$t('personalBook.send')"
-        color="primary"
-        :icon="'sym_o_wallpaper'"
-        flat
-        size="md"
-        @click="buildGraph"
-      />
-    </div>
-    <div v-else>
+    <div>
       <div>
         <slot name="actions" />
       </div>
@@ -86,23 +64,44 @@ const systemSdkModel = computed(() =>
 
 const props = defineProps<{
   graphType: PersonalGraphType
-  onComplete?:(text: string) => void
 }>()
 
 const isLoading = ref(false)
 const editText = ref("")
 
-const preparedTextData = ref("")
-
-const edit = () => {
-  editText.value = preparedTextData.value
-  preparedTextData.value = ""
-}
+const graphDataMarkdown = ref("")
 
 const process = async (brief: string) => {
   isLoading.value = true
   const result = await processPromptRequest(systemSdkModel.value, PersonalGraphSummaryPrompt, { brief, profile: myProfile })
-  preparedTextData.value = result
+  $q.dialog({
+    component: MarkdownPreviewDialog,
+    componentProps: {
+      title: "Processed graph data",
+      markdown: result,
+      customActions: [
+        {
+          label: "Change",
+          icon: "sym_o_edit",
+          onClick: () => {
+            editText.value = result
+
+            return Promise.resolve()
+          },
+
+        },
+        {
+          label: "Add to graph",
+          icon: "sym_o_wallpaper",
+          onClick: () => {
+            buildGraph()
+
+            return Promise.resolve()
+          },
+        },
+      ],
+    },
+  })
   isLoading.value = false
 }
 
@@ -124,10 +123,7 @@ const fetchMyGraph = async () => {
   const result = await processPromptRequest(systemSdkModel.value, PersonalGraphFetchPrompt,
     { profile: profileAsMarkdown, category: props.graphType }, tools.value)
 
-  console.log("---result", result)
-  editText.value = result
-  preparedTextData.value = ""
-  props.onComplete?.(result)
+  graphDataMarkdown.value = result
   isLoading.value = false
 }
 
@@ -136,9 +132,9 @@ const buildGraph = async () => {
 
   const profileAsMarkdown = profileToMarkdown(myProfile.value)
   const text = await processPromptRequest(systemSdkModel.value, PersonalGraphAddMemoryPrompt,
-    { brief: preparedTextData.value, profile: profileAsMarkdown, category: props.graphType }, tools)
+    { brief: graphDataMarkdown.value, profile: profileAsMarkdown, category: props.graphType }, tools)
   editText.value = text
-  preparedTextData.value = ""
+  graphDataMarkdown.value = ""
   $q.dialog({
     component: MarkdownPreviewDialog,
     componentProps: {

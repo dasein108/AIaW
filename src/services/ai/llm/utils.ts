@@ -45,12 +45,14 @@ const processPromptRequest = async (
   model: LanguageModelV1,
   promptTemplate: string,
   context: Record<string, any>,
-  tools?: Record<string, any>
+  tools?: Record<string, any>,
+  maxSteps = 5
 ) => {
   const response = await generateText({
     model,
     prompt: engine.parseAndRenderSync(promptTemplate, context),
     tools,
+    maxSteps
   })
 
   console.log("---processPromptRequest response", response)

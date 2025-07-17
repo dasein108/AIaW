@@ -335,8 +335,9 @@ const PersonalGraphAddMemoryPrompt = `
 
 const PersonalGraphFetchPrompt = `
 <instructions>
-  Your task is: search graph memories for name=<user_profile name> and group_id=<category> using relevant tools.
-  Represent and returntool result in Markdown format, each point is a bullet item.
+  Your task is: search graph facts for name=<user_profile name> and group_id=<category> using relevant tools.
+  Represent and return tool result in Markdown format, each point is a bullet item.
+  If some fact is similar type group it as second level bullet item.
 </instructions>
 
 <input>
