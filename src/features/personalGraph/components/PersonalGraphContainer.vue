@@ -123,7 +123,7 @@ const profileToMarkdown = (profile: ProfileExtended): string => {
 const fetchMyGraph = async () => {
   const tool = tools.value.search_memory_facts // _nodes
   const rawResult = await tool.execute({
-    query: "dasein",
+    query: myProfile.value.name,
     group_ids: [props.graphType],
     max_nodes: 1000
   })
