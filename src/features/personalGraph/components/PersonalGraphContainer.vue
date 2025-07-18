@@ -40,14 +40,11 @@ import { computed, ref, inject, Ref, watchEffect, onMounted } from "vue"
 import MarkdownPreviewDialog from "@/shared/components/dialogs/MarkdownPreviewDialog.vue"
 import { useUserPerfsStore } from "@/shared/store"
 
-import { PersonalGraphAddMemoryPrompt, PersonalGraphSummaryPrompt } from "@/features/dialogs/utils/dialogTemplateDefinitions"
 import { useProfileStore } from "@/features/profile/store"
 import { useGetModel } from "@/features/providers/composables/useGetModel"
 
-import { processPromptRequest } from "@/services/ai/llm/utils"
-import { ProfileExtended } from "@/services/data/types/profile"
-
 import { PersonalGraphType } from "../types"
+import { addGraphItems, generateGraphSummary, graphSummaryToMarkdown, UserSummaryItem } from "../utils/graph_llm"
 import { formatGraphResultToMarkdown } from "../utils/markdown"
 
 import PersonalBookInputBox from "./PersonalGraphInputBox.vue"
@@ -75,18 +72,20 @@ const graphDataMarkdown = ref("")
 
 const process = async (brief: string) => {
   isLoading.value = true
-  const result = await processPromptRequest(systemSdkModel.value, PersonalGraphSummaryPrompt, { brief, profile: myProfile })
+  // const result = await processPromptRequest(systemSdkModel.value, PersonalGraphSummaryPrompt, { brief, profile: myProfile })
+  const result = await generateGraphSummary(systemSdkModel.value, brief)
+  const markdown = graphSummaryToMarkdown(result)
   $q.dialog({
     component: MarkdownPreviewDialog,
     componentProps: {
       title: "Processed graph data",
-      markdown: result,
+      markdown,
       customActions: [
         {
           label: "Change",
           icon: "sym_o_edit",
           onClick: async() => {
-            editText.value = result
+            editText.value = markdown
 
             return Promise.resolve()
           },
@@ -96,9 +95,7 @@ const process = async (brief: string) => {
           label: "Add to graph",
           icon: "sym_o_wallpaper",
           onClick: async () => {
-            buildGraph(result).then(async () => {
-              await fetchMyGraph()
-            })
+            await buildGraph(result)
           },
         },
       ],
@@ -107,30 +104,29 @@ const process = async (brief: string) => {
   isLoading.value = false
 }
 
-const profileToMarkdown = (profile: ProfileExtended): string => {
-  if (!profile) return ''
+// const profileToMarkdown = (profile: ProfileExtended): string => {
+//   if (!profile) return ''
 
-  const lines: string[] = []
+//   const lines: string[] = []
 
-  lines.push(`- Name: ${profile.name}`)
-  lines.push(`- Age: ${profile.id}`)
-  lines.push(`- Description: ${profile.description}`)
-  lines.push(`- Email: ${profile.email}`)
+//   lines.push(`- Name: ${profile.name}`)
+//   lines.push(`- Age: ${profile.id}`)
+//   lines.push(`- Description: ${profile.description}`)
+//   lines.push(`- Email: ${profile.email}`)
 
-  return lines.join('\n')
-}
+//   return lines.join('\n')
+// }
 
 const fetchMyGraph = async () => {
   const tool = tools.value.search_memory_facts // _nodes
   const rawResult = await tool.execute({
-    query: myProfile.value.name,
+    query: `"Find facts strictly related to ${myProfile.value.name}"`,
     group_ids: [props.graphType],
-    max_nodes: 1000
+    max_nodes: 1000,
   })
   const result = JSON.parse(rawResult.content[0].text)
 
-  console.log("---result", result)
-  console.log("---result2", formatGraphResultToMarkdown(result.facts))
+  console.log("---result", result, formatGraphResultToMarkdown(result.facts))
   // if (!tool) {
   //   $q.notify({
   //     message: "💡 No tool found",
@@ -145,21 +141,24 @@ const fetchMyGraph = async () => {
   isLoading.value = false
 }
 
-const buildGraph = async (brief: string) => {
+const buildGraph = async (graphItems: UserSummaryItem[]) => {
   isLoading.value = true
+  const results = await addGraphItems(tools.value.add_memory, myProfile.value.name, props.graphType, graphItems)
   $q.notify({
-    message: "💡 Your data is processing. Please wait...",
-    color: "positive",
+    message: results.join("\n\n"),
+    color: "positive"
   })
-  const profileAsMarkdown = profileToMarkdown(myProfile.value)
-  console.log("---buildGraph", brief)
-  await processPromptRequest(systemSdkModel.value, PersonalGraphAddMemoryPrompt,
-    { brief, profile: profileAsMarkdown, category: props.graphType }, tools.value).then((result) => {
-    $q.notify({
-      message: result,
-      color: "positive",
-    })
-  })
+  // const profileAsMarkdown = profileToMarkdown(myProfile.value)
+  // console.log("---buildGraph", brief)
+  // await processPromptRequest(systemSdkModel.value, PersonalGraphAddMemoryPrompt,
+  //   { brief, profile: profileAsMarkdown, category: props.graphType }, tools.value).then((result) => {
+  //   $q.notify({
+  //     message: result,
+  //     color: "positive",
+  //   })
+  // })
+  await fetchMyGraph()
+
   isLoading.value = false
 }
 

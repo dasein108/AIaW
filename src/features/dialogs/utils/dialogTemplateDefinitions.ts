@@ -173,6 +173,69 @@ Please name the file according to its content. Requirements:
 
 const ExampleWsIndexContent = DefaultWsIndexContent
 
+// const PersonalGraphSummaryPrompt = `
+// <instructions>
+//   Your task is to Analyze the input and extract concise, well-structured pieces of information related to the user, such as:
+
+// 	- Events (e.g., graduated, traveled)
+// 	- Skills (e.g., programming languages, hobbies)
+// 	- Interests (e.g., topics, activities)
+// 	- Desires or goals (e.g., wishes, plans)
+// 	- Characteristics or personality traits
+//   As input accept any user’s language, generate output in plain English
+// </instructions>
+
+// <input>
+//   <description>Raw text transcription of a user’s speech. The content can be about personality, facts, or wishlist descriptions.</description>
+//   <user_profile>
+//   {{ profile }}
+//   </user_profile>
+//   <user_brief>
+//   {{ brief }}
+//   </user_brief>
+// </input>
+
+// <output_specifications>
+//   <format_description>Markdown format, Each point is a bullet item </format_description>
+//   <language_rule>Use simple, clear language. Must be in English.</language_rule>
+//   <length_rule>1-3 short sentences, with preference for brevity</length_rule>
+// </output_specifications>
+
+// <examples>
+//   <example name="personality">
+// 	- Lives in Portugal
+// 	- Speaks English, Portugesse, Chinesse
+// 	- Software developer
+// 	- Skilled in Python and data analysis.
+// 	- Interested in traveling and learning new languages.
+// 	- Describes self as detail-oriented and curious.
+//   </example>
+//   <example name="facts">
+// 	- Just read the book "the Capital" of Karl Marx
+// 	- Wached movie "Titanic"
+// 	- Graduated from university in 2020 with a degree in Computer Science.
+// 	- Worked in the company "Cybernet" from May 2020 till September 2022
+// 	- Plan to travel into China in September 2025
+// 	- Does manicure for money at the moment
+// 	- Provides psychotherapist services
+// 	- Traveled to India from 01.07.2025 to 20.07.2025
+//   </example>
+//   <example name="wishlist">
+// 	- Want's to sell "Macbook" model "M4, 512 GB SSD, 32 GB RAM" for 2000$
+// 	- Looking for frontend developer for AI project, with stack: "react", "supabase", "material-ui".
+// 	- Looking for backend developer position for AI project with stack "graphiti", "puthon", "llm", "fastAPU"
+// 	- Looking for travel partner into "China" for September 2025
+// 	- Looking for clients for psychotherapy sessions for donation
+// 	- Wants to buy an island
+// 	- Цants to found an ecovillage
+//   </example>
+// </examples>
+
+// <final_instruction>
+//   Based *only* on the profile and brief provided in the \`<input>\` section, generate the summary points according to all the rules and examples specified above. Output *only* the formatted markdown.
+// </final_instruction>
+// `
+
 const PersonalGraphSummaryPrompt = `
 <instructions>
   Your task is to Analyze the input and extract concise, well-structured pieces of information related to the user, such as:
@@ -186,7 +249,7 @@ const PersonalGraphSummaryPrompt = `
 </instructions>
 
 <input>
-  <description>CRaw text transcription of a user’s speech. The content can be about personality, facts, or wishlist descriptions.</description>
+  <description>Raw text transcription of a user’s speech. The content can be about personality, facts, or wishlist descriptions.</description>
   <user_profile>
   {{ profile }}
   </user_profile>
@@ -196,43 +259,50 @@ const PersonalGraphSummaryPrompt = `
 </input>
 
 <output_specifications>
-  <format_description>Markdown format, Each point is a bullet item </format_description>
+  <format_description>List of facts in json format, each point is an item of the list </format_description>
   <language_rule>Use simple, clear language. Must be in English.</language_rule>
   <length_rule>1-3 short sentences, with preference for brevity</length_rule>
+  <json_format>must contain only alphanumeric characters, dashes, or underscores</json_format>
 </output_specifications>
 
 <examples>
   <example name="personality">
-	- Lives in Portugal
-	- Speaks English, Portugesse, Chinesse
-	- Software developer
-	- Skilled in Python and data analysis.
-	- Interested in traveling and learning new languages.
-	- Describes self as detail-oriented and curious.
+	[
+		"Lives in Portugal",
+		"Speaks English, Portugesse, Chinesse",
+		"Software developer",
+		"Skilled in Python and data analysis.",
+		"Interested in traveling and learning new languages.",
+		"Describes self as detail-oriented and curious."
+	]
   </example>
   <example name="facts">
-	- Just read the book "the Capital" of Karl Marx
-	- Wached movie "Titanic"
-	- Graduated from university in 2020 with a degree in Computer Science.
-	- Worked in the company "Cybernet" from May 2020 till September 2022
-	- Plan to travel into China in September 2025
-	- Does manicure for money at the moment
-	- Provides psychotherapist services
-	- Traveled to India from 01.07.2025 to 20.07.2025
+	[
+		"Just read the book \"the Capital\" of Karl Marx",
+		"Wached movie \"Titanic\"",
+		"Graduated from university in 2020 with a degree in Computer Science.",
+		"Worked in the company \"Cybernet\" from May 2020 till September 2022",
+		"Plan to travel into China in September 2025",
+		"Does manicure for money at the moment",
+		"Provides psychotherapist services",
+		"Traveled to India from 01.07.2025 to 20.07.2025"
+	]
   </example>
   <example name="wishlist">
-	- Want's to sell "Macbook" model "M4, 512 GB SSD, 32 GB RAM" for 2000$
-	- Looking for frontend developer for AI project, with stack: "react", "supabase", "material-ui".
-	- Looking for backend developer position for AI project with stack "graphiti", "puthon", "llm", "fastAPU"
-	- Looking for travel partner into "China" for September 2025
-	- Looking for clients for psychotherapy sessions for donation
-	- Wants to buy an island
-	- Цants to found an ecovillage
+	[
+		"Want's to sell \"Macbook\" model \"M4, 512 GB SSD, 32 GB RAM\" for 2000$",
+		"Looking for frontend developer for AI project, with stack: \"react\", \"supabase\", \"material-ui\".",
+		"Looking for backend developer position for AI project with stack \"graphiti\", \"puthon\", \"llm\", \"fastAPU\"",
+		"Looking for travel partner into \"China\" for September 2025",
+		"Looking for clients for psychotherapy sessions for donation",
+		"Wants to buy an island",
+		"Wants to found an ecovillage"
+	]
   </example>
 </examples>
 
 <final_instruction>
-  Based *only* on the profile and brief provided in the \`<input>\` section, generate the summary points according to all the rules and examples specified above. Output *only* the formatted markdown.
+  Based *only* on the profile and brief provided in the \`<input>\` section, generate the summary points according to all the rules and examples specified above. Output *only* the list of items in json format.
 </final_instruction>
 `
 

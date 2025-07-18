@@ -1,4 +1,5 @@
-import { generateText, LanguageModelV1 } from "ai"
+import { generateObject, generateText, LanguageModelV1 } from "ai"
+import { z } from "zod"
 
 import { PluginPrompt } from "@/shared/types"
 
@@ -61,6 +62,25 @@ const processPromptRequest = async (
   return response.text === '""' ? '' : response.text
 }
 
+const processPromptToObject = async (
+  model: LanguageModelV1,
+  promptTemplate: string,
+  context: Record<string, any>,
+) => {
+  const response = await generateObject({
+    model,
+    schema: z.object({
+      items: z.array(z.string()),
+    }),
+    prompt: engine.parseAndRenderSync(promptTemplate, context),
+  })
+
+  console.log("---processPromptRequest response", response)
+
+  // If response.text is exactly '""', return empty string instead
+  return response.object.items
+}
+
 const generateExtractArtifact = async (
   model: LanguageModelV1,
   content: MessageContentNested[],
@@ -96,5 +116,6 @@ export {
   generateArtifactName,
   generateExtractArtifact,
   getSystemPrompt,
-  processPromptRequest
+  processPromptRequest,
+  processPromptToObject
 }
