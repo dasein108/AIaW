@@ -8,7 +8,7 @@
     show-if-above
     bg-sur-c-low
     :width="drawerWidth"
-    :breakpoint="drawerBreakpoint"
+    :breakpoint="DRAWER_BREAKPOINT"
     side="right"
     v-model="drawerOpen"
     flex
@@ -37,6 +37,8 @@ import { computed, provide, ref } from "vue"
 
 import { pageFhStyle } from "@/shared/utils/functions"
 
+import { DRAWER_BREAKPOINT } from "./consts"
+
 import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
 
 const props = defineProps<{
@@ -47,8 +49,6 @@ const props = defineProps<{
 const drawerOpen = ref(true)
 
 const $q = useQuasar()
-
-const drawerBreakpoint = 960
 
 const extraWidth = ref(Math.max(innerWidth / 2, props.customWidth || 0))
 
@@ -66,9 +66,9 @@ defineEmits(["toggle-drawer"])
 //   }
 // })
 
-const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
+const rightDrawerAbove = computed(() => $q.screen.width > DRAWER_BREAKPOINT)
 provide("rightDrawerAbove", rightDrawerAbove)
 
-const isMobile = computed(() => $q.screen.width <= drawerBreakpoint)
+const isMobile = computed(() => $q.screen.width <= DRAWER_BREAKPOINT)
 
 </script>

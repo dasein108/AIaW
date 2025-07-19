@@ -42,6 +42,7 @@ const defaultWorkspaceId = "6c5326f7-e564-48f2-9e19-318f412ec174"
 
 const CYBER_GRAPH_MCP_URL = "https://mcpo.chatcyber.ai/sse"
 const GRAPHITI_MCP_URL = "https://mcp-graphiti.chatcyber.ai/sse"
+const GRAPHITI_MCP_ID = hash53(GRAPHITI_MCP_URL)
 const SEARCH_NGX_URL = "https://searx.chatcyber.ai/"
 
 // Built-in MCP plugins, installed by default, can be uninstalled by design
@@ -58,7 +59,7 @@ const DEFAULT_BUILDIN_MCP_PLUGINS = [{
     hue: 200
   } as IconAvatar
 }, {
-  id: hash53(GRAPHITI_MCP_URL),
+  id: GRAPHITI_MCP_ID,
   title: "Graphiti",
   transport: { type: "sse", url: GRAPHITI_MCP_URL },
   description: "Graphiti is a tool for building and querying temporally-aware knowledge graphs",
@@ -74,5 +75,7 @@ const DEFAULT_BUILTIN_PLUGINS = ["kepler-plugin", "cosmos-authz", "aiaw-web"]
 
 export {
   defaultWorkspaceId, getDefaultAssistant, getDefaultProviderData,
-  DEFAULT_BUILDIN_MCP_PLUGINS, SEARCH_NGX_URL, DEFAULT_PROVIDER_DATA, DEFAULT_BUILTIN_PLUGINS
+  DEFAULT_BUILDIN_MCP_PLUGINS, SEARCH_NGX_URL,
+  DEFAULT_PROVIDER_DATA, DEFAULT_BUILTIN_PLUGINS,
+  GRAPHITI_MCP_ID, GRAPHITI_MCP_URL
 }

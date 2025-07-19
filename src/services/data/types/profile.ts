@@ -14,6 +14,10 @@ type Profile<T extends DbProfile = DbProfileRow> = OverrideProps<DtoToEntity<T>,
   avatar: Avatar
 }>
 
+type ProfileExtended = Profile & {
+  email: string
+}
+
 type DbUserProfile = {
   user_id: string
   profile: DbProfileRow
@@ -37,4 +41,4 @@ const mapProfileToDb = <T extends DbProfile>(profile: Profile<T>): DbProfile =>
   entityToDto(profile) as T
 
 export { mapDbToProfile, mapDbToUserProfile, mapProfileToDb }
-export type { Profile, UserProfile, DbProfileUpdate }
+export type { Profile, UserProfile, DbProfileUpdate, ProfileExtended }

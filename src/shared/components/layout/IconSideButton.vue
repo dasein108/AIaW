@@ -4,6 +4,7 @@
     clickable
     dense
     :to="props.to"
+    exact
     @click="props.onClick"
     :active="props.active"
     rounded

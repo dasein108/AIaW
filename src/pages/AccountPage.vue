@@ -98,7 +98,7 @@ import { useUserStore } from "@/shared/store/user"
 import { useProfileStore } from "@/features/profile/store"
 import Web3Settings from "@/features/settings/components/Web3Settings.vue"
 
-import PageViewWithDrawer from "./common/SettingPageLayout.vue"
+import PageViewWithDrawer from "./common/SidebarPageLayout.vue"
 const profileStore = useProfileStore()
 const {
   currentUser,

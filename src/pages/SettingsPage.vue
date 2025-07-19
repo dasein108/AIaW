@@ -1,12 +1,12 @@
 <template>
-  <page-view-with-drawer
+  <sidebar-page-layout
     :title="pageTitle"
     @toggle-drawer="$emit('toggle-drawer')"
   >
     <template #drawer>
       <settings-drawer />
     </template>
-  </page-view-with-drawer>
+  </sidebar-page-layout>
   <!-- <q-drawer
     bg-sur-c-low
     :width="320"
@@ -43,7 +43,7 @@ import { useRoute, useRouter } from "vue-router"
 
 import SettingsDrawer from "@/shared/components/layout/settings/SettingsDrawer.vue"
 
-import PageViewWithDrawer from "./common/SettingPageLayout.vue"
+import SidebarPageLayout from "./common/SidebarPageLayout.vue"
 const route = useRoute()
 const router = useRouter()
 

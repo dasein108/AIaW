@@ -343,6 +343,18 @@ body .md-editor-preview-wrapper {
   }
 }
 
+.q-card{
+  border-radius: 10px;
+}
+
+.q-dialog {
+  &__inner {
+   >div {
+    border-radius: 10px;
+   }
+  }
+}
+
 .q-item {
   min-height: 40px;
   border-radius: 10px;
@@ -378,4 +390,11 @@ body .md-editor-preview-wrapper {
   // &__content {
   //   padding: 5px 5px 0;
   // }
+}
+
+.page-width {
+  max-width: 1010px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
 }

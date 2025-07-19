@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { ref, watch, onMounted, onBeforeUnmount, computed, defineExpose } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, computed, defineExpose, nextTick } from 'vue'
 
 import { localData } from "@/shared/utils/localData"
 
@@ -78,7 +78,8 @@ const selectedLang = ref(localData.voiceLanguage || userLang)
 const isListening = ref(false)
 const inputValue = defineModel<string>('inputValue', { required: true })
 const initialInputValue = ref('')
-let recognition: any = null
+const voiceChangeInProgress = ref(false)
+let recognition: { reset: () => void, lang: string, start: () => void, stop: () => void } | null = null
 
 const currentLangLabel = computed(() => {
   const found = langOptions.find(opt => opt.value === selectedLang.value)
@@ -91,13 +92,26 @@ function selectLang(val: string) {
   localData.voiceLanguage = selectedLang.value = val
 }
 
+watch(inputValue, (val) => {
+  if (val) {
+    if (!voiceChangeInProgress.value && isListening.value) {
+      nextTick(() => {
+        initialInputValue.value = val
+        recognition?.stop()
+        setTimeout(() => {
+          recognition?.start()
+        }, 100)
+      })
+    }
+  }
+})
+
 function createRecognition() {
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
 
   if (!SpeechRecognition) return null
 
   const rec = new SpeechRecognition()
-
   rec.continuous = true
   rec.interimResults = true
   rec.lang = selectedLang.value
@@ -107,7 +121,11 @@ function createRecognition() {
     for (let i = 0; i < event.results.length; ++i) {
       fullText += event.results[i][0].transcript
     }
+    voiceChangeInProgress.value = true
     inputValue.value = initialInputValue.value + " " + fullText
+    nextTick(() => {
+      voiceChangeInProgress.value = false
+    })
   }
   rec.onerror = (e) => {
     $q.notify({
@@ -128,6 +146,7 @@ function createRecognition() {
 
 function startListening() {
   initialInputValue.value = inputValue.value || ""
+  console.log("startListening", initialInputValue.value)
 
   if (isListening.value) return
 
@@ -146,6 +165,7 @@ function stopListening() {
   if (recognition) recognition.stop()
 
   isListening.value = false
+  console.log("stopListening", voiceChangeInProgress.value)
 }
 
 defineExpose({ stopListening, startListening })
