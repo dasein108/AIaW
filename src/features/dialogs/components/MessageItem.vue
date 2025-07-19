@@ -13,7 +13,6 @@
         :message="messageWithContents"
         :profile="profile"
         :position="message.type === 'user' ? 'right' : 'left'"
-        @rendered="$emit('rendered')"
       >
         <!-- Text Selection Overlay -->
         <template v-if="perfs.messageSelectionBtn">
@@ -297,7 +296,6 @@ const emit = defineEmits<{
   edit: []
   quote: [ApiResultItem]
   "extract-artifact": [[string, RegExp | string, ConvertArtifactOptions]]
-  rendered: []
   delete: []
   "create-cyberlink": [string]
 }>()
