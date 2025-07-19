@@ -6,6 +6,7 @@ import { OverrideProps, DtoToEntity } from "@/shared/utils/dto/types"
 import { Database } from "../supabase/database.types"
 
 import { Profile } from "./profile"
+import { StoredItem } from "./storedItem"
 
 type DbChatMessageRow = Database["public"]["Tables"]["messages"]["Row"]
 type DbChatMessageInsert = Database["public"]["Tables"]["messages"]["Insert"]
@@ -27,6 +28,7 @@ type Chat<T extends DbChat = DbChatRow> = OverrideProps<DtoToEntity<T>, ChatMap>
 
 type ChatMessage<T extends DbChatMessage = DbChatMessageRow> = DtoToEntity<T> & {
   sender: Profile | null
+  storedItems?: StoredItem[]
 }
 
 const mapDbToChat = (chat: DbChat) => {

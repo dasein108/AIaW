@@ -112,7 +112,7 @@ const adaptedMessage = computed(() => ({
     type: (isMine.value ? "user-message" : "assistant-message") as "user-message" | "assistant-message",
     text: props.message.content,
     id: `${props.message.id}-content`,
-    storedItems: []
+    storedItems: props.message.storedItems || []
   }],
   status: 'default' as const,
   modelName: null,

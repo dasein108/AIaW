@@ -5,10 +5,12 @@ import { useUserStore } from "@/shared/store"
 import { ApiResultItem } from "@/shared/types"
 
 import { useChatMessagesSubscription } from "@/features/chats/composables/useChatMessagesSubscription"
+import { useProfileStore } from "@/features/profile/store"
 import { useStoredItemsStore } from "@/features/storedItems/store"
 
 import { supabase } from "@/services/data/supabase/client"
 import { ChatMessage, DbChatMessageInsert, mapChatMessageToDb, mapDbToChatMessage } from "@/services/data/types/chat"
+import { mapDbToStoredItem } from "@/services/data/types/storedItem"
 
 import { useChatsStore } from "./index"
 
@@ -19,14 +21,23 @@ export const useChatMessagesStore = defineStore("chat-messages", () => {
   const messagesByChat = ref<Record<string, ChatMessage[]>>({})
 
   const onNewMessage = (message: ChatMessage) => {
+    // Skip messages from current user since we add them directly in the add() function
+    if (message.senderId === userStore.currentUserId) {
+      return
+    }
+
     if (!messagesByChat.value[message.chatId]) {
       messagesByChat.value[message.chatId] = []
     }
 
-    if (message.senderId !== userStore.currentUserId) {
-      chatsStore.incrementUnreadCount(message.chatId)
+    // Check if message already exists (to avoid duplicates)
+    const existingMessage = messagesByChat.value[message.chatId].find(m => m.id === message.id)
+
+    if (existingMessage) {
+      return
     }
 
+    chatsStore.incrementUnreadCount(message.chatId)
     messagesByChat.value[message.chatId].push(message)
   }
 
@@ -36,7 +47,7 @@ export const useChatMessagesStore = defineStore("chat-messages", () => {
   const fetchMessages = async (chatId: string, offset = 0, limit = 100) => {
     const { data, error } = await supabase
       .from("messages")
-      .select("*, sender:profiles(*)")
+      .select("*, sender:profiles(*), stored_items(*)")
       .eq("chat_id", chatId)
       // .gt('created_at', date)
       .order("created_at", { ascending: true })
@@ -48,13 +59,19 @@ export const useChatMessagesStore = defineStore("chat-messages", () => {
       return
     }
 
+    // Map the data to include storedItems
+    const mappedMessages = data.map(msg => {
+      const message = mapDbToChatMessage(msg)
+      message.storedItems = msg.stored_items ? msg.stored_items.map(mapDbToStoredItem) : []
+
+      return message
+    })
+
     // TODO: temporary solution for lazy loading
     if (offset === 0) {
-      messagesByChat.value[chatId] = data.map(mapDbToChatMessage)
+      messagesByChat.value[chatId] = mappedMessages
     } else {
-      messagesByChat.value[chatId].unshift(
-        ...(data.map(mapDbToChatMessage))
-      )
+      messagesByChat.value[chatId].unshift(...mappedMessages)
     }
 
     return data
@@ -71,11 +88,30 @@ export const useChatMessagesStore = defineStore("chat-messages", () => {
       throw error
     }
 
+    let storedItems = []
+
     if (items.length > 0) {
-      await Promise.all(items.map(async (item) => {
-        await storedItemsStore.createAndUpload({ messageId: data.id }, item)
+      // Create stored items and collect them
+      storedItems = await Promise.all(items.map(async (item) => {
+        return await storedItemsStore.createAndUpload({ messageId: data.id }, item)
       }))
     }
+
+    // Create the complete message with stored items and add it to local state
+    const completeMessage = mapDbToChatMessage(data)
+    completeMessage.storedItems = storedItems
+
+    // Fetch sender profile for the message
+    const { fetchProfile } = useProfileStore()
+    const profile = await fetchProfile(completeMessage.senderId)
+    completeMessage.sender = profile as any
+
+    // Add to local state directly (don't wait for subscription)
+    if (!messagesByChat.value[completeMessage.chatId]) {
+      messagesByChat.value[completeMessage.chatId] = []
+    }
+
+    messagesByChat.value[completeMessage.chatId].push(completeMessage)
 
     return data
   }
