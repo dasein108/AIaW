@@ -120,8 +120,8 @@ const process = async (brief: string) => {
 const fetchMyGraph = async () => {
   const tool = tools.value.search_memory_facts // _nodes
   const rawResult = await tool.execute({
-    query: `"Find facts strictly related to ${myProfile.value.name}"`,
-    group_ids: [props.graphType],
+    query: myProfile.value.name,
+    // group_ids: [myProfile.value.name],
     max_nodes: 1000,
   })
   const result = JSON.parse(rawResult.content[0].text)

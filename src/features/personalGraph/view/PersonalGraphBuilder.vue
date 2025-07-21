@@ -80,6 +80,8 @@ import { experimental_createMCPClient } from 'ai'
 import { useQuasar } from 'quasar'
 import { onMounted, provide, ref } from 'vue'
 
+import { GRAPHITI_MCP_URL } from '@/shared/consts'
+
 import PersonalGraphContainer from "../components/PersonalGraphContainer.vue"
 import PersonalGraphNavigation from "../components/PersonalGraphNavigation.vue"
 
@@ -98,7 +100,7 @@ onMounted(async () => {
   await experimental_createMCPClient({
     transport: {
       type: "sse",
-      url: "http://localhost:8001/sse" // GRAPHITI_MCP_URL
+      url: GRAPHITI_MCP_URL // "http://localhost:8001/sse" // GRAPHITI_MCP_URL
     }
   }).then(async client => {
     tools.value = await client.tools()

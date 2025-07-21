@@ -178,7 +178,7 @@ const addGraphItems = async (tool: Tool, userName: string, graphType: PersonalGr
   for (const item of graphItems) {
     const body = {
       // uuid: myProfile.value.id,
-      group_id: graphType,
+      group_id: userName,
       source: "text",
       source_description: `${userName} ${graphType}`,
       name: `${userName} - ${item.title}`,
