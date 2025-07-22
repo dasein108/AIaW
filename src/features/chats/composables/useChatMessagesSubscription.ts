@@ -1,5 +1,6 @@
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import { useProfileStore } from "@/features/profile/store"
+import { useStoredItemsStore } from "@/features/storedItems/store"
 
 import { supabase } from "@/services/data/supabase/client"
 import { ChatMessage, DbChatMessage, mapDbToChatMessage } from "@/services/data/types/chat"
@@ -20,6 +21,8 @@ export function useChatMessagesSubscription (
   onNewMessage: (message: ChatMessage) => void
 ) {
   const { fetchProfile } = useProfileStore()
+  const storedItemsStore = useStoredItemsStore()
+
   // Subscribe only once
   const subscribe = () => {
     if (!subscription) {
@@ -34,10 +37,20 @@ export function useChatMessagesSubscription (
           },
           async (payload) => {
             const message = mapDbToChatMessage(payload.new as DbChatMessage)
+
             // Fetch sender profile with cache
             const profile = await fetchProfile(message.senderId)
             profileCache.set(message.senderId, profile)
             message.sender = profile as Profile
+
+            // Fetch stored items for this message
+            try {
+              const storedItems = await storedItemsStore.fetchAll({ messageId: message.id })
+              message.storedItems = storedItems
+            } catch (error) {
+              console.error("Failed to fetch stored items for message:", error)
+              message.storedItems = []
+            }
 
             onNewMessage(message)
           }

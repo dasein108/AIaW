@@ -1,101 +1,35 @@
 <template>
-  <div
-    flex
-    :class="{ 'flex-row-reverse': isMine, 'flex-col': colMode }"
-    relative
-  >
-    <div>
-      <div
-        flex
-        :class="[
-          colMode ? 'flex-row items-center' : 'flex-col items-center top-0',
-        ]"
-      >
-        <a-avatar
-          v-if="avatar"
-          :avatar
-          :size="colMode ? '36px' : denseMode ? '40px' : '48px'"
-          :class="colMode ? 'mx-3' : 'xs:mx-3 sm:mx-4'"
+  <div min-w-0>
+    <base-message-item
+      :message="adaptedMessage"
+      :profile="senderProfile"
+      :position="isMine ? 'right' : 'left'"
+      :always-use-user-style="true"
+    >
+      <!-- Simple Actions Slot -->
+      <template #actions="{ message: msg }">
+        <copy-btn
+          v-if="msg.messageContents?.[0]?.text"
+          round
+          flat
+          dense
+          text="sec xs"
+          un-size="32px"
+          :value="msg.messageContents[0].text"
         />
-        <div
-          v-if="message.sender?.name"
-          :class="colMode ? '' : 'my-2 text-xs'"
-          text="center on-sur-var"
-        >
-          {{ message.sender?.name }}
-        </div>
-      </div>
-    </div>
-    <div min-w-0>
-      <div
-        position-relative
-        :class="'min-h-24px min-w-100px'"
-        class="group"
-      >
-        <div
-          :class="'bg-sur-c-low'"
-          rd-lg
-        >
-          <div
-            ref="textDiv"
-            pos-relative
-            overflow-visible
-          >
-            <md-preview
-              :class="'bg-sur-c-low'"
-              :id="mdId"
-              rd-lg
-              :model-value="message.content"
-              v-bind="mdPreviewProps"
-            />
-            <transition name="fade">
-              <q-btn-group
-                v-if="showFloatBtns"
-                :style="floatBtnStyle"
-                pos-absolute
-                z-3
-                bg-sec-c
-                text-on-sec-c
-                @click="showFloatBtns = false"
-              >
-                <q-btn
-                  icon="sym_o_format_quote"
-                  :label="$t('messageItem.quote')"
-                  @click="quote(selected.text)"
-                  no-caps
-                  sm-icon
-                />
-                <template v-if="selected.original">
-                  <q-separator vertical />
-                  <q-btn
-                    icon="sym_o_content_copy"
-                    :label="$t('messageItem.copyMarkdown')"
-                    @click="copyToClipboard(selected.text)"
-                    :title="$t('messageItem.copyMarkdown')"
-                    no-caps
-                    sm-icon
-                  />
-                </template>
-              </q-btn-group>
-            </transition>
-          </div>
-        </div>
-      </div>
-    </div>
+      </template>
+    </base-message-item>
   </div>
 </template>
 
 <script setup lang="ts">
-import { MdPreview } from "md-editor-v3"
 import { storeToRefs } from "pinia"
-import { copyToClipboard, useQuasar } from "quasar"
-import { computed, reactive, ref } from "vue"
+import { computed } from "vue"
 
-import { AAvatar } from "@/shared/components/avatar"
-import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
+import CopyBtn from "@/shared/components/CopyBtn.vue"
+import BaseMessageItem from '@/shared/components/message/BaseMessageItem.vue'
 import { useUserStore } from "@/shared/store/user"
-import { ApiResultItem } from "@/shared/types"
-import { genId } from "@/shared/utils/functions"
+import { defaultTextAvatar } from "@/shared/utils/functions"
 
 import { useProfileStore } from "@/features/profile/store"
 
@@ -110,49 +44,55 @@ const userStore = useUserStore()
 const isMine = computed(
   () => props.message.sender?.id === userStore.currentUserId
 )
-const mdId = `md-${genId()}`
-
-const $q = useQuasar()
-
-const emit = defineEmits<{
-  send: []
-  edit: []
-  rendered: []
-  delete: []
-  quote: [ApiResultItem]
-  stream: [string]
-}>()
 
 const { myProfile } = storeToRefs(useProfileStore())
 
-const denseMode = computed(() => $q.screen.lt.md)
-const colMode = computed(() => denseMode.value && !isMine.value)
-const avatar = computed(() =>
-  isMine.value
-    ? myProfile.value.avatar
-    : (props.message.sender?.avatar)
-)
+// Computed properties for BaseMessageItem
+const adaptedMessage = computed(() => ({
+  id: props.message.id,
+  messageContents: [{
+    type: (isMine.value ? "user-message" : "assistant-message") as "user-message" | "assistant-message",
+    text: props.message.content,
+    id: `${props.message.id}-content`,
+    storedItems: props.message.storedItems || []
+  }],
+  status: 'default' as const,
+  modelName: null,
+  error: null,
+  warnings: []
+}))
 
-const showFloatBtns = ref(false)
-const floatBtnStyle = reactive({
-  top: undefined,
-  left: undefined,
+const senderProfile = computed(() => {
+  if (isMine.value) {
+    return {
+      profile: {
+        id: myProfile.value.id,
+        name: myProfile.value.name,
+        avatar: myProfile.value.avatar
+      }
+    } as any
+  } else {
+    if (!props.message.sender) {
+      // Fallback when sender is null/undefined
+      return {
+        profile: {
+          id: 'unknown',
+          name: 'Unknown User',
+          avatar: defaultTextAvatar('Unknown User')
+        }
+      } as any
+    }
+
+    return {
+      profile: {
+        id: props.message.sender.id,
+        name: props.message.sender.name || 'Unknown User',
+        avatar: props.message.sender.avatar || defaultTextAvatar(props.message.sender.name || 'Unknown User')
+      }
+    } as any
+  }
 })
-const textDiv = ref()
-const selected = reactive({
-  text: null,
-  original: false,
-})
 
-function quote (text: string) {
-  emit("quote", {
-    type: "quote",
-    name: `${props.message.sender?.name}`,
-    contentText: text,
-  })
-}
-
-const mdPreviewProps = useMdPreviewProps()
 </script>
 
 <style lang="scss">
