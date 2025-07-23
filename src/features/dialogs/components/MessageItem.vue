@@ -7,72 +7,27 @@
     }"
     relative
   >
-    <div>
-      <div
-        flex
-        :class="[
-          colMode ? 'flex-row items-center' : 'flex-col pos-sticky top-0',
-          message.type === 'assistant' ? 'pl-2' : '',
-        ]"
-      >
-        <a-avatar
-          v-if="avatar"
-          :avatar
-        />
-        <div
-          v-if="name"
-          :class="colMode ? '' : 'my-2 text-xs'"
-          text="center on-sur-var"
-        >
-          {{ name }}
-        </div>
-      </div>
-    </div>
+    <!-- Main Message Content -->
     <div min-w-0>
-      <div
-        position-relative
-        :class="
-          message.type === 'user' ? 'min-h-48px' : 'min-h-24px min-w-100px'
-        "
-        class="group"
+      <base-message-item
+        :message="messageWithContents"
+        :profile="profile"
+        :position="message.type === 'user' ? 'right' : 'left'"
       >
-        <div
-          v-for="(content, index) in contents"
-          :key="index"
-          :class="message.type === 'user' ? 'bg-sur-c-low' : 'bg-sur'"
-          rd-lg
-        >
-          <md-preview
-            v-if="content.type === 'assistant-message' && content.reasoning"
-            :model-value="`\`\`\`${$t('messageItem.reasoningContent')}\n${content.reasoning}\n\`\`\``"
-            v-bind="mdPreviewProps"
-            @on-html-changed="onHtmlChanged(false)"
-            class="content-reasoning"
-            bg-sur
-            no-highlight
-            :show-code-row-number="false"
-            :auto-fold-threshold="message.generatingSession ? Infinity : 0"
-          />
+        <!-- Text Selection Overlay -->
+        <template v-if="perfs.messageSelectionBtn">
           <div
+            v-for="(content, index) in selectableTextContent"
+            :key="`selection-${index}`"
             ref="textDiv"
             @mouseup="onSelect('mouse')"
             @touchend="onSelect('touch')"
-            pos-relative
-            overflow-visible
-            v-if="
-              (content.type === 'assistant-message' ||
-                content.type === 'user-message') &&
-                content.text
-            "
+            pos-absolute
+            inset-0
+            z-2
+            pointer-events-none
+            style="pointer-events: none"
           >
-            <md-preview
-              :class="message.type === 'user' ? 'bg-sur-c-low' : 'bg-sur'"
-              :id="mdId"
-              rd-lg
-              :model-value="content.text"
-              v-bind="mdPreviewProps"
-              @on-html-changed="onHtmlChanged(true)"
-            />
             <transition name="fade">
               <q-btn-group
                 v-if="showFloatBtns"
@@ -82,6 +37,7 @@
                 bg-sec-c
                 text-on-sec-c
                 @click="showFloatBtns = false"
+                style="pointer-events: auto"
               >
                 <q-btn
                   icon="sym_o_format_quote"
@@ -115,174 +71,86 @@
               </q-btn-group>
             </transition>
           </div>
-          <div
-            v-if="
-              content.type === 'user-message' && content.storedItems.length
-            "
-            flex
-            flex-wrap
-            px-4
-            py-3
-            gap-2
-          >
-            <message-image
-              v-for="image in content.storedItems.filter((i) =>
-                i.mimeType?.startsWith('image/')
-              )"
-              :key="image.id"
-              :image="image"
-              h="100px"
-            />
-            <message-file
-              v-for="file in content.storedItems.filter(
-                (i) => !i.mimeType?.startsWith('image/')
-              )"
-              :key="file.id"
-              :file="file"
-            />
-          </div>
-          <tool-content
-            v-if="content.type === 'assistant-tool'"
-            :content="content as AssistantToolContent"
-            my-2
-            :class="colMode ? 'mx-4' : 'mx-2'"
-          />
-          <!-- <cyberlink-result
-            v-if="
-              message.status !== 'processed' &&
-                content.type === 'assistant-tool' &&
-                content.name === 'create_cyberlink' &&
-                content.status === 'completed'
-            "
-            :result="content.stored_items"
-            :message="message"
-            :key="'cyberlink-' + index"
-            class="my-2"
-          /> -->
-        </div>
-        <div
-          text-err
-          break-word
-          px-5
-          mt-2
-          pb-2
-          v-if="message.error"
-        >
-          {{ message.error }}
-        </div>
-        <div v-if="perfs.showWarnings && message.warnings?.length">
-          <div
-            text-warn
-            break-word
-            px-5
-            my-2
-            v-for="(warning, index) in message.warnings"
-            :key="index"
-          >
-            {{ warning }}
-          </div>
-        </div>
-        <q-icon
-          v-if="message.status === 'inputing'"
-          name="sym_o_edit"
-          pos-absolute
-          left--1
-          bottom-0
-          translate-x="-100%"
-          text-on-sur-var
-        />
-        <div
-          v-if="message.status !== 'streaming'"
-          text="out xs"
-          pos-absolute
-          right-1
-          bottom--1
-          translate-y="100%"
-          opacity-0
-          group-hover:opacity-100
-          transition="opacity 250"
-          whitespace-nowrap
-        >
-          <span>{{ message.modelName }}</span>
-          <span ml-3>{{ idDateString(message.id) }}</span>
-        </div>
-      </div>
-      <div
-        :class="colMode ? 'mx-4' : 'mx-2'"
-        v-if="['pending', 'streaming'].includes(message.status)"
-      >
-        <q-linear-progress indeterminate />
-      </div>
-      <div
-        text-on-sur-var
-        :class="
-          message.type === 'assistant' ? (colMode ? 'mx-4' : 'mx-2') : 'mt-1'
-        "
-        flex
-        items-center
-      >
-        <template v-if="childNum > 1">
-          <q-pagination
-            v-model="model"
-            :max="childNum"
-            input
-            :boundary-links="false"
-          />
-          <q-btn
-            icon="sym_o_delete"
-            v-if="!['pending', 'streaming'].includes(message.status)"
-            flat
-            dense
-            round
-            text="sec xs hover:err"
-            un-size="32px"
-            :title="$t('messageItem.deleteBranch')"
-            @click="deleteBranch"
-          />
         </template>
-        <template v-if="['default', 'failed'].includes(message.status) && textContent">
-          <copy-btn
-            round
-            flat
-            dense
-            text="sec xs"
-            un-size="32px"
-            :value="textContent.text"
-          />
+
+        <!-- Custom Actions Slot -->
+        <template #actions="{ message: msg }">
+          <div
+            flex
+            items-center
+          >
+            <!-- Branch Pagination -->
+            <template v-if="childNum > 1">
+              <q-pagination
+                v-model="model"
+                :max="childNum"
+                input
+                :boundary-links="false"
+              />
+              <q-btn
+                icon="sym_o_delete"
+                v-if="!['pending', 'streaming'].includes(msg.status)"
+                flat
+                dense
+                round
+                text="sec xs hover:err"
+                un-size="32px"
+                :title="$t('messageItem.deleteBranch')"
+                @click="deleteBranch"
+              />
+            </template>
+
+            <!-- Main Actions -->
+            <template v-if="['default', 'failed'].includes(msg.status) && textContent">
+              <copy-btn
+                round
+                flat
+                dense
+                text="sec xs"
+                un-size="32px"
+                :value="textContent.text"
+              />
+              <q-btn
+                v-if="canCreateCyberlink"
+                icon="sym_o_link"
+                round
+                flat
+                dense
+                text="sec xs"
+                un-size="32px"
+                title="Create Cyberlink"
+                @click="$emit('create-cyberlink', textContent.text)"
+              />
+              <q-btn
+                v-if="message.type === 'assistant'"
+                icon="sym_o_refresh"
+                round
+                flat
+                dense
+                text="sec xs"
+                un-size="32px"
+                :title="$t('messageItem.regenerate')"
+                @click="$emit('regenerate')"
+              />
+              <q-btn
+                v-if="message.type === 'user'"
+                icon="sym_o_edit"
+                round
+                flat
+                dense
+                text="sec xs"
+                un-size="32px"
+                :title="$t('messageItem.edit')"
+                @click="$emit('edit')"
+              />
+            </template>
+          </div>
+        </template>
+
+        <!-- Context Menu Slot -->
+        <template #context-menu="{ message: msg }">
           <q-btn
-            v-if="canCreateCyberlink"
-            icon="sym_o_link"
-            round
-            flat
-            dense
-            text="sec xs"
-            un-size="32px"
-            title="Create Cyberlink"
-            @click="$emit('create-cyberlink', textContent.text)"
-          />
-          <q-btn
-            v-if="message.type === 'assistant'"
-            icon="sym_o_refresh"
-            round
-            flat
-            dense
-            text="sec xs"
-            un-size="32px"
-            :title="$t('messageItem.regenerate')"
-            @click="$emit('regenerate')"
-          />
-          <q-btn
-            v-if="message.type === 'user'"
-            icon="sym_o_edit"
-            round
-            flat
-            dense
-            text="sec xs"
-            un-size="32px"
-            :title="$t('messageItem.edit')"
-            @click="$emit('edit')"
-          />
-          <q-btn
+            v-if="['default', 'failed'].includes(msg.status) && textContent"
             icon="sym_o_more_vert"
             round
             flat
@@ -318,8 +186,10 @@
             </q-menu>
           </q-btn>
         </template>
-      </div>
+      </base-message-item>
     </div>
+
+    <!-- Sidebar Catalog -->
     <div
       v-if="!colMode"
       w="xs:20px sm:22.5%"
@@ -340,14 +210,13 @@
 </template>
 
 <script setup lang="ts">
-import { MdCatalog, MdPreview } from "md-editor-v3"
+import { MdCatalog } from "md-editor-v3"
 import { storeToRefs } from "pinia"
 import { copyToClipboard, useQuasar } from "quasar"
 import {
   computed,
   ComputedRef,
   inject,
-  nextTick,
   onUnmounted,
   reactive,
   ref,
@@ -356,17 +225,15 @@ import {
 } from "vue"
 import { useI18n } from "vue-i18n"
 
-import AAvatar from "@/shared/components/avatar/AAvatar.vue"
 import CopyBtn from "@/shared/components/CopyBtn.vue"
 import TextareaDialog from "@/shared/components/dialogs/TextareaDialog.vue"
 import MenuItem from "@/shared/components/menu/MenuItem.vue"
+import BaseMessageItem from "@/shared/components/message/BaseMessageItem.vue"
 import { useMdPreviewProps } from "@/shared/composables/mdPreviewProps"
 import { useUserPerfsStore } from "@/shared/store"
 import { ApiResultItem, ConvertArtifactOptions } from "@/shared/types"
 import {
-  escapeRegex,
   genId,
-  idDateString,
   isPlatformEnabled,
   textBeginning,
   wrapCode,
@@ -382,12 +249,8 @@ import { useDialogsStore } from "@/features/dialogs/store"
 // import CyberlinkResult from "./CyberlinkResult.vue"
 import {
   AssistantMessageContent,
-  AssistantToolContent,
   UserMessageContent,
 } from "@/features/dialogs/types"
-import MessageFile from "@/features/media/components/MessageFile.vue"
-import MessageImage from "@/features/media/components/MessageImage.vue"
-import ToolContent from "@/features/plugins/components/ToolContent.vue"
 import { usePluginsStore } from "@/features/plugins/store"
 import { useProfileStore } from "@/features/profile/store"
 
@@ -433,7 +296,6 @@ const emit = defineEmits<{
   edit: []
   quote: [ApiResultItem]
   "extract-artifact": [[string, RegExp | string, ConvertArtifactOptions]]
-  rendered: []
   delete: []
   "create-cyberlink": [string]
 }>()
@@ -509,20 +371,52 @@ const canCreateCyberlink = computed(() => {
 
 const { myProfile } = storeToRefs(useProfileStore())
 
-const avatar = computed(() =>
-  props.message.type === "user"
-    ? myProfile.value.avatar
-    : assistantsStore.assistants.find(
-      (a) => a.id === props.message.assistantId
-    )?.avatar
-)
+// Computed properties for BaseMessageItem
+const messageWithContents = computed(() => ({
+  id: props.message.id,
+  messageContents: contents.value
+    .filter(content => content.type === 'user-message' || content.type === 'assistant-message')
+    .map(content => ({
+      type: content.type as 'user-message' | 'assistant-message',
+      text: content.text,
+      id: content.id,
+      storedItems: content.storedItems || [],
+      reasoning: (content as any).reasoning
+    })),
+  status: props.message.status === 'failed' ? 'error' : props.message.status as any,
+  modelName: props.message.modelName,
+  error: props.message.error,
+  warnings: props.message.warnings
+}))
 
-const name = computed(() =>
-  props.message.type === "user"
-    ? null
-    : assistantsStore.assistants.find(
+const profile = computed(() => {
+  if (props.message.type === "user") {
+    return {
+      profile: {
+        id: myProfile.value.id,
+        name: myProfile.value.name,
+        avatar: myProfile.value.avatar
+      }
+    } as any
+  } else {
+    const assistant = assistantsStore.assistants.find(
       (a) => a.id === props.message.assistantId
-    )?.name
+    )
+
+    return assistant ? {
+      id: assistant.id,
+      name: assistant.name,
+      avatar: assistant.avatar
+    } as any : null
+  }
+})
+
+// Computed property for text content that can be selected
+const selectableTextContent = computed(() =>
+  messageWithContents.value.messageContents.filter(content =>
+    (content.type === 'assistant-message' || content.type === 'user-message') &&
+    content.text
+  )
 )
 
 const showArtifacts = inject<ComputedRef>("showArtifacts")
@@ -671,44 +565,6 @@ function selectedConvertArtifact () {
   convertArtifact(text, text, "markdown")
 }
 
-function onHtmlChanged (inject = false) {
-  nextTick(() => {
-    inject && injectConvertArtifact()
-    emit("rendered")
-  })
-}
-
-function injectConvertArtifact () {
-  if (!isPlatformEnabled(perfs.artifactsEnabled)) return
-
-  const el: HTMLElement = textDiv.value[0]
-  el.querySelectorAll(".md-editor-code").forEach((code) => {
-    if (code.querySelector(".md-editor-convert-artifact")) return
-
-    const anchor = code.querySelector(".md-editor-collapse-tips")
-    const btn = document.createElement("span")
-    btn.innerHTML = "convert_to_text"
-    btn.classList.add("md-editor-convert-artifact")
-    btn.addEventListener("click", (ev) => {
-      ev.preventDefault()
-      ev.stopPropagation()
-      const text = code.querySelector("pre code").textContent
-      const lang = code.querySelector("pre code").getAttribute("language")
-      const pattern = new RegExp(
-        `\`{3,}.*\\n${escapeRegex(text)}\\s*\`{3,}`,
-        "g"
-      )
-      convertArtifact(text, pattern, lang)
-    })
-    btn.title = t("messageItem.convertToArtifactBtn")
-    code.querySelector(".md-editor-code-action").insertBefore(btn, anchor)
-    code.querySelector<HTMLElement>(".md-editor-copy-button").title = t(
-      "messageItem.copyCode"
-    )
-    code.querySelector<HTMLElement>(".md-editor-collapse-tips").title =
-      t("messageItem.fold")
-  })
-}
 const mdPreviewProps = useMdPreviewProps()
 const { t } = useI18n()
 </script>
