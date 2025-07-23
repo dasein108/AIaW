@@ -667,7 +667,7 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
  * removeUndefinedProps(data);
  * // data is now: { name: "Test", details: { phone: "123-456-7890" } }
  */
-function removeUndefinedProps(obj: Record<string, any>): void {
+function removeUndefinedProps(obj: Record<string, any>): Record<string, any> {
   if (typeof obj !== "object" || obj === null) return
 
   for (const key in obj) {
@@ -679,6 +679,8 @@ function removeUndefinedProps(obj: Record<string, any>): void {
       if (obj[key] === undefined) delete obj[key]
     }
   }
+
+  return obj
 }
 
 /*

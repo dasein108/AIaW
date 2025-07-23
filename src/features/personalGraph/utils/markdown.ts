@@ -1,5 +1,7 @@
+import { SearchResult } from "@/services/data/types/backend"
+
 // const FACT_MAP = {
-export function formatGraphResultToMarkdown(result: any[]): string {
+export function formatGraphResultToMarkdown(result: SearchResult[]): string {
   if (!Array.isArray(result)) return ''
 
   // Helper to format group name
@@ -12,13 +14,13 @@ export function formatGraphResultToMarkdown(result: any[]): string {
   }
 
   // Group by name
-  const groups: Record<string, any[]> = {}
+  const groups: Record<string, SearchResult[]> = {}
   for (const item of result) {
-    if (!groups[item.name]) groups[item.name] = []
+    if (!groups[item.relationship]) groups[item.relationship] = []
 
     // Only push if this fact is not already in the group
-    if (!groups[item.name].some(existing => existing.fact === item.fact)) {
-      groups[item.name].push(item)
+    if (!groups[item.relationship].some(existing => existing.metadata.summary === item.metadata.summary)) {
+      groups[item.relationship].push(item)
     }
   }
 
@@ -26,31 +28,21 @@ export function formatGraphResultToMarkdown(result: any[]): string {
   for (const [name, items] of Object.entries(groups)) {
     const displayName = formatName(name)
 
-    if (items.length > 1) {
-      // Group header
-      lines.push(`- ${displayName}`)
-      for (const item of items) {
-        const bullet = `  - ${item.fact ?? ''}`
+    // if (items.length > 1) {
+    // Group header
+    lines.push(`- ${displayName}`)
+    for (const item of items) {
+      const bullet = item.metadata?.status === 'obsolete' ? `  - ~~${item.metadata.summary ?? ''}~~` : `  - ${item.metadata.summary ?? ''}`
 
-        // bug: if invalid_at and valid_at are same, then it is valid
-        // TODO: differs only in microseconds
-        // if ((item.invalid_at || item.expired_at) && item.invalid_at !== item.valid_at) {
-        //   bullet = `  - ~~${item.fact ?? ''}~~`
-        // }
-
-        lines.push(bullet)
-      }
-    } else {
-      // Single item, first-level bullet
-      const item = items[0]
-      const bullet = `- ${displayName}: ${item.fact ?? ''}`
-
-      // Same BUG as above
-      // if (item.invalid_at || item.expired_at) {
-      //   bullet = `- ~~${displayName}: ${item.fact ?? ''}~~`
-      // }
       lines.push(bullet)
     }
+    // } else {
+    //   // Single item, first-level bullet
+    //   const item = items[0]
+    //   const bullet = item.metadata?.status === 'obsolete' ? `  - ~~${item.metadata.summary ?? ''}~~` : `  - ${item.metadata.summary ?? ''}`
+
+    //   lines.push(bullet)
+    // }
   }
 
   return lines.join('\n')
