@@ -77,7 +77,7 @@
             :key="image.id"
             :image="image"
             removable
-            h="100px"
+            height="100px"
             @remove="deleteStoredItemWithFile(inputMessageId, image)"
             shadow
           />

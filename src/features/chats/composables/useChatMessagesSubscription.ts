@@ -43,14 +43,35 @@ export function useChatMessagesSubscription (
             profileCache.set(message.senderId, profile)
             message.sender = profile as Profile
 
-            // Fetch stored items for this message
-            try {
-              const storedItems = await storedItemsStore.fetchAll({ messageId: message.id })
-              message.storedItems = storedItems
-            } catch (error) {
-              console.error("Failed to fetch stored items for message:", error)
-              message.storedItems = []
+            // Fetch stored items for this message with retry logic
+            const fetchStoredItemsWithRetry = async (retries = 3, delay = 500) => {
+              for (let i = 0; i < retries; i++) {
+                try {
+                  const storedItems = await storedItemsStore.fetchAll({ messageId: message.id })
+
+                  if (storedItems.length > 0 || i === retries - 1) {
+                    console.log(`📎 Fetched ${storedItems.length} stored items for message ${message.id} (attempt ${i + 1})`)
+
+                    return storedItems
+                  }
+
+                  // Wait before retrying if no items found and not the last attempt
+                  await new Promise(resolve => setTimeout(resolve, delay * (i + 1)))
+                } catch (error) {
+                  console.error(`Failed to fetch stored items for message (attempt ${i + 1}):`, error)
+
+                  if (i === retries - 1) {
+                    return []
+                  }
+
+                  await new Promise(resolve => setTimeout(resolve, delay * (i + 1)))
+                }
+              }
+
+              return []
             }
+
+            message.storedItems = await fetchStoredItemsWithRetry()
 
             onNewMessage(message)
           }
