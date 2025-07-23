@@ -60,3 +60,4 @@ dexie-cloud.key
 src-backend/__pycache__
 .env.docker
 supabase/volumes
+.env.self-hosted

@@ -1,6 +1,8 @@
 import { useQuasar } from "quasar"
 import { inject, ref } from "vue"
 
+import { useAuthStore } from "@/features/auth/store/auth"
+
 import { chainConfig } from "@/services/blockchain/consts"
 import { KeplerWallet } from "@/services/blockchain/kepler/KeplerWallet"
 import { supabase } from "@/services/data/supabase/client"
@@ -33,13 +35,14 @@ interface UseWalletAuthOptions {
  */
 export function useWalletAuth(options: UseWalletAuthOptions = {}) {
   const {
-    backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001',
+    backendUrl = process.env.SUPABASE_URL || 'http://localhost:8001',
     onAuthSuccess,
     onAuthError
   } = options
 
   const $q = useQuasar()
   const keplerWallet = inject<KeplerWallet>("kepler")
+  const authStore = useAuthStore()
 
   // State
   const isLoading = ref(false)
@@ -147,6 +150,16 @@ export function useWalletAuth(options: UseWalletAuthOptions = {}) {
         throw new Error(`Failed to set session: ${error.message}`)
       }
 
+      // === [NEW] Save external signer in auth store only after full success ===
+      try {
+        const offlineSigner = keplerWallet.getOfflineSigner()
+        await authStore.connectWithExternalSigner(offlineSigner)
+      } catch (e) {
+        console.error("Failed to save external signer in auth store", e)
+        throw e
+      }
+      // === [END NEW] ===
+
       // Success
       onAuthSuccess?.(walletAddress, authResponse.access_token)
 
@@ -164,6 +177,15 @@ export function useWalletAuth(options: UseWalletAuthOptions = {}) {
         message: `Login failed: ${errorMessage}`,
         color: 'negative'
       })
+
+      // === [NEW] On error, disconnect everything to reset state ===
+      try {
+        await keplerWallet?.disconnect()
+        authStore.disconnect()
+      } catch (e) {
+        // ignore
+      }
+      // === [END NEW] ===
 
       onAuthError?.(error as Error)
       throw error

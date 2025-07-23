@@ -1,22 +1,29 @@
 <template>
   <div class="kepler-wallet">
     <div
-      v-if="!walletState.isConnected"
+      v-if="!isWeb3Connected"
       class="not-connected"
     >
       <q-btn
         color="primary"
         @click="connectWallet"
+        :loading="isLoading"
         label="Connect Wallet"
-        :disable="!hasKeplr"
+        :disable="!hasKeplr || isLoading"
       />
     </div>
     <div
       v-else
       class="connected"
     >
-      <span class="address">
-        {{ walletState.address }}
+      <span
+        v-if="walletAddress"
+        class="address"
+        @click="copyAddress"
+        title="Click to copy address"
+        style="cursor: pointer;"
+      >
+        {{ walletAddress }}
       </span>
       <q-btn
         color="grey"
@@ -29,36 +36,49 @@
 </template>
 
 <script setup lang="ts">
+import { useQuasar } from "quasar"
 import { computed, inject } from "vue"
 
+import { useWalletAuth } from "@/features/auth/composables/useWalletAuth"
 import { useAuthStore } from "@/features/auth/store/auth"
 
 import { KeplerWallet } from "@/services/blockchain/kepler/KeplerWallet"
 
 const hasKeplr = computed(() => typeof window !== "undefined" && window.keplr)
+const keplerWallet = inject<KeplerWallet>("kepler")
+const authStore = useAuthStore()
+const { authenticateWithWallet, isLoading } = useWalletAuth()
 
-const wallet = inject<KeplerWallet>("kepler")
-
-const walletState = computed(() => wallet.state.value)
+const isWeb3Connected = computed(() => authStore.isGranterActuallyConnected)
+const walletAddress = computed(() => authStore.walletInfo?.address || "")
 
 const connectWallet = async () => {
   try {
-    await wallet.connect()
-    const authStore = useAuthStore()
-    authStore.connectWithExternalSigner(wallet.getOfflineSigner())
+    await authenticateWithWallet()
   } catch (error) {
     console.error("Failed to connect wallet:", error)
-    // You might want to show an error message to the user here
   }
 }
 
 const disconnectWallet = async () => {
   try {
-    await wallet.disconnect()
-    const authStore = useAuthStore()
+    await keplerWallet?.disconnect()
     authStore.disconnect()
   } catch (error) {
     console.error("Failed to disconnect wallet:", error)
+  }
+}
+
+const $q = useQuasar()
+
+const copyAddress = async () => {
+  if (!walletAddress.value) return
+
+  try {
+    await navigator.clipboard.writeText(walletAddress.value)
+    $q.notify({ message: "Address copied!", color: "positive" })
+  } catch (e) {
+    $q.notify({ message: "Failed to copy address", color: "negative" })
   }
 }
 </script>

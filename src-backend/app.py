@@ -128,6 +128,7 @@ async def get_or_create_user(wallet_address: str, email: str) -> str:
         "email": email,
         "password": password,
         "user_metadata": {
+            "auth_type": "web3",
             "wallet_address": wallet_address,
             "name": wallet_address[:8]
         }
