@@ -76,44 +76,11 @@
   </personal-graph-navigation>
 </template>
 <script setup lang="ts">
-import { experimental_createMCPClient } from 'ai'
-import { useQuasar } from 'quasar'
-import { onMounted, provide, ref } from 'vue'
-
-import { GRAPHITI_MCP_URL } from '@/shared/consts'
+import { ref } from 'vue'
 
 import PersonalGraphContainer from "../components/PersonalGraphContainer.vue"
 import PersonalGraphNavigation from "../components/PersonalGraphNavigation.vue"
 
-const $q = useQuasar()
-
 const step = ref(1)
-// const stepMap: Record<number, PersonalGraphType> = {
-//   0: "personality",
-//   1: "facts",
-//   2: "wishlist"
-// }
-
-const tools = ref<any>(null)
-
-onMounted(async () => {
-  await experimental_createMCPClient({
-    transport: {
-      type: "sse",
-      url: GRAPHITI_MCP_URL // "http://localhost:8001/sse" // GRAPHITI_MCP_URL
-    }
-  }).then(async client => {
-    tools.value = await client.tools()
-  }).catch(error => {
-    console.error("Error creating MCP client:", error)
-    $q.notify({
-      message: `Error creating MCP client ${error}`,
-      color: "negative"
-    })
-  })
-})
-
-// Provide tools to children
-provide('tools', tools)
 
 </script>

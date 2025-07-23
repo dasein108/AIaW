@@ -162,5 +162,6 @@ module.exports = {
       { blankLine: "always", prev: "*", next: "return" },
       // { blankLine: "always", prev: "expression", next: "*" },
     ],
+    "@typescript-eslint/ban-ts-comment": "off",
   },
 }

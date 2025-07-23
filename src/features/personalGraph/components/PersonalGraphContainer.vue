@@ -35,7 +35,7 @@
 
 import { storeToRefs } from "pinia"
 import { useQuasar } from "quasar"
-import { computed, ref, inject, Ref, watchEffect, onMounted } from "vue"
+import { computed, ref, onMounted } from "vue"
 
 import MarkdownPreviewDialog from "@/shared/components/dialogs/MarkdownPreviewDialog.vue"
 import { useUserPerfsStore } from "@/shared/store"
@@ -44,7 +44,7 @@ import { useProfileStore } from "@/features/profile/store"
 import { useGetModel } from "@/features/providers/composables/useGetModel"
 
 import { PersonalGraphType } from "../types"
-import { addGraphItems, generateGraphSummary, graphSummaryToMarkdown, UserSummaryItem } from "../utils/graph_llm"
+import { addItemsToKnowledgeGraph, fetchGraphByNodeName, generateGraphSummary, UserSummaryItem } from "../utils/graph_llm"
 import { formatGraphResultToMarkdown } from "../utils/markdown"
 
 import PersonalBookInputBox from "./PersonalGraphInputBox.vue"
@@ -54,7 +54,6 @@ const { getSdkModel } = useGetModel()
 const { data: perfs } = useUserPerfsStore()
 const { myProfile } = storeToRefs(useProfileStore())
 
-const tools = inject<Ref<any>>('tools')
 const $q = useQuasar()
 
 const systemSdkModel = computed(() =>
@@ -72,9 +71,9 @@ const graphDataMarkdown = ref("")
 
 const process = async (brief: string) => {
   isLoading.value = true
-  // const result = await processPromptRequest(systemSdkModel.value, PersonalGraphSummaryPrompt, { brief, profile: myProfile })
+  const { name } = myProfile.value
   const result = await generateGraphSummary(systemSdkModel.value, brief)
-  const markdown = graphSummaryToMarkdown(result)
+  const markdown = result.map(item => `- ${item}`).join("\n")
   $q.dialog({
     component: MarkdownPreviewDialog,
     componentProps: {
@@ -95,7 +94,7 @@ const process = async (brief: string) => {
           label: "Add to graph",
           icon: "sym_o_wallpaper",
           onClick: async () => {
-            await buildGraph(result)
+            await buildGraph(result.map(item => `${name}: ${item}`))
           },
         },
       ],
@@ -104,72 +103,50 @@ const process = async (brief: string) => {
   isLoading.value = false
 }
 
-// const profileToMarkdown = (profile: ProfileExtended): string => {
-//   if (!profile) return ''
+const loadGraph = async () => {
+  isLoading.value = true
 
-//   const lines: string[] = []
-
-//   lines.push(`- Name: ${profile.name}`)
-//   lines.push(`- Age: ${profile.id}`)
-//   lines.push(`- Description: ${profile.description}`)
-//   lines.push(`- Email: ${profile.email}`)
-
-//   return lines.join('\n')
-// }
-
-const fetchMyGraph = async () => {
-  const tool = tools.value.search_memory_facts // _nodes
-  const rawResult = await tool.execute({
-    query: myProfile.value.name,
-    // group_ids: [myProfile.value.name],
-    max_nodes: 1000,
-  })
-  const result = JSON.parse(rawResult.content[0].text)
-
-  console.log("---result", result, formatGraphResultToMarkdown(result.facts))
-  // if (!tool) {
-  //   $q.notify({
-  //     message: "💡 No tool found",
-  //     color: "negative",
-  //   })
-  // }
-  // const profileAsMarkdown = profileToMarkdown(myProfile.value)
-  // const result = await processPromptRequest(systemSdkModel.value, PersonalGraphFetchPrompt,
-  //   { profile: profileAsMarkdown, category: props.graphType }, tools.value)
-
-  graphDataMarkdown.value = formatGraphResultToMarkdown(result.facts)
+  const result = await fetchGraphByNodeName(myProfile.value.name, props.graphType) //
+  graphDataMarkdown.value = formatGraphResultToMarkdown(result.relations)
   isLoading.value = false
 }
 
 const buildGraph = async (graphItems: UserSummaryItem[]) => {
   isLoading.value = true
-  const results = await addGraphItems(tools.value.add_memory, myProfile.value.name, props.graphType, graphItems)
-  $q.notify({
-    message: results.join("\n\n"),
-    color: "positive"
+  $q.loading.show()
+  const result = await addItemsToKnowledgeGraph(myProfile.value, props.graphType, graphItems)
+  $q.loading.hide()
+
+  if (result.errors.length > 0) {
+    $q.notify({
+      message: result.errors.join("\n\n"),
+      color: "negative"
+    })
+  } else {
+    $q.notify({
+      message: "Pushed to knowledge graph",
+      color: "positive"
+    })
+  }
+
+  const markdown = ["# Added to graph", ...result.edge_results?.map(item => `- **${item.action}**: ${item.extracted_info.summary}`)].join("\n")
+  $q.dialog({
+    component: MarkdownPreviewDialog,
+    componentProps: {
+      title: "Processed graph data",
+      markdown,
+    }
   })
-  // const profileAsMarkdown = profileToMarkdown(myProfile.value)
-  // console.log("---buildGraph", brief)
-  // await processPromptRequest(systemSdkModel.value, PersonalGraphAddMemoryPrompt,
-  //   { brief, profile: profileAsMarkdown, category: props.graphType }, tools.value).then((result) => {
-  //   $q.notify({
-  //     message: result,
-  //     color: "positive",
-  //   })
-  // })
-  await fetchMyGraph()
+
+  await loadGraph()
 
   isLoading.value = false
 }
 
 onMounted(() => {
   isLoading.value = true
-  watchEffect(() => {
-    if (tools.value) {
-      fetchMyGraph().finally(() => {
-        isLoading.value = false
-      })
-    }
+  loadGraph().finally(() => {
+    isLoading.value = false
   })
 })
 
