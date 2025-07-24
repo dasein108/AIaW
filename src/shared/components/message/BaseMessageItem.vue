@@ -81,12 +81,14 @@
 
           <!-- Stored Items (Images and Files) -->
           <div
-            v-if="content.type === 'user-message' && content.storedItems?.length"
+            v-if="content.storedItems?.length"
+            class="attachments-container"
             flex
             flex-wrap
             px-4
             py-3
             gap-2
+            min-h-0
           >
             <message-image
               v-for="image in content.storedItems.filter((i) =>
@@ -94,7 +96,7 @@
               )"
               :key="image.id"
               :image="image"
-              h="100px"
+              height="100px"
             />
             <message-file
               v-for="file in content.storedItems.filter(

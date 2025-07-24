@@ -109,6 +109,7 @@ export default {
     search: "Search workspaces...",
     myWorkspaces: "My Workspaces",
     availableWorkspaces: "Available Workspaces",
+    showJoinedWorkspaces: "Show joined workspaces",
     join: "JOIN",
     leave: "LEAVE",
     rejoin: "REJOIN",

@@ -9,6 +9,15 @@
       p-2
       :style-fn="pageFhStyle"
     >
+      <!-- Toggle for showing joined workspaces -->
+      <div class="q-mb-md">
+        <q-toggle
+          v-model="showJoinedWorkspaces"
+          :label="$t('workspaces.showJoinedWorkspaces')"
+          color="primary"
+        />
+      </div>
+
       <workspace-list
         :title="$t('workspaces.availableWorkspaces')"
         :search-label="$t('workspaces.search')"
@@ -82,6 +91,7 @@ defineEmits<{
 const {
   // State
   loading,
+  showJoinedWorkspaces,
 
   // Computed
   filteredAvailableWorkspaces,
