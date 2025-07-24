@@ -515,7 +515,11 @@ async def get_statistics(user_id: Optional[UUID] = Query(None, description="Filt
     raise HTTPException(status_code=500, detail=str(e))
 
 
-app.mount('/static', StaticFiles(directory='static'), name='static')
+# TMP fix for prod
+# app.mount('/static', StaticFiles(directory='static'), name='static')
+
+app.mount('/', StaticFiles(directory='static', html=True), name='static')
+
 
 
 @app.exception_handler(404)
