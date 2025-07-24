@@ -4,13 +4,15 @@ interface LocalData {
   lastReloadTimestamp: number | null
   visited: boolean
   language: "en-US" | null
+  voiceLanguage: string | null
   ignoredUpdate: string
 }
 
 const localData = localReactive<LocalData>("local-data", {
   lastReloadTimestamp: null,
   visited: false,
-  language: null,
+  language: "en-US",
+  voiceLanguage: null,
   ignoredUpdate: null,
 })
 

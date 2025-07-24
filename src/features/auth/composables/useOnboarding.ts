@@ -1,22 +1,34 @@
 import { storeToRefs } from "pinia"
-import { useQuasar } from "quasar"
+import { QSpinnerGears, useQuasar } from "quasar"
 import { useRouter } from "vue-router"
 
-import { defaultWorkspaceId, getDefaultAssistant, getDefaultProviderData } from "@/shared/consts"
+import { defaultWorkspaceId, getDefaultAssistant, getDefaultProviderData, DEFAULT_BUILDIN_MCP_PLUGINS, DEFAULT_BUILTIN_PLUGINS } from "@/shared/consts"
 import { useUserPerfsStore, useUserStore } from "@/shared/store"
+import { McpPluginDump, McpPluginManifest } from "@/shared/types"
 import { localData } from "@/shared/utils/localData"
 
 import { useAssistantsStore } from "@/features/assistants/store"
+import { usePluginsStore } from "@/features/plugins/store"
+import { buildMcpPlugin } from "@/features/plugins/utils/plugins"
 import { useWorkspacesStore } from "@/features/workspaces/store"
+
+import { Assistant } from "@/services/data/types/assistant"
 
 export function useOnboarding () {
   const $q = useQuasar()
   const router = useRouter()
   const assistantsStore = useAssistantsStore()
   const userStore = useUserStore()
+  const pluginsStore = usePluginsStore()
   const { data: userPerf } = storeToRefs(useUserPerfsStore())
   const workspaceStore = useWorkspacesStore()
 
+  const showOnboardingLoader = (message: string) => {
+    $q.loading.show({
+      spinner: QSpinnerGears,
+      message,
+    })
+  }
   const onboarding = async () => {
     // Check if user is logged in first
     if (!userStore.currentUserId) {
@@ -25,21 +37,20 @@ export function useOnboarding () {
       return
     }
 
-    const noAssistants = assistantsStore.assistants.length === 0
+    let assistant: Assistant | null = assistantsStore.assistants[0]
     // Check user's accessible workspaces instead of all workspaces
     const userAccessibleWorkspaces = workspaceStore.getUserAccessibleWorkspaces(userStore.currentUserId)
     const noWorkspaces = userAccessibleWorkspaces.length === 0
+    const defaultPluginsExist = DEFAULT_BUILDIN_MCP_PLUGINS.every(plugin => pluginsStore.plugins.find(p => p.id === plugin.id))
 
-    console.log("noAssistants", noAssistants)
+    console.log("Assistants", assistant)
     console.log("noWorkspaces", noWorkspaces)
     console.log("userAccessibleWorkspaces", userAccessibleWorkspaces)
     console.log("localData.visited", localData.visited)
 
-    if (!localData.visited || (noAssistants && noWorkspaces)) {
+    if (!localData.visited || (!assistant && noWorkspaces) || !defaultPluginsExist) {
       try {
-        $q.loading.show({
-          message: "Onboarding in progress...",
-        })
+        showOnboardingLoader("Onboarding in progress...")
 
         if (!userPerf.value.provider) {
           const { provider, model } = getDefaultProviderData()
@@ -47,14 +58,44 @@ export function useOnboarding () {
           userPerf.value.model = model
         }
 
-        if (noAssistants) {
-          await assistantsStore.add(getDefaultAssistant())
+        if (!assistant) {
+          showOnboardingLoader("Creating default assistant...")
+
+          assistant = await assistantsStore.add(getDefaultAssistant())
+        }
+
+        if (!defaultPluginsExist) {
+          showOnboardingLoader("Setting up plugins...")
+
+          // Install default MCP plugins
+          for (const pluginManifest of DEFAULT_BUILDIN_MCP_PLUGINS) {
+            // if plugin is not installed, install it
+            if (!pluginsStore.plugins.find(p => p.id === pluginManifest.id)) {
+              const pluginData = await pluginsStore.installMcpPlugin(pluginManifest as McpPluginManifest)
+
+              const plugin = buildMcpPlugin(pluginData.manifest as McpPluginDump)
+              await assistantsStore.setPlugin(assistant, plugin, true)
+            }
+          }
+
+          // Install default built-in plugins
+          for (const pluginId of DEFAULT_BUILTIN_PLUGINS) {
+            if (!pluginsStore.plugins.find(p => p.id === pluginId)) {
+              const plugin = pluginsStore.plugins.find(p => p.id === pluginId)
+
+              if (!plugin) {
+                console.error(`Plugin ${pluginId} not found`)
+                continue
+              }
+
+              await assistantsStore.setPlugin(assistant, plugin, true)
+            }
+          }
         }
 
         if (noWorkspaces) {
-          console.log("!!!!addWorkspaceMember", defaultWorkspaceId, userStore.currentUserId)
-          const res = await workspaceStore.addWorkspaceMember(defaultWorkspaceId, userStore.currentUserId, "member")
-          console.log("!!!!res", res)
+          showOnboardingLoader("Adding default workspace...")
+          await workspaceStore.addWorkspaceMember(defaultWorkspaceId, userStore.currentUserId, "member")
         }
 
         // Mark as visited after successful onboarding
@@ -76,7 +117,9 @@ export function useOnboarding () {
           position: "top",
         })
       } finally {
-        $q.loading.hide()
+        setTimeout(() => {
+          $q.loading.hide()
+        }, 500)
       }
     }
   }

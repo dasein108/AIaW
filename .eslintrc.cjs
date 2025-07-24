@@ -59,6 +59,7 @@ module.exports = {
     "one-var": "off",
     "no-void": "off",
     "multiline-ternary": "off",
+    "no-tabs": "off",
 
     "import/first": "off",
     "import/namespace": "error",
@@ -161,5 +162,6 @@ module.exports = {
       { blankLine: "always", prev: "*", next: "return" },
       // { blankLine: "always", prev: "expression", next: "*" },
     ],
+    "@typescript-eslint/ban-ts-comment": "off",
   },
 }

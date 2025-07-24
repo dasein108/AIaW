@@ -7,6 +7,7 @@ import {
   Number,
 } from "@sinclair/typebox"
 
+import { SEARCH_NGX_URL } from "@/shared/consts"
 import { Plugin, PluginData } from "@/shared/types"
 import { SearxngBaseURL } from "@/shared/utils/config"
 import { fetch } from "@/shared/utils/platformApi"
@@ -227,6 +228,7 @@ const plugin: Plugin = {
 
 const defaultData: PluginData = {
   settings: {
+    searxngURL: SEARCH_NGX_URL,
     resultsLimit: 15,
   },
   avatar: { type: "icon", icon: "sym_o_travel_explore", hue: 225 },

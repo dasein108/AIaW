@@ -48,7 +48,6 @@
             @quote="quote"
             @extract-artifact="([text, pattern, options]) => {
               extractArtifact(item.message, text, pattern, options)}"
-            @rendered="item.message.generatingSession && lockBottom()"
             @create-cyberlink="sendCyberlinkPrompt"
             pt-2
             pb-4
@@ -78,7 +77,7 @@
             :key="image.id"
             :image="image"
             removable
-            h="100px"
+            height="100px"
             @remove="deleteStoredItemWithFile(inputMessageId, image)"
             shadow
           />
@@ -193,6 +192,7 @@ import { useRoute, useRouter } from "vue-router"
 import MessageInputControl from "@/shared/components/input/control/MessageInputControl.vue"
 import { useListenKey } from "@/shared/composables"
 import { useSetTitle } from "@/shared/composables/setTitle"
+import { useAutoScroll } from "@/shared/composables/useAutoScroll"
 import { useUiStateStore, useUserDataStore, useUserPerfsStore } from "@/shared/store"
 import type { ApiResultItem, Plugin } from "@/shared/types"
 import {
@@ -410,19 +410,28 @@ function scrollListener () {
   lastScrollTop = container.scrollTop
 }
 
-function lockBottom () {
-  lockingBottom.value && scroll("bottom", "auto")
-}
+const scrollContainer = ref<HTMLElement>()
 
+// Auto-scroll functionality using the composable
+const shouldAutoScroll = computed(() => lockingBottom.value)
+
+useAutoScroll(scrollContainer, shouldAutoScroll, {
+  behavior: 'auto',
+  debounceMs: 16,
+  observeCharacterData: true
+})
+
+// Restore the scroll listener functionality for preventing auto-scroll when user scrolls up
 watch(lockingBottom, (val) => {
   if (val) {
-    lastScrollTop = scrollContainer.value.scrollTop
-    scrollContainer.value.addEventListener("scroll", scrollListener)
+    lastScrollTop = scrollContainer.value?.scrollTop
+    scrollContainer.value?.addEventListener("scroll", scrollListener)
   } else {
     lastScrollTop = null
-    scrollContainer.value.removeEventListener("scroll", scrollListener)
+    scrollContainer.value?.removeEventListener("scroll", scrollListener)
   }
 })
+
 const activePlugins = computed<Plugin[]>(() =>
   assistant.value
     ? pluginsStore.plugins.filter(
@@ -485,8 +494,6 @@ watch(
   },
   { immediate: true }
 )
-
-const scrollContainer = ref<HTMLElement>()
 
 function getEls () {
   const container = scrollContainer.value
@@ -710,4 +717,5 @@ defineEmits<{
 }>()
 
 useSetTitle(computed(() => dialog.value?.name))
+
 </script>

@@ -332,6 +332,22 @@
         />
       </q-item-section>
     </q-item>
+    <q-item>
+      <q-item-section avatar>
+        <q-icon name="sym_o_settings_voice" />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label>
+          {{ $t("settingsView.voiceRecognition") }}
+        </q-item-label>
+        <q-item-label caption>
+          {{ $t("settingsView.voiceRecognitionCaption") }}
+        </q-item-label>
+      </q-item-section>
+      <q-item-section side>
+        <q-toggle v-model="perfs.voiceRecognition" />
+      </q-item-section>
+    </q-item>
     <q-expansion-item
       :label="$t('settingsView.markdownRendering')"
       icon="sym_o_markdown"

@@ -1,7 +1,7 @@
 <template>
   <q-list>
     <q-item
-      v-for="plugin in pluginsStore.plugins.filter((p) => p.available)"
+      v-for="plugin in pluginsStore.plugins.filter((p) => p.available || isBuiltinMcpPlugin(p.id))"
       :key="plugin.id"
       clickable
       :to="`/plugins/${plugin.id}`"
@@ -35,7 +35,7 @@
           round
           icon="sym_o_delete"
           :title="t('installedPlugins.uninstall')"
-          v-if="plugin.type !== 'builtin'"
+          v-if="plugin.type !== 'builtin' && !isBuiltinMcpPlugin(plugin.id)"
           @click.prevent.stop="deleteItem(plugin)"
         />
       </q-item-section>
@@ -48,12 +48,15 @@ import { useQuasar } from "quasar"
 import { useI18n } from "vue-i18n"
 
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
+import { DEFAULT_BUILDIN_MCP_PLUGINS } from "@/shared/consts"
 
 import { usePluginsStore } from "@/features/plugins/store"
 
 import PluginTypeBadge from "./PluginTypeBadge.vue"
 
 const { t } = useI18n()
+
+const isBuiltinMcpPlugin = (pluginId: string) => DEFAULT_BUILDIN_MCP_PLUGINS.find(p => p.id === pluginId)
 
 const pluginsStore = usePluginsStore()
 const { data } = pluginsStore

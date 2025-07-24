@@ -10,3 +10,5 @@
 database.types.ts
 src-backend/venv
 supabase/volumes
+openapi.ts
+*.py

@@ -13,3 +13,4 @@ export const DocParseBaseURL = addBaseURL(process.env.DOC_PARSE_BASE_URL || "/do
 export const CorsFetchBaseURL = addBaseURL(process.env.CORS_FETCH_BASE_URL || "/cors/proxy")
 export const CyberLiteLLMBaseURL = addBaseURL(process.env.CYBER_LITELLM_BASE_URL || "/litellm/v1")
 export const SearxngBaseURL = addBaseURL(process.env.SEARXNG_BASE_URL || "/searxng")
+export const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000"

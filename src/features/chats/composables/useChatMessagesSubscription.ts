@@ -1,5 +1,6 @@
 import { useUserLoginCallback } from "@/features/auth/composables/useUserLoginCallback"
 import { useProfileStore } from "@/features/profile/store"
+import { useStoredItemsStore } from "@/features/storedItems/store"
 
 import { supabase } from "@/services/data/supabase/client"
 import { ChatMessage, DbChatMessage, mapDbToChatMessage } from "@/services/data/types/chat"
@@ -20,6 +21,8 @@ export function useChatMessagesSubscription (
   onNewMessage: (message: ChatMessage) => void
 ) {
   const { fetchProfile } = useProfileStore()
+  const storedItemsStore = useStoredItemsStore()
+
   // Subscribe only once
   const subscribe = () => {
     if (!subscription) {
@@ -34,10 +37,41 @@ export function useChatMessagesSubscription (
           },
           async (payload) => {
             const message = mapDbToChatMessage(payload.new as DbChatMessage)
+
             // Fetch sender profile with cache
             const profile = await fetchProfile(message.senderId)
             profileCache.set(message.senderId, profile)
             message.sender = profile as Profile
+
+            // Fetch stored items for this message with retry logic
+            const fetchStoredItemsWithRetry = async (retries = 3, delay = 500) => {
+              for (let i = 0; i < retries; i++) {
+                try {
+                  const storedItems = await storedItemsStore.fetchAll({ messageId: message.id })
+
+                  if (storedItems.length > 0 || i === retries - 1) {
+                    console.log(`📎 Fetched ${storedItems.length} stored items for message ${message.id} (attempt ${i + 1})`)
+
+                    return storedItems
+                  }
+
+                  // Wait before retrying if no items found and not the last attempt
+                  await new Promise(resolve => setTimeout(resolve, delay * (i + 1)))
+                } catch (error) {
+                  console.error(`Failed to fetch stored items for message (attempt ${i + 1}):`, error)
+
+                  if (i === retries - 1) {
+                    return []
+                  }
+
+                  await new Promise(resolve => setTimeout(resolve, delay * (i + 1)))
+                }
+              }
+
+              return []
+            }
+
+            message.storedItems = await fetchStoredItemsWithRetry()
 
             onNewMessage(message)
           }

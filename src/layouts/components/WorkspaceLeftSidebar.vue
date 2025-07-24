@@ -1,6 +1,12 @@
 <template>
   <div pt-2>
     <icon-side-button
+      bg-sur-c-high
+      icon="sym_o_person_book"
+      :title="t('personalGraph.title')"
+      :to="'/social-graph'"
+    />
+    <icon-side-button
       v-if="canViewCyberlinks"
       icon="sym_o_hub"
       :title="$t('mainLayout.cyberlinks')"
@@ -31,6 +37,7 @@
     <dialog-list
       :workspace-id="workspaceId"
     />
+
   <!-- <sidebar-title title="Last Dialogs" />
   <q-item>
     <last-dialogs />

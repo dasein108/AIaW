@@ -1,5 +1,5 @@
 import { useQuasar } from "quasar"
-import { computed, ref } from "vue"
+import { computed, ref, watch, onMounted } from "vue"
 import { useI18n } from "vue-i18n"
 
 import { useUserStore } from "@/shared/store"
@@ -14,6 +14,9 @@ export function useWorkspaceManager() {
   const loading = ref(false)
   const adding = ref<Record<string, boolean>>({})
   const removing = ref<Record<string, boolean>>({})
+
+  // Add toggle state for showing joined workspaces
+  const showJoinedWorkspaces = ref(true)
 
   const userStore = useUserStore()
   const workspacesStore = useWorkspacesStore()
@@ -148,14 +151,74 @@ export function useWorkspaceManager() {
       }))
   })
 
-  // Optimized filtered workspaces with shallow reference for better performance
-  const filteredAvailableWorkspaces = computed(() => {
-    // Use spread operator only when arrays change, not on every access
-    const available = availableWorkspaces.value
-    const my = myWorkspaces.value
+  // Stable workspace list that maintains order and updates membership status in place
+  const stableWorkspaceList = ref<any[]>([])
 
-    // Return cached array if dependencies haven't changed
-    return [...available, ...my]
+  // Initialize stable list on first load or when workspaces change significantly
+  function updateStableList() {
+    const current = stableWorkspaceList.value
+    const my = myWorkspaces.value
+    const available = availableWorkspaces.value
+
+    // If this is the first load or the lists have changed dramatically, rebuild
+    if (current.length === 0) {
+      // 📌 Stable positioning & 📅 Base order: maintain database order (newest first by created_at)
+      // 🔝 Joined workspaces (at the top) - COMMENTED OUT
+      // 🔽 Available workspaces (at the bottom) - COMMENTED OUT
+      // stableWorkspaceList.value = [...my, ...available]
+
+      // Combine all workspaces without sorting by membership status, maintain database order
+      const allWorkspaces = [...my, ...available]
+      // Sort by original database order (created_at descending) instead of membership status
+      stableWorkspaceList.value = allWorkspaces.sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+
+      return
+    }
+
+    // Update existing items in place without changing order
+    const allWorkspaces = [...my, ...available]
+    const workspaceMap = new Map(allWorkspaces.map(w => [w.id, w]))
+
+    // Update existing items with new membership status
+    stableWorkspaceList.value = stableWorkspaceList.value.map(existing => {
+      const updated = workspaceMap.get(existing.id)
+
+      return updated || existing
+    })
+
+    // Add any new workspaces that weren't in the stable list
+    const existingIds = new Set(stableWorkspaceList.value.map(w => w.id))
+    const newWorkspaces = allWorkspaces.filter(w => !existingIds.has(w.id))
+
+    // 📌 Stable positioning: add new workspaces at the end to maintain order
+    // 🔝 Joined workspaces (at the top) - COMMENTED OUT
+    // const newJoined = newWorkspaces.filter(w => w.isJoined)
+    // 🔽 Available workspaces (at the bottom) - COMMENTED OUT
+    // const newAvailable = newWorkspaces.filter(w => !w.isJoined)
+
+    // stableWorkspaceList.value = [...newJoined, ...stableWorkspaceList.value, ...newAvailable]
+    stableWorkspaceList.value = [...stableWorkspaceList.value, ...newWorkspaces]
+  }
+
+  // Watch for workspace changes and update the stable list
+  watch([myWorkspaces, availableWorkspaces], updateStableList, { deep: true })
+
+  // Initialize on component mount
+  onMounted(() => {
+    updateStableList()
+  })
+
+  // Optimized filtered workspaces with stable ordering and toggle support
+  const filteredAvailableWorkspaces = computed(() => {
+    if (showJoinedWorkspaces.value) {
+      // Return all workspaces when toggle is on
+      return stableWorkspaceList.value
+    } else {
+      // Filter out joined workspaces when toggle is off
+      return stableWorkspaceList.value.filter(workspace => !workspace.isJoined)
+    }
   })
 
   // Generic handler for workspace actions
@@ -278,6 +341,9 @@ export function useWorkspaceManager() {
       if (!profileStore.isInitialized) {
         await profileStore.fetchProfiles()
       }
+
+      // Force refresh the stable list to ensure proper initial sorting
+      forceRefreshStableList()
     } catch (error) {
       console.error('Failed to load workspace data:', error)
     } finally {
@@ -294,6 +360,12 @@ export function useWorkspaceManager() {
         console.error('Failed to refresh user workspaces:', error)
       }
     }
+  }
+
+  // Force refresh the stable list (useful for page reload or major changes)
+  function forceRefreshStableList() {
+    stableWorkspaceList.value = []
+    updateStableList()
   }
 
   // Utility function for date formatting
@@ -323,6 +395,7 @@ export function useWorkspaceManager() {
     loading,
     adding,
     removing,
+    showJoinedWorkspaces,
 
     // Computed
     myWorkspaces,
@@ -337,6 +410,7 @@ export function useWorkspaceManager() {
     deleteWorkspace,
     initializeWorkspaces,
     refreshUserWorkspaces,
+    forceRefreshStableList,
     formatDate,
     isWorkspaceOwner,
     isWorkspaceAdmin,

@@ -39,14 +39,17 @@
     <template #actions="{ item }">
       <q-btn
         v-if="item.actionType === 'delete'"
-        unelevated
-        color="red"
-        text-color="white"
+        icon="sym_o_delete"
+        color="negative"
         :label="$t('workspaces.delete')"
+        flat
+        dense
+        size="md"
+        style="min-width: 80px"
         @click="deleteWorkspace(item)"
         :loading="removing[item.id]"
       />
-      <q-btn
+      <!--       <q-btn
         v-else-if="item.actionType === 'leave'"
         unelevated
         color="negative"
@@ -54,13 +57,28 @@
         :label="$t('workspaces.leave')"
         @click="leaveWorkspace(item)"
         :loading="removing[item.id]"
+      /> -->
+      <q-btn
+        v-else-if="item.actionType === 'leave'"
+        icon="sym_o_exit_to_app"
+        color="negative"
+        :label="$t('myWorkspaces.leave')"
+        flat
+        dense
+        size="md"
+        style="min-width: 80px"
+        @click="leaveWorkspace(item)"
+        :loading="removing[item.id]"
       />
       <q-btn
         v-else-if="item.actionType === 'join'"
-        unelevated
+        icon="sym_o_group_add"
         color="primary"
-        text-color="white"
         :label="$t('workspaces.join')"
+        flat
+        dense
+        size="md"
+        style="min-width: 80px"
         @click="joinWorkspace(item)"
         :loading="adding[item.id]"
       />

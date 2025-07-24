@@ -130,6 +130,7 @@ export default {
     deleteConfirmMessage:
       'Are you sure you want to delete the dialog "{name}"?',
     deleteConfirmOk: "Delete",
+    noAssistant: "No assistant found, please create an assistant first",
   },
   darkSwitchBtn: {
     switchToDark: "Switch to Dark Mode",

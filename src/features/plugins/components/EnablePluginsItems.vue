@@ -60,10 +60,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, watch } from "vue"
+import { computed, ref, watch } from "vue"
 
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
-import { AssistantPlugin, Plugin } from "@/shared/types"
+import { Plugin } from "@/shared/types"
 
 import { useAssistantsStore } from "@/features/assistants/store"
 import PluginTypeBadge from "@/features/plugins/components/PluginTypeBadge.vue"
@@ -93,41 +93,6 @@ watch(currentAssistant, (newAssistant) => {
 const pluginsStore = usePluginsStore()
 
 async function setPlugin (plugin: Plugin, enabled: boolean) {
-  if (enabled) {
-    const assistantPlugin: AssistantPlugin = {
-      enabled: true,
-      infos: [],
-      tools: [],
-      resources: [],
-      vars: {},
-    }
-    const currentPlugin = assistant.value.plugins[plugin.id]
-
-    // Todo sync tools and infos, if plugin tool not persisted, set enabled to true,
-    // if persisted before, but plugin was updated, do not include it in the new plugin
-
-    plugin.apis.forEach((api) => {
-      if (api.type === "tool") {
-        const currentTool = currentPlugin?.tools.find((t) => t.name === api.name)
-        assistantPlugin.tools.push({
-          name: api.name,
-          enabled: currentTool !== undefined ? currentTool.enabled : true,
-        })
-      } else if (api.type === "info") {
-        const currentInfo = currentPlugin?.infos.find((i) => i.name === api.name)
-        assistantPlugin.infos.push({
-          name: api.name,
-          enabled: currentInfo !== undefined ? currentInfo.enabled : true,
-          args: {},
-        })
-      }
-    })
-    assistant.value.plugins[plugin.id] = assistantPlugin
-  } else {
-    assistant.value.plugins[plugin.id].enabled = enabled
-  }
-
-  // Immediately save changes to the store
-  await store.put(toRaw(assistant.value))
+  assistant.value = await store.setPlugin(currentAssistant.value, plugin, enabled)
 }
 </script>

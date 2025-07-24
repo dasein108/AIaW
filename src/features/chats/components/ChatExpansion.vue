@@ -58,6 +58,7 @@ import { computed, ref, toRef } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRouter } from "vue-router"
 
+import ContactsDialog from "@/shared/components/dialogs/ContactsDialog.vue"
 import RenameDialog from "@/shared/components/dialogs/RenameDialog.vue"
 import IconSideButton from "@/shared/components/layout/IconSideButton.vue"
 import { useListenKey } from "@/shared/composables"
@@ -69,7 +70,6 @@ import { useChatsStore } from "@/features/chats/store"
 
 import ChatListItem from "./ChatListItem.vue"
 import SearchChats from "./SearchChats.vue"
-import UserListDialog from "./UserListDialog.vue"
 const props = defineProps<{
   workspaceId: string | null
 }>()
@@ -87,7 +87,7 @@ const unreadCount = computed(() => {
 const showSearchDialog = ref(false)
 const showUserSelectDialog = () => {
   $q.dialog({
-    component: UserListDialog,
+    component: ContactsDialog,
     componentProps: {
       currentUserId: userStore.currentUserId,
     },

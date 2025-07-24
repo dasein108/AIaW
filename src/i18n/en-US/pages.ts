@@ -109,6 +109,7 @@ export default {
     search: "Search workspaces...",
     myWorkspaces: "My Workspaces",
     availableWorkspaces: "Available Workspaces",
+    showJoinedWorkspaces: "Show joined workspaces",
     join: "JOIN",
     leave: "LEAVE",
     rejoin: "REJOIN",
@@ -184,7 +185,16 @@ export default {
     createArtifact: "Create Artifact",
     cyberlinks: "Cyberlinks",
     logout: "Logout",
-
+  },
+  personalGraph: {
+    title: "Social Graph",
+    personalGraph: "My Graph",
+    search: "Explore Graph",
+    process: "Format & Process",
+    send: "Build Graph",
+    edit: "Edit",
+    help: "Help",
+    searchPlaceholder: "Search in graph using natural language...",
   },
   myWorkspaces: {
     noDescription: "No description",

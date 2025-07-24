@@ -160,11 +160,15 @@
 
       <!-- Named slot for token consumption display -->
       <slot name="tokens-consumption" />
-
+      <voice-recognition
+        v-model:input-value="inputValue"
+        ref="voiceRef"
+        v-if="perfs.voiceRecognition"
+      />
       <!-- Send button -->
       <abortable-btn
-        icon="sym_o_send"
-        :label="filesProcessing ? $t('dialogView.uploading') : $t('dialogView.send')"
+        :icon="props.sendIcon || 'sym_o_send'"
+        :label="filesProcessing ? $t('dialogView.uploading') : props.sendCaption || $t('dialogView.send')"
         @click="handleSend"
         @abort="$emit('abort')"
         :loading="props.loading"
@@ -181,13 +185,14 @@
 
 <script setup lang="ts">
 import { until } from '@vueuse/core'
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AbortableBtn from '@/shared/components/AbortableBtn.vue'
 import CommandSuggestionsOverlay from '@/shared/components/input/control/CommandSuggestions.vue'
 import { useDialogFileHandling } from '@/shared/components/input/control/dialogFileHandling'
 import { useInputCommands } from '@/shared/components/input/control/useInputCommands'
+import VoiceRecognition from '@/shared/components/VoiceRecognition.vue'
 import { useApiResultItem } from '@/shared/composables'
 import { useUserPerfsStore } from '@/shared/store'
 import { AssistantPlugins, ApiResultItem } from '@/shared/types'
@@ -202,6 +207,8 @@ interface Props {
   allowImageUpload?: boolean
   mimeInputTypes?: string[]
   parserPlugins?: AssistantPlugins
+  sendCaption?: string
+  sendIcon?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -210,19 +217,25 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: undefined,
   allowFileUpload: true,
   allowImageUpload: true,
+  sendCaption: undefined,
+  sendIcon: () => 'sym_o_send',
   mimeInputTypes: () => ["*"],
   parserPlugins: () => null,
 })
 
 const emit = defineEmits<{
   'send': [text: string, items: ApiResultItem[]]
-  'abort': []
+  'abort': [],
+  'on-text-change': [text: string]
 }>()
 
 const imageInput = ref()
 const fileInput = ref()
 const messageInput = ref()
 const commandOverlay = ref()
+const voiceRef = ref()
+// To stop listening from parent:
+voiceRef.value?.stopListening()
 const inputValue = ref(props.inputText)
 const inputEmpty = computed(() => !inputValue.value && !pendingFiles.value.length)
 const { data: perfs } = useUserPerfsStore()
@@ -269,14 +282,14 @@ const allFilesReady = computed(() =>
 )
 
 async function handleSend() {
+  voiceRef.value?.stopListening()
+
   // Hide command suggestions if they're showing
   if (commandOverlay.value?.isShowingCommands()) {
     commandOverlay.value.hideCommandSuggestions()
 
     return
   }
-
-  console.log("handleSend", pendingFiles.value, filesProcessing.value)
 
   // Wait for all files to finish processing if any are processing
   if (filesProcessing.value) {
@@ -301,6 +314,10 @@ async function handleSend() {
   emit('send', inputValue.value, items)
   inputValue.value = ""
 }
+
+watch(inputValue, (newVal) => {
+  emit('on-text-change', newVal)
+})
 
 function handleInputEnterKeyPress (ev: KeyboardEvent) {
   // Check if the command overlay handled the event

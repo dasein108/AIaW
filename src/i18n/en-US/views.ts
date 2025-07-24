@@ -273,6 +273,8 @@ export default {
     exportFailed: "Export Failed",
     auto: "Auto",
     language: "Language",
+    voiceRecognition: "Voice Recognition",
+    voiceRecognitionCaption: "Enable voice recognition in the conversation",
   },
   customProvider: {
     title: "Edit Provider",

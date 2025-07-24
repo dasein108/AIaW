@@ -72,7 +72,10 @@
           rd-md
         />
         <div v-else-if="component === 'image'">
-          <message-image :image="content.result[index]" />
+          <message-image
+            :image="content.result[index]"
+            height="150px"
+          />
         </div>
         <div v-else-if="component === 'audio'">
           <message-audio :audio="content.result[index]" />

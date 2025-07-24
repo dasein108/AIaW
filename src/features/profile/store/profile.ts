@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { throttle } from "lodash"
-import { defineStore } from "pinia"
+import { defineStore, storeToRefs } from "pinia"
 import { computed, ref, watch } from "vue"
 
 import { useUserStore } from "@/shared/store"
@@ -12,8 +12,13 @@ import { mapDbToProfile, Profile, DbProfileUpdate, mapProfileToDb } from "@/serv
 
 export const useProfileStore = defineStore("profile", () => {
   const profiles = ref<Record<string, Profile>>({})
-  const user = useUserStore()
-  const myProfile = computed(() => profiles.value[user.currentUserId])
+  const { currentUser, currentUserId } = storeToRefs(useUserStore())
+
+  const myProfile = computed(() => ({
+    ...profiles.value[currentUserId.value],
+    email: currentUser.value?.email
+  }))
+
   const isInitialized = ref(false)
   const isSaving = ref(false)
   const hasChanges = ref(false)
@@ -116,6 +121,7 @@ export const useProfileStore = defineStore("profile", () => {
     fetchProfile,
     fetchProfiles,
     myProfile,
+    currentUser,
     isInitialized,
     isSaving,
     hasChanges,

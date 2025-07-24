@@ -88,15 +88,17 @@ export const usePluginsStore = defineStore("plugins", () => {
       return
     }
 
+    const result = mapDbToUserPlugin(data)
+
     if (installedPlugins.value.find((i) => i.id === plugin.id)) {
       installedPlugins.value = installedPlugins.value.map((i) =>
-        i.id === plugin.id ? mapDbToUserPlugin(data) : i
+        i.id === plugin.id ? result : i
       )
     } else {
-      installedPlugins.value.push(mapDbToUserPlugin(data))
+      installedPlugins.value.push(result)
     }
 
-    return data.id
+    return result
   }
 
   // async function deletePlugin (id: string) {
@@ -187,13 +189,15 @@ export const usePluginsStore = defineStore("plugins", () => {
     }
 
     const dump = await dumpMcpPlugin(manifest, { includeCapabilities: true })
-    await upsertPlugin({
+    const plugin = await upsertPlugin({
       key: manifest.id,
       type: "mcp",
       available: true,
       manifest: dump,
     } as UserPlugin<DbUserPluginInsert>)
     data.value[manifest.id] = mcpDefaultData(manifest)
+
+    return plugin
   }
 
   async function uninstall (key: string) {
