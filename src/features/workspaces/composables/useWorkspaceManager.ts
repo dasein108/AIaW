@@ -15,6 +15,9 @@ export function useWorkspaceManager() {
   const adding = ref<Record<string, boolean>>({})
   const removing = ref<Record<string, boolean>>({})
 
+  // Add toggle state for showing joined workspaces
+  const showJoinedWorkspaces = ref(true)
+
   const userStore = useUserStore()
   const workspacesStore = useWorkspacesStore()
   const profileStore = useProfileStore()
@@ -207,10 +210,15 @@ export function useWorkspaceManager() {
     updateStableList()
   })
 
-  // Optimized filtered workspaces with stable ordering
+  // Optimized filtered workspaces with stable ordering and toggle support
   const filteredAvailableWorkspaces = computed(() => {
-    // Return the stable list which maintains order and updates membership status in place
-    return stableWorkspaceList.value
+    if (showJoinedWorkspaces.value) {
+      // Return all workspaces when toggle is on
+      return stableWorkspaceList.value
+    } else {
+      // Filter out joined workspaces when toggle is off
+      return stableWorkspaceList.value.filter(workspace => !workspace.isJoined)
+    }
   })
 
   // Generic handler for workspace actions
@@ -387,6 +395,7 @@ export function useWorkspaceManager() {
     loading,
     adding,
     removing,
+    showJoinedWorkspaces,
 
     // Computed
     myWorkspaces,
