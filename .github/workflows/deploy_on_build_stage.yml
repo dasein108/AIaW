@@ -37,6 +37,6 @@ jobs:
               docker run -d \
                 --name aiaw \
                 --restart always \
-                -p 9010:9010 \
+                -p 9020:9010 \
                 ghcr.io/dasein108/aiaw:dev
             '
