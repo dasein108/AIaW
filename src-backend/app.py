@@ -233,6 +233,11 @@ def generate_jwt_token_for_uuid(uuid: str, wallet_address: str = None, email: st
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
+@app.post('/test/test')
+async def verify_wallet(request: Request):
+  print("DEBUG: Received wallet verification request")
+  return {"success": True}
+
 @app.post('/cors/proxy')
 async def proxy(request: ProxyRequest):
   if not any(request.url.startswith(prefix) for prefix in ALLOWED_PREFIXES):
