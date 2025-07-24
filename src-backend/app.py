@@ -59,7 +59,6 @@ def initialize_engine():
     # Initialize engine
     engine = KnowledgeGraphEngineV2(
       base_url=LITELLM_URL,
-      vector_store_type="neo4j",
       neo4j_config=neo4j_config,
       bearer_token=LITELLM_API_KEY)
 
