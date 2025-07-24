@@ -1,0 +1,43 @@
+name: Docker Image CI STAGE
+
+on:
+  push:
+    branches:
+      - stage
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3.3.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create .env.docker
+        run: |
+          echo "IS_PRODUCTION=true" >> .env.docker
+          echo "SEARXNG_URL=${{ secrets.SEARXNG_URL }}" >> .env.docker
+          echo "LITELLM_URL=${{ secrets.LITELLM_URL }}" >> .env.docker
+          echo "LITELLM_API_KEY=${{ secrets.LITELLM_API_KEY }}" >> .env.docker
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.docker
+          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env.docker
+          echo "NEO4J_URI=${{ secrets.NEO4J_URI }}" >> .env.docker
+          echo "NEO4J_USERNAME=${{ secrets.NEO4J_USERNAME }}" >> .env.docker
+          echo "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}" >> .env.docker
+          echo "NEO4J_DATABASE=${{ secrets.NEO4J_DATABASE }}" >> .env.docker
+      - name: Build and push
+        uses: docker/build-push-action@v6.10.0
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/aiaw:stage
