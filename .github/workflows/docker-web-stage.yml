@@ -23,15 +23,15 @@ jobs:
       - name: Create .env.docker
         run: |
           echo "IS_PRODUCTION=true" >> .env.docker
-          echo "SEARXNG_URL=${{ secrets.SEARXNG_URL }}" >> .env.docker
-          echo "LITELLM_URL=${{ secrets.LITELLM_URL }}" >> .env.docker
-          echo "LITELLM_API_KEY=${{ secrets.LITELLM_API_KEY }}" >> .env.docker
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.docker
-          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env.docker
-          echo "NEO4J_URI=${{ secrets.NEO4J_URI }}" >> .env.docker
-          echo "NEO4J_USERNAME=${{ secrets.NEO4J_USERNAME }}" >> .env.docker
-          echo "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}" >> .env.docker
-          echo "NEO4J_DATABASE=${{ secrets.NEO4J_DATABASE }}" >> .env.docker
+          echo "SEARXNG_URL=${{ secrets.STAGE_SEARXNG_URL }}" >> .env.docker
+          echo "LITELLM_URL=${{ secrets.STAGE_LITELLM_URL }}" >> .env.docker
+          echo "LITELLM_API_KEY=${{ secrets.STAGE_LITELLM_API_KEY }}" >> .env.docker
+          echo "SUPABASE_URL=${{ secrets.STAGE_SUPABASE_URL }}" >> .env.docker
+          echo "SUPABASE_KEY=${{ secrets.STAGE_SUPABASE_KEY }}" >> .env.docker
+          echo "NEO4J_URI=${{ secrets.STAGE_NEO4J_URI }}" >> .env.docker
+          echo "NEO4J_USERNAME=${{ secrets.STAGE_NEO4J_USERNAME }}" >> .env.docker
+          echo "NEO4J_PASSWORD=${{ secrets.STAGE_NEO4J_PASSWORD }}" >> .env.docker
+          echo "NEO4J_DATABASE=${{ secrets.STAGE_NEO4J_DATABASE }}" >> .env.docker
       - name: Build and push
         uses: docker/build-push-action@v6.10.0
         with:
