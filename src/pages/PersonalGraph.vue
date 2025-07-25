@@ -14,6 +14,11 @@
         :to="`/social-graph/search`"
         :title="$t('personalGraph.search')"
       />
+      <icon-side-button
+        icon="sym_o_account_tree"
+        :to="`/social-graph/map`"
+        :title="$t('personalGraph.map')"
+      />
     </template>
   </sidebar-page-layout>
 </template>

@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 from aiohttp import ClientSession
-from fastapi import FastAPI, HTTPException, Request, Response, UploadFile, Form, File, Query
+from fastapi import FastAPI, HTTPException, Request, Response, UploadFile, Form, File
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 import aiohttp
@@ -11,23 +11,10 @@ from llama_parse import LlamaParse
 import os
 from dotenv import load_dotenv, find_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from kg_engine import KnowledgeGraphEngineV2, InputItem
+from kg_engine import KnowledgeGraphEngineV2
 from kg_engine.config import Neo4jConfig
-from kg_engine.models import SearchType
 import logging
-from datetime import datetime
-from uuid import UUID
-from models.kg import (
-  HealthResponse,
-  ProcessInputRequest,
-  ProcessInputResponse,
-  SearchRequest,
-  SearchResponse,
-  SearchResult,
-  NodeRelationsResponse,
-  NodeRelationsRequest,
-  EdgeResult
-)
+from routes.graph import router as graph_router, set_engine
 
 load_dotenv()
 load_dotenv(find_dotenv('.env.local'), override=True)
@@ -61,6 +48,9 @@ def initialize_engine():
       base_url=LITELLM_URL,
       neo4j_config=neo4j_config,
       bearer_token=LITELLM_API_KEY)
+
+    # Set engine in graph_engine module
+    set_engine(engine)
 
     logger.info("✅ Knowledge Graph Engine initialized successfully")
 
@@ -96,6 +86,9 @@ app.add_middleware(
   allow_methods=["*"],
   allow_headers=["*"],
 )
+
+# Include graph engine router
+app.include_router(graph_router)
 
 ALLOWED_PREFIXES = [
   'https://lobehub.search1api.com/api/search',
@@ -274,254 +267,17 @@ async def searxng(request: Request):
     raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/health", response_model=HealthResponse)
-async def health_check():
-  """Check API and database health"""
-  neo4j_connected = False
-
-  try:
-    neo4j_config = Neo4jConfig()
-    neo4j_connected = neo4j_config.verify_connectivity()
-  except:
-    pass
-
-  return HealthResponse(
-    status="healthy" if engine is not None else "unhealthy",
-    neo4j_connected=neo4j_connected,
-    engine_initialized=engine is not None,
-    version="2.1.0"
-  )
-
-
-@app.post("/process", response_model=ProcessInputResponse)
-async def process_input(request: ProcessInputRequest):
-  """
-  Process natural language input and extract relationships
-
-  - **user_id**: Required GUID for tracking data ownership
-  - **descriptions**: List of natural language texts to process
-  - **metadata**: Optional additional metadata
-  """
-  if not engine:
-    raise HTTPException(status_code=503, detail="Engine not initialized")
-
-  start_time = datetime.now()
-  errors = []
-
-  try:
-    # Convert descriptions to InputItems with user_id in metadata
-    input_items = []
-    for desc in request.descriptions:
-      # Merge user metadata with user_id
-      item_metadata = request.metadata.copy() if request.metadata else {}
-      item_metadata["user_id"] = str(request.user_id)
-
-      input_items.append(InputItem(
-        description=desc,
-        metadata=item_metadata
-      ))
-
-    # Process the input
-    result = engine.process_input(input_items)
-
-    # Calculate processing time
-    processing_time = (datetime.now() - start_time).total_seconds() * 1000
-
-    # Convert edge_results to EdgeResult objects
-    edge_results = []
-    for edge_result in result.get("edge_results", []):
-      edge_results.append(EdgeResult(
-        action=edge_result.get("action", "unknown"),
-        message=edge_result.get("message"),
-        input_description=edge_result.get("input_description", ""),
-        extracted_info=edge_result.get("extracted_info"),
-        count=edge_result.get("count"),
-        conflicts_resolved=edge_result.get("conflicts_resolved"),
-        obsoleted_relationships=edge_result.get("obsoleted_relationships"),
-        search_info=edge_result.get("search_info")
-      ))
-
-    return ProcessInputResponse(
-      status="success",
-      user_id=request.user_id,
-      processed_items=result.get("processed_items", len(input_items)),
-      new_edges=result.get("new_edges", 0),
-      updated_edges=result.get("updated_edges", 0),
-      obsoleted_edges=result.get("obsoleted_edges", 0),
-      duplicates_ignored=result.get("duplicates_ignored", 0),
-      processing_time_ms=result.get("processing_time_ms", processing_time),
-      errors=result.get("errors", []),
-      edge_results=edge_results
-    )
-
-  except Exception as e:
-    logger.error(f"Error processing input: {e}")
-    raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/search", response_model=SearchResponse)
-async def search_knowledge_graph(request: SearchRequest):
-  """
-  Search the knowledge graph using natural language
-
-  - **query**: Natural language search query
-  - **search_type**: Type of search (graph/vector/both)
-  - **user_id**: Optional filter by user ID
-  - **k**: Number of results to return
-  """
-  if not engine:
-    raise HTTPException(status_code=503, detail="Engine not initialized")
-
-  start_time = datetime.now()
-
-  try:
-    # Map search type string to enum
-    search_type_map = {
-      "graph": SearchType.DIRECT,
-      "vector": SearchType.SEMANTIC,
-      "both": SearchType.BOTH
-    }
-    # Perform search
-    response = engine.search(
-      query=request.query,
-      k=request.k,
-      search_type=request.search_type
-    )
-
-    # Filter results by user_id if provided
-    filtered_results = []
-    user_filter_applied = bool(request.user_id)
-
-    for result in response.results:
-      # Extract user_id from metadata
-      metadata = result.triplet.edge.metadata
-      result_user_id = metadata.user_id if hasattr(metadata, 'user_id') and metadata.user_id else None
-
-      # Apply user filter if requested
-      if request.user_id and result_user_id:
-        if str(request.user_id) != str(result_user_id):
-          continue  # Skip results from other users
-
-      search_result = SearchResult(
-        subject=result.triplet.edge.subject,
-        relationship=result.triplet.edge.relationship,
-        object=result.triplet.edge.object,
-        confidence=result.score,
-        user_id=result_user_id,
-        metadata={
-          "summary": result.triplet.edge.metadata.summary,
-          "status": result.triplet.edge.metadata.status.value,
-          "source": result.triplet.edge.metadata.source,
-          "user_id": result_user_id
-        }
-      )
-
-      filtered_results.append(search_result)
-
-    # Calculate processing time
-    processing_time = (datetime.now() - start_time).total_seconds() * 1000
-
-    return SearchResponse(
-      query=request.query,
-      search_type=request.search_type,
-      answer=response.answer,
-      results=filtered_results,
-      total_results=len(filtered_results),
-      processing_time_ms=processing_time,
-      user_filter_applied=user_filter_applied
-    )
-
-  except Exception as e:
-    logger.error(f"Error in search: {e}")
-    raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/node-relations", response_model=NodeRelationsResponse)
-async def get_node_relations(request: NodeRelationsRequest):
-  """
-  Get all relations for a specific node by name
-
-  - **node_name**: Name of the node to search relations for
-  - **source**: Optional filter by source metadata
-  - **user_id**: Optional filter by user ID
-  """
-  if not engine:
-    raise HTTPException(status_code=503, detail="Engine not initialized")
-
-  start_time = datetime.now()
-  print("Request", request)
-  try:
-    # Get node relations from engine
-    relations = engine.get_node_relations(
-      node_name=request.node_name,
-      source=request.source,
-      filter_obsolete=request.filter_obsolete
-    )
-    print(relations)
-    # Filter results by user_id if provided
-    result = []
-
-    for relation in relations:
-      search_result = SearchResult(
-        subject=relation.triplet.edge.subject,
-        relationship=relation.triplet.edge.relationship,
-        object=relation.triplet.edge.object,
-        confidence=relation.score,
-        user_id=None,
-        metadata={
-          "summary": relation.triplet.edge.metadata.summary,
-          "status": relation.triplet.edge.metadata.status.value,
-          "source": relation.triplet.edge.metadata.source,
-        }
-      )
-
-      result.append(search_result)
-
-    # Calculate processing time
-    processing_time = (datetime.now() - start_time).total_seconds() * 1000
-
-    return NodeRelationsResponse(
-      node_name=request.node_name,
-      relations=result,
-      total_relations=len(result),
-      processing_time_ms=processing_time
-    )
-
-  except Exception as e:
-    logger.error(f"Error getting node relations: {e}")
-    raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/stats")
-async def get_statistics(user_id: Optional[UUID] = Query(None, description="Filter stats by user ID")):
-  """Get system statistics, optionally filtered by user"""
-  if not engine:
-    raise HTTPException(status_code=503, detail="Engine not initialized")
-
-  try:
-    stats = engine.get_stats()
-
-    # Add user filtering info
-    if user_id:
-      stats["filter_applied"] = {
-        "user_id": str(user_id),
-        "note": "User-specific filtering requires metadata query implementation"
-      }
-
-    return stats
-
-  except Exception as e:
-    logger.error(f"Error getting stats: {e}")
-    raise HTTPException(status_code=500, detail=str(e))
-
-
 # TMP fix for prod
 # app.mount('/static', StaticFiles(directory='static'), name='static')
 
 app.mount('/', StaticFiles(directory='static', html=True), name='static')
 
 
-
 @app.exception_handler(404)
 async def return_index(request: Request, exc: HTTPException):
   return FileResponse("static/index.html")
+
+
+if __name__ == "__main__":
+  import uvicorn
+  uvicorn.run(app, host="0.0.0.0", port=8000)
