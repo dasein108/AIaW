@@ -71,7 +71,9 @@ export async function getClient (key: string, transportConf: TransportConf) {
     )
   } else {
     await client.connect(new SSEClientTransport(new URL(transportConf.url),
-      { fetch })).catch(err => {
+      { fetch }), {
+      timeout: KeepAliveTimeout,
+    }).catch(err => {
       client.close()
       throw err
     })

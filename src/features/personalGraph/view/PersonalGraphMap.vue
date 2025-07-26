@@ -21,7 +21,7 @@
                 dense
                 icon="sym_o_search"
                 :loading="loading"
-                @click="handleSearch"
+                @click="handleSearch(false)"
               />
             </template>
           </q-input>
@@ -127,7 +127,7 @@ const searchResults = ref<SearchResult[]>([])
 const selectedNodeId = ref('')
 const $q = useQuasar()
 
-const handleSearch = async () => {
+const handleSearch = async (append: boolean = false) => {
   if (!searchQuery.value.trim()) {
     searchResults.value = []
 
@@ -141,7 +141,11 @@ const handleSearch = async () => {
 
     // Transform NodeRelationsResponse to SearchResult array
     if (response.relations) {
-      searchResults.value = response.relations
+      if (append) {
+        searchResults.value = [...searchResults.value, ...response.relations]
+      } else {
+        searchResults.value = response.relations
+      }
     } else {
       searchResults.value = []
     }
@@ -169,7 +173,7 @@ const handleNodeClick = (nodeId: string, nodeData: any) => {
 
   // Optionally trigger a new search based on clicked node
   searchQuery.value = nodeId
-  handleSearch()
+  handleSearch(true)
 }
 
 const handleEdgeClick = (edgeId: string, edgeData: any) => {
