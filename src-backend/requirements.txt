@@ -8,5 +8,3 @@ python-dotenv==1.0.1
 kg-engine-v2==2.3.0
 # -e /Users/dasein/dev/llama_index/llama_neo4j_demo
 pydantic==2.11.7
-kg-engine-v2==2.2.2
-dotenv==0.9.9
