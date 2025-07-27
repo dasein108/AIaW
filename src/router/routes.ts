@@ -9,6 +9,7 @@ import ChatSettings from "@/features/chats/views/ChatSettings.vue"
 import ChatView from "@/features/chats/views/ChatView.vue"
 import DialogView from "@/features/dialogs/views/DialogView.vue"
 import PersonalGraphBuilder from "@/features/personalGraph/view/PersonalGraphBuilder.vue"
+import PersonalGraphMap from "@/features/personalGraph/view/PersonalGraphMap.vue"
 import PersonalGraphSearch from "@/features/personalGraph/view/PersonalGraphSearch.vue"
 import PluginAdjust from "@/features/plugins/views/PluginAdjust.vue"
 import PluginSettings from "@/features/plugins/views/PluginSettings.vue"
@@ -71,6 +72,7 @@ const routes: RouteRecordRaw[] = [
         children: [
           { path: "", component: PersonalGraphBuilder },
           { path: "search", component: PersonalGraphSearch },
+          { path: "map", component: PersonalGraphMap },
         ],
       },
       {
