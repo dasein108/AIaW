@@ -5,6 +5,6 @@ python-multipart==0.0.18
 # llama-index-core==0.12.1
 llama-parse==0.5.15
 python-dotenv==1.0.1
-kg-engine-v2==2.3.0
+kg-engine-v2==2.3.1
 # -e /Users/dasein/dev/llama_index/llama_neo4j_demo
 pydantic==2.11.7

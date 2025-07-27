@@ -11,6 +11,7 @@ export default {
     search: "Search",
     loadError: "Failed to load plugin list",
     retry: "Retry",
+    added: "Plugin added",
   },
   assistantView: {
     header: "Assistant Settings",
