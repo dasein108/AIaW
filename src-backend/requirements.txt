@@ -15,4 +15,4 @@ ecdsa
 cryptography
 kg-engine-v2==2.2.0
 # -e /Users/dasein/dev/llama_index/llama_neo4j_demo
-pydantic
+pydantic==2.11.7

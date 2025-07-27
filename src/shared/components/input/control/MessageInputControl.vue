@@ -408,6 +408,9 @@ defineExpose({
     inputValue.value = ""
     clearAllFiles()
   },
+  setInputText: (text: string) => {
+    inputValue.value = text
+  },
   getPendingFiles: () => [...pendingFiles.value],
   clearPendingFiles: () => {
     clearAllFiles()

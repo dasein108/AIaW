@@ -28,7 +28,10 @@ jobs:
           echo "LITELLM_API_KEY=${{ secrets.LITELLM_API_KEY }}" >> .env.docker
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.docker
           echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env.docker
-
+          echo "NEO4J_URI=${{ secrets.NEO4J_URI }}" >> .env.docker
+          echo "NEO4J_USERNAME=${{ secrets.NEO4J_USERNAME }}" >> .env.docker
+          echo "NEO4J_PASSWORD=${{ secrets.NEO4J_PASSWORD }}" >> .env.docker
+          echo "NEO4J_DATABASE=${{ secrets.NEO4J_DATABASE }}" >> .env.docker
       - name: Build and push
         uses: docker/build-push-action@v6.10.0
         with:

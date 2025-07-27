@@ -262,6 +262,10 @@ const { genTitle, extractArtifact, streamLlmResponse, isStreaming } = useLlmDial
   assistant
 )
 
+watch(inputMessageContent, () => {
+  messageInputControl.value?.setInputText(inputMessageContent.value?.text || "")
+})
+
 const startStream = async (target: string) => {
   preventLockingBottom.value = false
   abortController.value = new AbortController()

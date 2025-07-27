@@ -80,6 +80,7 @@
     "capacitor-stream-fetch": "^0.0.5",
     "codejar": "^4.2.0",
     "codejar-linenumbers": "^1.0.1",
+    "cytoscape": "^3.32.1",
     "eventsource": "^3.0.6",
     "expr-eval": "^2.0.2",
     "file-type": "^20.5.0",

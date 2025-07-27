@@ -189,6 +189,7 @@ export default {
   personalGraph: {
     title: "Social Graph",
     personalGraph: "My Graph",
+    map: "Graph Map",
     search: "Explore Graph",
     process: "Format & Process",
     send: "Build Graph",
