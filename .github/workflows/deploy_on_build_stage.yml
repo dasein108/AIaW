@@ -20,6 +20,8 @@ jobs:
           key: ${{ secrets.STAGE_KEY }}
           port: ${{ secrets.STAGE_PORT }}
           script: |
+            export SERVICE_ROLE_KEY="${{ secrets.SERVICE_ROLE_KEY }}"
+
             sudo su -c '
               echo "Stopping existing container..."
               docker stop aiaw_stage || true
@@ -38,5 +40,6 @@ jobs:
                 --name aiaw_stage \
                 --restart always \
                 -p 9020:9010 \
+                -e SERVICE_ROLE_KEY="'$SERVICE_ROLE_KEY'" \
                 ghcr.io/dasein108/aiaw:stage
             '
