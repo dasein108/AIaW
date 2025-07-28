@@ -1,8 +1,8 @@
-name: Restart AIAW Container
+name: Restart AIAW Container DEV
 
 on:
   workflow_run:
-    workflows: ["Docker Image CI"]
+    workflows: ["Docker Image CI DEV"]
     types:
       - completed
 
