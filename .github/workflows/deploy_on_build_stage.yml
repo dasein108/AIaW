@@ -1,4 +1,4 @@
-name: Restart AIAW Container
+name: Restart AIAW Container STAGE
 
 on:
   workflow_run:
@@ -20,23 +20,26 @@ jobs:
           key: ${{ secrets.STAGE_KEY }}
           port: ${{ secrets.STAGE_PORT }}
           script: |
+            export SERVICE_ROLE_KEY="${{ secrets.SERVICE_ROLE_KEY }}"
+
             sudo su -c '
               echo "Stopping existing container..."
-              docker stop aiaw || true
+              docker stop aiaw_stage || true
 
               echo "Removing existing container..."
-              docker rm aiaw || true
+              docker rm aiaw_stage || true
 
               echo "Removing old Docker image..."
-              docker rmi ghcr.io/dasein108/aiaw:dev || true
+              docker rmi ghcr.io/dasein108/aiaw:stage || true
 
               echo "Pulling latest image..."
-              docker pull ghcr.io/dasein108/aiaw:dev
+              docker pull ghcr.io/dasein108/aiaw:stage
 
               echo "Starting new container..."
               docker run -d \
-                --name aiaw \
+                --name aiaw_stage \
                 --restart always \
                 -p 9020:9010 \
-                ghcr.io/dasein108/aiaw:dev
+                -e SERVICE_ROLE_KEY="'$SERVICE_ROLE_KEY'" \
+                ghcr.io/dasein108/aiaw:stage
             '
