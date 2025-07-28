@@ -13,6 +13,6 @@ coincurve
 cosmospy
 ecdsa
 cryptography
-kg-engine-v2==2.2.0
+kg-engine-v2==2.3.1
 # -e /Users/dasein/dev/llama_index/llama_neo4j_demo
 pydantic==2.11.7
