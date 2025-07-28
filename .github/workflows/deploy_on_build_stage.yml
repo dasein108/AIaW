@@ -1,4 +1,4 @@
-name: Restart AIAW Container
+name: Restart AIAW Container STAGE
 
 on:
   workflow_run:
