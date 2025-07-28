@@ -88,13 +88,13 @@ const routes: RouteRecordRaw[] = [
             props: (route) => ({ id: route.params.dialogId }),
           },
           {
-            path: "chats/:chatId",
-            component: ChatView,
+            path: "chats/:chatId/settings",
+            component: ChatSettings,
             props: (route) => ({ id: route.params.chatId }),
           },
           {
-            path: ":chatId/settings",
-            component: ChatSettings,
+            path: "chats/:chatId",
+            component: ChatView,
             props: (route) => ({ id: route.params.chatId }),
           },
 
