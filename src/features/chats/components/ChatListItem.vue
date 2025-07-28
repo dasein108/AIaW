@@ -56,7 +56,7 @@
           <menu-item
             icon="sym_o_settings"
             :label="'Settings'"
-            :to="{ path: `/chats/${chat.id}/settings`, query: route.query }"
+            :to="{ path: `/workspaces/${chat.workspaceId}/chats/${chat.id}/settings`, query: route.query }"
             v-if="chat.type === 'workspace'"
           />
         </q-list>

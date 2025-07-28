@@ -1,26 +1,17 @@
 <template>
-  <view-common-header @toggle-drawer="$emit('toggle-drawer')">
-    <q-toolbar-title>
-      {{ $t("chatsPage.chatSettings") }}
-      <q-chip
-        size="md"
+  <page-view-with-drawer
+    :title="$t('chatsPage.chatSettings')"
+    @toggle-drawer="$emit('toggle-drawer')"
+  >
+    <template #drawer>
+      <settings-drawer />
+    </template>
+    <template #page>
+      <div
         v-if="workspace?.avatar"
-      >
-        <a-avatar
-          :avatar="workspace.avatar"
-          size="md"
-        />
-        {{ workspace?.name }}
-      </q-chip>
-    </q-toolbar-title>
-  </view-common-header>
-  <q-page-container bg-sur-c-low>
-    <q-page
-      flex
-      flex-col
-      :style-fn="pageFhStyle"
-      class="relative-position"
-    >
+        class="q-mb-md"
+      />
+
       <notification-panel
         v-if="!isPageLoaded"
         :title="$t('common.loading')"
@@ -39,17 +30,38 @@
         </div>
       </notification-panel>
       <notification-panel
-        v-if="chat && chat.type === 'private'"
+        v-else-if="chat && chat.type === 'private'"
         :title="$t('chatsPage.privateChat')"
         :warning="true"
       />
-      <q-list v-else-if="chat">
+
+      <settings-list v-else-if="chat">
+        <q-item-label
+          header
+        >
+          {{ $t("chatsPage.chatSettings") }}
+        </q-item-label>
         <q-item>
+          <q-item-section>
+            {{ $t("chatsPage.workspace") }}
+          </q-item-section>
+          <q-item-section side>
+            <q-chip size="md">
+              <a-avatar
+                :avatar="workspace.avatar"
+                size="md"
+              />
+              {{ workspace?.name }}
+            </q-chip>
+          </q-item-section>
+        </q-item>
+        <q-separator spaced />
+        <q-item v-if="chat">
           <q-item-section>
             {{ $t("chatsPage.name") }}
           </q-item-section>
           <q-item-section>
-            <q-input
+            <a-input
               :model-value="chat.name"
               @update:model-value="handleNameUpdate"
               autogrow
@@ -59,22 +71,23 @@
             />
           </q-item-section>
         </q-item>
-        <q-item>
+        <q-item v-if="chat">
           <q-item-section>
             {{ $t("chatsPage.description") }}
           </q-item-section>
           <q-item-section>
-            <q-input
+            <a-input
               :model-value="chat.description"
               @update:model-value="handleDescriptionUpdate"
               autogrow
               filled
               clearable
-              placeholder="Description of workspace..."
+              placeholder="Description of chat..."
             />
           </q-item-section>
         </q-item>
         <q-item
+          v-if="chat"
           clickable
           v-ripple
           @click="pickAvatar"
@@ -86,8 +99,7 @@
             <a-avatar :avatar="chat.avatar" />
           </q-item-section>
         </q-item>
-        <q-separator spaced />
-      </q-list>
+      </settings-list>
 
       <!-- Sticky Save Button -->
       <sticky-save-button
@@ -96,26 +108,28 @@
         :disabled="!chatsStore.hasChanges"
         :show="chat && chat.type !== 'private'"
       />
-    </q-page>
-  </q-page-container>
+    </template>
+  </page-view-with-drawer>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia"
-import { QPageContainer, QPage, useQuasar } from "quasar"
+import { useQuasar } from "quasar"
 import { computed, toRaw } from "vue"
 
 import AAvatar from "@/shared/components/avatar/AAvatar.vue"
 import PickAvatarDialog from "@/shared/components/avatar/PickAvatarDialog.vue"
+import AInput from "@/shared/components/global/AInput.js"
+import SettingsDrawer from "@/shared/components/layout/settings/SettingsDrawer.vue"
 import NotificationPanel from "@/shared/components/NotificationPanel.vue"
+import SettingsList from "@/shared/components/panels/SettingsList.vue"
 import StickySaveButton from "@/shared/components/StickySaveButton.vue"
-import { pageFhStyle } from "@/shared/utils/functions"
 
 import { useChatsStore } from "@/features/chats/store"
 import { useRightsManagement } from "@/features/workspaces/composables/useRightsManagement"
 import { useWorkspacesStore } from "@/features/workspaces/store"
 
-import ViewCommonHeader from "@/layouts/components/ViewCommonHeader.vue"
+import PageViewWithDrawer from "@/pages/common/SidebarPageLayout.vue"
 const $q = useQuasar()
 
 defineEmits(["toggle-drawer"])
