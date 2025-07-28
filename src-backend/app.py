@@ -391,8 +391,6 @@ async def searxng(request: Request):
 # TMP fix for prod
 # app.mount('/static', StaticFiles(directory='static'), name='static')
 
-app.mount('/', StaticFiles(directory='static', html=True), name='static')
-
 @app.post('/auth/wallet', response_model=AuthResponse)
 async def authenticate_with_wallet(auth_request: WalletAuthRequest) -> AuthResponse:
     """

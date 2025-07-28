@@ -1,6 +1,8 @@
 import { useQuasar } from "quasar"
 import { inject, ref } from "vue"
 
+import { BACKEND_URL } from "@/shared/utils/config"
+
 import { useAuthStore } from "@/features/auth/store/auth"
 
 import { chainConfig } from "@/services/blockchain/consts"
@@ -35,7 +37,7 @@ interface UseWalletAuthOptions {
  */
 export function useWalletAuth(options: UseWalletAuthOptions = {}) {
   const {
-    backendUrl = process.env.SUPABASE_URL || 'http://localhost:8001',
+    backendUrl = BACKEND_URL || 'http://localhost:8001',
     onAuthSuccess,
     onAuthError
   } = options
