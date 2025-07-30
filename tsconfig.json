@@ -2,6 +2,7 @@
   "extends": "./.quasar/tsconfig.json",
   "exclude": [
     "./src-tauri",
+    "./src-backend",
     "./supabase/volumes"
   ],
   "compilerOptions": {

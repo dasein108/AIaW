@@ -11,5 +11,5 @@ export {
   useUserLoginCallback,
   useMnemonic,
   usePinModal,
-  useOnboarding
+  useOnboarding,
 }

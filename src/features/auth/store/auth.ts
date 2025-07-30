@@ -4,7 +4,7 @@ import { ref } from "vue"
 
 import {
   WalletService,
-  WalletInfo,
+  WalletInfo as BaseWalletInfo,
   GranteeWalletInfo,
 } from "@/services/blockchain/authz/walletService"
 import { CosmosWallet } from "@/services/blockchain/cosmos/CosmosWallet"
@@ -19,9 +19,13 @@ import { KeplerWallet } from "@/services/blockchain/kepler/KeplerWallet"
 //   granteeSigner: OfflineDirectSigner | null // Grantee's signer instance
 // }
 
+export interface AuthWalletInfo extends BaseWalletInfo {
+  authType?: 'web3' | 'email' | null
+}
+
 export const useAuthStore = defineStore("auth", () => {
   // State
-  const walletInfo = ref<WalletInfo | null>(null)
+  const walletInfo = ref<AuthWalletInfo | null>(null)
   const isConnected = ref(false)
   const isGranterActuallyConnected = ref(false)
   const isGranteeActuallyAuthorized = ref(false)
@@ -58,6 +62,7 @@ export const useAuthStore = defineStore("auth", () => {
     walletInfo.value = {
       address: newGranteeData.address,
       mnemonic: newGranteeData.mnemonic,
+      authType: 'email', // по умолчанию grantee создаётся через email/pin
     }
     setGranteeSigner(newGranteeData.signer)
     isGranteeActuallyAuthorized.value = false
@@ -82,6 +87,7 @@ export const useAuthStore = defineStore("auth", () => {
       walletInfo.value = {
         address: account.address,
         mnemonic: encryptedMnemonic,
+        authType: 'email',
       }
     }
 
@@ -274,6 +280,17 @@ export const useAuthStore = defineStore("auth", () => {
     updateIsConnected() // This will set isConnected to false
   }
 
+  // Добавим экшен для обновления authType (например, после web3-логина)
+  function setWalletAuthType(type: 'web3' | 'email' | null, address?: string) {
+    if (!walletInfo.value && address) {
+      walletInfo.value = { address, authType: type } as AuthWalletInfo
+    } else if (walletInfo.value) {
+      walletInfo.value.authType = type
+
+      if (address) walletInfo.value.address = address
+    }
+  }
+
   return {
     // State
     walletInfo,
@@ -297,6 +314,7 @@ export const useAuthStore = defineStore("auth", () => {
     grantMultipleAuthorizations,
     revokeAgentAuthorization,
     disconnect,
+    setWalletAuthType,
   }
 }, {
   persist: {

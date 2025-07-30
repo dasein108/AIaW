@@ -5,7 +5,7 @@ from uuid import UUID
 import logging
 from kg_engine.models import SearchType, EdgeMetadata, EdgeData, RelationshipStatus
 from kg_engine.config import Neo4jConfig
-from kg_engine import InputItem, parse_date
+from kg_engine import InputItem
 
 from models.kg import (
   ProcessInputRequest,
