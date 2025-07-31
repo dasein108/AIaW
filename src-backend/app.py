@@ -11,8 +11,9 @@ from llama_parse import LlamaParse
 import os
 from dotenv import load_dotenv, find_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from kg_engine import KnowledgeGraphEngineV2
-from kg_engine.config import Neo4jConfig
+from exo_graph import ExoGraphEngine
+from exo_graph.config import Neo4jConfig
+from exo_graph.llm.llm_config import LiteLLMConfig
 import logging
 from routes.graph import router as graph_router, set_engine
 
@@ -25,7 +26,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Global engine instance (initialized on startup)
-engine: Optional[KnowledgeGraphEngineV2] = None
+engine: Optional[ExoGraphEngine] = None
 
 
 def initialize_engine():
@@ -37,6 +38,9 @@ def initialize_engine():
 
     # Initialize Neo4j configuration
     neo4j_config = Neo4jConfig()
+    llm_config = LiteLLMConfig(bearer_token=LITELLM_BEARER_TOKEN,
+                               base_url=LITELLM_URL,
+                               model="gpt-4o")
 
     # Verify Neo4j connectivity
     if not neo4j_config.verify_connectivity():
@@ -44,10 +48,9 @@ def initialize_engine():
       raise ConnectionError("Neo4j connection failed")
 
     # Initialize engine
-    engine = KnowledgeGraphEngineV2(
-      base_url=LITELLM_URL,
-      neo4j_config=neo4j_config,
-      bearer_token=LITELLM_API_KEY)
+    engine = ExoGraphEngine(
+      llm_config=llm_config,
+      neo4j_config=neo4j_config)
 
     # Set engine in graph_engine module
     set_engine(engine)
@@ -98,7 +101,7 @@ ALLOWED_PREFIXES = [
 
 # LiteLLM proxy settings
 LITELLM_URL = os.environ.get('LITELLM_URL')
-LITELLM_API_KEY = os.environ.get('LITELLM_API_KEY')
+LITELLM_BEARER_TOKEN = os.environ.get('LITELLM_API_KEY')
 IS_PRODUCTION = os.environ.get('IS_PRODUCTION', 'false').lower() == 'true'
 
 
@@ -167,8 +170,8 @@ async def litellm_proxy(request: Request, path: str):
   headers.pop('transfer-encoding', None)
 
   # Add LiteLLM API key if provided
-  if LITELLM_API_KEY:
-    headers['Authorization'] = f"Bearer {LITELLM_API_KEY}"
+  if LITELLM_BEARER_TOKEN:
+    headers['Authorization'] = f"Bearer {LITELLM_BEARER_TOKEN}"
   # Get the request body if it exists
   body = await request.body()
 

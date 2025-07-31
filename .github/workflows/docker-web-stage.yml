@@ -32,6 +32,8 @@ jobs:
           echo "NEO4J_USERNAME=${{ secrets.STAGE_NEO4J_USERNAME }}" >> .env.docker
           echo "NEO4J_PASSWORD=${{ secrets.STAGE_NEO4J_PASSWORD }}" >> .env.docker
           echo "NEO4J_DATABASE=${{ secrets.STAGE_NEO4J_DATABASE }}" >> .env.docker
+          echo "BACKEND_URL=${{ secrets.STAGE_BACKEND_URL }}" >> .env.docker
+
       - name: Build and push
         uses: docker/build-push-action@v6.10.0
         with:

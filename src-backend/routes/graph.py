@@ -3,9 +3,9 @@ from typing import Optional
 from datetime import datetime
 from uuid import UUID
 import logging
-from kg_engine.models import SearchType, EdgeMetadata, EdgeData, RelationshipStatus
-from kg_engine.config import Neo4jConfig
-from kg_engine import InputItem, parse_date
+from exo_graph.models import SearchType, EdgeMetadata, GraphEdge, RelationshipStatus
+from exo_graph.config import Neo4jConfig
+from exo_graph import InputItem, parse_date
 
 from models.kg import (
   ProcessInputRequest,
@@ -318,7 +318,7 @@ async def create_edge(request: CreateEdgeRequest):
     )
 
     # Create edge data
-    edge_data = EdgeData(
+    edge_data = GraphEdge(
       subject=request.subject,
       relationship=request.relationship,
       object=request.object,
